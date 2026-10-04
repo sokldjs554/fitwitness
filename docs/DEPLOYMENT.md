@@ -1,37 +1,55 @@
 # 배포와 검증 상태
 
-새 GitHub 저장소: https://github.com/sokldjs554/fitwitness
-개발 브랜치: `feat/fitwitness-foundation`
-초안 PR: https://github.com/sokldjs554/fitwitness/pull/1
+- 데모: https://fitwitness.onrender.com/
+- 저장소: https://github.com/sokldjs554/fitwitness
+- 배포 브랜치: `feat/fitwitness-foundation` (자동 배포 꺼짐)
+- 초안 PR: https://github.com/sokldjs554/fitwitness/pull/1
 
-`render.yaml`은 Docker 웹 앱과 PostgreSQL을 연결합니다. 2026-10-04 사용자가 `My workspace`의 무료 배포를 승인했습니다. 실제 생성 요청은 Render API에서 `400: cannot have more than one active free tier database`로 거절되었습니다. 기존 무료 DB를 변경하거나 유료 리소스를 만들지 않았으며, FitWitness의 공개 서비스와 DB는 아직 없습니다.
+## 실제 구성
 
-배포 재개에는 pgvector와 애플리케이션 역할 생성이 가능한 별도 PostgreSQL 연결 또는 승인된 유료 DB 구성이 필요합니다. Render 연결 도구는 Docker 서비스/Blueprint 생성도 지원하지 않아, 현재 Docker 구성을 적용하려면 Dashboard 경로가 필요합니다. 무료 슬롯 제한: https://render.com/docs/free
+2026-10-04 사용자가 승인한 무료 구성입니다. Render `My workspace`의 Singapore 무료 Python 웹 서비스와 Neon Free의 Singapore PostgreSQL 16 전용 `fitwitness` 프로젝트를 연결했습니다. 기존 프로젝트와 데이터베이스는 변경하지 않았습니다. 유료 리소스와 유료 모델 호출은 활성화하지 않았습니다.
 
-CI run 37178871171은 두 환경 모두 pytest와 E2E, 영상 캡처를 통과했으나, background `uv run`이 캐시 잠금을 유지하여 `setup-uv` 종료 정리가 실패했습니다. 서비스 실행을 `.venv/bin/uvicorn`으로 변경해 uv 캐시 잠금을 보유하지 않도록 수정했습니다. 후속 CI run 37180224738에서 두 환경 모두 테스트·브라우저·캡처·종료 정리까지 전체 성공했습니다. 검증 링크: https://github.com/sokldjs554/fitwitness/actions/runs/37180224738
+Render 기본 무료 DB는 계정의 기존 무료 DB 때문에 생성할 수 없었습니다. 외부 무료 DB를 사용하라는 지시에 따라 Neon을 연결했습니다. Render 연결 도구가 Docker 서비스 생성을 지원하지 않아 네이티브 Python 런타임을 사용합니다. `render.yaml`에 실제 빌드·실행 명령을 기록했으며, Dockerfile은 별도의 실행 경로입니다.
 
-외부 Origin은 실제 배포 URL로 `FITWITNESS_ALLOWED_ORIGINS`에 설정합니다. 쿠키 서명키와 metrics token은 Render에서 생성하고 저장소에는 넣지 않습니다. 공개 데모에서 유료 모델을 활성화하기 전에는 전체 호출량 제한과 접근 통제를 검토해야 합니다.
+빌드는 uv 고정 의존성 설치, CadQuery 합성 도면 180개 생성, React 프런트엔드 빌드를 수행합니다. 시작 시 `scripts/setup.py`가 스키마·pgvector·RLS·체크포인트를 준비하고 uvicorn을 실행합니다.
 
-## 완료 판단
+## 연결과 비밀 정보
 
-- 단위 테스트: 현재 환경에서 재실행.
-- 데이터베이스·브라우저: GitHub Actions의 서로 독립된 두 PostgreSQL 실행을 기준으로 확인.
-- 실제 데모 화면·영상: CI가 API를 호출해 캡처한 artifact.
-- 공개 서비스: URL이 만들어지고 `/ready`와 브라우저 흐름을 확인한 이후에만 완료.
-- 라이브 OpenAI·Claude: 실제 키와 모델·단가 설정 후 별도 측정.
+- `FITWITNESS_DATABASE_URL`: Neon **direct** TLS 연결. worker가 세션 advisory lock을 사용하므로 transaction pooler URL로 바꾸지 않습니다.
+- `FITWITNESS_SESSION_SECRET`, `FITWITNESS_METRICS_TOKEN`: Render 환경 변수에만 저장합니다.
+- `FITWITNESS_ALLOWED_ORIGINS`: `https://fitwitness.onrender.com`.
+- PostgreSQL 16 관리 계정은 역할의 ADMIN 권한이 있어도 SET 권한이 없을 수 있습니다. 마이그레이션이 `GRANT fitwitness_app TO CURRENT_USER WITH SET TRUE`를 명시합니다. 요청은 여전히 NOLOGIN/NOBYPASSRLS 역할 및 FORCE RLS로 격리합니다.
+- 실제 API로 생성한 서비스의 Render health-check 경로는 기본값입니다. `/ready`는 DB 역할과 쿼리까지 확인하며, Blueprint에는 `/ready`를 지정했습니다.
 
-API·LLM·배포의 미측정 항목을 테스트 통과로 표시하지 않습니다.
+## 배포 검증
 
-## 외부 무료 PostgreSQL 연결 (2026-10-04)
+수정 전 CI [37183283373](https://github.com/sokldjs554/fitwitness/actions/runs/37183283373)에서 새 managed-role 테스트가 실제 `permission denied to set role` 오류를 재현했습니다 (기존 66개 통과). 수정 후 `c1508f2`의 CI [37183531736](https://github.com/sokldjs554/fitwitness/actions/runs/37183531736)은 독립 DB 환경 2회에서 각각 Python 67개, 데스크톱·모바일 E2E 4개, 시연 캡처 및 종료 정리까지 전체 성공했습니다. 같은 커밋을 배포한 공개 HTTPS 서비스에서 `scripts/verify_hosted.py`가 2026-10-04 06:49 UTC에 전체 통과했습니다. [검증 결과 JSON](verification/hosted-20261004.json).
 
-사용자가 외부 무료 PostgreSQL 사용을 선택했습니다. 기본 `render.yaml`은 이제 웹 서비스만 만들며 `FITWITNESS_DATABASE_URL`은 Render의 비밀 환경 변수로 입력합니다. Render DB 생성 항목은 제거했습니다.
+공개 서비스 검증 명령은 DB 비밀 정보가 필요하지 않습니다.
 
-Neon Free를 우선 후보로 선택했고 계정 연결을 요청했습니다. 아직 프로젝트나 DB를 생성하지 않았습니다. 계정의 실제 Free 플랜과 잔여 한도를 확인한 후 전용 `fitwitness` 프로젝트를 생성합니다. 유료 전환은 하지 않습니다.
+```bash
+python scripts/verify_hosted.py --url https://fitwitness.onrender.com
+```
 
-- PostgreSQL 16, pgvector 확장, 역할 생성 및 `SET ROLE fitwitness_app` 권한을 확인합니다.
-- 세션 advisory lock을 사용하므로 Neon의 **direct** 연결 문자열을 사용합니다. transaction pooler URL은 사용하지 않습니다.
-- TLS를 사용하며 연결 문자열을 GitHub·로그·브라우저 코드에 기록하지 않습니다.
-- 마이그레이션, 강제 RLS 격리, 체크포인트 복구를 실제 DB에서 확인한 다음 Render에 연결합니다.
-- 현재 dispatcher는 활성 서버에서 DB를 주기적으로 조회합니다. 무료 컴퓨트 사용량에 포함되므로 실제 사용량과 유휴 동작을 배포 검증에 포함합니다.
+이 스크립트는 readiness, HTTPS 쿠키, PDF/STEP/mesh, 중복 요청 방지, 실제 worker 중단 복구, 개정판 무효화·재검증, 세션 격리, Origin 차단, metrics 보호, 유료 모델 거부를 확인합니다. 결과는 `artifacts/hosted-verification.json`에 저장합니다.
 
-참고: https://neon.com/docs/manage/roles · https://neon.com/docs/connect/connection-pooling · https://neon.com/docs/introduction/free-tier
+공개 브라우저에서도 도면 5개 로딩, 중단 후 checkpoint 복구, 원본 PDF 근거, 개정 시 `재검증 필요`, 재실행 후 판정 변화를 확인했습니다.
+
+| 판정 | 개정 전 | 개정 후 |
+| --- | ---: | ---: |
+| 조건 일치 | 2 | 1 |
+| 조건 불일치 | 2 | 3 |
+| 확인 필요 | 1 | 1 |
+
+검증 브라우저는 WebGL을 제공하지 않아 3D 탭의 STEP 다운로드 대체 안내를 확인했습니다. 공개 mesh 및 STEP 전송은 정상이며, 이 브라우저에서 3D 렌더링 성공으로 보고하지 않습니다.
+
+![공개 서버에서 개정판의 42mm 불일치 근거](media/hosted-revision.jpg)
+
+## 무료 체험의 범위
+
+- Render 무료 서비스는 유휴 상태 후 재기동 시간이 발생할 수 있습니다. 처음 열 때 로딩을 기다려 주세요.
+- 활성 서버의 dispatcher는 PostgreSQL을 주기적으로 조회하므로 Neon 컴퓨트 사용량을 소모합니다. 무제한 상시 운영을 보장하지 않습니다.
+- 공개 데모는 규칙 기반 엔진입니다. OpenAI·Claude 어댑터가 있어도 익명 API에서 유료 모델은 실행하지 않습니다.
+- 데이터는 직접 생성한 합성 CAD입니다. 실제 산업 도면 성능, 일반 스캔 OCR, VLM 검증, 라이브 LLM 평가 완료를 주장하지 않습니다.
+
+공식 참고: [Neon 역할](https://neon.com/docs/manage/roles) · [연결 풀링](https://neon.com/docs/connect/connection-pooling) · [Neon Free](https://neon.com/docs/introduction/free-tier) · [Render Free](https://render.com/docs/free) · [PostgreSQL 16 GRANT](https://www.postgresql.org/docs/16/sql-grant.html)

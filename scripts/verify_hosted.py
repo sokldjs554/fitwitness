@@ -1,6 +1,7 @@
 """Verify a deployed demo over HTTPS; never needs a database credential."""
 import argparse
 from collections import Counter
+from datetime import datetime, timezone
 from http.cookiejar import CookieJar
 import json
 from pathlib import Path
@@ -46,7 +47,8 @@ def verify(base):
     call("/metrics", expected=401)
     session = call("/api/demo-sessions", {})
     assert session["documents"] == 5
-    assert all(cookie.secure for cookie in jar), "Hosted cookie must use HTTPS"
+    assert list(jar) and all(cookie.secure for cookie in jar), "Hosted cookie must use HTTPS"
+    print("Session and database ready", flush=True)
     docs = call("/api/documents")
     for kind, signature in [("pdf", b"%PDF"), ("step", b"ISO-10303-21")]:
         assert call(f"/api/documents/{docs[0]['id']}/assets/{kind}").startswith(signature)
@@ -63,6 +65,7 @@ def verify(base):
     assert kinds["completed"] == 1 and kinds["retrieved"] == 1, kinds
     assert kinds["resumed"] >= 1, kinds
     assert completed["usage"]["model_calls"] == 0
+    print("Worker recovery and initial verdicts verified", flush=True)
     call("/api/runs", {**body, "provider": "openai"}, expected=409)
     call("/api/runs", body, {"Origin": "https://untrusted.invalid"}, expected=403)
     update = call("/api/demo/revision", {})
@@ -72,10 +75,12 @@ def verify(base):
     revised = wait(second["id"])
     after = Counter(x["verdict"] for x in revised["decisions"])
     assert after == {"match": 1, "mismatch": 3, "unknown": 1}, after
+    print("Revision invalidation and revised verdicts verified", flush=True)
     call("/api/demo-sessions", {})
     call(f"/api/runs/{run['id']}", expected=404)
     assert len(call("/api/documents")) == 5
-    return {"url": base, "sha": health["sha"], "status": "passed", "before": dict(before),
+    return {"url": base, "sha": health["sha"], "verified_at": datetime.now(timezone.utc).isoformat(),
+            "status": "passed", "before": dict(before),
             "after": dict(after), "events": dict(kinds), "checks": ["readiness", "secure cookie",
             "PDF/STEP/mesh", "idempotency", "worker recovery", "revision invalidation",
             "reverification", "tenant isolation", "origin rejection", "paid API disabled", "private metrics"]}

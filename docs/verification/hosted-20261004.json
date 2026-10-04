@@ -1,0 +1,40 @@
+{
+  "url": "https://fitwitness.onrender.com",
+  "sha": "c1508f2a88905b38177dc1d437198aab8473dd6f",
+  "verified_at": "2026-10-04T06:49:47.241432+00:00",
+  "status": "passed",
+  "before": {
+    "match": 2,
+    "unknown": 1,
+    "mismatch": 2
+  },
+  "after": {
+    "match": 1,
+    "unknown": 1,
+    "mismatch": 3
+  },
+  "events": {
+    "queued": 1,
+    "started": 2,
+    "intent": 1,
+    "retrieved": 1,
+    "interrupted": 1,
+    "resumed": 1,
+    "tool": 5,
+    "verified": 1,
+    "completed": 1
+  },
+  "checks": [
+    "readiness",
+    "secure cookie",
+    "PDF/STEP/mesh",
+    "idempotency",
+    "worker recovery",
+    "revision invalidation",
+    "reverification",
+    "tenant isolation",
+    "origin rejection",
+    "paid API disabled",
+    "private metrics"
+  ]
+}
