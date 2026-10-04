@@ -27,6 +27,13 @@ def score(expected, actual):
     return {'correct': correct, 'total': len(expected), 'accuracy': correct / len(expected)}
 
 
+def build_request(config):
+    provider=config.get('provider','anthropic')
+    return RunRequest(search=SearchRequest(text=PROTOCOL['query']),mode=config['mode'],provider=provider,
+                           model_id=PROTOCOL['model'] if provider!='rules' else 'rules',
+                           budget=Budget(max_cost_usd=Decimal(config['cap_usd']),max_tokens=64000,max_model_calls=4,deadline_seconds=240))
+
+
 def run(output):
     out=Path(output); out.mkdir(parents=True,exist_ok=False)
     source_paths = [*Path('src/fitwitness/agents').glob('*.py'), Path(__file__)]
@@ -51,9 +58,7 @@ def run(output):
     configs=[{'mode':'fixed','repeat':0,'cap_usd':'0.01','provider':'rules'}, *PROTOCOL['runs']]
     for config in configs:
         provider=config.get('provider','anthropic')
-        request=RunRequest(search=SearchRequest(text=PROTOCOL['query']),mode=config['mode'],provider=provider,
-                           model_id=PROTOCOL['model'] if provider!='rules' else None,
-                           budget=Budget(max_cost_usd=Decimal(config['cap_usd']),max_tokens=64000,max_model_calls=4,deadline_seconds=240))
+        request=build_request(config)
         job=jobs.enqueue(scope,request,str(uuid4())); started=time.perf_counter(); error=None
         try: execute_run(repo,scope,job.id)
         except Exception as exc: error=type(exc).__name__+': '+str(exc)

@@ -10,3 +10,13 @@ def test_paid_pilot_allocations_never_exceed_approved_total():
     # Missing candidates and unknowns count as errors, not dropped rows.
     result=score({'a':'match','b':'mismatch'}, {'a':'match'})
     assert result['correct']==1 and result['total']==2 and result['accuracy']==.5
+
+
+def test_every_pilot_request_including_rules_is_valid_before_execution():
+    from fitwitness.evaluation import agent_pilot
+    assert hasattr(agent_pilot,'build_request'), 'pilot request preflight missing'
+    configs=[{'mode':'fixed','repeat':0,'cap_usd':'0.01','provider':'rules'},*agent_pilot.PROTOCOL['runs']]
+    for config in configs:
+        request=agent_pilot.build_request(config)
+        assert isinstance(request.model_id,str)
+        assert request.budget.max_cost_usd==Decimal(config['cap_usd'])

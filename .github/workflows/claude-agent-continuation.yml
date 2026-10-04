@@ -1,0 +1,63 @@
+name: claude-agent-continuation
+on:
+  push:
+    branches: [feat/fitwitness-foundation]
+permissions:
+  contents: read
+concurrency:
+  group: claude-agent-continuation
+  cancel-in-progress: false
+jobs:
+  evaluate:
+    # Original 37191423446 completed PDF ($0.110455) but failed before
+    # the first Agent request. Continue only its untouched $0.396 allocation.
+    # Never repeat the PDF step. run_attempt 1 prevents automatic paid reruns.
+    if: >-
+      github.run_attempt == 1 &&
+      startsWith(github.event.head_commit.message, 'eval: claude agent continuation [remaining-usd=0.396]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: fitwitness
+          POSTGRES_PASSWORD: test-only
+          POSTGRES_DB: fitwitness
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U fitwitness"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      FITWITNESS_DATABASE_URL: postgresql://fitwitness:test-only@localhost:5432/fitwitness
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require privately configured credential
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo 'ANTHROPIC_API_KEY repository secret is missing.'
+            exit 1
+          fi
+      - uses: astral-sh/setup-uv@v6
+      - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
+      - run: uv sync --frozen --no-dev
+      - run: uv run python scripts/setup.py
+        env:
+          PYTHONPATH: src
+      - name: Run actual graph ablation (6 isolated caps of 0.066 USD)
+        env:
+          PYTHONPATH: src
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION: '1'
+          FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION: '5'
+        run: >-
+          uv run python -m fitwitness.evaluation.agent_pilot
+          --output artifacts/claude-agent-${{ github.run_id }}/agent
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: claude-agent-${{ github.run_id }}
+          path: artifacts/claude-agent-${{ github.run_id }}/
+          if-no-files-found: warn
