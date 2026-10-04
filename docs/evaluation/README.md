@@ -17,7 +17,16 @@
 
 ```bash
 uv sync --extra dev --extra models
-# 공식 Hugging Face 모델을 위 revision으로 내려받고 모델 폴더의 REVISION 파일에 SHA를 기록합니다.
+uv run python - <<'PYMODEL'
+from huggingface_hub import snapshot_download
+from pathlib import Path
+revision = '70d244cc86ccca08cf5af4e1e306ecf908b1ad5e'
+folder = 'var/models/Qwen3-1.7B'
+snapshot_download('Qwen/Qwen3-1.7B', revision=revision, local_dir=folder)
+Path(folder, 'REVISION').write_text(revision)
+PYMODEL
+# 처음 실행한다면 합성 PDF 생성
+PYTHONPATH=src uv run python -m fitwitness.data.generate
 PYTHONPATH=src uv run python -m fitwitness.evaluation.runner \
   --provider local --model-path var/models/Qwen3-1.7B \
   --output artifacts/my-evaluation --repeats 3

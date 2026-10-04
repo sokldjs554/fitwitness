@@ -1,0 +1,76 @@
+{
+  "checked_at": "2026-10-04T07:52:52.307127+00:00",
+  "url": "https://fitwitness.onrender.com",
+  "code_sha": "743026f42666dbbcfa1da7f7ac9e58d2728aeedf",
+  "deploy_id": "dep-db109qad0e5s73dggctg",
+  "ready": {
+    "status": "ready"
+  },
+  "evaluation_report_matches_repository": true,
+  "report_sha256": "69a730a5c8334239ef446aef47b0d5673af3da40e1ab847d194211429619e4b6",
+  "ci": {
+    "run": 37186711069,
+    "rounds": 2,
+    "python_tests_per_round": 76,
+    "browser_tests_per_round": 6
+  },
+  "model": {
+    "model_id": "Qwen/Qwen3-1.7B",
+    "model_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+    "dtype": "bfloat16",
+    "device": "cpu",
+    "threads": 6,
+    "torch": "2.14.1+cpu",
+    "transformers": "5.18.0"
+  },
+  "metrics": {
+    "rules": {
+      "attempts": 72,
+      "completed": 72,
+      "accuracy": 1,
+      "accuracy_ci95": [
+        1.0,
+        1.0
+      ],
+      "false_acceptances": 0,
+      "nonmatching_cases": 42,
+      "false_acceptance_rate": 0.0,
+      "citation_validity": 1,
+      "abstention_rate": 0.16666666666666666,
+      "latency_p50_ms": 0.010746000043582171,
+      "latency_p95_ms": 0.015586450217597306,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0
+    },
+    "local": {
+      "attempts": 72,
+      "completed": 72,
+      "accuracy": 0.75,
+      "accuracy_ci95": [
+        0.6666666666666666,
+        0.8333333333333334
+      ],
+      "false_acceptances": 12,
+      "nonmatching_cases": 42,
+      "false_acceptance_rate": 0.2857142857142857,
+      "citation_validity": 1,
+      "abstention_rate": 0.0,
+      "latency_p50_ms": 6177.265727000304,
+      "latency_p95_ms": 7116.131026999528,
+      "input_tokens": 49677,
+      "output_tokens": 1680,
+      "cost_usd": 0.0
+    }
+  },
+  "browser_verified": {
+    "evaluation_accuracy": "75.0%",
+    "error_case_filter_count": 6,
+    "trial_switch": true,
+    "live_run_completed": true,
+    "mismatch_filter_count": 2,
+    "selected_pdf_hole_spacing_mm": 42,
+    "expected_hole_spacing_mm": 40,
+    "evidence_highlight": true
+  }
+}

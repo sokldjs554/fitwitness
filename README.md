@@ -6,9 +6,11 @@
 
 **[공개 데모 열기](https://fitwitness.onrender.com/)** · [검증 기록](docs/verification/hosted-20261004.json)
 
-![Neon PostgreSQL에 연결된 공개 데모에서 개정판 재검증](docs/media/hosted-revision.jpg)
+![도면 검토 작업대](docs/media/review-workbench.png)
 
-검증된 코드 `c1508f2`: 독립 PostgreSQL 환경 2회에서 각각 Python 테스트 67개, 데스크톱·모바일 E2E 4개, 실제 시연 캡처까지 전체 통과. [CI 실행](https://github.com/sokldjs554/fitwitness/actions/runs/37183531736). 유료 모델 성능 측정은 별도입니다.
+![실제 LLM 평가와 오류 사례 탐색](docs/media/evaluation-lab.png)
+
+검증된 코드 `743026f`: 독립 PostgreSQL 환경 2회에서 각각 Python 테스트 76개, 데스크톱·모바일 E2E 6개, 실제 시연 캡처까지 전체 통과. [CI 실행](https://github.com/sokldjs554/fitwitness/actions/runs/37186711069).
 
 ## 구현된 기능
 
