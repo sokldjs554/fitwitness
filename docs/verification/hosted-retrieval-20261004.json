@@ -1,0 +1,50 @@
+{
+  "url": "https://fitwitness.onrender.com",
+  "sha": "8a1d8b065399bff657bde1db4a25e9a7636cc0cb",
+  "verified_at": "2026-10-04T11:50:05.811171+00:00",
+  "status": "passed",
+  "before": {
+    "match": 2,
+    "unknown": 1,
+    "mismatch": 2
+  },
+  "after": {
+    "match": 1,
+    "unknown": 1,
+    "mismatch": 3
+  },
+  "events": {
+    "queued": 1,
+    "started": 2,
+    "intent": 1,
+    "retrieved": 1,
+    "interrupted": 1,
+    "resumed": 1,
+    "tool": 5,
+    "verified": 1,
+    "completed": 1
+  },
+  "checks": [
+    "readiness",
+    "secure cookie",
+    "PDF/STEP/mesh",
+    "idempotency",
+    "worker recovery",
+    "revision invalidation",
+    "reverification",
+    "tenant isolation",
+    "origin rejection",
+    "paid API disabled",
+    "private metrics"
+  ],
+  "deploy_id": "dep-db13nve0tbcc739c69t0",
+  "tested_app_sha": "431d6998d41cd3993e73b530a04be03be0d3d37a",
+  "published_report_exact_match": true,
+  "browser_checks": [
+    "all/image category filters",
+    "actual transformed query PNG",
+    "ranked relevance and channel scores"
+  ],
+  "screenshot": "docs/media/retrieval-proof.jpg",
+  "screenshot_sha256": "9beff2498351dab4010dfa7ce2d457767a1a5774fbb1ae32c45f5ca69710236c"
+}

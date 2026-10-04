@@ -83,3 +83,13 @@ Render 배포 `dep-db11qbtg1s2s7385mt80`, 코드 `f6a7f82d53e7da0f3dbe27f0d4eeaa
 공개 브라우저에서 수정 후 진단의 세 구조 모두 완료·각5/5, 구조별1회라는 제한 안내, 실제 Anthropic 응답 ID와 토큰·지연 기록을 확인했습니다. 개선 전 실패 기록은 버전 선택으로 계속 열람할 수 있습니다. 전체 API 계산 비용은 $0.187841이며 미확정 예약액은0입니다.
 
 ![공개 Claude Agent 진단과 실제 응답 추적](media/claude-agent-proof.jpg)
+
+## 의미·이미지 검색 실측 공개 — 2026-10-04
+
+Render 배포 `dep-db13nve0tbcc739c69t0`, 코드 `8a1d8b065399bff657bde1db4a25e9a7636cc0cb`가 11:46:25 UTC에 live가 됐습니다. 앱 코드는 검증한 `431d6998d41cd3993e73b530a04be03be0d3d37a`와 같고, 이후 변경은 원본 보존 workflow입니다. CI `37199419442`의 독립 DB 두 환경 각각 Python 116개·데스크톱/모바일 E2E 10개, 컨테이너 `37199419433`이 통과했습니다.
+
+공개 `/api/evaluations/retrieval` 전체 JSON과 저장소 보고서가 일치합니다. 브라우저에서 전체/이미지 질문 필터, 실제 변형 질문 이미지, 상위 후보의 관련도와 채널 점수를 확인했습니다. 실시간 공개 체험은 도번·키워드 검색이며, E5·OpenCLIP 검색은 별도 환경에서 수행한 288회 실측 기록입니다. 원본 PDF·PNG 300개의 동결 해시를 대조한 [자료 묶음](evaluation/retrieval-37198685994/sources.zip.xz)도 보존했습니다. 추가 유료 LLM 호출은 0회입니다.
+
+[검색 프로토콜·결과·한계](RETRIEVAL.md) · [배포 검증 기록](verification/hosted-retrieval-20261004.json)
+
+![공개 검색 실험 비교 화면](media/retrieval-proof.jpg)

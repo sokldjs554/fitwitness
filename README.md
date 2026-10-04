@@ -4,7 +4,7 @@
 
 제조 부품의 도면을 검색하고 실제 치수·소재 근거로 검증하며, 개정판이 생기면 기존 판단을 무효화하는 연구 프로젝트입니다. 텔어스 채용 공고의 문제를 바탕으로 만든 독립 포트폴리오입니다.
 
-**[공개 데모 열기](https://fitwitness.onrender.com/)** · [검증 기록](docs/verification/hosted-20261004.json)
+**[공개 데모 열기](https://fitwitness.onrender.com/)** · [검증 기록](docs/verification/hosted-retrieval-20261004.json)
 
 ![도면 검토 작업대](docs/media/review-workbench.png)
 
@@ -12,7 +12,7 @@
 
 핵심 수정 코드 `85a4af3`와 실제 Claude 실측 기록을 포함합니다. [PDF 평가](https://github.com/sokldjs554/fitwitness/actions/runs/37191423446) · [Agent 실패 기록](https://github.com/sokldjs554/fitwitness/actions/runs/37191644166) · [수정 후 재실행](https://github.com/sokldjs554/fitwitness/actions/runs/37191981503).
 
-최종 코드 검증: 독립 DB 두 환경 각각 Python98개·E2E8개, 실제 컨테이너 패키징 통과. [CI](https://github.com/sokldjs554/fitwitness/actions/runs/37192269005) · [공개 서버 검증](docs/verification/hosted-agents-20261004.json).
+최종 앱 코드 `431d6998` 검증: 독립 DB 두 환경 각각 Python 116개·데스크톱/모바일 E2E 10개, 실제 컨테이너 패키징 통과. [CI](https://github.com/sokldjs554/fitwitness/actions/runs/37199419442) · [컨테이너](https://github.com/sokldjs554/fitwitness/actions/runs/37199419433) · [공개 서버 검증](docs/verification/hosted-retrieval-20261004.json).
 
 ## 구현된 기능
 
@@ -32,6 +32,8 @@
 복합 검색도 실제 모델과 PostgreSQL로288회 측정했습니다. 합성150개 도면·24개 질문에서 Recall@5는 도번+BM25 25.0%, 복합33.3%였지만 설명+이미지 질문에서는 복합9.7%로 의미 검색12.5%보다 낮았습니다. 원시 실패·한계를 포함한 [검색 실험과 재현 방법](docs/RETRIEVAL.md)을 공개했습니다. 무료 체험의 실시간 검색은 계속 도번·키워드 방식이며 실험실에는 별도 측정 기록을 표시합니다.
 
 [공고 대조·미완료 항목](docs/JOB_FIT_AUDIT.md) · [독립 리뷰와 수정 기록](docs/REVIEW.md) · [배포 상태](docs/DEPLOYMENT.md) · [운영자 모델 실행](docs/OPERATOR.md)
+
+![공개 실험실의 실제 검색 비교 기록](docs/media/retrieval-proof.jpg)
 
 ## 로컬 실행
 
