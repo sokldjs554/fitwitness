@@ -1,0 +1,41 @@
+name: frozen-retrieval-sources
+on: [push]
+permissions:
+  contents: read
+jobs:
+  preserve:
+    if: contains(github.event.head_commit.message, '[retrieval-sources]') && github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
+      - run: uv sync --frozen
+      - run: uv run python -m fitwitness.data.generate
+      - name: Verify every image against the already frozen experiment and archive sources
+        run: |
+          uv run python - <<'PY'
+          import json, hashlib, zipfile
+          from pathlib import Path
+          root=Path('var/corpus')
+          manifest=json.loads((root/'manifest.json').read_text())
+          protocol=json.loads(Path('docs/evaluation/retrieval-37198685994/protocol.json').read_text())
+          active=[d for d in manifest['document_entries'] if not d['is_revision_update']]
+          for d in active:
+              for kind,key in [('pdf','source_hashes'),('png','source_image_hashes')]:
+                  assert hashlib.sha256((root/d[kind]).read_bytes()).hexdigest()==protocol[key][d['id']], (d['id'],kind)
+          Path('artifacts').mkdir(exist_ok=True)
+          with zipfile.ZipFile('artifacts/retrieval-source-pdf-png.zip','w',zipfile.ZIP_DEFLATED) as z:
+              for d in active:
+                  for kind in ('pdf','png'): z.write(root/d[kind],d[kind])
+              z.write(root/'manifest.json','manifest.json')
+              z.write(root/'gold/labels.json','gold/labels.json')
+          print('All 150 PDF and 150 PNG bytes match the frozen measured experiment.')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-retrieval-sources
+          path: artifacts/retrieval-source-pdf-png.zip
