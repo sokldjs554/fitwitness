@@ -38,6 +38,9 @@ class Repository:
     def migrate(self):
         with psycopg.connect(self.dsn, autocommit=True) as c:
             c.execute(SCHEMA)
+            # PostgreSQL 16 role creators can have ADMIN without SET (e.g. Neon).
+            # Keep request queries in the non-bypass role instead of using owner rights.
+            c.execute("GRANT fitwitness_app TO CURRENT_USER WITH SET TRUE")
             c.execute(
                 "CREATE TABLE IF NOT EXISTS fw_vectors (tenant_id text NOT NULL, revision_id text NOT NULL, channel text NOT NULL, embedding vector NOT NULL, PRIMARY KEY(tenant_id,revision_id,channel), FOREIGN KEY(tenant_id,revision_id) REFERENCES fw_revisions(tenant_id,id))"
             )
