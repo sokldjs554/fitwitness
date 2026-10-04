@@ -16,5 +16,18 @@
     "per-row metrics recalculated",
     "aggregate metrics recalculated",
     "actual dense graph trace and completion"
-  ]
+  ],
+  "superseded": {
+    "workflow": 37198532977,
+    "artifact_id": 11302471136,
+    "reason": "paraphrase qrels included unstated hole spacing; corrected before scores were read",
+    "zip_sha256": "3b45ce63ef29f7f2dc3b6852765357d2fe1dcfb76d3770f2f28e40445256f367"
+  },
+  "download_failure": {
+    "workflow": 37198325439,
+    "job": 111424675814,
+    "phase": "model download before inference",
+    "cause": "temporary download filenames accidentally in model lock",
+    "fixed_by": "1323070658d24e19615d5b85b0a403ac169cbfe2"
+  }
 }

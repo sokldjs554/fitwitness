@@ -13,7 +13,7 @@ const pct=(n:number)=>(n*100).toFixed(1)+'%';
 export function RetrievalTrials(){
   const [report,setReport]=useState<Report|null>(null),[error,setError]=useState(false);
   const [category,setCategory]=useState('all'),[caseId,setCaseId]=useState('');
-  useEffect(()=>{let alive=true;api<Report>('/api/evaluations/retrieval').then(r=>{if(alive)setReport(r);}).catch(()=>{if(alive)setError(true);});return()=>{alive=false;};},[]);
+  useEffect(()=>{let alive=true;api<Report>('/evaluations/retrieval').then(r=>{if(alive)setReport(r);}).catch(()=>{if(alive)setError(true);});return()=>{alive=false;};},[]);
   if(error)return <p role="status">검색 측정 기록을 불러오지 못했습니다. 화면을 새로고침해 주세요.</p>;
   if(!report||report.status!=='measured')return null;
   const cases=report.cases.filter(c=>category==='all'||c.category===category);
