@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: fitwitness
+    runtime: docker
+    branch: feat/fitwitness-foundation
+    plan: free
+    region: singapore
+    healthCheckPath: /ready
+    autoDeployTrigger: off
+    envVars:
+      - key: FITWITNESS_DATABASE_URL
+        fromDatabase:
+          name: fitwitness-db
+          property: connectionString
+      - key: FITWITNESS_SESSION_SECRET
+        generateValue: true
+      - key: FITWITNESS_ALLOWED_ORIGINS
+        sync: false
+      - key: FITWITNESS_METRICS_TOKEN
+        generateValue: true
+databases:
+  - name: fitwitness-db
+    plan: free
+    region: singapore
+    postgresMajorVersion: '16'
+    ipAllowList: []
