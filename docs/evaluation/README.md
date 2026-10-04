@@ -106,3 +106,5 @@ Claude model ID는 `claude-haiku-4-5-20251001`입니다. 공식 기본 단가 �
 [수정 후 보고서](agent.json) · [원시 실행](agent-37191981503/agent/runs.jsonl) · [이전 실패 포함 보고서](agent-v1.json). 모든 도구의 실제 인자, 역할, 근거 ID, 지연, provider 응답 ID, 토큰과 비용을 조회할 수 있습니다. v2의 `provider_response_id`는 실제 `msg_...`이며 별도로 LangChain 실행 ID를 보관합니다.
 
 전체 사용량 기준 계산 비용: PDF $0.110455 + 최초 Agent $0.060563 + 진단 재실행 $0.016823 = **$0.187841**. 남은 불명확한 예약은 0입니다. 최초1 USD 한도 안이며 후속 유료 실행을 자동 예약하지 않습니다.
+
+게시 정정: v2 원본의 고정 안내 문구에 남은 “두 번”은 v1 설명입니다. 실제 v2는 protocol.runs 및 원시 기록대로 구조별1회입니다. 공개 agent.json의 안내 문구만 정정했고 원본·측정값은 보존했으며 publication_note에 원본 해시를 기록했습니다.

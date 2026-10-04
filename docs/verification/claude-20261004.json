@@ -25,5 +25,8 @@
   "outstanding_reservations_usd": "0",
   "pdf_workflow": 37191423446,
   "first_agent_workflow": 37191644166,
-  "diagnostic_workflow": 37191981503
+  "diagnostic_workflow": 37191981503,
+  "publication_corrections": [
+    "v2 display limitation: one run per mode; raw protocol and measurements unchanged"
+  ]
 }

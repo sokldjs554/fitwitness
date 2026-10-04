@@ -12,6 +12,8 @@
 
 핵심 수정 코드 `85a4af3`와 실제 Claude 실측 기록을 포함합니다. [PDF 평가](https://github.com/sokldjs554/fitwitness/actions/runs/37191423446) · [Agent 실패 기록](https://github.com/sokldjs554/fitwitness/actions/runs/37191644166) · [수정 후 재실행](https://github.com/sokldjs554/fitwitness/actions/runs/37191981503).
 
+최종 코드 검증: 독립 DB 두 환경 각각 Python98개·E2E8개, 실제 컨테이너 패키징 통과. [CI](https://github.com/sokldjs554/fitwitness/actions/runs/37192269005) · [공개 서버 검증](docs/verification/hosted-agents-20261004.json).
+
 ## 구현된 기능
 
 - CadQuery 기반 30개 family / 180개 합성 PDF·STEP·PNG·3D mesh
