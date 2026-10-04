@@ -85,7 +85,7 @@ def reciprocal_rank_fusion(rankings: dict[str, list[str]], k: int = 60):
 
 
 def search(
-    scope, request: SearchRequest, snapshot, repo, encoders=None, channels=None
+    scope, request: SearchRequest, snapshot, repo, encoders=None, channels=None, reranker=None
 ) -> list[Candidate]:
     channels = {"exact", "bm25"} if channels is None else channels
     if repo.snapshot(scope).id != snapshot.id:
@@ -147,11 +147,20 @@ def search(
     # Explicit IDs remain the first results, not arbitrary prefix matches.
     exact = set(rankings.get("exact", []))
     ranked.sort(key=lambda kv: (kv[0] not in exact, -kv[1], kv[0]))
-    if repo.snapshot(scope).id != snapshot.id:
-        raise ValueError("search snapshot changed during retrieval")
-    return [
+    candidates = [
         Candidate(
             revision_id=rid, scores={**scores[rid], "rrf": score}, facts=facts[rid]
         )
-        for rid, score in ranked[: request.top_k]
+        for rid, score in ranked[: max(20, request.top_k) if request.ranking != 'rrf' else request.top_k]
     ]
+    if request.ranking == 'constraints':
+        from fitwitness.retrieval.reranking import order_constraints
+        candidates=order_constraints(candidates,request.requirements or extract_requirements(request.text),snapshot.id)
+    elif request.ranking == 'cross_encoder' and request.text.strip() and candidates:
+        from fitwitness.retrieval.reranking import order_cross_encoder, configured_reranker
+        from fitwitness.retrieval.indexing import document_text
+        passages={r.id:document_text(r,facts[r.id]) for r in revisions}
+        candidates=order_cross_encoder(candidates,request.text,passages,reranker or configured_reranker())
+    if repo.snapshot(scope).id != snapshot.id:
+        raise ValueError("search snapshot changed during retrieval")
+    return candidates[:request.top_k]

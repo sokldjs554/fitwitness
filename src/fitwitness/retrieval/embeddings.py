@@ -1,6 +1,6 @@
 """Pinned, hash-verified pretrained encoders; optional for operator workers."""
 from functools import lru_cache
-from hashlib import sha256
+from hashlib import sha256, file_digest
 from io import BytesIO
 from pathlib import Path
 import json
@@ -12,11 +12,16 @@ def model_lock():
     return json.loads(Path(__file__).with_name('models.json').read_text())
 
 
+def file_hash(path):
+    with path.open('rb') as stream:
+        return file_digest(stream,'sha256').hexdigest()
+
+
 def verify_models(root, lock):
     for model in lock.values():
         for name, expected in model['files'].items():
             p = root / model['folder'] / name
-            if not p.is_file() or sha256(p.read_bytes()).hexdigest() != expected:
+            if not p.is_file() or file_hash(p) != expected:
                 raise ValueError(f'Pinned model missing or hash mismatch: {name}; run scripts/download_encoders.py')
 
 

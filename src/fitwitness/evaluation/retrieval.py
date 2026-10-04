@@ -79,7 +79,24 @@ def summarize_retrieval(rows):
                 latency_p95_ms=percentile([r['latency_ms'] for r in rows],.95))
 
 
-def run(root, output):
+def ablation_cases(manifest, gold):
+    # Prospective selection before any new score: six never previously evaluated
+    # families from the former train pool. Dev families stay separate. No fitting.
+    families=sorted(manifest['family_splits']['train'],key=lambda f:sha256(('reranking-v1:'+f).encode()).hexdigest())[:6]
+    copied=json.loads(json.dumps(manifest));copied['family_splits']['test']=families
+    return make_cases(copied,gold)
+
+
+def ablation_protocol(cases):
+    p=protocol(cases)
+    p.update(version='reranking-v1',candidate_pool=20,
+        methods=['hybrid','cross_encoder','constraints'],
+        tuning='No fitting. Six hash-selected families from former train split, excluding previous test and dev. Frozen before inference.',
+        ranking='RRF top20 then BGE text cross-encoder OR deterministic required-condition ordering. Explicit drawing numbers stay first. Image-only BGE is identity.')
+    return p
+
+
+def run(root, output, ablation=False):
     from fitwitness.contracts import TenantScope,SearchRequest,DrawingRevision,RunRequest
     from fitwitness.data.bootstrap import seed
     from fitwitness.storage.repository import Repository
@@ -90,8 +107,13 @@ def run(root, output):
     from fitwitness.agents.graph import execute_run
     output.mkdir(parents=True,exist_ok=False)
     manifest=json.loads((root/'manifest.json').read_text())
-    cases=make_cases(manifest,json.loads((root/'gold/labels.json').read_text()))
-    frozen=protocol(cases)
+    cases=(ablation_cases if ablation else make_cases)(manifest,json.loads((root/'gold/labels.json').read_text()))
+    frozen=(ablation_protocol if ablation else protocol)(cases)
+    methods_spec=METHODS if not ablation else {
+        'hybrid':METHODS['hybrid'],
+        'cross_encoder':('복합 + BGE 재정렬',METHODS['hybrid'][1]),
+        'constraints':('복합 + 조건 근거 정렬',METHODS['hybrid'][1])}
+    reranker=None
     frozen['source_hashes']={d['id']:d['source_hash'] for d in manifest['document_entries'] if not d['is_revision_update']}
     frozen['source_image_hashes']={d['id']:sha256((root/d['png']).read_bytes()).hexdigest()
                                    for d in manifest['document_entries'] if not d['is_revision_update']}
@@ -104,6 +126,9 @@ def run(root, output):
     scope=TenantScope(tenant_id='retrieval-'+str(uuid4()),user_id='evaluation',role='operator')
     seed(repo,scope,root)
     began=time.perf_counter();encoders=Encoders();load_ms=(time.perf_counter()-began)*1000
+    if ablation:
+        from fitwitness.retrieval.reranking import CrossEncoder
+        began=time.perf_counter();reranker=CrossEncoder();reranker_load_ms=(time.perf_counter()-began)*1000
     start=time.perf_counter()
     for i,rid in enumerate(repo.snapshot(scope).revision_ids):
         index_revision(scope,rid,repo,encoders)
@@ -125,12 +150,14 @@ def run(root, output):
     # Rotate method order per repeat to avoid always favoring a warmed last method.
     with (output/'runs.jsonl').open('w') as stream:
         for repeat in range(3):
-            order=list(METHODS);order=order[repeat:]+order[:repeat]
+            order=list(methods_spec);order=order[repeat:]+order[:repeat]
             for case in cases:
                 request=SearchRequest(text=case['text'],image_id=case.get('query_image_id'),top_k=10)
                 for method in order:
                     start=time.perf_counter();ranked=[];error=None
-                    try: ranked=search(scope,request,snapshot,repo,encoders,METHODS[method][1])
+                    try:
+                        method_request=request.model_copy(update={'ranking':method if method in ('cross_encoder','constraints') else 'rrf'})
+                        ranked=search(scope,method_request,snapshot,repo,encoders,methods_spec[method][1],reranker=reranker)
                     except Exception as exc:error=f'{type(exc).__name__}: {exc}'
                     elapsed=(time.perf_counter()-start)*1000
                     ids=[c.revision_id for c in ranked]
@@ -149,7 +176,7 @@ def run(root, output):
     graph=dict(run=view.model_dump(mode='json'),events=jobs.events(scope,job.id))
     (output/'graph.json').write_text(json.dumps(graph,ensure_ascii=False,indent=2,default=str))
     methods=[]
-    for method,(label,_) in METHODS.items():
+    for method,(label,_) in methods_spec.items():
         subset=[r for r in rows if r['method']==method]
         methods.append(dict(id=method,label=label,metrics=summarize_retrieval(subset),
                             categories={cat:summarize_retrieval([r for r in subset if r['category']==cat])
@@ -169,6 +196,10 @@ def run(root, output):
                  '동일24개 질문을3회 반복했습니다. 독립72개 질문이나 유의한 모델 우위로 해석하지 않습니다.',
                  '모달리티가 없는 비교군은 빈 결과를 반환합니다. 전체 평균과 질문 유형별 표를 함께 봐야 합니다.',
                  '모델 로딩·색인은 지연 통계에서 분리했습니다. 무료 공개 체험은 기존 도번·키워드 엔진입니다.'])
+    if ablation:
+        report.update(reranker_models=reranker.manifest,reranker_load_ms=reranker_load_ms)
+        report['limitations'][0]='기존 test/dev와 겹치지 않는 6개 family의 신규 질문입니다. 동일 합성 corpus이며 외부 독립 산업 데이터가 아닙니다.'
+        report['limitations'].append('BGE는 텍스트만 읽으며 이미지-only 질문은 RRF 순위를 유지합니다. 조건 정렬은 질문에 명시된 조건과 원본 PDF 사실만 사용합니다.')
     (output/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
     with gzip.GzipFile(filename=str(output/'runs.jsonl.gz'),mode='wb',mtime=0) as f:f.write((output/'runs.jsonl').read_bytes())
     print(json.dumps(dict(attempts=len(rows),errors=sum(r['status']!='ok' for r in rows),graph_state=view.state,
@@ -178,4 +209,5 @@ def run(root, output):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--root',type=Path,default=Path('var/corpus'));p.add_argument('--output',type=Path,required=True)
-    a=p.parse_args();run(a.root,a.output)
+    p.add_argument('--ablation',action='store_true')
+    a=p.parse_args();run(a.root,a.output,a.ablation)

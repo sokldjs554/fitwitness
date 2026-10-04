@@ -144,6 +144,7 @@ class SearchRequest(Strict):
     image_id: str | None = None
     requirements: list[Requirement] = Field(default_factory=list, max_length=20)
     top_k: int = Field(default=6, ge=1, le=50)
+    ranking: Literal['rrf', 'cross_encoder', 'constraints'] = 'rrf'
 
 
 class SearchSnapshot(Strict):
