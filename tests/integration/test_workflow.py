@@ -123,3 +123,29 @@ def test_snapshot_race_prevents_old_finalization(env):
     r.add_revision(s, d, Path("var/corpus", e["pdf"]).read_bytes())
     assert not j.finalize(s, run.id, run.snapshot_id, [], token)
     assert j.get(s, run.id).state == "stale"
+
+
+def test_paid_graph_requires_inspection_and_separate_challenger(env, monkeypatch):
+    from fitwitness.agents.graph import execute_run
+    from fitwitness.agents.tools import SearchPlan, ToolRequest
+    r,j,s=env
+    roles=[]
+    class Planner:
+        def plan(self, context, role='planner'):
+            roles.append(role)
+            assert 'search_semantic' not in context['tools']
+            if role=='planner':
+                assert all(not c['inspected'] for c in context['candidates'])
+                return SearchPlan(operations=[]), {'role':role}
+            assert all(d['verdict']=='unknown' for d in context['decisions'])
+            return SearchPlan(operations=[ToolRequest(name='query_dimensions',arguments={'revision_id':c['revision_id']}) for c in context['candidates']],stop=True), {'role':role}
+    monkeypatch.setattr('fitwitness.agents.graph.create_model', lambda *args:Planner())
+    req=request().model_copy(update={'provider':'anthropic','model_id':'test'})
+    run=j.enqueue(s,req,'observations')
+    execute_run(r,s,run.id)
+    out=j.get(s,run.id)
+    assert out.state=='completed'
+    assert roles==['planner','challenger']
+    assert {d.verdict for d in out.decisions}=={'match','mismatch','unknown'}
+    kinds=[e['kind'] for e in j.events(s,run.id)]
+    assert 'agent_plan' in kinds and 'tool' in kinds

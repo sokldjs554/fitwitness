@@ -2513,3 +2513,12 @@ footer button {
 .output-code {
   color: #41443c;
 }
+.agent-trials { margin-top: 28px; }
+.agent-caption { padding: 0 18px; font-size: 12px; line-height: 1.7; color: var(--muted); }
+.agent-trials > details { padding: 16px 18px; border-top: 1px solid var(--line); }
+.agent-events { max-height: 360px; overflow: auto; margin-top: 14px; }
+.agent-events details { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.agent-events pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+.agent-trials tr[aria-selected="true"] { background: #eaf0e8; }
+.agent-trials button { font: inherit; cursor: pointer; border: 0; background: transparent; text-decoration: underline; text-underline-offset: 3px; }
+.experiment-meta select { margin-left: 8px; padding: 5px; border: 1px solid var(--line); background: transparent; font: inherit; max-width: 240px; }

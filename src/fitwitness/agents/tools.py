@@ -78,6 +78,7 @@ class ToolRequest(Strict):
 
 class SearchPlan(Strict):
     operations: list[ToolRequest] = Field(default_factory=list, max_length=8)
+    stop: bool = Field(default=False, description="True only when no further available tool can add evidence; missing evidence remains unknown.")
     stop_condition: str = Field(default="", max_length=500)
 
 
@@ -88,6 +89,10 @@ class EvidenceTools:
         self.repo = repo
         self.budget = budget
         self.encoders = encoders
+
+    @property
+    def available(self):
+        return set(SCHEMAS) if self.encoders else set(SCHEMAS) - {"search_semantic", "search_image"}
 
     def execute(self, request: ToolRequest):
         self.budget.tool()

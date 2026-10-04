@@ -42,3 +42,6 @@ UI/eval continuation 2026-10-04: user requests real LLM evaluation and a non-gen
 - 2026-10-04 공고 재대조: 사용자 요청에 따라 전체 요구사항과 실제 코드를 독립 리뷰로 대조. 전체 공고 충족 완료 아님을 명시. Agent 관측 반영·가용 도구·실호출 예산·hybrid 색인 연결·API 재시도·VLM 연결·ablation이 핵심 미완료.
 - Docker 보고서 누락을 실제 이미지에서 RED(run37188314830) 재현 후 COPY 수정. API seed 메타데이터는 적용한 local에만 남기며 회귀 RED→GREEN. 최종 ba27bd2a CI37188643062 두 DB환경 각각78Python+6E2E, container37188643079성공.
 - Claude Haiku4.5동일근거72회/$1perexecution 준비, 사용자 비용승인+GitHub secret 필요. 전용 marker commit과 run_attempt==1으로만 실행; 일반push paidjob skipped37188640274. 키없음/유료호출없음. 이는 API 판정pilot준비이며 전체Agent개선완료 아님. 공개배포743026f health/ready재확인.
+
+2026-10-04 registered-key continuation: resume approved Tasks5/6/10 inline. Ruling: one authorized experiment workflow partitions the existing $1 maximum into PDF pilot $0.60 and real Agent runs $0.40; no automatic reruns or public paid endpoint. Unknown charges retain reservations. Cost if wrong: early budget rejection, not silent overspend.
+Core regression RED: actual LangGraph approved uninspected retrieval facts; evidence session five failures and retry two failures observed. GREEN: paid retrieval strips facts, inspection merges source-checked observations; separate planner/challenger nodes; only available tools; structured stop and empty-search repair; two-attempt transient retry with durable reservations and lease guard.

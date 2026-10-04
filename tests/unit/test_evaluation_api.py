@@ -21,3 +21,14 @@ def test_report_metrics_recompute_from_every_raw_prediction():
         assert len(rows)==body['protocol']['case_count']*body['protocol']['repeats']
         assert method['metrics']==summarize(rows)
     assert {x['provider'] for x in body['blocked']}=={'openai','anthropic'}
+
+
+def test_evaluation_catalog_and_selection_are_allowlisted():
+    client=TestClient(create_app())
+    result=client.get('/api/evaluations/catalog')
+    assert result.status_code==200
+    assert any(x['id']=='qwen' for x in result.json()['experiments'])
+    assert client.get('/api/evaluations?experiment=../../secret').status_code==422
+    assert client.get('/api/evaluations?experiment=qwen').json()['model']['model_id']=='Qwen/Qwen3-1.7B'
+    agent=client.get('/api/evaluations/agent').json()
+    assert agent['status'] in ('measured','not_measured')

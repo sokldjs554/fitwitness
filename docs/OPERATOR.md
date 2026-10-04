@@ -46,3 +46,9 @@ print(Jobs(repo).get(scope, job.id).model_dump_json(indent=2))
 CI artifact에는 프로토콜·입력·호출별 출력·실사용 토큰·실패·집계가 저장됩니다. 기록 검토 전에는 공개 데모의 Qwen 측정을 덮어쓰지 않습니다. 이 경로는 PDF 근거 판정 평가이며, 실제 LangGraph 도구 사용 및 검색 평가와 다릅니다. 전체 Agent의 가용 도구·관측 반영·재시도 경로는 별도 보완 후 측정합니다.
 
 참고: [GitHub Secrets](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets) · [Claude Haiku 4.5 공식 사양](https://platform.claude.com/docs/en/models/haiku-4-5/overview)
+
+### 등록된 Claude 키로 한 번의 검증 실행
+
+2026-10-04 승인된 실행 한도는 합계 1 USD입니다. 전용 workflow는 동일 PDF 72회에 0.60 USD, 실제 PostgreSQL LangGraph 6개 실행에 각각 0.066 USD(합계 0.396 USD)를 따로 예약합니다. SDK 자동 재시도는 끄며, Agent transient retry도 동일 실행 한도에 포함합니다. 실패한 호출의 불명확한 비용은 예약 장부에 남습니다. 공개 서버에는 키를 전달하지 않습니다.
+
+Agent pilot은 FW-F000 합성 도면 5개의 단일 질의를 fixed/ReAct/별도 planner+challenger에 두 번씩 실행합니다. gold는 평가기만 읽으며 실제 판정·도구 인자·request ID·토큰·지연·오류·최종 근거를 원시 기록으로 보관합니다. 작은 연결 검증이며 일반 성능 우위를 뜻하지 않습니다. `stop`은 명시적 종료 플래그, `stop_condition`은 종료 설명입니다. 누락 근거는 unknown으로 남습니다. 429·일부 5xx·연결/시간 오류만 최대 두 번 시도하고, schema/권한 오류는 재시도하지 않습니다.

@@ -313,9 +313,9 @@ def create_app():
         }
 
     @app.get("/api/evaluations")
-    def evaluations():
+    def evaluations(experiment: Literal["qwen", "claude"] = "qwen"):
         # Published, versioned measurement. Anonymous visitors cannot start paid runs.
-        p = ROOT / "docs/evaluation/latest.json"
+        p = ROOT / "docs/evaluation" / ("latest.json" if experiment == "qwen" else "claude.json")
         return (
             json.loads(p.read_text())
             if p.exists()
@@ -324,6 +324,20 @@ def create_app():
                 "message": "모델 비교 실험은 아직 측정되지 않았습니다.",
             }
         )
+
+    @app.get("/api/evaluations/catalog")
+    def evaluation_catalog():
+        return {"experiments": [
+            {"id": key, "label": label} for key, label, file in (
+                ("qwen", "Qwen3 · 로컬", "latest.json"),
+                ("claude", "Claude Haiku 4.5 · API", "claude.json"),
+            ) if (ROOT / "docs/evaluation" / file).exists()
+        ]}
+
+    @app.get("/api/evaluations/agent")
+    def agent_evaluation():
+        p = ROOT / "docs/evaluation/agent.json"
+        return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
 
     @app.get("/health")
     def health():

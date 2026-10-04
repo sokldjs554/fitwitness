@@ -18,6 +18,7 @@ from fitwitness.verification.conditions import verify
 from fitwitness.agents.tools import EvidenceTools, ToolRequest, SCHEMAS
 from fitwitness.agents.budget import BudgetTracker
 from fitwitness.agents.providers import create_model
+from fitwitness.agents.evidence import EvidenceSession
 from fitwitness.runtime.jobs import Jobs
 
 
@@ -28,6 +29,7 @@ class State(TypedDict, total=False):
     iterations: int
     observations: list[dict]
     usage: dict
+    stop: bool
 
 
 def execute_run(
@@ -110,6 +112,10 @@ def _execute_run(
             if lost.is_set() or not jobs.owns_lease(scope, run_id, token):
                 raise RuntimeError("실행이 취소되거나 소유권이 만료되었습니다")
 
+        if model:
+            model.guard = guard
+            model.emit = emit
+
         def intent(state):
             guard()
             reqs = request.search.requirements + extract_requirements(
@@ -131,6 +137,8 @@ def _execute_run(
             candidates = search(
                 scope, request.search, snapshot, repo, encoders, channels
             )
+            if model:
+                candidates = EvidenceSession(candidates, tools.available).candidates
             emit(
                 "retrieved",
                 {
@@ -146,7 +154,7 @@ def _execute_run(
                 "usage": budget.usage.model_dump(mode="json"),
             }
 
-        def inspect(state):
+        def inspect(state, role="planner"):
             guard()
             # This node follows a persisted retrieval checkpoint. Fault injection is scoped to this worker process.
             if fault_after_retrieval and jobs.mark_fault_consumed(scope, run_id):
@@ -160,40 +168,26 @@ def _execute_run(
             ]
             reqs = [Requirement.model_validate(r) for r in state["requirements"]]
             observations = list(state.get("observations", []))
+            plan = None
             if model:
-                context = {
-                    "query": request.search.text,
-                    "requirements": state["requirements"],
-                    "candidates": state["candidates"],
-                    "observations": observations[-8:],
-                    "tools": {k: v.model_json_schema() for k, v in SCHEMAS.items()},
-                }
-                plan, metadata = model.plan(
-                    context,
-                    role="challenger" if request.mode == "fitwitness" else "planner",
-                )
+                session = EvidenceSession(candidates, tools.available, restored=True)
+                context = session.context(request.search.text, state["requirements"], observations,
+                                          state.get("decisions", []) if role == "challenger" else [])
+                plan, metadata = model.plan(context, role=role)
                 emit("model", metadata)
+                emit("agent_plan", {"role": role, **plan.model_dump(mode="json")})
                 for op in plan.operations:
                     guard()
+                    if op.name not in tools.available:
+                        raise ValueError("model selected unavailable tool")
+                    started = time.monotonic()
                     result = tools.execute(op)
-                    observations.append(
-                        {"tool": op.model_dump(mode="json"), "result": result}
-                    )
-                    emit(
-                        "tool",
-                        {
-                            "name": op.name,
-                            "arguments": op.arguments,
-                            "items": len(result) if isinstance(result, list) else 1,
-                        },
-                    )
-                    if op.name.startswith("search_"):
-                        known = {c.revision_id for c in candidates}
-                        for item in result:
-                            c = Candidate.model_validate(item)
-                            if c.revision_id not in known:
-                                candidates.append(c)
-                                known.add(c.revision_id)
+                    session.observe(op, result)
+                    observations.append({"tool": op.model_dump(mode="json"), "result": result})
+                    emit("tool", {"role": role, "name": op.name, "arguments": op.arguments,
+                                  "items": len(result), "latency_ms": (time.monotonic() - started) * 1000,
+                                  "fact_ids": [f.id for c in session.candidates for f in c.facts]})
+                candidates = session.candidates
             else:
                 # Visible deterministic baseline, not a fabricated model execution.
                 for c in candidates:
@@ -242,18 +236,16 @@ def _execute_run(
                 "iterations": state.get("iterations", 0) + 1,
                 "observations": observations,
                 "usage": budget.usage.model_dump(mode="json"),
+                "stop": plan.stop if plan else True,
             }
 
         def route(state):
-            # ReAct may search again when evidence is missing. Deterministic baseline never impersonates model reasoning.
-            unknown = any(d["verdict"] == "unknown" for d in state.get("decisions", []))
             return (
                 "inspect"
-                if model
-                and request.mode != "fixed"
-                and unknown
-                and state["iterations"] < 2
+                if model and request.mode != "fixed"
+                and EvidenceSession.needs_more(state.get("decisions", []), state["iterations"], state.get("stop", False))
                 and budget.usage.tool_calls < budget.budget.max_tool_calls
+                and budget.usage.model_calls < budget.budget.max_model_calls
                 else END
             )
 
@@ -264,7 +256,12 @@ def _execute_run(
         builder.add_edge(START, "intent")
         builder.add_edge("intent", "retrieve")
         builder.add_edge("retrieve", "inspect")
-        builder.add_conditional_edges("inspect", route)
+        if model and request.mode == "fitwitness":
+            builder.add_node("challenge", lambda state: inspect(state, role="challenger"))
+            builder.add_edge("inspect", "challenge")
+            builder.add_conditional_edges("challenge", route)
+        else:
+            builder.add_conditional_edges("inspect", route)
         with PostgresSaver.from_conn_string(repo.dsn) as cp:
             cp.setup()
             graph = builder.compile(checkpointer=cp)

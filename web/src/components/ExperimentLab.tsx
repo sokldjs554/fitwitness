@@ -1,3 +1,4 @@
+import { AgentTrials } from "./AgentTrials";
 import { useEffect, useState } from "react";
 import {
   ArrowDownToLine,
@@ -61,13 +62,14 @@ type Report = {
     dataset_hash: string;
     prompt_hash: string;
     scope: string;
-    seeds: number[];
+    seeds: number[] | null;
   };
   model: {
     model_id: string;
-    model_revision: string;
-    device: string;
-    dtype: string;
+    model_revision?: string;
+    provider?: string;
+    device?: string;
+    dtype?: string;
   };
   methods: { id: string; label: string; kind: string; metrics: Metrics }[];
   cases: Case[];
@@ -88,6 +90,9 @@ const pct = (v: number | null | undefined) =>
 const ms = (v: number | null) =>
   v == null ? "—" : v < 1 ? `${v.toFixed(2)} ms` : `${(v / 1000).toFixed(2)} s`;
 export function ExperimentLab() {
+  const [experiment, setExperiment] = useState("qwen");
+  const [catalog, setCatalog] = useState<{id:string;label:string}[]>([]);
+  useEffect(() => { api<{experiments:{id:string;label:string}[]}>("/evaluations/catalog").then(r=>setCatalog(r.experiments)).catch(()=>{}); }, []);
   const [report, setReport] = useState<Report | null>(null),
     [error, setError] = useState(""),
     [onlyErrors, setOnlyErrors] = useState(false),
@@ -95,7 +100,8 @@ export function ExperimentLab() {
     [trial, setTrial] = useState(0);
   useEffect(() => {
     let live = true;
-    api<Report>("/evaluations")
+    setError(""); setReport(null); setOnlyErrors(false); setTrial(0);
+    api<Report>(`/evaluations?experiment=${experiment}`)
       .then((r) => {
         if (live) {
           setReport(r);
@@ -117,7 +123,7 @@ export function ExperimentLab() {
     return () => {
       live = false;
     };
-  }, []);
+  }, [experiment]);
   if (error)
     return (
       <div role="alert" className="notice danger">
@@ -162,24 +168,25 @@ export function ExperimentLab() {
     <div className="lab">
       <div className="page-heading">
         <div>
-          <span className="kicker">EXPERIMENT / 001</span>
+          <span className="kicker">EVIDENCE / BENCHMARK</span>
           <h1>평가 결과 비교</h1>
           <p>같은 PDF 근거, 다른 판단. 모델이 틀린 지점까지 확인합니다.</p>
         </div>
         <a
           className="secondary"
-          href="/api/evaluations"
+          href={`/api/evaluations?experiment=${experiment}`}
           download="fitwitness-evaluation.json"
         >
           <ArrowDownToLine size={14} /> 원시 결과 JSON
         </a>
       </div>
       <div className="experiment-meta">
+        <label>측정 모델 <select aria-label="측정 모델" value={experiment} onChange={e=>setExperiment(e.target.value)}>{catalog.map(x=><option key={x.id} value={x.id}>{x.label}</option>)}</select></label>
         <span className="live-tag recorded">실측 기록</span>
         <span>{report.protocol.case_count} cases</span>
         <span>{report.protocol.families.length} families</span>
         <span>{report.protocol.repeats} trials</span>
-        <span>CPU · {report.model.dtype}</span>
+        <span>{report.model.provider ? `${report.model.provider} · API` : `CPU · ${report.model.dtype}`}</span>
         <time>{new Date(report.created_at).toLocaleDateString("ko-KR")}</time>
       </div>
       <section className="comparison" data-testid="experiment-comparison">
@@ -214,7 +221,7 @@ export function ExperimentLab() {
                     <small>
                       {m.kind === "rules"
                         ? "BASELINE · 운영 검증기"
-                        : "LOCAL LLM · 실제 추론"}
+                        : report.model.provider ? "API LLM · 실제 호출" : "LOCAL LLM · 실제 추론"}
                     </small>
                   </td>
                   <td>
@@ -414,6 +421,7 @@ export function ExperimentLab() {
           )}
         </aside>
       </section>
+      <AgentTrials />
       <details className="protocol">
         <summary>
           재현 정보와 측정 범위{" "}
@@ -422,11 +430,11 @@ export function ExperimentLab() {
         <div className="protocol-body">
           <dl>
             <dt>모델 revision</dt>
-            <dd>{report.model.model_revision}</dd>
+            <dd>{report.model.model_revision || report.model.model_id}</dd>
             <dt>프롬프트 hash</dt>
             <dd>{report.protocol.prompt_hash}</dd>
             <dt>반복 seed</dt>
-            <dd>{report.protocol.seeds.join(", ")}</dd>
+            <dd>{report.protocol.seeds?.join(", ") || "API seed 미지정 · 반복 실행"}</dd>
           </dl>
           <ul>
             {report.limitations.map((x) => (
