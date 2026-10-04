@@ -26,3 +26,5 @@ Final fix pass: GitHub CI run37178871171 at42851e8: both independent database te
 
 Deployment follow-up: User confirmed free deployment in My workspace. Render creation rejected HTTP 400: only one active free Postgres; no FitWitness resources created, no existing resource changed. Docker creation also requires Dashboard because connector lacks support.
 CI final status investigation: run37178871171 passed functional steps but setup-uv post cleanup failed because background uv run held cache lock for >300s. Replace background launcher with .venv/bin/uvicorn; no runtime app code changed. Await rerun before claiming overall CI green.
+
+CI launcher fix verified: run37180224738 at7058f797, both verify (1) and verify (2) completed success, including setup-uv cleanup. Public deployment remains blocked by free database quota.

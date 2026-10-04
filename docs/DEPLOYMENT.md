@@ -8,7 +8,7 @@
 
 배포 재개에는 pgvector와 애플리케이션 역할 생성이 가능한 별도 PostgreSQL 연결 또는 승인된 유료 DB 구성이 필요합니다. Render 연결 도구는 Docker 서비스/Blueprint 생성도 지원하지 않아, 현재 Docker 구성을 적용하려면 Dashboard 경로가 필요합니다. 무료 슬롯 제한: https://render.com/docs/free
 
-CI run 37178871171은 두 환경 모두 pytest와 E2E, 영상 캡처를 통과했으나, background `uv run`이 캐시 잠금을 유지하여 `setup-uv` 종료 정리가 실패했습니다. 서비스 실행을 `.venv/bin/uvicorn`으로 변경해 uv 캐시 잠금을 보유하지 않도록 수정했습니다. 후속 CI 결과로 전체 성공 여부를 확인합니다.
+CI run 37178871171은 두 환경 모두 pytest와 E2E, 영상 캡처를 통과했으나, background `uv run`이 캐시 잠금을 유지하여 `setup-uv` 종료 정리가 실패했습니다. 서비스 실행을 `.venv/bin/uvicorn`으로 변경해 uv 캐시 잠금을 보유하지 않도록 수정했습니다. 후속 CI run 37180224738에서 두 환경 모두 테스트·브라우저·캡처·종료 정리까지 전체 성공했습니다. 검증 링크: https://github.com/sokldjs554/fitwitness/actions/runs/37180224738
 
 외부 Origin은 실제 배포 URL로 `FITWITNESS_ALLOWED_ORIGINS`에 설정합니다. 쿠키 서명키와 metrics token은 Render에서 생성하고 저장소에는 넣지 않습니다. 공개 데모에서 유료 모델을 활성화하기 전에는 전체 호출량 제한과 접근 통제를 검토해야 합니다.
 
