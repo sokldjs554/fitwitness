@@ -15,8 +15,8 @@ from fitwitness.contracts import (
 )
 from fitwitness.retrieval.pipeline import extract_requirements, search
 from fitwitness.verification.conditions import verify
-from fitwitness.agents.tools import EvidenceTools, ToolRequest, SCHEMAS
-from fitwitness.agents.budget import BudgetTracker
+from fitwitness.agents.tools import EvidenceTools, ToolRequest, SearchPlan
+from fitwitness.agents.budget import BudgetTracker, BudgetExhausted
 from fitwitness.agents.providers import create_model
 from fitwitness.agents.evidence import EvidenceSession
 from fitwitness.runtime.jobs import Jobs
@@ -107,8 +107,8 @@ def _execute_run(
             else None
         )
 
-        def guard():
-            budget.check()
+        def guard(check_budget=True):
+            budget.check(resources=check_budget)
             if lost.is_set() or not jobs.owns_lease(scope, run_id, token):
                 raise RuntimeError("실행이 취소되거나 소유권이 만료되었습니다")
 
@@ -173,15 +173,25 @@ def _execute_run(
                 session = EvidenceSession(candidates, tools.available, restored=True)
                 context = session.context(request.search.text, state["requirements"], observations,
                                           state.get("decisions", []) if role == "challenger" else [])
-                plan, metadata = model.plan(context, role=role)
-                emit("model", metadata)
+                try:
+                    plan, metadata = model.plan(context, role=role)
+                    emit("model", metadata)
+                except BudgetExhausted as exc:
+                    guard(False)
+                    emit("budget_stop", {"role": role, "reason": str(exc)})
+                    plan = SearchPlan(stop=True, stop_condition="resource budget exhausted")
                 emit("agent_plan", {"role": role, **plan.model_dump(mode="json")})
                 for op in plan.operations:
-                    guard()
+                    guard(False)
                     if op.name not in tools.available:
                         raise ValueError("model selected unavailable tool")
                     started = time.monotonic()
-                    result = tools.execute(op)
+                    try:
+                        result = tools.execute(op)
+                    except BudgetExhausted as exc:
+                        emit("budget_stop", {"role": role, "reason": str(exc)})
+                        plan.stop = True
+                        break
                     session.observe(op, result)
                     observations.append({"tool": op.model_dump(mode="json"), "result": result})
                     emit("tool", {"role": role, "name": op.name, "arguments": op.arguments,
@@ -229,7 +239,7 @@ def _execute_run(
                     "mode": "규칙 기반 검증" if not model else request.mode,
                 },
             )
-            guard()
+            guard(False)
             return {
                 "candidates": [c.model_dump(mode="json") for c in candidates],
                 "decisions": [d.model_dump(mode="json") for d in decisions],
@@ -240,6 +250,11 @@ def _execute_run(
             }
 
         def route(state):
+            try:
+                budget.check()
+            except BudgetExhausted as exc:
+                emit("budget_stop", {"reason": str(exc)})
+                return END
             return (
                 "inspect"
                 if model and request.mode != "fixed"
@@ -258,7 +273,17 @@ def _execute_run(
         builder.add_edge("retrieve", "inspect")
         if model and request.mode == "fitwitness":
             builder.add_node("challenge", lambda state: inspect(state, role="challenger"))
-            builder.add_edge("inspect", "challenge")
+            def challenge_route(state):
+                if budget.usage.model_calls >= budget.budget.max_model_calls or budget.usage.tool_calls >= budget.budget.max_tool_calls:
+                    emit("budget_stop", {"role": "challenger", "reason": "call limit reached; inspected decisions retained"})
+                    return END
+                try:
+                    budget.check()
+                except BudgetExhausted as exc:
+                    emit("budget_stop", {"role": "challenger", "reason": str(exc)})
+                    return END
+                return "challenge"
+            builder.add_conditional_edges("inspect", challenge_route)
             builder.add_conditional_edges("challenge", route)
         else:
             builder.add_conditional_edges("inspect", route)

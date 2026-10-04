@@ -3,6 +3,10 @@ from decimal import Decimal
 from fitwitness.contracts import Budget, Usage
 
 
+class BudgetExhausted(RuntimeError):
+    """A normal resource stop, distinct from cancellation or a missed deadline."""
+
+
 class BudgetTracker:
     def __init__(self, budget: Budget):
         self.budget = budget
@@ -11,32 +15,34 @@ class BudgetTracker:
         self.persist = lambda usage: None
         self.current_reservation = None
 
-    def check(self):
+    def check(self, resources=True):
         if monotonic() - self.start >= self.budget.deadline_seconds:
             raise RuntimeError("실행 시간 예산 초과")
+        if not resources:
+            return
         if (
             self.usage.input_tokens
             + self.usage.output_tokens
             + self.usage.reserved_tokens
             >= self.budget.max_tokens
         ):
-            raise RuntimeError("토큰 예산 초과")
+            raise BudgetExhausted("토큰 예산 초과")
         if (
             self.usage.cost_usd or 0
         ) + self.usage.reserved_cost_usd >= self.budget.max_cost_usd:
-            raise RuntimeError("비용 예산 초과")
+            raise BudgetExhausted("비용 예산 초과")
 
     def tool(self):
         self.check()
         if self.usage.tool_calls >= self.budget.max_tool_calls:
-            raise RuntimeError("도구 호출 예산 초과")
+            raise BudgetExhausted("도구 호출 예산 초과")
         self.usage.tool_calls += 1
         self.persist(self.usage)
 
     def model(self):
         self.check()
         if self.usage.model_calls >= self.budget.max_model_calls:
-            raise RuntimeError("모델 호출 예산 초과")
+            raise BudgetExhausted("모델 호출 예산 초과")
         self.usage.model_calls += 1
 
     def reserve(self, input_bound, output_bound, input_rate, output_rate):
@@ -46,7 +52,7 @@ class BudgetTracker:
         if (
             self.usage.cost_usd or 0
         ) + self.usage.reserved_cost_usd + projected > self.budget.max_cost_usd:
-            raise RuntimeError("비용 예산 초과: 호출 전 차단")
+            raise BudgetExhausted("비용 예산 초과: 호출 전 차단")
         tokens = input_bound + output_bound
         if (
             self.usage.input_tokens
@@ -55,7 +61,7 @@ class BudgetTracker:
             + tokens
             > self.budget.max_tokens
         ):
-            raise RuntimeError("토큰 예산 초과: 호출 전 차단")
+            raise BudgetExhausted("토큰 예산 초과: 호출 전 차단")
         self.model()
         self.usage.reserved_cost_usd += projected
         self.usage.reserved_tokens += tokens

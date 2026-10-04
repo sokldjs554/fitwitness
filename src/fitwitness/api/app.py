@@ -1,6 +1,7 @@
 """Same-origin demo API. Each visitor receives a signed, isolated workspace."""
 
 from __future__ import annotations
+from typing import Literal
 import hashlib, json, os, secrets, subprocess, sys, time
 from contextlib import asynccontextmanager
 from fitwitness.runtime.dispatcher import Dispatcher

@@ -15,6 +15,7 @@ PROTOCOL = {
     'scope': 'Full LangGraph tool-use smoke/ablation; one synthetic family, two repeated queries, not a general performance benchmark',
     'pdf_cap_usd': '0.60',
     'model': 'claude-haiku-4-5-20251001',
+    'mode_labels': {'fixed': 'single-pass tool planner', 'react': 'iterative tool planner', 'fitwitness': 'planner plus separate challenger'},
     'runs': [{'mode': m, 'repeat': i, 'cap_usd': '0.066'} for i in range(2) for m in ('fixed','react','fitwitness')],
     'query': '브래킷 구멍 간격 40mm SUS304',
     'family': 'FW-F000',
