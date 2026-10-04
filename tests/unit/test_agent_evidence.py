@@ -55,3 +55,19 @@ def test_empty_candidates_retry_and_explicit_stop_honored():
     assert s.needs_more([], iterations=1, stop=False)
     assert not s.needs_more([], iterations=1, stop=True)
     assert not s.needs_more([], iterations=3, stop=False)
+
+
+def test_context_distinguishes_absent_material_from_uninspected_field():
+    s=session()([candidate()],available={'query_dimensions'})
+    op={'name':'query_dimensions','arguments':{'revision_id':'r','fields':['material']}}
+    context=s.context('SUS304',[{'field':'material'}],[{'tool':op,'result':[]}])
+    assert context['candidates'][0]['missing_fields']==['material']
+    assert context['candidates'][0]['examined_fields']==['material']
+
+
+def test_query_arguments_are_canonical_for_repeat_detection():
+    cls=session()
+    assert hasattr(cls,'tool_key')
+    a=ToolRequest(name='query_dimensions',arguments={'revision_id':'r','fields':['material','width']})
+    b=ToolRequest(name='query_dimensions',arguments={'fields':['width','material'],'revision_id':'r'})
+    assert cls.tool_key(a)==cls.tool_key(b)

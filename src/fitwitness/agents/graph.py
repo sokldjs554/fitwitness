@@ -181,8 +181,14 @@ def _execute_run(
                     emit("budget_stop", {"role": role, "reason": str(exc)})
                     plan = SearchPlan(stop=True, stop_condition="resource budget exhausted")
                 emit("agent_plan", {"role": role, **plan.model_dump(mode="json")})
+                visited = {session.tool_key(ToolRequest.model_validate(x["tool"])) for x in observations}
+                executed = 0
                 for op in plan.operations:
                     guard(False)
+                    key = session.tool_key(op)
+                    if key in visited:
+                        emit("tool_skipped", {"name": op.name, "reason": "identical query already observed"})
+                        continue
                     if op.name not in tools.available:
                         raise ValueError("model selected unavailable tool")
                     started = time.monotonic()
@@ -193,10 +199,14 @@ def _execute_run(
                         plan.stop = True
                         break
                     session.observe(op, result)
+                    visited.add(key)
+                    executed += 1
                     observations.append({"tool": op.model_dump(mode="json"), "result": result})
                     emit("tool", {"role": role, "name": op.name, "arguments": op.arguments,
                                   "items": len(result), "latency_ms": (time.monotonic() - started) * 1000,
                                   "fact_ids": [f.id for c in session.candidates for f in c.facts]})
+                if plan.operations and not executed:
+                    plan.stop = True
                 candidates = session.candidates
             else:
                 # Visible deterministic baseline, not a fabricated model execution.
@@ -250,6 +260,10 @@ def _execute_run(
             }
 
         def route(state):
+            evidence = EvidenceSession([Candidate.model_validate(c) for c in state.get("candidates", [])], tools.available, restored=True)
+            if model and evidence.exhausted(state["requirements"], state.get("observations", [])):
+                emit("evidence_exhausted", {"reason": "all required fields queried; source omissions remain unknown"})
+                return END
             try:
                 budget.check()
             except BudgetExhausted as exc:

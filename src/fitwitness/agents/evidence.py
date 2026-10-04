@@ -1,4 +1,5 @@
 """Keep retrieved candidates separate from evidence actually inspected by an agent."""
+import json
 from fitwitness.contracts import Candidate, Fact
 from fitwitness.agents.tools import SCHEMAS
 
@@ -36,11 +37,34 @@ class EvidenceSession:
                 merged.update({f.id: f for f in facts})
                 known[rid].facts = list(merged.values())
 
+    @staticmethod
+    def tool_key(op):
+        args = SCHEMAS[op.name].model_validate(op.arguments).model_dump(mode="json")
+        if "fields" in args:
+            args["fields"] = sorted(set(args["fields"]))
+        return op.name + json.dumps(args, sort_keys=True, ensure_ascii=False)
+
+    @staticmethod
+    def examined(revision_id, requirements, observations):
+        fields = set()
+        required = {r['field'] for r in requirements}
+        for x in observations:
+            op = x['tool']
+            if op['name'] == 'query_dimensions' and op['arguments']['revision_id'] == revision_id:
+                fields.update(op['arguments'].get('fields') or required)
+        return fields
+
+    def exhausted(self, requirements, observations):
+        required = {r['field'] for r in requirements}
+        return bool(self.candidates) and all(required <= self.examined(c.revision_id, requirements, observations) for c in self.candidates)
+
     def context(self, query, requirements, observations, decisions=()):
         return {
             'query': query,
             'requirements': [{k: r[k] for k in ('field', 'operator', 'value', 'unit', 'required') if k in r} for r in requirements],
             'candidates': [{'revision_id': c.revision_id, 'scores': c.scores,
+                            'examined_fields': sorted(self.examined(c.revision_id, requirements, observations)),
+                            'missing_fields': sorted(self.examined(c.revision_id, requirements, observations) - {f.field for f in c.facts}),
                             'inspected': [{'id': f.id, 'field': f.field, 'value': f.model_dump(mode='json')['value'], 'unit': f.unit, 'certainty': f.certainty} for f in c.facts]} for c in self.candidates],
             'observations': [{'tool': x['tool'], 'items': len(x['result'])} for x in observations[-8:]],
             'decisions': [{'revision_id': d['revision_id'], 'verdict': d['verdict']} for d in decisions],

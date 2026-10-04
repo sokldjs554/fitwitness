@@ -52,3 +52,14 @@ def test_retry_must_recheck_lease_and_budget():
     m.wait=cancel
     with pytest.raises(RuntimeError,match='cancelled'): m.plan({})
     assert m.budget.usage.model_calls==1
+
+
+def test_schema_failure_keeps_provider_response_and_usage_in_trace():
+    m=model([]);events=[];m.emit=lambda kind,payload:events.append((kind,payload))
+    raw=SimpleNamespace(id='lc_run--local',response_metadata={'id':'msg_provider','stop_reason':'tool_use'},usage_metadata={'input_tokens':100,'output_tokens':30},content=[{'type':'tool_use','input':{'stop_condition':'x'*501}}])
+    m.client.invoke=lambda messages:{'raw':raw,'parsed':None,'parsing_error':ValueError('stop_condition too long')}
+    with pytest.raises(ValueError): m.plan({})
+    assert events and events[-1][0]=='model_schema_error'
+    assert events[-1][1]['provider_response_id']=='msg_provider'
+    assert events[-1][1]['usage']['input_tokens']==100
+    assert 'stop_condition' in events[-1][1]['raw_output']
