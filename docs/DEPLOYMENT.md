@@ -21,3 +21,17 @@ CI run 37178871171은 두 환경 모두 pytest와 E2E, 영상 캡처를 통과�
 - 라이브 OpenAI·Claude: 실제 키와 모델·단가 설정 후 별도 측정.
 
 API·LLM·배포의 미측정 항목을 테스트 통과로 표시하지 않습니다.
+
+## 외부 무료 PostgreSQL 연결 (2026-10-04)
+
+사용자가 외부 무료 PostgreSQL 사용을 선택했습니다. 기본 `render.yaml`은 이제 웹 서비스만 만들며 `FITWITNESS_DATABASE_URL`은 Render의 비밀 환경 변수로 입력합니다. Render DB 생성 항목은 제거했습니다.
+
+Neon Free를 우선 후보로 선택했고 계정 연결을 요청했습니다. 아직 프로젝트나 DB를 생성하지 않았습니다. 계정의 실제 Free 플랜과 잔여 한도를 확인한 후 전용 `fitwitness` 프로젝트를 생성합니다. 유료 전환은 하지 않습니다.
+
+- PostgreSQL 16, pgvector 확장, 역할 생성 및 `SET ROLE fitwitness_app` 권한을 확인합니다.
+- 세션 advisory lock을 사용하므로 Neon의 **direct** 연결 문자열을 사용합니다. transaction pooler URL은 사용하지 않습니다.
+- TLS를 사용하며 연결 문자열을 GitHub·로그·브라우저 코드에 기록하지 않습니다.
+- 마이그레이션, 강제 RLS 격리, 체크포인트 복구를 실제 DB에서 확인한 다음 Render에 연결합니다.
+- 현재 dispatcher는 활성 서버에서 DB를 주기적으로 조회합니다. 무료 컴퓨트 사용량에 포함되므로 실제 사용량과 유휴 동작을 배포 검증에 포함합니다.
+
+참고: https://neon.com/docs/manage/roles · https://neon.com/docs/connect/connection-pooling · https://neon.com/docs/introduction/free-tier
