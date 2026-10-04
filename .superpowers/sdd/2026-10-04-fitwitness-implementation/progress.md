@@ -38,3 +38,7 @@ UI/eval continuation 2026-10-04: user requests real LLM evaluation and a non-gen
 - v0.2 gate: GitHub743026f, CI37186711069 success, eachof2independentDBrounds76Python+6E2E+realAPIcaptures. Renderdep-db109qad0e5s73dggctglive; publicreadinessandrecordedJSONmatchverified. Actual24case/72callQwenpilotcomplete, frontier/APIandfullagentbenchmarksremainexplicitlyoutofscope.
 
 - Public browser verification complete: recorded scores/6errorcases/trials, liveverificationand2mismatchfilter,42mmPDFhighlight. Tasks9/10currentUI+pilot scope delivered; independentfreshreview+focusedfixreview passed. NoAPIkeysorpaidinferenceused.
+
+- 2026-10-04 공고 재대조: 사용자 요청에 따라 전체 요구사항과 실제 코드를 독립 리뷰로 대조. 전체 공고 충족 완료 아님을 명시. Agent 관측 반영·가용 도구·실호출 예산·hybrid 색인 연결·API 재시도·VLM 연결·ablation이 핵심 미완료.
+- Docker 보고서 누락을 실제 이미지에서 RED(run37188314830) 재현 후 COPY 수정. API seed 메타데이터는 적용한 local에만 남기며 회귀 RED→GREEN. 최종 ba27bd2a CI37188643062 두 DB환경 각각78Python+6E2E, container37188643079성공.
+- Claude Haiku4.5동일근거72회/$1perexecution 준비, 사용자 비용승인+GitHub secret 필요. 전용 marker commit과 run_attempt==1으로만 실행; 일반push paidjob skipped37188640274. 키없음/유료호출없음. 이는 API 판정pilot준비이며 전체Agent개선완료 아님. 공개배포743026f health/ready재확인.

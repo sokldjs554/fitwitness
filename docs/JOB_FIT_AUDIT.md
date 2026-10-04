@@ -40,6 +40,7 @@
 4. `stop_condition`은 반환 타입에는 있지만 routing에 쓰이지 않습니다. 후보가 없으면 unknown 여부도 false라 추가 탐색 없이 끝납니다. 최대 두 번 반복을 일반적인 자율 Agent 완성으로 볼 수 없습니다.
 5. `retry_wait`·`waiting_input` 이름은 있어도 실제 해당 상태 전이가 구현되지 않았습니다. 프로세스 복구와 외부 API 재시도는 구분해야 합니다.
 6. 전체 snapshot 기준 재검증이며 변경된 근거만의 최소 재검증·호출 절감 효과는 입증되지 않았습니다.
+7. 현재 실험실 UI의 CPU·LOCAL LLM 표시와 seed 표시는 게시된 Qwen 보고서에 맞춰져 있습니다. Claude artifact를 직접 latest.json으로 덮어쓰면 provider 표시와 null seed 처리가 맞지 않습니다. API 결과를 공개할 때 provider별 메타데이터·복수 실험 로딩을 먼저 구현·검증해야 합니다. 준비한 CI는 결과를 자동 게시하지 않습니다.
 
 ## 보완 순서와 통과 기준
 
@@ -56,5 +57,8 @@
 ## 현재 검증 근거
 
 - 배포 코드 `743026f`: 기존 CI `37186711069`, 독립 DB 두 환경 각각 Python 76개·E2E 6개 통과. 공개 서버 검증 기록은 `verification/ui-eval-20261004.json`.
-- 이번 재검토에서 로컬 단위 테스트 48개 재통과. 전체 Agent·유료 provider 통과로 확대 해석하지 않습니다.
-- Docker 이미지 평가 파일 누락은 새 컨테이너 CI에서 재현 후 수정·재검증합니다. 결과를 확인하기 전에는 해결 완료로 보고하지 않습니다.
+- 이번 재검토에서 기존 단위 테스트 48개를 재실행했고, API seed 기록 회귀 2개를 추가한 최종 단위 테스트 50개가 통과했습니다. 전체 Agent·유료 provider 통과로 확대 해석하지 않습니다.
+- Docker 누락은 실제 이미지 CI `37188314830`에서 not_measured 응답으로 재현했습니다. 평가 자료 COPY 후 `37188493629`에서 UI와 평가 API, 원시 기록으로 지표 재계산이 통과했습니다. 이는 컨테이너 패키징 검사이며 전체 Docker Compose 통합을 검증했다는 뜻은 아닙니다.
+- Claude 유료 workflow는 일반 push에서 호출되지 않고 전용 marker와 run_attempt == 1을 요구합니다. API seed 미적용을 null로 기록하며, 새 실패 재현 테스트와 독립 focused review가 통과했습니다. 실제 API 호출·점수는 아직 없습니다.
+
+최종 검증: `ba27bd2a98a1671980bfb6b49a2a313d6dce0fd2` 기준 독립 DB 두 환경 각각 Python 78개·E2E 6개가 통과한 CI `37188643062`와 실제 컨테이너 CI `37188643079`가 성공했습니다. 유료 평가 workflow `37188640274`의 evaluate job은 skipped이며 유료 실행을 시작하지 않았습니다. 공개 `/health`는 기존 배포 `743026f`를, `/ready`는 ready를 반환했습니다. 이번 보완은 Docker 패키징·평가 CLI·실행 준비에 관한 것이며 공개 UI 교체를 요구하지 않습니다.

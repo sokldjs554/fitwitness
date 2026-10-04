@@ -36,6 +36,8 @@ PYTHONPATH=src uv run python -m fitwitness.evaluation.runner \
 
 OpenAI 또는 Claude는 비밀 환경변수의 API 키, 정확한 모델 ID와 현재 단가가 필요합니다. `--provider openai` 또는 `--provider anthropic`, `--model`, `--max-cost-usd`를 명시해야 합니다. 현재 두 서비스는 미측정입니다. 익명 웹 요청으로 유료 평가를 시작할 수 없습니다.
 
+현재 비교 UI는 게시된 Qwen 로컬 보고서의 메타데이터를 사용합니다. API 보고서를 latest.json으로 바로 덮어쓰지 않습니다. Claude 기록은 먼저 별도 artifact로 검토하고, provider별 표시·null seed·복수 실험 비교를 지원하도록 UI를 확장한 뒤 게시해야 합니다. API 반복은 로컬 모델과 달리 seed 고정을 주장하지 않습니다.
+
 ## 해석 범위
 
 API 비용 0 USD는 로컬 모델의 API 청구가 없다는 뜻이며 컴퓨트·전력 비용 0을 뜻하지 않습니다. 이 결과로 frontier 모델, 전체 Agent 구조, 실제 제조 적합성을 평가했다고 주장하지 않습니다. 프롬프트는 이 test 결과에 맞춰 수정하지 않습니다. 후속 개선은 별도 dev split에서 선택하고 새 실험으로 기록해야 합니다.
