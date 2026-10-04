@@ -18,9 +18,11 @@
 - LangGraph + PostgreSQL checkpoint, 실제 worker 종료 후 복구
 - 도면 40 → 42mm 개정 시 기존 결과 무효화 및 재검증
 - 방문자별 세션·RLS, typed tools, OpenAI·Claude 어댑터, 실행 예산
-- React·Three.js 워크스페이스, 근거 위치 표시, 실제 CAD 3D 뷰
+- React·Three.js 도면 검토대: 후보 필터, 근거 위치, 실제 CAD 3D, 개정판·실행 기록 검사
+- LLM 실험실: 검증기와 모델 비교, 오류 사례·반복 실행별 원시 출력, 평가 프로토콜
+- [재현 가능한 LLM 평가](docs/evaluation/README.md): 고정 모델 revision, 입력·프롬프트·소스 SHA256, 호출별 JSONL
 
-공개 데모는 Render Free + Neon Free로 배포했습니다. 기본 체험은 명시적인 규칙 기반 엔진이며 API 호출을 흉내 내지 않습니다. 라이브 LLM 및 최종 연구 평가는 별도 과제입니다. 무료 서버는 첫 접속·실행이 느릴 수 있습니다.
+공개 데모는 Render Free + Neon Free로 배포했습니다. 기본 체험은 명시적인 규칙 기반 엔진이며 API 호출을 흉내 내지 않습니다. 실험실에는 Qwen3-1.7B의 실제 측정 기록을 공개했습니다. 24개 PDF 근거 판정 사례를 3회 반복한 pilot에서 정확도 75%, 잘못된 일치 28.6%를 기록했습니다. 전체 Agent·검색·VLM 평가와 OpenAI·Claude 측정은 별도 과제입니다. 무료 서버는 첫 접속·실행이 느릴 수 있습니다.
 
 [독립 리뷰와 수정 기록](docs/REVIEW.md) · [배포 상태](docs/DEPLOYMENT.md) · [운영자 모델 실행](docs/OPERATOR.md)
 

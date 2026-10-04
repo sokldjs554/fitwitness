@@ -1,0 +1,1650 @@
+[
+  {
+    "case_id": "FW-F003-match",
+    "family_id": "FW-F003",
+    "category": "match",
+    "drawing_number": "FW-003-0",
+    "revision": "A",
+    "source_hash": "f2f426d59b03523cb5f39679d3c4d2632a1d37e4c8aa254afbbc13ae3d5e2e66",
+    "query": "width 71mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "width",
+        "value": {
+          "low": "71",
+          "high": "71"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "b706aedc-a8b4-56b4-be49-2535aeb8f0cb",
+          "source_hash": "f2f426d59b03523cb5f39679d3c4d2632a1d37e4c8aa254afbbc13ae3d5e2e66",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.6626263888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "width",
+        "value": {
+          "low": "71.00",
+          "high": "71.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "b706aedc-a8b4-56b4-be49-2535aeb8f0cb",
+          "source_hash": "f2f426d59b03523cb5f39679d3c4d2632a1d37e4c8aa254afbbc13ae3d5e2e66",
+          "page": 1,
+          "bbox": [
+            0.05555555555555555,
+            0.8515235294117647,
+            0.18204027777777781,
+            0.8730921568627451
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "match",
+    "revision_id": "b706aedc-a8b4-56b4-be49-2535aeb8f0cb"
+  },
+  {
+    "case_id": "FW-F003-dimension",
+    "family_id": "FW-F003",
+    "category": "dimension",
+    "drawing_number": "FW-003-4",
+    "revision": "A",
+    "source_hash": "d6d0a14ef674f4cbaf7cbbf9b7e8781f0621618ad83c3cb7400aaa8fbc477034",
+    "query": "width 71mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "width",
+        "value": {
+          "low": "71",
+          "high": "71"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "f486a712-46b6-58f6-854f-4c3ec2b8b855",
+          "source_hash": "d6d0a14ef674f4cbaf7cbbf9b7e8781f0621618ad83c3cb7400aaa8fbc477034",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.6626263888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "width",
+        "value": {
+          "low": "81.00",
+          "high": "81.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "f486a712-46b6-58f6-854f-4c3ec2b8b855",
+          "source_hash": "d6d0a14ef674f4cbaf7cbbf9b7e8781f0621618ad83c3cb7400aaa8fbc477034",
+          "page": 1,
+          "bbox": [
+            0.05555555555555555,
+            0.8515235294117647,
+            0.18204027777777781,
+            0.8730921568627451
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "mismatch",
+    "revision_id": "f486a712-46b6-58f6-854f-4c3ec2b8b855"
+  },
+  {
+    "case_id": "FW-F003-material",
+    "family_id": "FW-F003",
+    "category": "material",
+    "drawing_number": "FW-003-2",
+    "revision": "A",
+    "source_hash": "b98775edced3550a24d98e09d747024ceea0d32b31250b4c4f3f720506acf9c5",
+    "query": "width 71mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "width",
+        "value": {
+          "low": "71",
+          "high": "71"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "material",
+        "value": "AL6061",
+        "unit": null,
+        "source": {
+          "revision_id": "9450b559-8998-5060-be3e-ab729f10cbc2",
+          "source_hash": "b98775edced3550a24d98e09d747024ceea0d32b31250b4c4f3f720506acf9c5",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.6583944444444444,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "width",
+        "value": {
+          "low": "71.00",
+          "high": "71.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "9450b559-8998-5060-be3e-ab729f10cbc2",
+          "source_hash": "b98775edced3550a24d98e09d747024ceea0d32b31250b4c4f3f720506acf9c5",
+          "page": 1,
+          "bbox": [
+            0.05555555555555555,
+            0.8515235294117647,
+            0.18204027777777781,
+            0.8730921568627451
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "mismatch",
+    "revision_id": "9450b559-8998-5060-be3e-ab729f10cbc2"
+  },
+  {
+    "case_id": "FW-F003-missing",
+    "family_id": "FW-F003",
+    "category": "missing",
+    "drawing_number": "FW-003-3",
+    "revision": "A",
+    "source_hash": "e6e2cbb17d16e55e52502978a698c06fea9153ad434d10589372c745eaee4809",
+    "query": "width 71mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "width",
+        "value": {
+          "low": "71",
+          "high": "71"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F4",
+        "field": "width",
+        "value": {
+          "low": "71.00",
+          "high": "71.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "8729645f-03e3-50a2-b792-88f0ce0241d6",
+          "source_hash": "e6e2cbb17d16e55e52502978a698c06fea9153ad434d10589372c745eaee4809",
+          "page": 1,
+          "bbox": [
+            0.05555555555555555,
+            0.8515235294117647,
+            0.18204027777777781,
+            0.8730921568627451
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "unknown",
+    "revision_id": "8729645f-03e3-50a2-b792-88f0ce0241d6"
+  },
+  {
+    "case_id": "FW-F003-unit",
+    "family_id": "FW-F003",
+    "category": "unit",
+    "drawing_number": "FW-003-0",
+    "revision": "A",
+    "source_hash": "f2f426d59b03523cb5f39679d3c4d2632a1d37e4c8aa254afbbc13ae3d5e2e66",
+    "query": "width 7.1cm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "width",
+        "value": {
+          "low": "7.1",
+          "high": "7.1"
+        },
+        "unit": "cm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "b706aedc-a8b4-56b4-be49-2535aeb8f0cb",
+          "source_hash": "f2f426d59b03523cb5f39679d3c4d2632a1d37e4c8aa254afbbc13ae3d5e2e66",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.6626263888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "width",
+        "value": {
+          "low": "71.00",
+          "high": "71.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "b706aedc-a8b4-56b4-be49-2535aeb8f0cb",
+          "source_hash": "f2f426d59b03523cb5f39679d3c4d2632a1d37e4c8aa254afbbc13ae3d5e2e66",
+          "page": 1,
+          "bbox": [
+            0.05555555555555555,
+            0.8515235294117647,
+            0.18204027777777781,
+            0.8730921568627451
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "match",
+    "revision_id": "b706aedc-a8b4-56b4-be49-2535aeb8f0cb"
+  },
+  {
+    "case_id": "FW-F003-revision",
+    "family_id": "FW-F003",
+    "category": "revision",
+    "drawing_number": "FW-003-0",
+    "revision": "B",
+    "source_hash": "4d6ed5476b2ee75e373f4c79e5286d4815ea409830ac7e3bb8dbe0e4bed0dfdc",
+    "query": "width 71mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "width",
+        "value": {
+          "low": "71",
+          "high": "71"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "d8bb1d3f-879d-52a1-b434-f97bbda7a70e",
+          "source_hash": "4d6ed5476b2ee75e373f4c79e5286d4815ea409830ac7e3bb8dbe0e4bed0dfdc",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.6626263888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "width",
+        "value": {
+          "low": "71.00",
+          "high": "71.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "d8bb1d3f-879d-52a1-b434-f97bbda7a70e",
+          "source_hash": "4d6ed5476b2ee75e373f4c79e5286d4815ea409830ac7e3bb8dbe0e4bed0dfdc",
+          "page": 1,
+          "bbox": [
+            0.05555555555555555,
+            0.8515235294117647,
+            0.18204027777777781,
+            0.8730921568627451
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "match",
+    "revision_id": "d8bb1d3f-879d-52a1-b434-f97bbda7a70e"
+  },
+  {
+    "case_id": "FW-F012-match",
+    "family_id": "FW-F012",
+    "category": "match",
+    "drawing_number": "FW-012-0",
+    "revision": "A",
+    "source_hash": "c7bca199511e214aecbc24a67be840141d411e8b63736f2aefeecf446e477b34",
+    "query": "hole_spacing 64mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "hole_spacing",
+        "value": {
+          "low": "64",
+          "high": "64"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "hole_spacing",
+        "value": {
+          "low": "64.00",
+          "high": "64.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "7367c1cc-7981-5b63-8a19-b8fb2e533124",
+          "source_hash": "c7bca199511e214aecbc24a67be840141d411e8b63736f2aefeecf446e477b34",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.716113888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "7367c1cc-7981-5b63-8a19-b8fb2e533124",
+          "source_hash": "c7bca199511e214aecbc24a67be840141d411e8b63736f2aefeecf446e477b34",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.8025039215686274,
+            0.6626263888888889,
+            0.8240725490196078
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "match",
+    "revision_id": "7367c1cc-7981-5b63-8a19-b8fb2e533124"
+  },
+  {
+    "case_id": "FW-F012-dimension",
+    "family_id": "FW-F012",
+    "category": "dimension",
+    "drawing_number": "FW-012-1",
+    "revision": "A",
+    "source_hash": "f1600afd13f00cd226af8fe8049ff51644c60b693b81d10fba3a30c40e11dd1b",
+    "query": "hole_spacing 64mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "hole_spacing",
+        "value": {
+          "low": "64",
+          "high": "64"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "hole_spacing",
+        "value": {
+          "low": "66.00",
+          "high": "66.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "39200b3a-1bea-5e02-8516-b84ce75af4e8",
+          "source_hash": "f1600afd13f00cd226af8fe8049ff51644c60b693b81d10fba3a30c40e11dd1b",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.716113888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "39200b3a-1bea-5e02-8516-b84ce75af4e8",
+          "source_hash": "f1600afd13f00cd226af8fe8049ff51644c60b693b81d10fba3a30c40e11dd1b",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.8025039215686274,
+            0.6626263888888889,
+            0.8240725490196078
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "mismatch",
+    "revision_id": "39200b3a-1bea-5e02-8516-b84ce75af4e8"
+  },
+  {
+    "case_id": "FW-F012-material",
+    "family_id": "FW-F012",
+    "category": "material",
+    "drawing_number": "FW-012-2",
+    "revision": "A",
+    "source_hash": "89729b272aee9041547d9c51a14714676b620bfb17565c064ae569da9db567ca",
+    "query": "hole_spacing 64mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "hole_spacing",
+        "value": {
+          "low": "64",
+          "high": "64"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "hole_spacing",
+        "value": {
+          "low": "64.00",
+          "high": "64.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "0f656309-ed49-58c1-bd60-36fb76a4d685",
+          "source_hash": "89729b272aee9041547d9c51a14714676b620bfb17565c064ae569da9db567ca",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.716113888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "material",
+        "value": "AL6061",
+        "unit": null,
+        "source": {
+          "revision_id": "0f656309-ed49-58c1-bd60-36fb76a4d685",
+          "source_hash": "89729b272aee9041547d9c51a14714676b620bfb17565c064ae569da9db567ca",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.8025039215686274,
+            0.6583944444444444,
+            0.8240725490196078
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "mismatch",
+    "revision_id": "0f656309-ed49-58c1-bd60-36fb76a4d685"
+  },
+  {
+    "case_id": "FW-F012-missing",
+    "family_id": "FW-F012",
+    "category": "missing",
+    "drawing_number": "FW-012-3",
+    "revision": "A",
+    "source_hash": "d7b2d982017aa1236ac389fc178db95b6b09bfb1ca719936cf4ceb5833ea2475",
+    "query": "hole_spacing 64mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "hole_spacing",
+        "value": {
+          "low": "64",
+          "high": "64"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "hole_spacing",
+        "value": {
+          "low": "64.00",
+          "high": "64.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "c1745b63-fc12-513f-8ce8-4ce3f1f82171",
+          "source_hash": "d7b2d982017aa1236ac389fc178db95b6b09bfb1ca719936cf4ceb5833ea2475",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.716113888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "unknown",
+    "revision_id": "c1745b63-fc12-513f-8ce8-4ce3f1f82171"
+  },
+  {
+    "case_id": "FW-F012-unit",
+    "family_id": "FW-F012",
+    "category": "unit",
+    "drawing_number": "FW-012-0",
+    "revision": "A",
+    "source_hash": "c7bca199511e214aecbc24a67be840141d411e8b63736f2aefeecf446e477b34",
+    "query": "hole_spacing 6.4cm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "hole_spacing",
+        "value": {
+          "low": "6.4",
+          "high": "6.4"
+        },
+        "unit": "cm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "hole_spacing",
+        "value": {
+          "low": "64.00",
+          "high": "64.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "7367c1cc-7981-5b63-8a19-b8fb2e533124",
+          "source_hash": "c7bca199511e214aecbc24a67be840141d411e8b63736f2aefeecf446e477b34",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.716113888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "7367c1cc-7981-5b63-8a19-b8fb2e533124",
+          "source_hash": "c7bca199511e214aecbc24a67be840141d411e8b63736f2aefeecf446e477b34",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.8025039215686274,
+            0.6626263888888889,
+            0.8240725490196078
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "match",
+    "revision_id": "7367c1cc-7981-5b63-8a19-b8fb2e533124"
+  },
+  {
+    "case_id": "FW-F012-revision",
+    "family_id": "FW-F012",
+    "category": "revision",
+    "drawing_number": "FW-012-0",
+    "revision": "B",
+    "source_hash": "6fc9a8b7e5200b5df345fc23a7b5a964d3e278488c991e541b36227f229cbc78",
+    "query": "hole_spacing 64mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "hole_spacing",
+        "value": {
+          "low": "64",
+          "high": "64"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "hole_spacing",
+        "value": {
+          "low": "66.00",
+          "high": "66.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "620290f5-21f7-5461-baa1-72d12b716895",
+          "source_hash": "6fc9a8b7e5200b5df345fc23a7b5a964d3e278488c991e541b36227f229cbc78",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.716113888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "620290f5-21f7-5461-baa1-72d12b716895",
+          "source_hash": "6fc9a8b7e5200b5df345fc23a7b5a964d3e278488c991e541b36227f229cbc78",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.8025039215686274,
+            0.6626263888888889,
+            0.8240725490196078
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "mismatch",
+    "revision_id": "620290f5-21f7-5461-baa1-72d12b716895"
+  },
+  {
+    "case_id": "FW-F018-match",
+    "family_id": "FW-F018",
+    "category": "match",
+    "drawing_number": "FW-018-0",
+    "revision": "A",
+    "source_hash": "227ff5b59112a059e1edb1c89ad83d83fea261305970fcc051820109d4617495",
+    "query": "width 101mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "width",
+        "value": {
+          "low": "101",
+          "high": "101"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "ec5f315f-a02e-594a-9130-12c27441a2ea",
+          "source_hash": "227ff5b59112a059e1edb1c89ad83d83fea261305970fcc051820109d4617495",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.6626263888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "width",
+        "value": {
+          "low": "101.00",
+          "high": "101.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "ec5f315f-a02e-594a-9130-12c27441a2ea",
+          "source_hash": "227ff5b59112a059e1edb1c89ad83d83fea261305970fcc051820109d4617495",
+          "page": 1,
+          "bbox": [
+            0.05555555555555555,
+            0.8515235294117647,
+            0.19053472222222223,
+            0.8730921568627451
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "match",
+    "revision_id": "ec5f315f-a02e-594a-9130-12c27441a2ea"
+  },
+  {
+    "case_id": "FW-F018-dimension",
+    "family_id": "FW-F018",
+    "category": "dimension",
+    "drawing_number": "FW-018-4",
+    "revision": "A",
+    "source_hash": "d8d8377f8a849f25aaf5ff5fd690ec3ecd21b314f6af4cab4e8dcf1ecc21e5e8",
+    "query": "width 101mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "width",
+        "value": {
+          "low": "101",
+          "high": "101"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "fca46086-1f8d-51c7-804a-547dc7a49c3a",
+          "source_hash": "d8d8377f8a849f25aaf5ff5fd690ec3ecd21b314f6af4cab4e8dcf1ecc21e5e8",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.6626263888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "width",
+        "value": {
+          "low": "111.00",
+          "high": "111.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "fca46086-1f8d-51c7-804a-547dc7a49c3a",
+          "source_hash": "d8d8377f8a849f25aaf5ff5fd690ec3ecd21b314f6af4cab4e8dcf1ecc21e5e8",
+          "page": 1,
+          "bbox": [
+            0.05555555555555555,
+            0.8515235294117647,
+            0.19053472222222223,
+            0.8730921568627451
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "mismatch",
+    "revision_id": "fca46086-1f8d-51c7-804a-547dc7a49c3a"
+  },
+  {
+    "case_id": "FW-F018-material",
+    "family_id": "FW-F018",
+    "category": "material",
+    "drawing_number": "FW-018-2",
+    "revision": "A",
+    "source_hash": "386fc98d2ea2fd09f41c8f2631dc56877b109c4d2ac65b4213b07b579d17e7eb",
+    "query": "width 101mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "width",
+        "value": {
+          "low": "101",
+          "high": "101"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "material",
+        "value": "AL6061",
+        "unit": null,
+        "source": {
+          "revision_id": "741bb518-5dd0-59d0-b5f4-f774b78a0d46",
+          "source_hash": "386fc98d2ea2fd09f41c8f2631dc56877b109c4d2ac65b4213b07b579d17e7eb",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.6583944444444444,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "width",
+        "value": {
+          "low": "101.00",
+          "high": "101.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "741bb518-5dd0-59d0-b5f4-f774b78a0d46",
+          "source_hash": "386fc98d2ea2fd09f41c8f2631dc56877b109c4d2ac65b4213b07b579d17e7eb",
+          "page": 1,
+          "bbox": [
+            0.05555555555555555,
+            0.8515235294117647,
+            0.19053472222222223,
+            0.8730921568627451
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "mismatch",
+    "revision_id": "741bb518-5dd0-59d0-b5f4-f774b78a0d46"
+  },
+  {
+    "case_id": "FW-F018-missing",
+    "family_id": "FW-F018",
+    "category": "missing",
+    "drawing_number": "FW-018-3",
+    "revision": "A",
+    "source_hash": "55a412605802dde7bd16691f0e152ad5a1cc04d105f38f423d0021724edb9206",
+    "query": "width 101mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "width",
+        "value": {
+          "low": "101",
+          "high": "101"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F4",
+        "field": "width",
+        "value": {
+          "low": "101.00",
+          "high": "101.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "e4a08990-36ec-5594-ac33-0ab6e9b64e3b",
+          "source_hash": "55a412605802dde7bd16691f0e152ad5a1cc04d105f38f423d0021724edb9206",
+          "page": 1,
+          "bbox": [
+            0.05555555555555555,
+            0.8515235294117647,
+            0.19053472222222223,
+            0.8730921568627451
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "unknown",
+    "revision_id": "e4a08990-36ec-5594-ac33-0ab6e9b64e3b"
+  },
+  {
+    "case_id": "FW-F018-unit",
+    "family_id": "FW-F018",
+    "category": "unit",
+    "drawing_number": "FW-018-0",
+    "revision": "A",
+    "source_hash": "227ff5b59112a059e1edb1c89ad83d83fea261305970fcc051820109d4617495",
+    "query": "width 10.1cm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "width",
+        "value": {
+          "low": "10.1",
+          "high": "10.1"
+        },
+        "unit": "cm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "ec5f315f-a02e-594a-9130-12c27441a2ea",
+          "source_hash": "227ff5b59112a059e1edb1c89ad83d83fea261305970fcc051820109d4617495",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.6626263888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "width",
+        "value": {
+          "low": "101.00",
+          "high": "101.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "ec5f315f-a02e-594a-9130-12c27441a2ea",
+          "source_hash": "227ff5b59112a059e1edb1c89ad83d83fea261305970fcc051820109d4617495",
+          "page": 1,
+          "bbox": [
+            0.05555555555555555,
+            0.8515235294117647,
+            0.19053472222222223,
+            0.8730921568627451
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "match",
+    "revision_id": "ec5f315f-a02e-594a-9130-12c27441a2ea"
+  },
+  {
+    "case_id": "FW-F018-revision",
+    "family_id": "FW-F018",
+    "category": "revision",
+    "drawing_number": "FW-018-0",
+    "revision": "B",
+    "source_hash": "b4f12afc056edc3cefddb5ec566341442fb79a625fcdcb2a6f66a9e048218556",
+    "query": "width 101mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "width",
+        "value": {
+          "low": "101",
+          "high": "101"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "18d99ec5-40cb-5dad-be85-2a510108cb15",
+          "source_hash": "b4f12afc056edc3cefddb5ec566341442fb79a625fcdcb2a6f66a9e048218556",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.6626263888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "width",
+        "value": {
+          "low": "101.00",
+          "high": "101.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "18d99ec5-40cb-5dad-be85-2a510108cb15",
+          "source_hash": "b4f12afc056edc3cefddb5ec566341442fb79a625fcdcb2a6f66a9e048218556",
+          "page": 1,
+          "bbox": [
+            0.05555555555555555,
+            0.8515235294117647,
+            0.19053472222222223,
+            0.8730921568627451
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "match",
+    "revision_id": "18d99ec5-40cb-5dad-be85-2a510108cb15"
+  },
+  {
+    "case_id": "FW-F029-match",
+    "family_id": "FW-F029",
+    "category": "match",
+    "drawing_number": "FW-029-0",
+    "revision": "A",
+    "source_hash": "2eca39c35506d662419f3dc8f892edfde3b7a9e9c5d7ee3bc78d540f495bb993",
+    "query": "hole_spacing 98mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "hole_spacing",
+        "value": {
+          "low": "98",
+          "high": "98"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "hole_spacing",
+        "value": {
+          "low": "98.00",
+          "high": "98.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "63b17fd6-1069-566a-af4b-18f6e0f60a3e",
+          "source_hash": "2eca39c35506d662419f3dc8f892edfde3b7a9e9c5d7ee3bc78d540f495bb993",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.716113888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "63b17fd6-1069-566a-af4b-18f6e0f60a3e",
+          "source_hash": "2eca39c35506d662419f3dc8f892edfde3b7a9e9c5d7ee3bc78d540f495bb993",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.8025039215686274,
+            0.6626263888888889,
+            0.8240725490196078
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "match",
+    "revision_id": "63b17fd6-1069-566a-af4b-18f6e0f60a3e"
+  },
+  {
+    "case_id": "FW-F029-dimension",
+    "family_id": "FW-F029",
+    "category": "dimension",
+    "drawing_number": "FW-029-1",
+    "revision": "A",
+    "source_hash": "62ebe499bea4add47f9b1276b6eb7089be65e823b8575021fa04605059d74e5a",
+    "query": "hole_spacing 98mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "hole_spacing",
+        "value": {
+          "low": "98",
+          "high": "98"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "hole_spacing",
+        "value": {
+          "low": "100.00",
+          "high": "100.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "b91e9637-5729-5c5a-be95-7c4c1d29be00",
+          "source_hash": "62ebe499bea4add47f9b1276b6eb7089be65e823b8575021fa04605059d74e5a",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.7246083333333334,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "b91e9637-5729-5c5a-be95-7c4c1d29be00",
+          "source_hash": "62ebe499bea4add47f9b1276b6eb7089be65e823b8575021fa04605059d74e5a",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.8025039215686274,
+            0.6626263888888889,
+            0.8240725490196078
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "mismatch",
+    "revision_id": "b91e9637-5729-5c5a-be95-7c4c1d29be00"
+  },
+  {
+    "case_id": "FW-F029-material",
+    "family_id": "FW-F029",
+    "category": "material",
+    "drawing_number": "FW-029-2",
+    "revision": "A",
+    "source_hash": "91bf70a92e80074c5a3b72c16b294d705728160a34d3f0bd8dd817950fcb64a5",
+    "query": "hole_spacing 98mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "hole_spacing",
+        "value": {
+          "low": "98",
+          "high": "98"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "hole_spacing",
+        "value": {
+          "low": "98.00",
+          "high": "98.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "98cd91fd-8250-5317-ad3d-cebdef65816c",
+          "source_hash": "91bf70a92e80074c5a3b72c16b294d705728160a34d3f0bd8dd817950fcb64a5",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.716113888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "material",
+        "value": "AL6061",
+        "unit": null,
+        "source": {
+          "revision_id": "98cd91fd-8250-5317-ad3d-cebdef65816c",
+          "source_hash": "91bf70a92e80074c5a3b72c16b294d705728160a34d3f0bd8dd817950fcb64a5",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.8025039215686274,
+            0.6583944444444444,
+            0.8240725490196078
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "mismatch",
+    "revision_id": "98cd91fd-8250-5317-ad3d-cebdef65816c"
+  },
+  {
+    "case_id": "FW-F029-missing",
+    "family_id": "FW-F029",
+    "category": "missing",
+    "drawing_number": "FW-029-3",
+    "revision": "A",
+    "source_hash": "a8c575b748bb4ee38e24f106bed2242e2b028f039a5967a9a50b41c8f364d6b2",
+    "query": "hole_spacing 98mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "hole_spacing",
+        "value": {
+          "low": "98",
+          "high": "98"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "hole_spacing",
+        "value": {
+          "low": "98.00",
+          "high": "98.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "d5e2c6f1-bfa1-5d0e-a151-4781e9a04ccc",
+          "source_hash": "a8c575b748bb4ee38e24f106bed2242e2b028f039a5967a9a50b41c8f364d6b2",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.716113888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "unknown",
+    "revision_id": "d5e2c6f1-bfa1-5d0e-a151-4781e9a04ccc"
+  },
+  {
+    "case_id": "FW-F029-unit",
+    "family_id": "FW-F029",
+    "category": "unit",
+    "drawing_number": "FW-029-0",
+    "revision": "A",
+    "source_hash": "2eca39c35506d662419f3dc8f892edfde3b7a9e9c5d7ee3bc78d540f495bb993",
+    "query": "hole_spacing 9.8cm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "hole_spacing",
+        "value": {
+          "low": "9.8",
+          "high": "9.8"
+        },
+        "unit": "cm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "hole_spacing",
+        "value": {
+          "low": "98.00",
+          "high": "98.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "63b17fd6-1069-566a-af4b-18f6e0f60a3e",
+          "source_hash": "2eca39c35506d662419f3dc8f892edfde3b7a9e9c5d7ee3bc78d540f495bb993",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.716113888888889,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "63b17fd6-1069-566a-af4b-18f6e0f60a3e",
+          "source_hash": "2eca39c35506d662419f3dc8f892edfde3b7a9e9c5d7ee3bc78d540f495bb993",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.8025039215686274,
+            0.6626263888888889,
+            0.8240725490196078
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "match",
+    "revision_id": "63b17fd6-1069-566a-af4b-18f6e0f60a3e"
+  },
+  {
+    "case_id": "FW-F029-revision",
+    "family_id": "FW-F029",
+    "category": "revision",
+    "drawing_number": "FW-029-0",
+    "revision": "B",
+    "source_hash": "3d45954e983af1392c03503dfa97359a764886d3d27b9a2f0a56e8e03951bb64",
+    "query": "hole_spacing 98mm, material SUS304. Evaluate the supplied current revision.",
+    "requirements": [
+      {
+        "id": "dimension",
+        "field": "hole_spacing",
+        "value": {
+          "low": "98",
+          "high": "98"
+        },
+        "unit": "mm"
+      },
+      {
+        "id": "material",
+        "field": "material",
+        "value": "SUS304"
+      }
+    ],
+    "facts": [
+      {
+        "id": "F3",
+        "field": "hole_spacing",
+        "value": {
+          "low": "100.00",
+          "high": "100.00"
+        },
+        "unit": "mm",
+        "source": {
+          "revision_id": "46d2cbc1-b36b-5811-9b54-3faace552c28",
+          "source_hash": "3d45954e983af1392c03503dfa97359a764886d3d27b9a2f0a56e8e03951bb64",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.7534843137254902,
+            0.7246083333333334,
+            0.7750529411764706
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      },
+      {
+        "id": "F5",
+        "field": "material",
+        "value": "SUS304",
+        "unit": null,
+        "source": {
+          "revision_id": "46d2cbc1-b36b-5811-9b54-3faace552c28",
+          "source_hash": "3d45954e983af1392c03503dfa97359a764886d3d27b9a2f0a56e8e03951bb64",
+          "page": 1,
+          "bbox": [
+            0.5208333333333334,
+            0.8025039215686274,
+            0.6626263888888889,
+            0.8240725490196078
+          ],
+          "feature_id": null
+        },
+        "method": "vector_pdf",
+        "certainty": "verified"
+      }
+    ],
+    "expected": "mismatch",
+    "revision_id": "46d2cbc1-b36b-5811-9b54-3faace552c28"
+  }
+]

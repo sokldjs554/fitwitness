@@ -9,4 +9,11 @@ await p.getByRole('button',{name:'3D 형상',exact:true}).click();await p.locato
 await p.getByRole('button',{name:'실행 기록 보기'}).click();await p.getByTestId('run-timeline').scrollIntoViewIfNeeded();await p.screenshot({path:'artifacts/recovery.png',fullPage:true});
 await p.getByRole('button',{name:'개정판 적용',exact:true}).click();await p.getByText('재검증 필요',{exact:true}).waitFor();await p.screenshot({path:'artifacts/revision-stale.png',fullPage:true});
 await p.getByRole('button',{name:'바뀐 도면으로 재검증',exact:true}).click();await p.getByText('검증 완료',{exact:true}).waitFor({timeout:60000});
-await c.close();await b.close();console.log('Actual API demo captured.');
+await p.getByRole('button',{name:'실험실',exact:true}).click();
+await p.getByRole('heading',{name:'평가 결과 비교',exact:true}).waitFor();
+await p.screenshot({path:'artifacts/experiment-lab.png',fullPage:true});
+await p.getByRole('button',{name:'오류 사례만',exact:true}).click();
+await p.screenshot({path:'artifacts/experiment-errors.png',fullPage:true});
+await p.setViewportSize({width:390,height:844});
+await p.screenshot({path:'artifacts/experiment-mobile.png',fullPage:true});
+await c.close();await b.close();console.log('Actual API demo and recorded LLM evaluation captured.');

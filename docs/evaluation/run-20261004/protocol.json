@@ -1,0 +1,24 @@
+{
+  "scope": "PDF-evidence verdict pilot; not retrieval, OCR, VLM or full-agent evaluation",
+  "case_count": 24,
+  "families": [
+    "FW-F003",
+    "FW-F012",
+    "FW-F018",
+    "FW-F029"
+  ],
+  "repeats": 3,
+  "seeds": [
+    1701,
+    1702,
+    1703
+  ],
+  "prompt_hash": "eb42f98366e2992bc40dc031e844064a345578e07ea618cb86802c33e350e9e1",
+  "dataset_hash": "19c7ba18ccb6bea6420c82ea3bbddbb96db86f1e51561fa1a839780b7ba7f58a",
+  "model_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+  "temperature": 0.7,
+  "top_p": 0.8,
+  "max_new_tokens": 128,
+  "code_sha": "32856b12eb05f0fc2fe126f6c295628519d748da",
+  "runner_hash": "a313a9988f89031f2980d77173ce3f4e9efd9e2ebde2ded84334a98dad6546cb"
+}

@@ -314,7 +314,8 @@ def create_app():
 
     @app.get("/api/evaluations")
     def evaluations():
-        p = ROOT / "artifacts/evaluation.json"
+        # Published, versioned measurement. Anonymous visitors cannot start paid runs.
+        p = ROOT / "docs/evaluation/latest.json"
         return (
             json.loads(p.read_text())
             if p.exists()
