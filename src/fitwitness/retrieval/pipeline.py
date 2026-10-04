@@ -87,12 +87,19 @@ def reciprocal_rank_fusion(rankings: dict[str, list[str]], k: int = 60):
 def search(
     scope, request: SearchRequest, snapshot, repo, encoders=None, channels=None
 ) -> list[Candidate]:
-    channels = channels or {"exact", "bm25"}
+    channels = {"exact", "bm25"} if channels is None else channels
+    if repo.snapshot(scope).id != snapshot.id:
+        raise ValueError("stale search snapshot")
+    if channels & {"semantic", "image"}:
+        if encoders is None:
+            raise ValueError("dense index encoders are not configured")
+        from fitwitness.retrieval.indexing import require_index
+        require_index(scope, snapshot, repo, encoders)
     allowed = set(snapshot.revision_ids)
     revisions = [r for r in repo.list_revisions(scope) if r.id in allowed]
     if not revisions:
         return []
-    facts = {r.id: repo.load_facts(scope, r.id) for r in revisions}
+    facts = repo.load_facts_many(scope, [r.id for r in revisions])
     texts = [
         r.title
         + " "
@@ -140,6 +147,8 @@ def search(
     # Explicit IDs remain the first results, not arbitrary prefix matches.
     exact = set(rankings.get("exact", []))
     ranked.sort(key=lambda kv: (kv[0] not in exact, -kv[1], kv[0]))
+    if repo.snapshot(scope).id != snapshot.id:
+        raise ValueError("search snapshot changed during retrieval")
     return [
         Candidate(
             revision_id=rid, scores={**scores[rid], "rrf": score}, facts=facts[rid]

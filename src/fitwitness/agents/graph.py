@@ -97,6 +97,9 @@ def _execute_run(
     thread = threading.Thread(target=heartbeat, daemon=True)
     thread.start()
     try:
+        if encoders is None:
+            from fitwitness.retrieval.embeddings import configured_encoders
+            encoders = configured_encoders()
         if snapshot.id != raw["snapshot_id"]:
             jobs.finalize(scope, run_id, raw["snapshot_id"], [], token)
             return

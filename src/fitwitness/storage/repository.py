@@ -44,6 +44,7 @@ class Repository:
             c.execute(
                 "CREATE TABLE IF NOT EXISTS fw_vectors (tenant_id text NOT NULL, revision_id text NOT NULL, channel text NOT NULL, embedding vector NOT NULL, PRIMARY KEY(tenant_id,revision_id,channel), FOREIGN KEY(tenant_id,revision_id) REFERENCES fw_revisions(tenant_id,id))"
             )
+            c.execute("ALTER TABLE fw_vectors ADD COLUMN IF NOT EXISTS metadata jsonb NOT NULL DEFAULT '{}'::jsonb")
             for name in ["fw_revisions", "fw_assets", "fw_facts", "fw_vectors"]:
                 c.execute(f"ALTER TABLE {name} ENABLE ROW LEVEL SECURITY")
                 c.execute(f"ALTER TABLE {name} FORCE ROW LEVEL SECURITY")
@@ -154,6 +155,7 @@ class Repository:
         with self.connection(scope) as c:
             self.lock(c, scope.tenant_id)
             c.execute("DELETE FROM fw_facts WHERE revision_id=%s", (revision_id,))
+            c.execute("DELETE FROM fw_vectors WHERE revision_id=%s", (revision_id,))
             for f in facts:
                 c.execute(
                     "INSERT INTO fw_facts VALUES (%s,%s,%s,%s)",
@@ -172,6 +174,15 @@ class Repository:
                 (revision_id,),
             ).fetchall()
         return [Fact.model_validate(r["data"]) for r in rs]
+
+    def load_facts_many(self, scope, revision_ids):
+        result = {rid: [] for rid in revision_ids}
+        with self.connection(scope) as c:
+            rows = c.execute('SELECT revision_id,data FROM fw_facts WHERE revision_id=ANY(%s) ORDER BY id',
+                             (revision_ids,)).fetchall()
+        for row in rows:
+            result[row['revision_id']].append(Fact.model_validate(row['data']))
+        return result
 
     @staticmethod
     def active(revisions):
@@ -205,7 +216,7 @@ class Repository:
         revisions = [DrawingRevision.model_validate(r["data"]) for r in rows]
         ids, _ = self.active(revisions)
         vectors = c.execute(
-            "SELECT revision_id,channel,md5(embedding::text) AS hash FROM fw_vectors ORDER BY revision_id,channel"
+            "SELECT revision_id,channel,md5(embedding::text) AS hash,metadata FROM fw_vectors ORDER BY revision_id,channel"
         ).fetchall()
         digest = sha256(
             json.dumps(
@@ -231,9 +242,46 @@ class Repository:
         with self.connection(scope) as c:
             self.lock(c, scope.tenant_id)
             c.execute(
-                "INSERT INTO fw_vectors VALUES(%s,%s,%s,%s::vector) ON CONFLICT(tenant_id,revision_id,channel) DO UPDATE SET embedding=excluded.embedding",
+                "INSERT INTO fw_vectors (tenant_id,revision_id,channel,embedding) VALUES(%s,%s,%s,%s::vector) ON CONFLICT(tenant_id,revision_id,channel) DO UPDATE SET embedding=excluded.embedding,metadata='{}'::jsonb",
                 (scope.tenant_id, revision_id, channel, str(vector)),
             )
+
+    def save_index(self, scope, revision_id, vectors, metadata):
+        from fitwitness.retrieval.indexing import document_text, source_metadata
+        import math
+        if scope.role == 'viewer':
+            raise PermissionError('read only')
+        if set(vectors) != {'text', 'image'} or any(
+            not v or not all(math.isfinite(x) for x in v) or sum(x*x for x in v) == 0
+            for v in vectors.values()
+        ):
+            raise ValueError('invalid vector index')
+        with self.connection(scope) as c:
+            self.lock(c, scope.tenant_id)
+            row = c.execute('SELECT data FROM fw_revisions WHERE id=%s', (revision_id,)).fetchone()
+            if not row:
+                raise ValueError('revision not found')
+            revision = DrawingRevision.model_validate(row['data'])
+            facts = [Fact.model_validate(r['data']) for r in c.execute(
+                'SELECT data FROM fw_facts WHERE revision_id=%s ORDER BY id', (revision_id,))]
+            image = c.execute("SELECT data FROM fw_assets WHERE revision_id=%s AND kind='png'", (revision_id,)).fetchone()
+            if not image or metadata != source_metadata(revision, document_text(revision, facts),
+                                                       bytes(image['data']), metadata.get('encoder_fingerprint')):
+                raise ValueError('index source changed during encoding')
+            for channel, vector in vectors.items():
+                c.execute('INSERT INTO fw_vectors (tenant_id,revision_id,channel,embedding,metadata) '
+                          'VALUES(%s,%s,%s,%s::vector,%s) ON CONFLICT(tenant_id,revision_id,channel) '
+                          'DO UPDATE SET embedding=excluded.embedding,metadata=excluded.metadata',
+                          (scope.tenant_id, revision_id, channel, str(vector), Jsonb(metadata)))
+
+    def vector_metadata(self, scope, revision_ids):
+        with self.connection(scope) as c:
+            rows = c.execute('SELECT revision_id,channel,metadata FROM fw_vectors WHERE revision_id=ANY(%s)',
+                             (revision_ids,)).fetchall()
+        result = {}
+        for r in rows:
+            result.setdefault(r['revision_id'], {})[r['channel']] = r['metadata']
+        return result
 
     def vector_search(self, scope, channel, vector, revision_ids, top_k):
         with self.connection(scope) as c:
