@@ -36,5 +36,13 @@
     "origin rejection",
     "paid API disabled",
     "private metrics"
+  ],
+  "publication_sha": "2d9fda933a9d666027cf98a5dd1e38c8f117f5a2",
+  "publication_checks": [
+    "health SHA",
+    "ready",
+    "Claude report exact JSON equality",
+    "Agent v1 report exact JSON equality",
+    "corrected Agent v2 report exact JSON equality"
   ]
 }
