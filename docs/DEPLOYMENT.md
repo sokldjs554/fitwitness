@@ -4,7 +4,11 @@
 개발 브랜치: `feat/fitwitness-foundation`
 초안 PR: https://github.com/sokldjs554/fitwitness/pull/1
 
-`render.yaml`은 웹 앱과 PostgreSQL을 연결합니다. 실제 리소스는 아직 만들지 않았습니다. Render 연결 도구가 작업 공간의 명시적 선택을 요구하므로 `My workspace` 사용 확인이 필요합니다. 무료 구성으로 작성했지만 사용 가능한 플랜과 실제 메모리 한도는 배포 시 확인합니다. 자동 유료 업그레이드는 하지 않습니다.
+`render.yaml`은 Docker 웹 앱과 PostgreSQL을 연결합니다. 2026-10-04 사용자가 `My workspace`의 무료 배포를 승인했습니다. 실제 생성 요청은 Render API에서 `400: cannot have more than one active free tier database`로 거절되었습니다. 기존 무료 DB를 변경하거나 유료 리소스를 만들지 않았으며, FitWitness의 공개 서비스와 DB는 아직 없습니다.
+
+배포 재개에는 pgvector와 애플리케이션 역할 생성이 가능한 별도 PostgreSQL 연결 또는 승인된 유료 DB 구성이 필요합니다. Render 연결 도구는 Docker 서비스/Blueprint 생성도 지원하지 않아, 현재 Docker 구성을 적용하려면 Dashboard 경로가 필요합니다. 무료 슬롯 제한: https://render.com/docs/free
+
+CI run 37178871171은 두 환경 모두 pytest와 E2E, 영상 캡처를 통과했으나, background `uv run`이 캐시 잠금을 유지하여 `setup-uv` 종료 정리가 실패했습니다. 서비스 실행을 `.venv/bin/uvicorn`으로 변경해 uv 캐시 잠금을 보유하지 않도록 수정했습니다. 후속 CI 결과로 전체 성공 여부를 확인합니다.
 
 외부 Origin은 실제 배포 URL로 `FITWITNESS_ALLOWED_ORIGINS`에 설정합니다. 쿠키 서명키와 metrics token은 Render에서 생성하고 저장소에는 넣지 않습니다. 공개 데모에서 유료 모델을 활성화하기 전에는 전체 호출량 제한과 접근 통제를 검토해야 합니다.
 

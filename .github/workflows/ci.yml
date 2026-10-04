@@ -38,7 +38,7 @@ jobs:
       - run: npm ci && npm run build && npx playwright install --with-deps chromium
         working-directory: web
       - run: |
-          uv run uvicorn fitwitness.api.app:create_app --factory --host 0.0.0.0 --port 8787 > /tmp/api.log 2>&1 &
+          .venv/bin/uvicorn fitwitness.api.app:create_app --factory --host 0.0.0.0 --port 8787 > /tmp/api.log 2>&1 &
           for i in $(seq 1 30); do curl -fsS http://localhost:8787/ready && break; sleep 1; done
       - run: npm run test:e2e -- --workers=2
         working-directory: web
