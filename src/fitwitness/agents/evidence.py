@@ -56,7 +56,16 @@ class EvidenceSession:
 
     def exhausted(self, requirements, observations):
         required = {r['field'] for r in requirements}
-        return bool(self.candidates) and all(required <= self.examined(c.revision_id, requirements, observations) for c in self.candidates)
+        if not self.candidates or not all(required <= self.examined(c.revision_id, requirements, observations) for c in self.candidates):
+            return False
+        if 'read_image_region' in self.available:
+            for c in self.candidates:
+                visual_fields={field for x in observations if x['tool']['name']=='read_image_region'
+                    and x['tool']['arguments']['revision_id']==c.revision_id for field in x['tool']['arguments']['fields']}
+                missing=required-{f.field for f in c.facts}
+                if missing & {'width','height','thickness','hole_spacing','material'} - visual_fields:
+                    return False
+        return True
 
     def context(self, query, requirements, observations, decisions=()):
         return {

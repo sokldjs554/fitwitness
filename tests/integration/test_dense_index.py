@@ -54,3 +54,25 @@ def test_dense_graph_uses_indexed_scores(repo):
     assert result.state=='completed'
     retrieved=next(x for x in jobs.events(s,run.id) if x['kind']=='retrieved')
     assert retrieved['payload']['candidates'][0]['scores']['semantic']==pytest.approx(1.)
+
+
+def test_vision_tool_preserves_source_scope_and_uncertainty(repo):
+    from io import BytesIO
+    from PIL import Image
+    from fitwitness.agents.tools import EvidenceTools,ToolRequest
+    from fitwitness.agents.budget import BudgetTracker
+    from fitwitness.contracts import Budget
+    from fitwitness.ingest.vision import ImageReading
+    a,ra=setup(repo);b,rb=setup(repo)
+    buf=BytesIO();Image.new('RGB',(100,100),'white').save(buf,format='PNG')
+    repo.put_asset(a,ra.id,'png',buf.getvalue())
+    class Reader:
+        emit=lambda *args:None
+        def read_image(self,image,prompt):
+            return ImageReading(annotations=[dict(field='width',value='40',unit='mm',visible_text='40',bbox=(0,0,1,1))]),{'role':'vision'}
+    t=EvidenceTools(a,repo.snapshot(a),repo,BudgetTracker(Budget()),vision=Reader())
+    op=ToolRequest(name='read_image_region',arguments={'revision_id':ra.id,'bbox':[0,0,1,1],'fields':['width']})
+    facts=t.execute(op)
+    assert facts[0]['certainty']=='uncertain' and facts[0]['source']['source_hash']==sha256(buf.getvalue()).hexdigest()
+    with pytest.raises(ValueError,match='snapshot'):
+        t.execute(op.model_copy(update={'arguments':{**op.arguments,'revision_id':rb.id}}))

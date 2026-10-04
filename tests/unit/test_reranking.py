@@ -80,6 +80,9 @@ def test_pipeline_reranks_before_cutoff_and_rechecks_snapshot():
     req=SearchRequest(text='plate 폭 40mm',top_k=1,ranking='constraints')
     result=search(scope,req,repo.snapshot(),repo,channels={'bm25'})
     assert result[0].revision_id=='7'
+    explicit=Requirement(field='kind',value='bracket')
+    result=search(scope,req.model_copy(update={'requirements':[explicit]}),repo.snapshot(),repo,channels={'bm25'})
+    assert result[0].revision_id=='7', 'structured kind must not suppress text width'
     class ChangingScorer:
         def score(self,q,passages):
             repo.snapshot=lambda *a:super(Many,repo).snapshot().model_copy(update={'id':'changed'})

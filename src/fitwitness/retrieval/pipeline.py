@@ -155,7 +155,7 @@ def search(
     ]
     if request.ranking == 'constraints':
         from fitwitness.retrieval.reranking import order_constraints
-        candidates=order_constraints(candidates,request.requirements or extract_requirements(request.text),snapshot.id)
+        candidates=order_constraints(candidates,request.requirements + extract_requirements(request.text),snapshot.id)
     elif request.ranking == 'cross_encoder' and request.text.strip() and candidates:
         from fitwitness.retrieval.reranking import order_cross_encoder, configured_reranker
         from fitwitness.retrieval.indexing import document_text

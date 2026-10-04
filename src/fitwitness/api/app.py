@@ -341,8 +341,13 @@ def create_app():
         return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
 
     @app.get("/api/evaluations/retrieval")
-    def retrieval_evaluation():
-        p = ROOT / "docs/evaluation/retrieval.json"
+    def retrieval_evaluation(experiment: Literal['baseline','reranking']='baseline'):
+        p = ROOT / 'docs/evaluation' / ('reranking.json' if experiment=='reranking' else 'retrieval.json')
+        return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
+
+    @app.get('/api/evaluations/vision')
+    def vision_evaluation():
+        p = ROOT / 'docs/evaluation/vision.json'
         return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
 
     @app.get("/health")

@@ -47,6 +47,11 @@ class CompareArgs(Strict):
     new_id: str
 
 
+class ImageRegionArgs(RegionArgs):
+    page: Literal[1] = 1
+    fields: list[Literal['width','height','thickness','hole_spacing','material']] = Field(min_length=1,max_length=5)
+
+
 SCHEMAS = {
     "search_exact": ExactArgs,
     "search_keyword": QueryArgs,
@@ -55,6 +60,7 @@ SCHEMAS = {
     "query_dimensions": DimensionArgs,
     "read_region": RegionArgs,
     "compare_revisions": CompareArgs,
+    "read_image_region": ImageRegionArgs,
 }
 
 
@@ -67,6 +73,7 @@ class ToolRequest(Strict):
         "query_dimensions",
         "read_region",
         "compare_revisions",
+        "read_image_region",
     ]
     arguments: dict
 
@@ -83,21 +90,42 @@ class SearchPlan(Strict):
 
 
 class EvidenceTools:
-    def __init__(self, scope, snapshot, repo, budget, encoders=None):
+    def __init__(self, scope, snapshot, repo, budget, encoders=None, vision=None):
         self.scope = scope
         self.snapshot = snapshot
         self.repo = repo
         self.budget = budget
         self.encoders = encoders
+        self.vision = vision
 
     @property
     def available(self):
-        return set(SCHEMAS) if self.encoders else set(SCHEMAS) - {"search_semantic", "search_image"}
+        names=set(SCHEMAS)
+        if not self.encoders:names-={'search_semantic','search_image'}
+        if self.vision is None:names.discard('read_image_region')
+        return names
 
     def execute(self, request: ToolRequest):
         self.budget.tool()
         name = request.name
         a = SCHEMAS[name].model_validate(request.arguments)
+        if name not in self.available:
+            raise ValueError('unavailable tool')
+        if name == 'read_image_region':
+            from hashlib import sha256
+            from fitwitness.ingest.vision import validated_png,image_facts
+            if a.revision_id not in self.snapshot.revision_ids or self.repo.snapshot(self.scope).id!=self.snapshot.id:
+                raise ValueError('revision outside current snapshot')
+            image=self.repo.asset(self.scope,a.revision_id,'png')
+            if not image:raise ValueError('source image missing')
+            image_hash=sha256(image).hexdigest()
+            region=validated_png(image,a.bbox)
+            reading,metadata=self.vision.read_image(region,'Read only these visible fields: '+', '.join(a.fields))
+            self.vision.emit('model',metadata)
+            if self.repo.snapshot(self.scope).id!=self.snapshot.id or sha256(self.repo.asset(self.scope,a.revision_id,'png')).hexdigest()!=image_hash:
+                raise ValueError('source changed during image reading')
+            facts=image_facts(reading,a.revision_id,image_hash,a.bbox)
+            return [f.model_dump(mode='json') for f in facts if f.field in a.fields]
         if name.startswith("search_"):
             channel = {
                 "search_exact": "exact",
@@ -164,4 +192,4 @@ class EvidenceTools:
                 args_schema=schema,
             )
 
-        return [make(n, s) for n, s in SCHEMAS.items()]
+        return [make(n, s) for n, s in SCHEMAS.items() if n in self.available]

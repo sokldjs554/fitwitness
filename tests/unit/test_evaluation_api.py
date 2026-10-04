@@ -55,6 +55,14 @@ def test_retrieval_report_endpoint_has_explicit_status():
     assert result.json()['status'] in ('measured','not_measured')
 
 
+def test_research_reports_are_static_and_version_allowlisted():
+    client=TestClient(create_app())
+    assert client.get('/api/evaluations/retrieval?experiment=../../secret').status_code==422
+    assert client.get('/api/evaluations/retrieval?experiment=reranking').json()['status'] in ('measured','not_measured')
+    vision=client.get('/api/evaluations/vision')
+    assert vision.status_code==200 and vision.json()['status'] in ('measured','not_measured')
+
+
 def test_published_retrieval_recomputes_from_raw_and_preserves_protocol():
     import gzip,json,hashlib
     from pathlib import Path

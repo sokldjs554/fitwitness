@@ -118,6 +118,9 @@ def _execute_run(
         if model:
             model.guard = guard
             model.emit = emit
+            # Operator opt-in; anonymous rules demo cannot invoke vision.
+            if os.getenv('FITWITNESS_VISION','off') == 'enabled':
+                tools.vision = model
 
         def intent(state):
             guard()

@@ -45,6 +45,10 @@ def verify(
             for f in candidate.facts
             if f.field == req.field and f.source.revision_id == candidate.revision_id
         ]
+        # A visual observation cannot veto or establish a verified PDF fact.
+        verified = [f for f in facts if f.certainty == 'verified']
+        if verified:
+            facts = verified
         values = {(str(f.value), f.unit) for f in facts if f.certainty == "verified"}
         verdict = (
             "unknown" if not facts or len(values) != 1 else _compare(req, facts[0])
