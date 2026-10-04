@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "workflow": 37198685994,
+  "code_sha": "5fbc5feec8f58827aed5028a2d8d8c2be0c8b093",
+  "artifact_id": 11301518955,
+  "zip_sha256": "c7cf63869c4244f517da0c4b04d124809b014541aebeae60e0f93f58879f646c",
+  "raw_sha256": "d1de518412139e002cd80a0630186ae73fb5ecacb1ededb53e266b9b007f45f8",
+  "attempts": 288,
+  "cases": 24,
+  "repeats": 3,
+  "paid_model_calls": 0,
+  "checks": [
+    "raw hash",
+    "frozen protocol equality",
+    "288 complete",
+    "per-row metrics recalculated",
+    "aggregate metrics recalculated",
+    "actual dense graph trace and completion"
+  ]
+}

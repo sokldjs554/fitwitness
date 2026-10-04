@@ -17,7 +17,7 @@
 ## 구현된 기능
 
 - CadQuery 기반 30개 family / 180개 합성 PDF·STEP·PNG·3D mesh
-- 도번·BM25 검색, e5·OpenCLIP 및 pgvector 검색 연결 코드
+- 도번·BM25와 해시 고정 E5·OpenCLIP/pgvector 색인·검색·worker 연결
 - PDF 실제 위치를 근거로 조건 일치·불일치·확인 필요 판정
 - LangGraph + PostgreSQL checkpoint, 실제 worker 종료 후 복구
 - 도면 40 → 42mm 개정 시 기존 결과 무효화 및 재검증
@@ -28,6 +28,8 @@
 - [재현 가능한 LLM 평가](docs/evaluation/README.md): 고정 모델 revision, 입력·프롬프트·소스 SHA256, 호출별 JSONL
 
 공개 데모는 Render Free + Neon Free로 배포했습니다. 기본 체험은 명시적인 규칙 기반 엔진이며 API 호출을 흉내 내지 않습니다. 실험실에는 Qwen3-1.7B의 실제 측정 기록을 공개했습니다. 24개 PDF 근거 판정 사례를 3회 반복한 pilot에서 정확도 75%, 잘못된 일치 28.6%를 기록했습니다. 동일 입력의 Claude Haiku 4.5 실측 72회는 72/72 정답, 잘못된 일치 0/42, API 비용 $0.110455를 기록했습니다. 이는 좁은 PDF 근거 판정 과제이며 전체 Agent·검색·VLM 성능과 구분합니다. 전체 Agent 첫6회는3회 실패했고, 관측·종료 처리를 수정한 뒤 세 구조의 진단 재실행이 모두 완료됐습니다. 실험실에서 개선 전/후를 선택할 수 있습니다. 전체 API 계산 비용은 $0.187841입니다. OpenAI는 미측정입니다. 무료 서버는 첫 접속·실행이 느릴 수 있습니다.
+
+복합 검색도 실제 모델과 PostgreSQL로288회 측정했습니다. 합성150개 도면·24개 질문에서 Recall@5는 도번+BM25 25.0%, 복합33.3%였지만 설명+이미지 질문에서는 복합9.7%로 의미 검색12.5%보다 낮았습니다. 원시 실패·한계를 포함한 [검색 실험과 재현 방법](docs/RETRIEVAL.md)을 공개했습니다. 무료 체험의 실시간 검색은 계속 도번·키워드 방식이며 실험실에는 별도 측정 기록을 표시합니다.
 
 [공고 대조·미완료 항목](docs/JOB_FIT_AUDIT.md) · [독립 리뷰와 수정 기록](docs/REVIEW.md) · [배포 상태](docs/DEPLOYMENT.md) · [운영자 모델 실행](docs/OPERATOR.md)
 

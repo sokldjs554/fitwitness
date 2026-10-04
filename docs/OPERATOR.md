@@ -1,6 +1,6 @@
 # 유료 모델 운영자 실행
 
-공개 API는 유료 모델 호출을 거부합니다. 아래는 서버 접근 권한과 자기 API 키를 가진 운영자가 명시적으로 실행하는 연구 경로입니다. 라이브 실행은 아직 측정하지 않았습니다.
+공개 API는 유료 모델 호출을 거부합니다. 아래는 서버 접근 권한과 자기 API 키를 가진 운영자가 명시적으로 실행하는 연구 경로입니다. Claude 실제 실행 기록은 `docs/evaluation/README.md`에 있습니다. OpenAI 실제 호출은 아직 측정하지 않았습니다.
 
 1. `scripts/setup.py`로 초기화합니다.
 2. `.env.example`의 API 키·정확한 모델 ID·현재 USD/million token 단가를 비밀 환경변수로 설정합니다. `.env`는 저장소에 올리지 않습니다.
@@ -43,7 +43,7 @@ print(Jobs(repo).get(scope, job.id).model_dump_json(indent=2))
 
 사전 제안: Claude Haiku 4.5 고정 ID `claude-haiku-4-5-20251001`, 동일 24개 사례 × 3회. 입력/출력 단가는 2026-10-04 확인한 공식 기준 1/5 USD per million tokens이며, 실행 전 다시 확인합니다. 전체 실험은 보수적인 예약 합계 1 USD 한도로 차단합니다. 이 한도는 이 작업의 API 호출 예산이며 계정 전체 지출 한도는 아닙니다.
 
-CI artifact에는 프로토콜·입력·호출별 출력·실사용 토큰·실패·집계가 저장됩니다. 기록 검토 전에는 공개 데모의 Qwen 측정을 덮어쓰지 않습니다. 이 경로는 PDF 근거 판정 평가이며, 실제 LangGraph 도구 사용 및 검색 평가와 다릅니다. 전체 Agent의 가용 도구·관측 반영·재시도 경로는 별도 보완 후 측정합니다.
+CI artifact에는 프로토콜·입력·호출별 출력·실사용 토큰·실패·집계가 저장됩니다. 기록 검토 전에는 공개 데모의 Qwen 측정을 덮어쓰지 않습니다. 이 경로는 PDF 근거 판정 평가이며, 실제 LangGraph 도구 사용 및 검색 평가와 다릅니다. 이후 전체 Agent의 가용 도구·관측 반영·재시도 경로를 보완하고 별도 실측했습니다. 아래는 당시 준비 절차를 포함하며 최신 결과는 평가 기록을 참조합니다.
 
 참고: [GitHub Secrets](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets) · [Claude Haiku 4.5 공식 사양](https://platform.claude.com/docs/en/models/haiku-4-5/overview)
 
@@ -52,3 +52,7 @@ CI artifact에는 프로토콜·입력·호출별 출력·실사용 토큰·실�
 2026-10-04 승인된 실행 한도는 합계 1 USD입니다. 전용 workflow는 동일 PDF 72회에 0.60 USD, 실제 PostgreSQL LangGraph 6개 실행에 각각 0.066 USD(합계 0.396 USD)를 따로 예약합니다. SDK 자동 재시도는 끄며, Agent transient retry도 동일 실행 한도에 포함합니다. 실패한 호출의 불명확한 비용은 예약 장부에 남습니다. 공개 서버에는 키를 전달하지 않습니다.
 
 Agent pilot은 FW-F000 합성 도면 5개의 단일 질의를 fixed/ReAct/별도 planner+challenger에 두 번씩 실행합니다. gold는 평가기만 읽으며 실제 판정·도구 인자·request ID·토큰·지연·오류·최종 근거를 원시 기록으로 보관합니다. 작은 연결 검증이며 일반 성능 우위를 뜻하지 않습니다. `stop`은 명시적 종료 플래그, `stop_condition`은 종료 설명입니다. 누락 근거는 unknown으로 남습니다. 429·일부 5xx·연결/시간 오류만 최대 두 번 시도하고, schema/권한 오류는 재시도하지 않습니다.
+
+## 유료 API 없는 의미·이미지 검색
+
+E5/OpenCLIP 모델 준비, 원본 색인, worker 연결과 검색 비교 절차는 [검색 실행 문서](RETRIEVAL.md)에 있습니다. 공개 무료 서버에서는 모델을 켜지 않습니다.

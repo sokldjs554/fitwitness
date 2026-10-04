@@ -53,3 +53,29 @@ def test_retrieval_report_endpoint_has_explicit_status():
     result=TestClient(create_app()).get('/api/evaluations/retrieval')
     assert result.status_code==200
     assert result.json()['status'] in ('measured','not_measured')
+
+
+def test_published_retrieval_recomputes_from_raw_and_preserves_protocol():
+    import gzip,json,hashlib
+    from pathlib import Path
+    from fitwitness.evaluation.retrieval import summarize_retrieval,score_ranking
+    report=TestClient(create_app()).get('/api/evaluations/retrieval').json()
+    root=Path('docs/evaluation/retrieval-37198685994')
+    assert report==json.loads((root/'report.json').read_text())
+    assert report['protocol']==json.loads((root/'protocol.json').read_text())
+    raw=gzip.decompress((root/'runs.jsonl.gz').read_bytes())
+    assert hashlib.sha256(raw).hexdigest()==report['raw_sha256']
+    rows=[json.loads(x) for x in raw.splitlines()]
+    assert len(rows)==288 and all(r['status']=='ok' for r in rows)
+    cases={c['id']:c for c in report['cases']}
+    for row in rows:
+        ids=[r['revision_id'] for r in row['ranked']]
+        assert row['recall_at_5']==score_ranking(ids,cases[row['case_id']]['relevance'],5)['recall']
+        assert row['ndcg_at_10']==score_ranking(ids,cases[row['case_id']]['relevance'],10)['ndcg']
+    for method in report['methods']:
+        subset=[r for r in rows if r['method']==method['id']]
+        assert method['metrics']==summarize_retrieval(subset)
+        for cat,metrics in method['categories'].items():
+            assert metrics==summarize_retrieval([r for r in subset if r['category']==cat])
+    assert report['rows']==[r for r in rows if r['repeat']==1]
+    assert report['graph_state']=='completed'
