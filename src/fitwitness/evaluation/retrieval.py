@@ -37,27 +37,30 @@ def make_cases(manifest, gold):
     for family in sorted(manifest['family_splits']['test']):
         source=next(d for d in active if d['family_id']==family)
         truth=gold[source['id']]
-        # Relevance is geometric kind+width(+spacing), independent of the runtime's
-        # extracted facts. Material is intentionally irrelevant to shape lookup.
+        # Image relevance includes visible spacing; text only states kind+width.
+        # Gold is independent of runtime facts. Material is irrelevant to lookup.
         qrels={d['id']:1 for d in active if d['kind']==source['kind']
                and gold[d['id']]['width']==truth['width']
                and gold[d['id']].get('hole_spacing')==truth.get('hole_spacing')}
+        text_qrels={d['id']:1 for d in active if d['kind']==source['kind']
+                    and gold[d['id']]['width']==truth['width']}
         for category in ('exact','paraphrase','image','mixed'):
             query=(source['drawing_number'] if category=='exact' else
                    '' if category=='image' else f"{PARAPHRASES[source['kind']]} 외형 폭 {truth['width']}mm")
             cases.append(dict(id=family+'-'+category,family_id=family,category=category,text=query,
                               image_source=source['id'] if category in ('image','mixed') else None,
-                              relevance={source['id']:1} if category=='exact' else qrels))
+                              relevance={source['id']:1} if category=='exact' else
+                              text_qrels if category=='paraphrase' else qrels))
     return cases
 
 
 def protocol(cases):
-    return dict(version='retrieval-v1',scope='합성 도면 검색 pilot',repeats=3,rrf_k=60,top_k=10,
+    return dict(version='retrieval-v2',scope='합성 도면 검색 pilot',repeats=3,rrf_k=60,top_k=10,
                 recall_k=5,ndcg_k=10,methods=list(METHODS),cases=json.loads(json.dumps(cases)),
                 dataset_hash=sha256(json.dumps(cases,sort_keys=True,ensure_ascii=False).encode()).hexdigest(),
                 query_transform='top-view crop [0.10,0.13,0.85,0.55], resize 240x143, rotate 3deg white fill',
                 tuning='none; held-out family queries; no selection after test metrics',
-                relevance='exact: exact ID; others: same kind, width and hole spacing from generator gold',
+                relevance='exact: exact ID; paraphrase: kind+width; image/mixed: kind+width+hole spacing; generator gold',
                 empty_relevance='excluded with explicit count; pilot has no empty-relevance cases')
 
 
@@ -90,6 +93,11 @@ def run(root, output):
     cases=make_cases(manifest,json.loads((root/'gold/labels.json').read_text()))
     frozen=protocol(cases)
     frozen['source_hashes']={d['id']:d['source_hash'] for d in manifest['document_entries'] if not d['is_revision_update']}
+    frozen['source_image_hashes']={d['id']:sha256((root/d['png']).read_bytes()).hexdigest()
+                                   for d in manifest['document_entries'] if not d['is_revision_update']}
+    frozen['query_image_hashes']={c['id']:sha256(query_image((root/next(
+        d['png'] for d in manifest['document_entries'] if d['id']==c['image_source'])).read_bytes())).hexdigest()
+        for c in cases if c['image_source']}
     # Written before model loading, indexing or queries. Existing output is never overwritten.
     (output/'protocol.json').write_text(json.dumps(frozen,ensure_ascii=False,indent=2))
     repo=Repository(os.environ['FITWITNESS_DATABASE_URL']);repo.migrate();Jobs(repo).migrate()

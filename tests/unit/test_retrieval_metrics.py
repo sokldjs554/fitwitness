@@ -30,3 +30,17 @@ def test_protocol_is_frozen_before_runtime_case_annotations():
     frozen=protocol(cases)
     cases[0]['query_image_id']='runtime-image'
     assert 'query_image_id' not in frozen['cases'][0]
+
+
+def test_text_query_does_not_require_an_unstated_hole_spacing():
+    from fitwitness.evaluation.retrieval import make_cases
+    from pathlib import Path
+    import json
+    m=json.loads(Path('var/corpus/manifest.json').read_text())
+    cases=make_cases(m,json.loads(Path('var/corpus/gold/labels.json').read_text()))
+    for family in ('FW-F012','FW-F029'):
+        alternate=next(d for d in m['document_entries'] if d['family_id']==family and d['drawing_number'].endswith('-1'))
+        text=next(c for c in cases if c['family_id']==family and c['category']=='paraphrase')
+        image=next(c for c in cases if c['family_id']==family and c['category']=='image')
+        assert alternate['id'] in text['relevance']
+        assert alternate['id'] not in image['relevance']
