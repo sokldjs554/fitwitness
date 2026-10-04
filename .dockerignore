@@ -1,0 +1,10 @@
+.git
+.venv
+.env*
+var
+artifacts
+.superpowers
+web/node_modules
+web/dist
+web/test-results
+**/__pycache__

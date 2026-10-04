@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: fitwitness
+      POSTGRES_PASSWORD: local-dev-only
+      POSTGRES_DB: fitwitness
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fitwitness"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+  app:
+    build: .
+    ports: ["8787:8787"]
+    environment:
+      FITWITNESS_DATABASE_URL: postgresql://fitwitness:local-dev-only@postgres:5432/fitwitness
+      FITWITNESS_ALLOWED_ORIGINS: http://localhost:8787,http://127.0.0.1:8787
+    depends_on:
+      postgres:
+        condition: service_healthy
+volumes:
+  postgres-data:

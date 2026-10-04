@@ -1,0 +1,12 @@
+import {chromium} from '../web/node_modules/playwright/index.mjs';
+const b=await chromium.launch({headless:true});
+const c=await b.newContext({viewport:{width:1440,height:1000},recordVideo:{dir:'artifacts/video',size:{width:1440,height:1000}}});
+const p=await c.newPage();await p.goto(process.env.FITWITNESS_DEMO_URL||'http://127.0.0.1:8787');await p.evaluate(()=>document.fonts.ready);
+await p.getByRole('checkbox',{name:'중간 중단 후 복구 체험'}).check();
+await p.getByRole('button',{name:'조건 검증 시작',exact:true}).click();await p.getByText('검증 완료',{exact:true}).waitFor({timeout:60000});
+await p.getByTestId('candidate-card').first().click();await p.screenshot({path:'artifacts/workspace-desktop.png',fullPage:true});
+await p.getByRole('button',{name:'3D 형상',exact:true}).click();await p.locator('canvas').waitFor();await p.screenshot({path:'artifacts/cad-3d.png',fullPage:true});
+await p.getByRole('button',{name:'실행 기록 보기'}).click();await p.getByTestId('run-timeline').scrollIntoViewIfNeeded();await p.screenshot({path:'artifacts/recovery.png',fullPage:true});
+await p.getByRole('button',{name:'개정판 적용',exact:true}).click();await p.getByText('재검증 필요',{exact:true}).waitFor();await p.screenshot({path:'artifacts/revision-stale.png',fullPage:true});
+await p.getByRole('button',{name:'바뀐 도면으로 재검증',exact:true}).click();await p.getByText('검증 완료',{exact:true}).waitFor({timeout:60000});
+await c.close();await b.close();console.log('Actual API demo captured.');

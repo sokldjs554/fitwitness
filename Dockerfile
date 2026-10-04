@@ -1,0 +1,20 @@
+FROM node:22-bookworm-slim AS web
+WORKDIR /build/web
+COPY web/package*.json ./
+RUN npm ci
+COPY web/ ./
+RUN npm run build
+FROM python:3.12-slim-bookworm
+ENV PYTHONUNBUFFERED=1 PYTHONPATH=/app/src PORT=8787
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 libxrender1 libxext6 && rm -rf /var/lib/apt/lists/*
+COPY pyproject.toml ./
+COPY src/ src/
+RUN pip install --no-cache-dir .
+COPY scripts/ scripts/
+RUN python -m fitwitness.data.generate
+COPY --from=web /build/web/dist web/dist/
+RUN useradd --uid 10001 --create-home app && chown -R app:app /app
+USER app
+EXPOSE 8787
+CMD ["sh","-c","python scripts/setup.py && exec uvicorn fitwitness.api.app:create_app --factory --host 0.0.0.0 --port ${PORT}"]
