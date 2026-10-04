@@ -50,7 +50,7 @@ uv run python -m fitwitness.evaluation.retrieval --output artifacts/retrieval-ne
 
 [원시 보고서](evaluation/retrieval-37198685994/report.json) · [동결 protocol](evaluation/retrieval-37198685994/protocol.json) · [288개 원시 실행 JSONL.gz](evaluation/retrieval-37198685994/runs.jsonl.gz) · [실제 graph 기록](evaluation/retrieval-37198685994/graph.json)
 
-GitHub Actions37198685994, 코드5fbc5feec8f58827aed5028a2d8d8c2be0c8b093에서288/288 검색과 실제 rules LangGraph 실행이 완료됐습니다. 모델 로드21.25초,150개 도면 색인44.91초였고 모델 호출 비용은 없습니다. 원시 JSONL에서 개별/집계 지표를 다시 계산해 보고서와 대조했습니다.
+GitHub Actions37198685994, 코드5fbc5feec8f58827aed5028a2d8d8c2be0c8b093에서288/288 검색과 실제 rules LangGraph 실행이 완료됐습니다. 모델 로드21.25초,150개 도면 색인44.91초였고 추가 LLM API 호출 비용은 없습니다. 원시 JSONL에서 개별/집계 지표를 다시 계산해 보고서와 대조했습니다.
 
 | 방식 | 전체 Recall@5 | 전체 nDCG@10 | p50 / p95 |
 |---|---:|---:|---:|
@@ -69,3 +69,9 @@ GitHub Actions37198685994, 코드5fbc5feec8f58827aed5028a2d8d8c2be0c8b093에서2
 **해석:** 네 채널의 연결·실행은 검증됐지만 검색 품질은 낮습니다. 복합 방식의 전체 평균 증가는 모달리티를 추가한 효과를 포함하며, 복합 질문에서는 오히려 각 dense 방식보다 낮았습니다. 범용 E5/OpenCLIP과 동일 가중치 RRF가 기술 도면의 세밀한 치수 차이에 충분하다는 근거는 없습니다. 과거 Claude PDF72/72와 이 검색 지표는 서로 다른 과제입니다. 이 결과를 산업 검색 정확도나 일반적 모델 우위라고 소개하지 않습니다.
 
 다음 연구 단계는 별도 dev 자료에서 치수 조건을 사용한 후보 재정렬·3D 특징을 비교하고, 이후 새로운 독립 test자료로 검증하는 것입니다. 이번 test점수에 맞춰 가중치나 정답 범위를 바꾸지 않았습니다.
+
+## 원본 자료 묶음
+
+[실험과 바이트가 일치하는 PDF·PNG·manifest·gold](evaluation/retrieval-37198685994/sources.zip.xz)를 보존했습니다. `xz -d sources.zip.xz` 후 ZIP을 풀면 됩니다. 로컬에 예전부터 있던 PNG는 실험 PNG와 바이트가 달랐으므로 이를 실험 원본이라고 부르지 않았습니다. 동일한 CI 환경에서 원본을 다시 만들고, 동결 protocol의 PDF150개·PNG150개 해시가 모두 일치하는 것을 확인한 자료입니다. 화면에 표시되는 변형 질문 이미지12개도 동결 해시와 일치합니다.
+
+자료 재생성 workflow37199579387, 보존 archive SHA-256 `7481215aa5a6844588d3fb7e93970258349a1af54d8be40c0011bb79547eebb3`. 이 작업에서 모델 추론·점수 계산을 다시 수행하지 않았습니다.

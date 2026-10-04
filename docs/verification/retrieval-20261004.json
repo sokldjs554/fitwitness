@@ -29,5 +29,23 @@
     "phase": "model download before inference",
     "cause": "temporary download filenames accidentally in model lock",
     "fixed_by": "1323070658d24e19615d5b85b0a403ac169cbfe2"
+  },
+  "source_archive": {
+    "workflow": 37199579387,
+    "artifact_id": 11302467483,
+    "artifact_sha256": "cfe6fe1663c38f0338a79415ca50e54c380112581da20d2291d54ef78cff60c0",
+    "archive": "docs/evaluation/retrieval-37198685994/sources.zip.xz",
+    "sha256": "7481215aa5a6844588d3fb7e93970258349a1af54d8be40c0011bb79547eebb3",
+    "source_pdfs_verified": 150,
+    "source_pngs_verified": 150,
+    "embedded_query_images_verified": 12
+  },
+  "final_ci": {
+    "code_sha": "431d6998d41cd3993e73b530a04be03be0d3d37a",
+    "native": 37199419442,
+    "container": 37199419433,
+    "rounds": 2,
+    "python_per_round": 116,
+    "e2e_per_round": 10
   }
 }
