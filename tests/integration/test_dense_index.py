@@ -13,10 +13,10 @@ class TinyEncoder:
     def encode_text(self, texts, query=False): return np.array([[1.,0.,0.] for _ in texts])
     def encode_image(self, images): return np.array([[0.,1.,0.] for _ in images])
 
-def setup(repo):
+def setup(repo, image=b'png'):
     s=TenantScope(tenant_id=str(uuid4()),user_id='test')
     r=DrawingRevision(tenant_id=s.tenant_id,document_id=str(uuid4()),drawing_number='DENSE-1',family_id='f',revision_label='A',source_hash=sha256(b'pdf').hexdigest())
-    repo.add_revision(s,r,b'pdf');repo.put_asset(s,r.id,'png',b'png')
+    repo.add_revision(s,r,b'pdf');repo.put_asset(s,r.id,'png',image)
     return s,r
 
 def test_atomic_index_is_scoped_and_facts_invalidate_it(repo):
@@ -63,9 +63,8 @@ def test_vision_tool_preserves_source_scope_and_uncertainty(repo):
     from fitwitness.agents.budget import BudgetTracker
     from fitwitness.contracts import Budget
     from fitwitness.ingest.vision import ImageReading
-    a,ra=setup(repo);b,rb=setup(repo)
     buf=BytesIO();Image.new('RGB',(100,100),'white').save(buf,format='PNG')
-    repo.put_asset(a,ra.id,'png',buf.getvalue())
+    a,ra=setup(repo,buf.getvalue());b,rb=setup(repo)
     class Reader:
         emit=lambda *args:None
         def read_image(self,image,prompt):
