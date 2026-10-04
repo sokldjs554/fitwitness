@@ -12,6 +12,7 @@ jobs:
     # A dedicated, explicitly authorized marker commit is required. Ordinary
     # pushes, pull requests and storing a secret do not make paid API calls.
     if: >-
+      github.run_attempt == 1 &&
       startsWith(github.event.head_commit.message, 'eval: claude evidence pilot [max-usd=1]')
     runs-on: ubuntu-latest
     timeout-minutes: 20

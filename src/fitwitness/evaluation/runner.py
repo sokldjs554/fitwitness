@@ -119,7 +119,8 @@ def run(args):
     cases=build_cases(Path(args.corpus))
     protocol=dict(scope='PDF-evidence verdict pilot; not retrieval, OCR, VLM or full-agent evaluation',
         case_count=len(cases),families=sorted({c['family_id'] for c in cases}),repeats=args.repeats,
-        seeds=[1701+i for i in range(args.repeats)],prompt_hash=sha256(PROMPT.encode()).hexdigest(),
+        seeds=[1701+i for i in range(args.repeats)] if args.provider=='local' else None,
+        prompt_hash=sha256(PROMPT.encode()).hexdigest(),
         dataset_hash=digest(cases),model_revision=MODEL_REVISION if args.provider=='local' else None,
         temperature=.7,top_p=.8 if args.provider=='local' else None,max_new_tokens=128,
         code_sha=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),

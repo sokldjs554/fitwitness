@@ -39,6 +39,8 @@ print(Jobs(repo).get(scope, job.id).model_dump_json(indent=2))
 
 `eval: claude evidence pilot [max-usd=1]`
 
+한도는 승인된 **실행 1회당** 1 USD입니다. 동일 workflow의 Re-run jobs는 `run_attempt == 1` 조건으로 차단합니다. 다시 측정하려면 비용 승인을 새로 받고 새 실행 커밋을 만들어야 합니다. 여러 실행의 누적 비용이나 다른 프로젝트의 사용량을 이 예산이 제한하지는 않습니다. API 반복에는 seed를 적용하지 않으므로 프로토콜의 seeds는 null이며, 로컬 모델의 seed 고정과 구분합니다.
+
 사전 제안: Claude Haiku 4.5 고정 ID `claude-haiku-4-5-20251001`, 동일 24개 사례 × 3회. 입력/출력 단가는 2026-10-04 확인한 공식 기준 1/5 USD per million tokens이며, 실행 전 다시 확인합니다. 전체 실험은 보수적인 예약 합계 1 USD 한도로 차단합니다. 이 한도는 이 작업의 API 호출 예산이며 계정 전체 지출 한도는 아닙니다.
 
 CI artifact에는 프로토콜·입력·호출별 출력·실사용 토큰·실패·집계가 저장됩니다. 기록 검토 전에는 공개 데모의 Qwen 측정을 덮어쓰지 않습니다. 이 경로는 PDF 근거 판정 평가이며, 실제 LangGraph 도구 사용 및 검색 평가와 다릅니다. 전체 Agent의 가용 도구·관측 반영·재시도 경로는 별도 보완 후 측정합니다.
