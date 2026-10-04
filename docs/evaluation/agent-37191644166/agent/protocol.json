@@ -1,0 +1,54 @@
+{
+  "scope": "Full LangGraph tool-use smoke/ablation; one synthetic family, two repeated queries, not a general performance benchmark",
+  "pdf_cap_usd": "0.60",
+  "model": "claude-haiku-4-5-20251001",
+  "mode_labels": {
+    "fixed": "single-pass tool planner",
+    "react": "iterative tool planner",
+    "fitwitness": "planner plus separate challenger"
+  },
+  "runs": [
+    {
+      "mode": "fixed",
+      "repeat": 0,
+      "cap_usd": "0.066"
+    },
+    {
+      "mode": "react",
+      "repeat": 0,
+      "cap_usd": "0.066"
+    },
+    {
+      "mode": "fitwitness",
+      "repeat": 0,
+      "cap_usd": "0.066"
+    },
+    {
+      "mode": "fixed",
+      "repeat": 1,
+      "cap_usd": "0.066"
+    },
+    {
+      "mode": "react",
+      "repeat": 1,
+      "cap_usd": "0.066"
+    },
+    {
+      "mode": "fitwitness",
+      "repeat": 1,
+      "cap_usd": "0.066"
+    }
+  ],
+  "query": "브래킷 구멍 간격 40mm SUS304",
+  "family": "FW-F000",
+  "code_sha": "0cc5aabcdcb06738f1c38c7b5f2261b7a4b90e1a",
+  "source_hashes": {
+    "src/fitwitness/agents/providers.py": "c6fe33c3cbc05205c6b2bab3c5272967d5a655480906d1f5b9ad9d8bfb05ef3f",
+    "src/fitwitness/agents/tools.py": "d154959e1b9c0a1d2695c701b73af85f41046974ad0111f46e05e4f3ca953e37",
+    "src/fitwitness/agents/budget.py": "3bcfc0306ff1d1b6cbb72c1243c99b289d9790b7ff8ea5bd23f68ea8f804d7d6",
+    "src/fitwitness/agents/evidence.py": "75151048935b534e1f3a363dc0cc1403af1274abc86a4c7ad20cba079a29e94c",
+    "src/fitwitness/agents/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/fitwitness/agents/graph.py": "7ddd5a5dead6fdf648f64a0bfe77098a4d6f5a62164e131e1a51f46d9d036d45",
+    "/home/runner/work/fitwitness/fitwitness/src/fitwitness/evaluation/agent_pilot.py": "8d9fe84fd1bb9ff501c8d1f00b608fc1663472e04927b6669e46e557fb3e97c5"
+  }
+}

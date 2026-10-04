@@ -336,8 +336,8 @@ def create_app():
         ]}
 
     @app.get("/api/evaluations/agent")
-    def agent_evaluation():
-        p = ROOT / "docs/evaluation/agent.json"
+    def agent_evaluation(version: Literal["latest", "v1"] = "latest"):
+        p = ROOT / "docs/evaluation" / ("agent-v1.json" if version == "v1" else "agent.json")
         return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
 
     @app.get("/health")

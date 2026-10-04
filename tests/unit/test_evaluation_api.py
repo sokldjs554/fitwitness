@@ -30,5 +30,20 @@ def test_evaluation_catalog_and_selection_are_allowlisted():
     assert any(x['id']=='qwen' for x in result.json()['experiments'])
     assert client.get('/api/evaluations?experiment=../../secret').status_code==422
     assert client.get('/api/evaluations?experiment=qwen').json()['model']['model_id']=='Qwen/Qwen3-1.7B'
+    assert client.get('/api/evaluations/agent?version=../../secret').status_code==422
     agent=client.get('/api/evaluations/agent').json()
     assert agent['status'] in ('measured','not_measured')
+
+
+def test_every_published_model_recomputes_and_keeps_provider_metadata():
+    from fitwitness.evaluation.metrics import summarize
+    client=TestClient(create_app())
+    for experiment in client.get('/api/evaluations/catalog').json()['experiments']:
+        report=client.get('/api/evaluations',params={'experiment':experiment['id']}).json()
+        for method in report['methods']:
+            rows=[r for r in report['predictions'] if r['method']==method['id']]
+            assert method['metrics']==summarize(rows)
+        if experiment['id']=='claude':
+            assert report['protocol']['seeds'] is None
+            assert report['model']['provider']=='anthropic'
+            assert len([r for r in report['predictions'] if r['method']=='anthropic'])==72

@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "checks": [
+    "immutable raw JSONL equals report",
+    "independent gold metrics recomputed",
+    "PDF same dataset and prompt",
+    "four v2 provider response IDs",
+    "aggregate cost below original USD1"
+  ],
+  "agent_artifacts": [
+    {
+      "artifact": "agent-37191644166",
+      "rows": 7,
+      "completed": 4,
+      "sha256": "39214fa00cf56e73c975461bfabe8a30268edb051584a1febf37d978d2e04d0e"
+    },
+    {
+      "artifact": "agent-37191981503",
+      "rows": 4,
+      "completed": 4,
+      "sha256": "dd796e3eb641c841553baf1dc201556b92c5b216745ad1f86405c8a17949de9a"
+    }
+  ],
+  "api_cost_usd": "0.187841",
+  "outstanding_reservations_usd": "0",
+  "pdf_workflow": 37191423446,
+  "first_agent_workflow": 37191644166,
+  "diagnostic_workflow": 37191981503
+}

@@ -80,3 +80,45 @@ test("review workbench filters candidates and exposes measured experiment compar
   await page.keyboard.press("Control+k");
   await expect(page.getByRole("textbox")).toBeFocused();
 });
+
+test("published API measurement selection and real agent traces", async ({
+  page,
+  request,
+}) => {
+  const catalog = await (await request.get("/api/evaluations/catalog")).json();
+  test.skip(
+    !catalog.experiments.some((e: { id: string }) => e.id === "claude"),
+    "Claude experiment has not been published on this commit",
+  );
+  await page.goto("/");
+  await page.getByRole("button", { name: "실험실", exact: true }).click();
+  await page
+    .getByRole("combobox", { name: "측정 모델" })
+    .selectOption("claude");
+  await expect(page.getByTestId("experiment-comparison")).toContainText(
+    "claude-haiku-4-5",
+  );
+  await expect(page.getByTestId("experiment-comparison")).toContainText(
+    "API LLM",
+  );
+  await page.getByText("재현 정보와 측정 범위", { exact: false }).click();
+  await expect(page.getByText("API seed 미지정 · 반복 실행")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "실제 Agent 실행 비교", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "탐색 + 반례 검토 · 1", exact: true })
+    .click();
+  await expect(page.locator(".agent-events")).toContainText("planner");
+  await page
+    .getByRole("combobox", { name: "Agent 실행 버전" })
+    .selectOption("v1");
+  await expect(
+    page.getByRole("region", { name: "실제 Agent 실행 비교" }),
+  ).toContainText("failed");
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth > window.innerWidth + 1,
+    ),
+  ).toBe(false);
+});

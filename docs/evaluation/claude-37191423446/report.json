@@ -1,0 +1,5246 @@
+{
+  "status": "measured",
+  "schema_version": 1,
+  "title": "Evidence verdict pilot",
+  "created_at": "2026-10-04T09:14:49.627879+00:00",
+  "protocol": {
+    "scope": "PDF-evidence verdict pilot; not retrieval, OCR, VLM or full-agent evaluation",
+    "case_count": 24,
+    "families": [
+      "FW-F003",
+      "FW-F012",
+      "FW-F018",
+      "FW-F029"
+    ],
+    "repeats": 3,
+    "seeds": null,
+    "prompt_hash": "eb42f98366e2992bc40dc031e844064a345578e07ea618cb86802c33e350e9e1",
+    "dataset_hash": "19c7ba18ccb6bea6420c82ea3bbddbb96db86f1e51561fa1a839780b7ba7f58a",
+    "model_revision": null,
+    "temperature": 0.7,
+    "top_p": null,
+    "max_new_tokens": 128,
+    "code_sha": "5fa5cfe6b9b4990505e868ae8cf4543cb64f8f3f",
+    "runner_hash": "5d3165e1d5ab7291491efea9d1f57562a9c96d82bc1c8c3122ca4bc92e2c0c29"
+  },
+  "model": {
+    "model_id": "claude-haiku-4-5-20251001",
+    "provider": "anthropic",
+    "pricing_input": "1",
+    "pricing_output": "5",
+    "max_cost_usd": 0.6
+  },
+  "methods": [
+    {
+      "id": "rules",
+      "label": "결정적 검증기",
+      "kind": "rules",
+      "status": "measured",
+      "metrics": {
+        "attempts": 72,
+        "completed": 72,
+        "accuracy": 1,
+        "accuracy_ci95": [
+          1.0,
+          1.0
+        ],
+        "false_acceptances": 0,
+        "nonmatching_cases": 42,
+        "false_acceptance_rate": 0.0,
+        "citation_validity": 1,
+        "abstention_rate": 0.16666666666666666,
+        "latency_p50_ms": 0.008378000003972375,
+        "latency_p95_ms": 0.012517500000797101,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0
+      },
+      "categories": {
+        "dimension": {
+          "attempts": 12,
+          "completed": 12,
+          "accuracy": 1,
+          "accuracy_ci95": [
+            1.0,
+            1.0
+          ],
+          "false_acceptances": 0,
+          "nonmatching_cases": 12,
+          "false_acceptance_rate": 0.0,
+          "citation_validity": 1,
+          "abstention_rate": 0.0,
+          "latency_p50_ms": 0.008783500000220101,
+          "latency_p95_ms": 0.011443350003759177,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0
+        },
+        "match": {
+          "attempts": 12,
+          "completed": 12,
+          "accuracy": 1,
+          "accuracy_ci95": [
+            1.0,
+            1.0
+          ],
+          "false_acceptances": 0,
+          "nonmatching_cases": 0,
+          "false_acceptance_rate": null,
+          "citation_validity": 1,
+          "abstention_rate": 0.0,
+          "latency_p50_ms": 0.00883899998882498,
+          "latency_p95_ms": 0.03533825000161525,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0
+        },
+        "material": {
+          "attempts": 12,
+          "completed": 12,
+          "accuracy": 1,
+          "accuracy_ci95": [
+            1.0,
+            1.0
+          ],
+          "false_acceptances": 0,
+          "nonmatching_cases": 12,
+          "false_acceptance_rate": 0.0,
+          "citation_validity": 1,
+          "abstention_rate": 0.0,
+          "latency_p50_ms": 0.008442500011085485,
+          "latency_p95_ms": 0.009472449992387055,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0
+        },
+        "missing": {
+          "attempts": 12,
+          "completed": 12,
+          "accuracy": 1,
+          "accuracy_ci95": [
+            1.0,
+            1.0
+          ],
+          "false_acceptances": 0,
+          "nonmatching_cases": 12,
+          "false_acceptance_rate": 0.0,
+          "citation_validity": 1,
+          "abstention_rate": 1.0,
+          "latency_p50_ms": 0.007641500005206581,
+          "latency_p95_ms": 0.008715450004359582,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0
+        },
+        "revision": {
+          "attempts": 12,
+          "completed": 12,
+          "accuracy": 1,
+          "accuracy_ci95": [
+            1.0,
+            1.0
+          ],
+          "false_acceptances": 0,
+          "nonmatching_cases": 6,
+          "false_acceptance_rate": 0.0,
+          "citation_validity": 1,
+          "abstention_rate": 0.0,
+          "latency_p50_ms": 0.008248000000321554,
+          "latency_p95_ms": 0.008945949996785885,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0
+        },
+        "unit": {
+          "attempts": 12,
+          "completed": 12,
+          "accuracy": 1,
+          "accuracy_ci95": [
+            1.0,
+            1.0
+          ],
+          "false_acceptances": 0,
+          "nonmatching_cases": 0,
+          "false_acceptance_rate": null,
+          "citation_validity": 1,
+          "abstention_rate": 0.0,
+          "latency_p50_ms": 0.008502499994733625,
+          "latency_p95_ms": 0.01740169999067119,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0
+        }
+      }
+    },
+    {
+      "id": "anthropic",
+      "label": "claude-haiku-4-5-20251001",
+      "kind": "llm",
+      "status": "measured",
+      "metrics": {
+        "attempts": 72,
+        "completed": 72,
+        "accuracy": 1,
+        "accuracy_ci95": [
+          1.0,
+          1.0
+        ],
+        "false_acceptances": 0,
+        "nonmatching_cases": 42,
+        "false_acceptance_rate": 0.0,
+        "citation_validity": 1,
+        "abstention_rate": 0.16666666666666666,
+        "latency_p50_ms": 658.4289935000029,
+        "latency_p95_ms": 924.4862576499985,
+        "input_tokens": 89895,
+        "output_tokens": 4112,
+        "cost_usd": 0.110455
+      },
+      "categories": {
+        "dimension": {
+          "attempts": 12,
+          "completed": 12,
+          "accuracy": 1,
+          "accuracy_ci95": [
+            1.0,
+            1.0
+          ],
+          "false_acceptances": 0,
+          "nonmatching_cases": 12,
+          "false_acceptance_rate": 0.0,
+          "citation_validity": 1,
+          "abstention_rate": 0.0,
+          "latency_p50_ms": 675.621346000007,
+          "latency_p95_ms": 840.9431804499966,
+          "input_tokens": 15381,
+          "output_tokens": 704,
+          "cost_usd": 0.018901
+        },
+        "match": {
+          "attempts": 12,
+          "completed": 12,
+          "accuracy": 1,
+          "accuracy_ci95": [
+            1.0,
+            1.0
+          ],
+          "false_acceptances": 0,
+          "nonmatching_cases": 0,
+          "false_acceptance_rate": null,
+          "citation_validity": 1,
+          "abstention_rate": 0.0,
+          "latency_p50_ms": 789.0728430000067,
+          "latency_p95_ms": 1078.501767999999,
+          "input_tokens": 15336,
+          "output_tokens": 684,
+          "cost_usd": 0.018756
+        },
+        "material": {
+          "attempts": 12,
+          "completed": 12,
+          "accuracy": 1,
+          "accuracy_ci95": [
+            1.0,
+            1.0
+          ],
+          "false_acceptances": 0,
+          "nonmatching_cases": 12,
+          "false_acceptance_rate": 0.0,
+          "citation_validity": 1,
+          "abstention_rate": 0.0,
+          "latency_p50_ms": 652.4405719999961,
+          "latency_p95_ms": 816.0117795499978,
+          "input_tokens": 15258,
+          "output_tokens": 708,
+          "cost_usd": 0.018798
+        },
+        "missing": {
+          "attempts": 12,
+          "completed": 12,
+          "accuracy": 1,
+          "accuracy_ci95": [
+            1.0,
+            1.0
+          ],
+          "false_acceptances": 0,
+          "nonmatching_cases": 12,
+          "false_acceptance_rate": 0.0,
+          "citation_validity": 1,
+          "abstention_rate": 1.0,
+          "latency_p50_ms": 603.0083090000034,
+          "latency_p95_ms": 916.5088500499925,
+          "input_tokens": 13197,
+          "output_tokens": 636,
+          "cost_usd": 0.016377
+        },
+        "revision": {
+          "attempts": 12,
+          "completed": 12,
+          "accuracy": 1,
+          "accuracy_ci95": [
+            1.0,
+            1.0
+          ],
+          "false_acceptances": 0,
+          "nonmatching_cases": 6,
+          "false_acceptance_rate": 0.0,
+          "citation_validity": 1,
+          "abstention_rate": 0.0,
+          "latency_p50_ms": 687.7488754999988,
+          "latency_p95_ms": 867.711882850004,
+          "input_tokens": 15315,
+          "output_tokens": 696,
+          "cost_usd": 0.018795
+        },
+        "unit": {
+          "attempts": 12,
+          "completed": 12,
+          "accuracy": 1,
+          "accuracy_ci95": [
+            1.0,
+            1.0
+          ],
+          "false_acceptances": 0,
+          "nonmatching_cases": 0,
+          "false_acceptance_rate": null,
+          "citation_validity": 1,
+          "abstention_rate": 0.0,
+          "latency_p50_ms": 744.3907189999948,
+          "latency_p95_ms": 801.7411692499976,
+          "input_tokens": 15408,
+          "output_tokens": 684,
+          "cost_usd": 0.018828
+        }
+      }
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "FW-F003-match",
+      "family_id": "FW-F003",
+      "category": "match",
+      "drawing_number": "FW-003-0",
+      "revision": "A",
+      "source_hash": "f2f426d59b03523cb5f39679d3c4d2632a1d37e4c8aa254afbbc13ae3d5e2e66",
+      "query": "width 71mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "width",
+          "value": {
+            "low": "71",
+            "high": "71"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "b706aedc-a8b4-56b4-be49-2535aeb8f0cb",
+            "source_hash": "f2f426d59b03523cb5f39679d3c4d2632a1d37e4c8aa254afbbc13ae3d5e2e66",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.6626263888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "width",
+          "value": {
+            "low": "71.00",
+            "high": "71.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "b706aedc-a8b4-56b4-be49-2535aeb8f0cb",
+            "source_hash": "f2f426d59b03523cb5f39679d3c4d2632a1d37e4c8aa254afbbc13ae3d5e2e66",
+            "page": 1,
+            "bbox": [
+              0.05555555555555555,
+              0.8515235294117647,
+              0.18204027777777781,
+              0.8730921568627451
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "match",
+      "revision_id": "b706aedc-a8b4-56b4-be49-2535aeb8f0cb"
+    },
+    {
+      "case_id": "FW-F003-dimension",
+      "family_id": "FW-F003",
+      "category": "dimension",
+      "drawing_number": "FW-003-4",
+      "revision": "A",
+      "source_hash": "d6d0a14ef674f4cbaf7cbbf9b7e8781f0621618ad83c3cb7400aaa8fbc477034",
+      "query": "width 71mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "width",
+          "value": {
+            "low": "71",
+            "high": "71"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "f486a712-46b6-58f6-854f-4c3ec2b8b855",
+            "source_hash": "d6d0a14ef674f4cbaf7cbbf9b7e8781f0621618ad83c3cb7400aaa8fbc477034",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.6626263888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "width",
+          "value": {
+            "low": "81.00",
+            "high": "81.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "f486a712-46b6-58f6-854f-4c3ec2b8b855",
+            "source_hash": "d6d0a14ef674f4cbaf7cbbf9b7e8781f0621618ad83c3cb7400aaa8fbc477034",
+            "page": 1,
+            "bbox": [
+              0.05555555555555555,
+              0.8515235294117647,
+              0.18204027777777781,
+              0.8730921568627451
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "mismatch",
+      "revision_id": "f486a712-46b6-58f6-854f-4c3ec2b8b855"
+    },
+    {
+      "case_id": "FW-F003-material",
+      "family_id": "FW-F003",
+      "category": "material",
+      "drawing_number": "FW-003-2",
+      "revision": "A",
+      "source_hash": "b98775edced3550a24d98e09d747024ceea0d32b31250b4c4f3f720506acf9c5",
+      "query": "width 71mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "width",
+          "value": {
+            "low": "71",
+            "high": "71"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "material",
+          "value": "AL6061",
+          "unit": null,
+          "source": {
+            "revision_id": "9450b559-8998-5060-be3e-ab729f10cbc2",
+            "source_hash": "b98775edced3550a24d98e09d747024ceea0d32b31250b4c4f3f720506acf9c5",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.6583944444444444,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "width",
+          "value": {
+            "low": "71.00",
+            "high": "71.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "9450b559-8998-5060-be3e-ab729f10cbc2",
+            "source_hash": "b98775edced3550a24d98e09d747024ceea0d32b31250b4c4f3f720506acf9c5",
+            "page": 1,
+            "bbox": [
+              0.05555555555555555,
+              0.8515235294117647,
+              0.18204027777777781,
+              0.8730921568627451
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "mismatch",
+      "revision_id": "9450b559-8998-5060-be3e-ab729f10cbc2"
+    },
+    {
+      "case_id": "FW-F003-missing",
+      "family_id": "FW-F003",
+      "category": "missing",
+      "drawing_number": "FW-003-3",
+      "revision": "A",
+      "source_hash": "e6e2cbb17d16e55e52502978a698c06fea9153ad434d10589372c745eaee4809",
+      "query": "width 71mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "width",
+          "value": {
+            "low": "71",
+            "high": "71"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F4",
+          "field": "width",
+          "value": {
+            "low": "71.00",
+            "high": "71.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "8729645f-03e3-50a2-b792-88f0ce0241d6",
+            "source_hash": "e6e2cbb17d16e55e52502978a698c06fea9153ad434d10589372c745eaee4809",
+            "page": 1,
+            "bbox": [
+              0.05555555555555555,
+              0.8515235294117647,
+              0.18204027777777781,
+              0.8730921568627451
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "unknown",
+      "revision_id": "8729645f-03e3-50a2-b792-88f0ce0241d6"
+    },
+    {
+      "case_id": "FW-F003-unit",
+      "family_id": "FW-F003",
+      "category": "unit",
+      "drawing_number": "FW-003-0",
+      "revision": "A",
+      "source_hash": "f2f426d59b03523cb5f39679d3c4d2632a1d37e4c8aa254afbbc13ae3d5e2e66",
+      "query": "width 7.1cm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "width",
+          "value": {
+            "low": "7.1",
+            "high": "7.1"
+          },
+          "unit": "cm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "b706aedc-a8b4-56b4-be49-2535aeb8f0cb",
+            "source_hash": "f2f426d59b03523cb5f39679d3c4d2632a1d37e4c8aa254afbbc13ae3d5e2e66",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.6626263888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "width",
+          "value": {
+            "low": "71.00",
+            "high": "71.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "b706aedc-a8b4-56b4-be49-2535aeb8f0cb",
+            "source_hash": "f2f426d59b03523cb5f39679d3c4d2632a1d37e4c8aa254afbbc13ae3d5e2e66",
+            "page": 1,
+            "bbox": [
+              0.05555555555555555,
+              0.8515235294117647,
+              0.18204027777777781,
+              0.8730921568627451
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "match",
+      "revision_id": "b706aedc-a8b4-56b4-be49-2535aeb8f0cb"
+    },
+    {
+      "case_id": "FW-F003-revision",
+      "family_id": "FW-F003",
+      "category": "revision",
+      "drawing_number": "FW-003-0",
+      "revision": "B",
+      "source_hash": "4d6ed5476b2ee75e373f4c79e5286d4815ea409830ac7e3bb8dbe0e4bed0dfdc",
+      "query": "width 71mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "width",
+          "value": {
+            "low": "71",
+            "high": "71"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "d8bb1d3f-879d-52a1-b434-f97bbda7a70e",
+            "source_hash": "4d6ed5476b2ee75e373f4c79e5286d4815ea409830ac7e3bb8dbe0e4bed0dfdc",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.6626263888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "width",
+          "value": {
+            "low": "71.00",
+            "high": "71.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "d8bb1d3f-879d-52a1-b434-f97bbda7a70e",
+            "source_hash": "4d6ed5476b2ee75e373f4c79e5286d4815ea409830ac7e3bb8dbe0e4bed0dfdc",
+            "page": 1,
+            "bbox": [
+              0.05555555555555555,
+              0.8515235294117647,
+              0.18204027777777781,
+              0.8730921568627451
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "match",
+      "revision_id": "d8bb1d3f-879d-52a1-b434-f97bbda7a70e"
+    },
+    {
+      "case_id": "FW-F012-match",
+      "family_id": "FW-F012",
+      "category": "match",
+      "drawing_number": "FW-012-0",
+      "revision": "A",
+      "source_hash": "c7bca199511e214aecbc24a67be840141d411e8b63736f2aefeecf446e477b34",
+      "query": "hole_spacing 64mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "hole_spacing",
+          "value": {
+            "low": "64",
+            "high": "64"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "hole_spacing",
+          "value": {
+            "low": "64.00",
+            "high": "64.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "7367c1cc-7981-5b63-8a19-b8fb2e533124",
+            "source_hash": "c7bca199511e214aecbc24a67be840141d411e8b63736f2aefeecf446e477b34",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.716113888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "7367c1cc-7981-5b63-8a19-b8fb2e533124",
+            "source_hash": "c7bca199511e214aecbc24a67be840141d411e8b63736f2aefeecf446e477b34",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.8025039215686274,
+              0.6626263888888889,
+              0.8240725490196078
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "match",
+      "revision_id": "7367c1cc-7981-5b63-8a19-b8fb2e533124"
+    },
+    {
+      "case_id": "FW-F012-dimension",
+      "family_id": "FW-F012",
+      "category": "dimension",
+      "drawing_number": "FW-012-1",
+      "revision": "A",
+      "source_hash": "f1600afd13f00cd226af8fe8049ff51644c60b693b81d10fba3a30c40e11dd1b",
+      "query": "hole_spacing 64mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "hole_spacing",
+          "value": {
+            "low": "64",
+            "high": "64"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "hole_spacing",
+          "value": {
+            "low": "66.00",
+            "high": "66.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "39200b3a-1bea-5e02-8516-b84ce75af4e8",
+            "source_hash": "f1600afd13f00cd226af8fe8049ff51644c60b693b81d10fba3a30c40e11dd1b",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.716113888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "39200b3a-1bea-5e02-8516-b84ce75af4e8",
+            "source_hash": "f1600afd13f00cd226af8fe8049ff51644c60b693b81d10fba3a30c40e11dd1b",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.8025039215686274,
+              0.6626263888888889,
+              0.8240725490196078
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "mismatch",
+      "revision_id": "39200b3a-1bea-5e02-8516-b84ce75af4e8"
+    },
+    {
+      "case_id": "FW-F012-material",
+      "family_id": "FW-F012",
+      "category": "material",
+      "drawing_number": "FW-012-2",
+      "revision": "A",
+      "source_hash": "89729b272aee9041547d9c51a14714676b620bfb17565c064ae569da9db567ca",
+      "query": "hole_spacing 64mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "hole_spacing",
+          "value": {
+            "low": "64",
+            "high": "64"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "hole_spacing",
+          "value": {
+            "low": "64.00",
+            "high": "64.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "0f656309-ed49-58c1-bd60-36fb76a4d685",
+            "source_hash": "89729b272aee9041547d9c51a14714676b620bfb17565c064ae569da9db567ca",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.716113888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "material",
+          "value": "AL6061",
+          "unit": null,
+          "source": {
+            "revision_id": "0f656309-ed49-58c1-bd60-36fb76a4d685",
+            "source_hash": "89729b272aee9041547d9c51a14714676b620bfb17565c064ae569da9db567ca",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.8025039215686274,
+              0.6583944444444444,
+              0.8240725490196078
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "mismatch",
+      "revision_id": "0f656309-ed49-58c1-bd60-36fb76a4d685"
+    },
+    {
+      "case_id": "FW-F012-missing",
+      "family_id": "FW-F012",
+      "category": "missing",
+      "drawing_number": "FW-012-3",
+      "revision": "A",
+      "source_hash": "d7b2d982017aa1236ac389fc178db95b6b09bfb1ca719936cf4ceb5833ea2475",
+      "query": "hole_spacing 64mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "hole_spacing",
+          "value": {
+            "low": "64",
+            "high": "64"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "hole_spacing",
+          "value": {
+            "low": "64.00",
+            "high": "64.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "c1745b63-fc12-513f-8ce8-4ce3f1f82171",
+            "source_hash": "d7b2d982017aa1236ac389fc178db95b6b09bfb1ca719936cf4ceb5833ea2475",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.716113888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "unknown",
+      "revision_id": "c1745b63-fc12-513f-8ce8-4ce3f1f82171"
+    },
+    {
+      "case_id": "FW-F012-unit",
+      "family_id": "FW-F012",
+      "category": "unit",
+      "drawing_number": "FW-012-0",
+      "revision": "A",
+      "source_hash": "c7bca199511e214aecbc24a67be840141d411e8b63736f2aefeecf446e477b34",
+      "query": "hole_spacing 6.4cm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "hole_spacing",
+          "value": {
+            "low": "6.4",
+            "high": "6.4"
+          },
+          "unit": "cm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "hole_spacing",
+          "value": {
+            "low": "64.00",
+            "high": "64.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "7367c1cc-7981-5b63-8a19-b8fb2e533124",
+            "source_hash": "c7bca199511e214aecbc24a67be840141d411e8b63736f2aefeecf446e477b34",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.716113888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "7367c1cc-7981-5b63-8a19-b8fb2e533124",
+            "source_hash": "c7bca199511e214aecbc24a67be840141d411e8b63736f2aefeecf446e477b34",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.8025039215686274,
+              0.6626263888888889,
+              0.8240725490196078
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "match",
+      "revision_id": "7367c1cc-7981-5b63-8a19-b8fb2e533124"
+    },
+    {
+      "case_id": "FW-F012-revision",
+      "family_id": "FW-F012",
+      "category": "revision",
+      "drawing_number": "FW-012-0",
+      "revision": "B",
+      "source_hash": "6fc9a8b7e5200b5df345fc23a7b5a964d3e278488c991e541b36227f229cbc78",
+      "query": "hole_spacing 64mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "hole_spacing",
+          "value": {
+            "low": "64",
+            "high": "64"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "hole_spacing",
+          "value": {
+            "low": "66.00",
+            "high": "66.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "620290f5-21f7-5461-baa1-72d12b716895",
+            "source_hash": "6fc9a8b7e5200b5df345fc23a7b5a964d3e278488c991e541b36227f229cbc78",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.716113888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "620290f5-21f7-5461-baa1-72d12b716895",
+            "source_hash": "6fc9a8b7e5200b5df345fc23a7b5a964d3e278488c991e541b36227f229cbc78",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.8025039215686274,
+              0.6626263888888889,
+              0.8240725490196078
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "mismatch",
+      "revision_id": "620290f5-21f7-5461-baa1-72d12b716895"
+    },
+    {
+      "case_id": "FW-F018-match",
+      "family_id": "FW-F018",
+      "category": "match",
+      "drawing_number": "FW-018-0",
+      "revision": "A",
+      "source_hash": "227ff5b59112a059e1edb1c89ad83d83fea261305970fcc051820109d4617495",
+      "query": "width 101mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "width",
+          "value": {
+            "low": "101",
+            "high": "101"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "ec5f315f-a02e-594a-9130-12c27441a2ea",
+            "source_hash": "227ff5b59112a059e1edb1c89ad83d83fea261305970fcc051820109d4617495",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.6626263888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "width",
+          "value": {
+            "low": "101.00",
+            "high": "101.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "ec5f315f-a02e-594a-9130-12c27441a2ea",
+            "source_hash": "227ff5b59112a059e1edb1c89ad83d83fea261305970fcc051820109d4617495",
+            "page": 1,
+            "bbox": [
+              0.05555555555555555,
+              0.8515235294117647,
+              0.19053472222222223,
+              0.8730921568627451
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "match",
+      "revision_id": "ec5f315f-a02e-594a-9130-12c27441a2ea"
+    },
+    {
+      "case_id": "FW-F018-dimension",
+      "family_id": "FW-F018",
+      "category": "dimension",
+      "drawing_number": "FW-018-4",
+      "revision": "A",
+      "source_hash": "d8d8377f8a849f25aaf5ff5fd690ec3ecd21b314f6af4cab4e8dcf1ecc21e5e8",
+      "query": "width 101mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "width",
+          "value": {
+            "low": "101",
+            "high": "101"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "fca46086-1f8d-51c7-804a-547dc7a49c3a",
+            "source_hash": "d8d8377f8a849f25aaf5ff5fd690ec3ecd21b314f6af4cab4e8dcf1ecc21e5e8",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.6626263888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "width",
+          "value": {
+            "low": "111.00",
+            "high": "111.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "fca46086-1f8d-51c7-804a-547dc7a49c3a",
+            "source_hash": "d8d8377f8a849f25aaf5ff5fd690ec3ecd21b314f6af4cab4e8dcf1ecc21e5e8",
+            "page": 1,
+            "bbox": [
+              0.05555555555555555,
+              0.8515235294117647,
+              0.19053472222222223,
+              0.8730921568627451
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "mismatch",
+      "revision_id": "fca46086-1f8d-51c7-804a-547dc7a49c3a"
+    },
+    {
+      "case_id": "FW-F018-material",
+      "family_id": "FW-F018",
+      "category": "material",
+      "drawing_number": "FW-018-2",
+      "revision": "A",
+      "source_hash": "386fc98d2ea2fd09f41c8f2631dc56877b109c4d2ac65b4213b07b579d17e7eb",
+      "query": "width 101mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "width",
+          "value": {
+            "low": "101",
+            "high": "101"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "material",
+          "value": "AL6061",
+          "unit": null,
+          "source": {
+            "revision_id": "741bb518-5dd0-59d0-b5f4-f774b78a0d46",
+            "source_hash": "386fc98d2ea2fd09f41c8f2631dc56877b109c4d2ac65b4213b07b579d17e7eb",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.6583944444444444,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "width",
+          "value": {
+            "low": "101.00",
+            "high": "101.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "741bb518-5dd0-59d0-b5f4-f774b78a0d46",
+            "source_hash": "386fc98d2ea2fd09f41c8f2631dc56877b109c4d2ac65b4213b07b579d17e7eb",
+            "page": 1,
+            "bbox": [
+              0.05555555555555555,
+              0.8515235294117647,
+              0.19053472222222223,
+              0.8730921568627451
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "mismatch",
+      "revision_id": "741bb518-5dd0-59d0-b5f4-f774b78a0d46"
+    },
+    {
+      "case_id": "FW-F018-missing",
+      "family_id": "FW-F018",
+      "category": "missing",
+      "drawing_number": "FW-018-3",
+      "revision": "A",
+      "source_hash": "55a412605802dde7bd16691f0e152ad5a1cc04d105f38f423d0021724edb9206",
+      "query": "width 101mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "width",
+          "value": {
+            "low": "101",
+            "high": "101"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F4",
+          "field": "width",
+          "value": {
+            "low": "101.00",
+            "high": "101.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "e4a08990-36ec-5594-ac33-0ab6e9b64e3b",
+            "source_hash": "55a412605802dde7bd16691f0e152ad5a1cc04d105f38f423d0021724edb9206",
+            "page": 1,
+            "bbox": [
+              0.05555555555555555,
+              0.8515235294117647,
+              0.19053472222222223,
+              0.8730921568627451
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "unknown",
+      "revision_id": "e4a08990-36ec-5594-ac33-0ab6e9b64e3b"
+    },
+    {
+      "case_id": "FW-F018-unit",
+      "family_id": "FW-F018",
+      "category": "unit",
+      "drawing_number": "FW-018-0",
+      "revision": "A",
+      "source_hash": "227ff5b59112a059e1edb1c89ad83d83fea261305970fcc051820109d4617495",
+      "query": "width 10.1cm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "width",
+          "value": {
+            "low": "10.1",
+            "high": "10.1"
+          },
+          "unit": "cm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "ec5f315f-a02e-594a-9130-12c27441a2ea",
+            "source_hash": "227ff5b59112a059e1edb1c89ad83d83fea261305970fcc051820109d4617495",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.6626263888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "width",
+          "value": {
+            "low": "101.00",
+            "high": "101.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "ec5f315f-a02e-594a-9130-12c27441a2ea",
+            "source_hash": "227ff5b59112a059e1edb1c89ad83d83fea261305970fcc051820109d4617495",
+            "page": 1,
+            "bbox": [
+              0.05555555555555555,
+              0.8515235294117647,
+              0.19053472222222223,
+              0.8730921568627451
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "match",
+      "revision_id": "ec5f315f-a02e-594a-9130-12c27441a2ea"
+    },
+    {
+      "case_id": "FW-F018-revision",
+      "family_id": "FW-F018",
+      "category": "revision",
+      "drawing_number": "FW-018-0",
+      "revision": "B",
+      "source_hash": "b4f12afc056edc3cefddb5ec566341442fb79a625fcdcb2a6f66a9e048218556",
+      "query": "width 101mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "width",
+          "value": {
+            "low": "101",
+            "high": "101"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "18d99ec5-40cb-5dad-be85-2a510108cb15",
+            "source_hash": "b4f12afc056edc3cefddb5ec566341442fb79a625fcdcb2a6f66a9e048218556",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.6626263888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "width",
+          "value": {
+            "low": "101.00",
+            "high": "101.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "18d99ec5-40cb-5dad-be85-2a510108cb15",
+            "source_hash": "b4f12afc056edc3cefddb5ec566341442fb79a625fcdcb2a6f66a9e048218556",
+            "page": 1,
+            "bbox": [
+              0.05555555555555555,
+              0.8515235294117647,
+              0.19053472222222223,
+              0.8730921568627451
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "match",
+      "revision_id": "18d99ec5-40cb-5dad-be85-2a510108cb15"
+    },
+    {
+      "case_id": "FW-F029-match",
+      "family_id": "FW-F029",
+      "category": "match",
+      "drawing_number": "FW-029-0",
+      "revision": "A",
+      "source_hash": "2eca39c35506d662419f3dc8f892edfde3b7a9e9c5d7ee3bc78d540f495bb993",
+      "query": "hole_spacing 98mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "hole_spacing",
+          "value": {
+            "low": "98",
+            "high": "98"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "hole_spacing",
+          "value": {
+            "low": "98.00",
+            "high": "98.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "63b17fd6-1069-566a-af4b-18f6e0f60a3e",
+            "source_hash": "2eca39c35506d662419f3dc8f892edfde3b7a9e9c5d7ee3bc78d540f495bb993",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.716113888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "63b17fd6-1069-566a-af4b-18f6e0f60a3e",
+            "source_hash": "2eca39c35506d662419f3dc8f892edfde3b7a9e9c5d7ee3bc78d540f495bb993",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.8025039215686274,
+              0.6626263888888889,
+              0.8240725490196078
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "match",
+      "revision_id": "63b17fd6-1069-566a-af4b-18f6e0f60a3e"
+    },
+    {
+      "case_id": "FW-F029-dimension",
+      "family_id": "FW-F029",
+      "category": "dimension",
+      "drawing_number": "FW-029-1",
+      "revision": "A",
+      "source_hash": "62ebe499bea4add47f9b1276b6eb7089be65e823b8575021fa04605059d74e5a",
+      "query": "hole_spacing 98mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "hole_spacing",
+          "value": {
+            "low": "98",
+            "high": "98"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "hole_spacing",
+          "value": {
+            "low": "100.00",
+            "high": "100.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "b91e9637-5729-5c5a-be95-7c4c1d29be00",
+            "source_hash": "62ebe499bea4add47f9b1276b6eb7089be65e823b8575021fa04605059d74e5a",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.7246083333333334,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "b91e9637-5729-5c5a-be95-7c4c1d29be00",
+            "source_hash": "62ebe499bea4add47f9b1276b6eb7089be65e823b8575021fa04605059d74e5a",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.8025039215686274,
+              0.6626263888888889,
+              0.8240725490196078
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "mismatch",
+      "revision_id": "b91e9637-5729-5c5a-be95-7c4c1d29be00"
+    },
+    {
+      "case_id": "FW-F029-material",
+      "family_id": "FW-F029",
+      "category": "material",
+      "drawing_number": "FW-029-2",
+      "revision": "A",
+      "source_hash": "91bf70a92e80074c5a3b72c16b294d705728160a34d3f0bd8dd817950fcb64a5",
+      "query": "hole_spacing 98mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "hole_spacing",
+          "value": {
+            "low": "98",
+            "high": "98"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "hole_spacing",
+          "value": {
+            "low": "98.00",
+            "high": "98.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "98cd91fd-8250-5317-ad3d-cebdef65816c",
+            "source_hash": "91bf70a92e80074c5a3b72c16b294d705728160a34d3f0bd8dd817950fcb64a5",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.716113888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "material",
+          "value": "AL6061",
+          "unit": null,
+          "source": {
+            "revision_id": "98cd91fd-8250-5317-ad3d-cebdef65816c",
+            "source_hash": "91bf70a92e80074c5a3b72c16b294d705728160a34d3f0bd8dd817950fcb64a5",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.8025039215686274,
+              0.6583944444444444,
+              0.8240725490196078
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "mismatch",
+      "revision_id": "98cd91fd-8250-5317-ad3d-cebdef65816c"
+    },
+    {
+      "case_id": "FW-F029-missing",
+      "family_id": "FW-F029",
+      "category": "missing",
+      "drawing_number": "FW-029-3",
+      "revision": "A",
+      "source_hash": "a8c575b748bb4ee38e24f106bed2242e2b028f039a5967a9a50b41c8f364d6b2",
+      "query": "hole_spacing 98mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "hole_spacing",
+          "value": {
+            "low": "98",
+            "high": "98"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "hole_spacing",
+          "value": {
+            "low": "98.00",
+            "high": "98.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "d5e2c6f1-bfa1-5d0e-a151-4781e9a04ccc",
+            "source_hash": "a8c575b748bb4ee38e24f106bed2242e2b028f039a5967a9a50b41c8f364d6b2",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.716113888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "unknown",
+      "revision_id": "d5e2c6f1-bfa1-5d0e-a151-4781e9a04ccc"
+    },
+    {
+      "case_id": "FW-F029-unit",
+      "family_id": "FW-F029",
+      "category": "unit",
+      "drawing_number": "FW-029-0",
+      "revision": "A",
+      "source_hash": "2eca39c35506d662419f3dc8f892edfde3b7a9e9c5d7ee3bc78d540f495bb993",
+      "query": "hole_spacing 9.8cm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "hole_spacing",
+          "value": {
+            "low": "9.8",
+            "high": "9.8"
+          },
+          "unit": "cm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "hole_spacing",
+          "value": {
+            "low": "98.00",
+            "high": "98.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "63b17fd6-1069-566a-af4b-18f6e0f60a3e",
+            "source_hash": "2eca39c35506d662419f3dc8f892edfde3b7a9e9c5d7ee3bc78d540f495bb993",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.716113888888889,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "63b17fd6-1069-566a-af4b-18f6e0f60a3e",
+            "source_hash": "2eca39c35506d662419f3dc8f892edfde3b7a9e9c5d7ee3bc78d540f495bb993",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.8025039215686274,
+              0.6626263888888889,
+              0.8240725490196078
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "match",
+      "revision_id": "63b17fd6-1069-566a-af4b-18f6e0f60a3e"
+    },
+    {
+      "case_id": "FW-F029-revision",
+      "family_id": "FW-F029",
+      "category": "revision",
+      "drawing_number": "FW-029-0",
+      "revision": "B",
+      "source_hash": "3d45954e983af1392c03503dfa97359a764886d3d27b9a2f0a56e8e03951bb64",
+      "query": "hole_spacing 98mm, material SUS304. Evaluate the supplied current revision.",
+      "requirements": [
+        {
+          "id": "dimension",
+          "field": "hole_spacing",
+          "value": {
+            "low": "98",
+            "high": "98"
+          },
+          "unit": "mm"
+        },
+        {
+          "id": "material",
+          "field": "material",
+          "value": "SUS304"
+        }
+      ],
+      "facts": [
+        {
+          "id": "F3",
+          "field": "hole_spacing",
+          "value": {
+            "low": "100.00",
+            "high": "100.00"
+          },
+          "unit": "mm",
+          "source": {
+            "revision_id": "46d2cbc1-b36b-5811-9b54-3faace552c28",
+            "source_hash": "3d45954e983af1392c03503dfa97359a764886d3d27b9a2f0a56e8e03951bb64",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.7534843137254902,
+              0.7246083333333334,
+              0.7750529411764706
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        },
+        {
+          "id": "F5",
+          "field": "material",
+          "value": "SUS304",
+          "unit": null,
+          "source": {
+            "revision_id": "46d2cbc1-b36b-5811-9b54-3faace552c28",
+            "source_hash": "3d45954e983af1392c03503dfa97359a764886d3d27b9a2f0a56e8e03951bb64",
+            "page": 1,
+            "bbox": [
+              0.5208333333333334,
+              0.8025039215686274,
+              0.6626263888888889,
+              0.8240725490196078
+            ],
+            "feature_id": null
+          },
+          "method": "vector_pdf",
+          "certainty": "verified"
+        }
+      ],
+      "expected": "mismatch",
+      "revision_id": "46d2cbc1-b36b-5811-9b54-3faace552c28"
+    }
+  ],
+  "predictions": [
+    {
+      "case_id": "FW-F003-match",
+      "family_id": "FW-F003",
+      "category": "match",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.055063999994331425,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F003-match",
+      "family_id": "FW-F003",
+      "category": "match",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.019199000007574796,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F003-match",
+      "family_id": "FW-F003",
+      "category": "match",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.012279000003445617,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F003-dimension",
+      "family_id": "FW-F003",
+      "category": "dimension",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.012808999997560022,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F003-dimension",
+      "family_id": "FW-F003",
+      "category": "dimension",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.010305999992965553,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F003-dimension",
+      "family_id": "FW-F003",
+      "category": "dimension",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.00920399999415622,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F003-material",
+      "family_id": "FW-F003",
+      "category": "material",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.009824999992247285,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F003-material",
+      "family_id": "FW-F003",
+      "category": "material",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.009183999992501413,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F003-material",
+      "family_id": "FW-F003",
+      "category": "material",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.008423000011248405,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F003-missing",
+      "family_id": "FW-F003",
+      "category": "missing",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "latency_ms": 0.009134000009680676,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F4"
+      ],
+      "valid_citations": [
+        "F4"
+      ]
+    },
+    {
+      "case_id": "FW-F003-missing",
+      "family_id": "FW-F003",
+      "category": "missing",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "latency_ms": 0.008373000000005959,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F4"
+      ],
+      "valid_citations": [
+        "F4"
+      ]
+    },
+    {
+      "case_id": "FW-F003-missing",
+      "family_id": "FW-F003",
+      "category": "missing",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "latency_ms": 0.008311999991406083,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F4"
+      ],
+      "valid_citations": [
+        "F4"
+      ]
+    },
+    {
+      "case_id": "FW-F003-unit",
+      "family_id": "FW-F003",
+      "category": "unit",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.009604999988255258,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F003-unit",
+      "family_id": "FW-F003",
+      "category": "unit",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.009023000004049209,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F003-unit",
+      "family_id": "FW-F003",
+      "category": "unit",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.008492999995723949,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F003-revision",
+      "family_id": "FW-F003",
+      "category": "revision",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.008192999999323547,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F003-revision",
+      "family_id": "FW-F003",
+      "category": "revision",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.00804200000459332,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F003-revision",
+      "family_id": "FW-F003",
+      "category": "revision",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.007902000007220522,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F012-match",
+      "family_id": "FW-F012",
+      "category": "match",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.008402999995382743,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F012-match",
+      "family_id": "FW-F012",
+      "category": "match",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.00817299999766874,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F012-match",
+      "family_id": "FW-F012",
+      "category": "match",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.007740999990346609,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F012-dimension",
+      "family_id": "FW-F012",
+      "category": "dimension",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.008421999993402096,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F012-dimension",
+      "family_id": "FW-F012",
+      "category": "dimension",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.00796199999797409,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F012-dimension",
+      "family_id": "FW-F012",
+      "category": "dimension",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.008232000013208562,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F012-material",
+      "family_id": "FW-F012",
+      "category": "material",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.00854200000333094,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F012-material",
+      "family_id": "FW-F012",
+      "category": "material",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.007871999997632884,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F012-material",
+      "family_id": "FW-F012",
+      "category": "material",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.008463000000347165,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F012-missing",
+      "family_id": "FW-F012",
+      "category": "missing",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "latency_ms": 0.007672000009506519,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3"
+      ],
+      "valid_citations": [
+        "F3"
+      ]
+    },
+    {
+      "case_id": "FW-F012-missing",
+      "family_id": "FW-F012",
+      "category": "missing",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "latency_ms": 0.00730099999657341,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3"
+      ],
+      "valid_citations": [
+        "F3"
+      ]
+    },
+    {
+      "case_id": "FW-F012-missing",
+      "family_id": "FW-F012",
+      "category": "missing",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "latency_ms": 0.00710099999423619,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3"
+      ],
+      "valid_citations": [
+        "F3"
+      ]
+    },
+    {
+      "case_id": "FW-F012-unit",
+      "family_id": "FW-F012",
+      "category": "unit",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.008511999993743302,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F012-unit",
+      "family_id": "FW-F012",
+      "category": "unit",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.00801199999500568,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F012-unit",
+      "family_id": "FW-F012",
+      "category": "unit",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.007812000006879316,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F012-revision",
+      "family_id": "FW-F012",
+      "category": "revision",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.00882300000171199,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F012-revision",
+      "family_id": "FW-F012",
+      "category": "revision",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.007932000002597306,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F012-revision",
+      "family_id": "FW-F012",
+      "category": "revision",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.007752000001914894,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F018-match",
+      "family_id": "FW-F018",
+      "category": "match",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.008803999989481781,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F018-match",
+      "family_id": "FW-F018",
+      "category": "match",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.008071999999970103,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F018-match",
+      "family_id": "FW-F018",
+      "category": "match",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.007781999997291678,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F018-dimension",
+      "family_id": "FW-F018",
+      "category": "dimension",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.008893999989822987,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F018-dimension",
+      "family_id": "FW-F018",
+      "category": "dimension",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.008231999998997708,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F018-dimension",
+      "family_id": "FW-F018",
+      "category": "dimension",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.00776199999563687,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F018-material",
+      "family_id": "FW-F018",
+      "category": "material",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.008273000005942777,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F018-material",
+      "family_id": "FW-F018",
+      "category": "material",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.007800999995311031,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F018-material",
+      "family_id": "FW-F018",
+      "category": "material",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.007831999994323269,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F018-missing",
+      "family_id": "FW-F018",
+      "category": "missing",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "latency_ms": 0.008321999999338914,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F4"
+      ],
+      "valid_citations": [
+        "F4"
+      ]
+    },
+    {
+      "case_id": "FW-F018-missing",
+      "family_id": "FW-F018",
+      "category": "missing",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "latency_ms": 0.008231999998997708,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F4"
+      ],
+      "valid_citations": [
+        "F4"
+      ]
+    },
+    {
+      "case_id": "FW-F018-missing",
+      "family_id": "FW-F018",
+      "category": "missing",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "latency_ms": 0.006990999992240177,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F4"
+      ],
+      "valid_citations": [
+        "F4"
+      ]
+    },
+    {
+      "case_id": "FW-F018-unit",
+      "family_id": "FW-F018",
+      "category": "unit",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.026930999993624027,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F018-unit",
+      "family_id": "FW-F018",
+      "category": "unit",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.009113999993815014,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F018-unit",
+      "family_id": "FW-F018",
+      "category": "unit",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.008602999997719962,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F018-revision",
+      "family_id": "FW-F018",
+      "category": "revision",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.00908399999843823,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F018-revision",
+      "family_id": "FW-F018",
+      "category": "revision",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.008562999994410347,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F018-revision",
+      "family_id": "FW-F018",
+      "category": "revision",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.008832999995433966,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F029-match",
+      "family_id": "FW-F029",
+      "category": "match",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.009374000001116656,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F029-match",
+      "family_id": "FW-F029",
+      "category": "match",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.00895399999478741,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F029-match",
+      "family_id": "FW-F029",
+      "category": "match",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.00887399998816818,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F029-dimension",
+      "family_id": "FW-F029",
+      "category": "dimension",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.010326000008831215,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F029-dimension",
+      "family_id": "FW-F029",
+      "category": "dimension",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.008673000010617216,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F029-dimension",
+      "family_id": "FW-F029",
+      "category": "dimension",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.009013999999751832,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F029-material",
+      "family_id": "FW-F029",
+      "category": "material",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.009124000001747845,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F029-material",
+      "family_id": "FW-F029",
+      "category": "material",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.008462000010922566,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F029-material",
+      "family_id": "FW-F029",
+      "category": "material",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.008232999988422307,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F029-missing",
+      "family_id": "FW-F029",
+      "category": "missing",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "latency_ms": 0.007371000009470663,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3"
+      ],
+      "valid_citations": [
+        "F3"
+      ]
+    },
+    {
+      "case_id": "FW-F029-missing",
+      "family_id": "FW-F029",
+      "category": "missing",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "latency_ms": 0.007472000007169299,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3"
+      ],
+      "valid_citations": [
+        "F3"
+      ]
+    },
+    {
+      "case_id": "FW-F029-missing",
+      "family_id": "FW-F029",
+      "category": "missing",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "latency_ms": 0.0076110000009066425,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3"
+      ],
+      "valid_citations": [
+        "F3"
+      ]
+    },
+    {
+      "case_id": "FW-F029-unit",
+      "family_id": "FW-F029",
+      "category": "unit",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.008282999999664753,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F029-unit",
+      "family_id": "FW-F029",
+      "category": "unit",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.008352999998351152,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F029-unit",
+      "family_id": "FW-F029",
+      "category": "unit",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "latency_ms": 0.008071999999970103,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F029-revision",
+      "family_id": "FW-F029",
+      "category": "revision",
+      "method": "rules",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.00838300000793879,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F029-revision",
+      "family_id": "FW-F029",
+      "category": "revision",
+      "method": "rules",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.00830300000131956,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F029-revision",
+      "family_id": "FW-F029",
+      "category": "revision",
+      "method": "rules",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "latency_ms": 0.007992000007561728,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ]
+    },
+    {
+      "case_id": "FW-F003-match",
+      "family_id": "FW-F003",
+      "category": "match",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F5",
+        "F3"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1288,
+      "output_tokens": 57,
+      "cost_usd": 0.001573,
+      "request_id": "lc_run--01a10631-04e9-7ec2-bc66-9bf9e55206bf-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+      "latency_ms": 1094.8256140000012
+    },
+    {
+      "case_id": "FW-F003-dimension",
+      "family_id": "FW-F003",
+      "category": "dimension",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F5",
+        "F3"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1280,
+      "output_tokens": 59,
+      "cost_usd": 0.001575,
+      "request_id": "lc_run--01a10631-091e-7dc2-8df4-2c641a94bc21-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F5\",\"F3\"]}",
+      "latency_ms": 660.1437430000061
+    },
+    {
+      "case_id": "FW-F003-material",
+      "family_id": "FW-F003",
+      "category": "material",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1270,
+      "output_tokens": 59,
+      "cost_usd": 0.001565,
+      "request_id": "lc_run--01a10631-0bb2-7a80-8d8a-3a8db615a957-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 857.7293230000009
+    },
+    {
+      "case_id": "FW-F003-missing",
+      "family_id": "FW-F003",
+      "category": "missing",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "citations": [
+        "F4"
+      ],
+      "valid_citations": [
+        "F4"
+      ],
+      "input_tokens": 1095,
+      "output_tokens": 53,
+      "cost_usd": 0.00136,
+      "request_id": "lc_run--01a10631-0f0c-7022-bae8-96c7134e4322-0",
+      "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F4\"]}",
+      "latency_ms": 743.0398460000021
+    },
+    {
+      "case_id": "FW-F003-unit",
+      "family_id": "FW-F003",
+      "category": "unit",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1294,
+      "output_tokens": 57,
+      "cost_usd": 0.001579,
+      "request_id": "lc_run--01a10631-11f3-72e1-bb8c-964e559e7fc3-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 627.7109170000017
+    },
+    {
+      "case_id": "FW-F003-revision",
+      "family_id": "FW-F003",
+      "category": "revision",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1282,
+      "output_tokens": 57,
+      "cost_usd": 0.001567,
+      "request_id": "lc_run--01a10631-1467-70a1-933e-c58cab372957-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 719.3284979999959
+    },
+    {
+      "case_id": "FW-F012-match",
+      "family_id": "FW-F012",
+      "category": "match",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1275,
+      "output_tokens": 57,
+      "cost_usd": 0.00156,
+      "request_id": "lc_run--01a10631-1736-7ac3-ac18-817e0bd61d3a-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 625.1902030000025
+    },
+    {
+      "case_id": "FW-F012-dimension",
+      "family_id": "FW-F012",
+      "category": "dimension",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1281,
+      "output_tokens": 59,
+      "cost_usd": 0.001576,
+      "request_id": "lc_run--01a10631-19a8-72d1-b8a4-4f2ddc53f3e5-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 792.8084349999978
+    },
+    {
+      "case_id": "FW-F012-material",
+      "family_id": "FW-F012",
+      "category": "material",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1265,
+      "output_tokens": 59,
+      "cost_usd": 0.00156,
+      "request_id": "lc_run--01a10631-1cc3-79d0-984e-65e84e69dc08-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 651.4284139999944
+    },
+    {
+      "case_id": "FW-F012-missing",
+      "family_id": "FW-F012",
+      "category": "missing",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "citations": [
+        "F3"
+      ],
+      "valid_citations": [
+        "F3"
+      ],
+      "input_tokens": 1100,
+      "output_tokens": 53,
+      "cost_usd": 0.001365,
+      "request_id": "lc_run--01a10631-1f4d-7401-b881-803aa506b8f0-0",
+      "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F3\"]}",
+      "latency_ms": 591.3478899999944
+    },
+    {
+      "case_id": "FW-F012-unit",
+      "family_id": "FW-F012",
+      "category": "unit",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1281,
+      "output_tokens": 57,
+      "cost_usd": 0.001566,
+      "request_id": "lc_run--01a10631-219c-7a42-ae28-2bf3e85dd396-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 665.5380840000049
+    },
+    {
+      "case_id": "FW-F012-revision",
+      "family_id": "FW-F012",
+      "category": "revision",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1277,
+      "output_tokens": 59,
+      "cost_usd": 0.001572,
+      "request_id": "lc_run--01a10631-2436-7020-be7e-56fa285cd0ab-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 615.8723150000043
+    },
+    {
+      "case_id": "FW-F018-match",
+      "family_id": "FW-F018",
+      "category": "match",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F5",
+        "F3"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1262,
+      "output_tokens": 57,
+      "cost_usd": 0.001547,
+      "request_id": "lc_run--01a10631-269e-7940-8d31-1df5a9a70306-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+      "latency_ms": 836.2146539999884
+    },
+    {
+      "case_id": "FW-F018-dimension",
+      "family_id": "FW-F018",
+      "category": "dimension",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F5",
+        "F3"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1286,
+      "output_tokens": 59,
+      "cost_usd": 0.001581,
+      "request_id": "lc_run--01a10631-29e2-7202-9fb4-d142604adf9c-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F5\",\"F3\"]}",
+      "latency_ms": 691.0989490000077
+    },
+    {
+      "case_id": "FW-F018-material",
+      "family_id": "FW-F018",
+      "category": "material",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1278,
+      "output_tokens": 59,
+      "cost_usd": 0.001573,
+      "request_id": "lc_run--01a10631-2c96-72a0-b52c-3db811f5258e-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 611.1409929999922
+    },
+    {
+      "case_id": "FW-F018-missing",
+      "family_id": "FW-F018",
+      "category": "missing",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "citations": [
+        "F4"
+      ],
+      "valid_citations": [
+        "F4"
+      ],
+      "input_tokens": 1095,
+      "output_tokens": 53,
+      "cost_usd": 0.00136,
+      "request_id": "lc_run--01a10631-2ef9-79c0-9c15-7498349db938-0",
+      "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F4\"]}",
+      "latency_ms": 585.5531289999902
+    },
+    {
+      "case_id": "FW-F018-unit",
+      "family_id": "FW-F018",
+      "category": "unit",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F5",
+        "F3"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1268,
+      "output_tokens": 57,
+      "cost_usd": 0.001553,
+      "request_id": "lc_run--01a10631-3143-7460-86e1-21580edad6bf-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+      "latency_ms": 802.1751769999952
+    },
+    {
+      "case_id": "FW-F018-revision",
+      "family_id": "FW-F018",
+      "category": "revision",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F5",
+        "F3"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1266,
+      "output_tokens": 57,
+      "cost_usd": 0.001551,
+      "request_id": "lc_run--01a10631-3465-7c83-9b5c-69e3ae453191-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+      "latency_ms": 954.689473000002
+    },
+    {
+      "case_id": "FW-F029-match",
+      "family_id": "FW-F029",
+      "category": "match",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1287,
+      "output_tokens": 57,
+      "cost_usd": 0.001572,
+      "request_id": "lc_run--01a10631-3820-7290-b9e4-86ff892f7ce3-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 632.6556940000074
+    },
+    {
+      "case_id": "FW-F029-dimension",
+      "family_id": "FW-F029",
+      "category": "dimension",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1280,
+      "output_tokens": 59,
+      "cost_usd": 0.001575,
+      "request_id": "lc_run--01a10631-3a99-7491-8af6-16e44543b18e-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 632.7941929999952
+    },
+    {
+      "case_id": "FW-F029-material",
+      "family_id": "FW-F029",
+      "category": "material",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1273,
+      "output_tokens": 59,
+      "cost_usd": 0.001568,
+      "request_id": "lc_run--01a10631-3d11-7eb3-817d-5919c7f9c688-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 631.8148609999952
+    },
+    {
+      "case_id": "FW-F029-missing",
+      "family_id": "FW-F029",
+      "category": "missing",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "citations": [
+        "F3"
+      ],
+      "valid_citations": [
+        "F3"
+      ],
+      "input_tokens": 1109,
+      "output_tokens": 53,
+      "cost_usd": 0.001374,
+      "request_id": "lc_run--01a10631-3f89-77f3-8688-59c718964d61-0",
+      "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F3\"]}",
+      "latency_ms": 607.2863309999974
+    },
+    {
+      "case_id": "FW-F029-unit",
+      "family_id": "FW-F029",
+      "category": "unit",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1293,
+      "output_tokens": 57,
+      "cost_usd": 0.001578,
+      "request_id": "lc_run--01a10631-41e9-7c03-a6a8-f2b6ad50c03b-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 757.0269020000069
+    },
+    {
+      "case_id": "FW-F029-revision",
+      "family_id": "FW-F029",
+      "category": "revision",
+      "method": "anthropic",
+      "repeat": 0,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1280,
+      "output_tokens": 59,
+      "cost_usd": 0.001575,
+      "request_id": "lc_run--01a10631-44de-73f0-be31-67d8407ddeb8-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 786.3754059999906
+    },
+    {
+      "case_id": "FW-F003-match",
+      "family_id": "FW-F003",
+      "category": "match",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F5",
+        "F3"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1288,
+      "output_tokens": 57,
+      "cost_usd": 0.001573,
+      "request_id": "lc_run--01a10631-47f1-7102-9d37-1c383ad85890-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+      "latency_ms": 784.9825190000104
+    },
+    {
+      "case_id": "FW-F003-dimension",
+      "family_id": "FW-F003",
+      "category": "dimension",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1280,
+      "output_tokens": 55,
+      "cost_usd": 0.001555,
+      "request_id": "lc_run--01a10631-4b02-77f1-aa51-0d818fb47a93-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F5\"]}",
+      "latency_ms": 626.2147790000085
+    },
+    {
+      "case_id": "FW-F003-material",
+      "family_id": "FW-F003",
+      "category": "material",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1270,
+      "output_tokens": 59,
+      "cost_usd": 0.001565,
+      "request_id": "lc_run--01a10631-4d74-7631-8cef-e0f95f905bfe-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 773.7303400000002
+    },
+    {
+      "case_id": "FW-F003-missing",
+      "family_id": "FW-F003",
+      "category": "missing",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "citations": [
+        "F4"
+      ],
+      "valid_citations": [
+        "F4"
+      ],
+      "input_tokens": 1095,
+      "output_tokens": 53,
+      "cost_usd": 0.00136,
+      "request_id": "lc_run--01a10631-507a-7713-b372-197024d5c757-0",
+      "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F4\"]}",
+      "latency_ms": 768.3311650000064
+    },
+    {
+      "case_id": "FW-F003-unit",
+      "family_id": "FW-F003",
+      "category": "unit",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1294,
+      "output_tokens": 57,
+      "cost_usd": 0.001579,
+      "request_id": "lc_run--01a10631-537a-7dc0-a9d0-1bc8441e73a9-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 622.7533340000093
+    },
+    {
+      "case_id": "FW-F003-revision",
+      "family_id": "FW-F003",
+      "category": "revision",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1282,
+      "output_tokens": 57,
+      "cost_usd": 0.001567,
+      "request_id": "lc_run--01a10631-55e9-70b1-8e61-0912a00e65a9-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 601.9803289999999
+    },
+    {
+      "case_id": "FW-F012-match",
+      "family_id": "FW-F012",
+      "category": "match",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1275,
+      "output_tokens": 57,
+      "cost_usd": 0.00156,
+      "request_id": "lc_run--01a10631-5843-7b73-aed6-9822e48c12c5-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 630.2330439999935
+    },
+    {
+      "case_id": "FW-F012-dimension",
+      "family_id": "FW-F012",
+      "category": "dimension",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1281,
+      "output_tokens": 59,
+      "cost_usd": 0.001576,
+      "request_id": "lc_run--01a10631-5aba-7350-8044-57674a780fd9-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 771.7830659999976
+    },
+    {
+      "case_id": "FW-F012-material",
+      "family_id": "FW-F012",
+      "category": "material",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1265,
+      "output_tokens": 59,
+      "cost_usd": 0.00156,
+      "request_id": "lc_run--01a10631-5dbe-70f3-990e-81dd313378d1-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 653.4527299999979
+    },
+    {
+      "case_id": "FW-F012-missing",
+      "family_id": "FW-F012",
+      "category": "missing",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "citations": [
+        "F3"
+      ],
+      "valid_citations": [
+        "F3"
+      ],
+      "input_tokens": 1100,
+      "output_tokens": 53,
+      "cost_usd": 0.001365,
+      "request_id": "lc_run--01a10631-604b-71b0-98d6-d27c3cb9e73c-0",
+      "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F3\"]}",
+      "latency_ms": 824.495455999994
+    },
+    {
+      "case_id": "FW-F012-unit",
+      "family_id": "FW-F012",
+      "category": "unit",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1281,
+      "output_tokens": 57,
+      "cost_usd": 0.001566,
+      "request_id": "lc_run--01a10631-6384-7d32-a76f-4aa65ff09269-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 609.6114469999918
+    },
+    {
+      "case_id": "FW-F012-revision",
+      "family_id": "FW-F012",
+      "category": "revision",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1277,
+      "output_tokens": 59,
+      "cost_usd": 0.001572,
+      "request_id": "lc_run--01a10631-65e6-7a50-89a3-cc21a08ae3dd-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 643.5307200000011
+    },
+    {
+      "case_id": "FW-F018-match",
+      "family_id": "FW-F018",
+      "category": "match",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F5",
+        "F3"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1262,
+      "output_tokens": 57,
+      "cost_usd": 0.001547,
+      "request_id": "lc_run--01a10631-6869-7893-b339-0eea69dcb035-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+      "latency_ms": 793.163167000003
+    },
+    {
+      "case_id": "FW-F018-dimension",
+      "family_id": "FW-F018",
+      "category": "dimension",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F5",
+        "F3"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1286,
+      "output_tokens": 59,
+      "cost_usd": 0.001581,
+      "request_id": "lc_run--01a10631-6b83-7b70-b36b-6380686097ab-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F5\",\"F3\"]}",
+      "latency_ms": 899.7745359999954
+    },
+    {
+      "case_id": "FW-F018-material",
+      "family_id": "FW-F018",
+      "category": "material",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1278,
+      "output_tokens": 59,
+      "cost_usd": 0.001573,
+      "request_id": "lc_run--01a10631-6f07-7c01-9efe-aeeea793fe24-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 656.7142439999998
+    },
+    {
+      "case_id": "FW-F018-missing",
+      "family_id": "FW-F018",
+      "category": "missing",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "citations": [
+        "F4"
+      ],
+      "valid_citations": [
+        "F4"
+      ],
+      "input_tokens": 1095,
+      "output_tokens": 53,
+      "cost_usd": 0.00136,
+      "request_id": "lc_run--01a10631-7198-7e81-b199-b69c9c384d03-0",
+      "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F4\"]}",
+      "latency_ms": 553.345316000005
+    },
+    {
+      "case_id": "FW-F018-unit",
+      "family_id": "FW-F018",
+      "category": "unit",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F5",
+        "F3"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1268,
+      "output_tokens": 57,
+      "cost_usd": 0.001553,
+      "request_id": "lc_run--01a10631-73c1-73c1-9662-83564a0322a8-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+      "latency_ms": 786.0764229999972
+    },
+    {
+      "case_id": "FW-F018-revision",
+      "family_id": "FW-F018",
+      "category": "revision",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F5",
+        "F3"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1266,
+      "output_tokens": 57,
+      "cost_usd": 0.001551,
+      "request_id": "lc_run--01a10631-76d3-7450-98c4-435a943fd546-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+      "latency_ms": 647.3317399999985
+    },
+    {
+      "case_id": "FW-F029-match",
+      "family_id": "FW-F029",
+      "category": "match",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1287,
+      "output_tokens": 57,
+      "cost_usd": 0.001572,
+      "request_id": "lc_run--01a10631-795b-7a42-bcf4-9c7ade522336-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 1065.145893999997
+    },
+    {
+      "case_id": "FW-F029-dimension",
+      "family_id": "FW-F029",
+      "category": "dimension",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1280,
+      "output_tokens": 59,
+      "cost_usd": 0.001575,
+      "request_id": "lc_run--01a10631-7d84-7462-aeef-6a8c8cb38215-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 632.4567540000032
+    },
+    {
+      "case_id": "FW-F029-material",
+      "family_id": "FW-F029",
+      "category": "material",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1273,
+      "output_tokens": 59,
+      "cost_usd": 0.001568,
+      "request_id": "lc_run--01a10631-7ffd-7c93-8d27-24425165a709-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 630.1052299999981
+    },
+    {
+      "case_id": "FW-F029-missing",
+      "family_id": "FW-F029",
+      "category": "missing",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "citations": [
+        "F3"
+      ],
+      "valid_citations": [
+        "F3"
+      ],
+      "input_tokens": 1109,
+      "output_tokens": 53,
+      "cost_usd": 0.001374,
+      "request_id": "lc_run--01a10631-8273-7431-8798-3ab127f3fe1f-0",
+      "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F3\"]}",
+      "latency_ms": 598.7302870000093
+    },
+    {
+      "case_id": "FW-F029-unit",
+      "family_id": "FW-F029",
+      "category": "unit",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1293,
+      "output_tokens": 57,
+      "cost_usd": 0.001578,
+      "request_id": "lc_run--01a10631-84ca-7671-a032-2442b0580b67-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 801.3860719999997
+    },
+    {
+      "case_id": "FW-F029-revision",
+      "family_id": "FW-F029",
+      "category": "revision",
+      "method": "anthropic",
+      "repeat": 1,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1280,
+      "output_tokens": 59,
+      "cost_usd": 0.001575,
+      "request_id": "lc_run--01a10631-87eb-77e2-8505-3197dd48cf86-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 775.0958280000049
+    },
+    {
+      "case_id": "FW-F003-match",
+      "family_id": "FW-F003",
+      "category": "match",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F5",
+        "F3"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1288,
+      "output_tokens": 57,
+      "cost_usd": 0.001573,
+      "request_id": "lc_run--01a10631-8af3-7d60-8bde-35362151b23d-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+      "latency_ms": 817.2807209999888
+    },
+    {
+      "case_id": "FW-F003-dimension",
+      "family_id": "FW-F003",
+      "category": "dimension",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F5",
+        "F3"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1280,
+      "output_tokens": 59,
+      "cost_usd": 0.001575,
+      "request_id": "lc_run--01a10631-8e24-7eb2-a8cd-24377f395da8-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F5\",\"F3\"]}",
+      "latency_ms": 741.6604489999941
+    },
+    {
+      "case_id": "FW-F003-material",
+      "family_id": "FW-F003",
+      "category": "material",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1270,
+      "output_tokens": 59,
+      "cost_usd": 0.001565,
+      "request_id": "lc_run--01a10631-910a-7f00-ba5f-8d6f9e042dee-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 781.8792439999953
+    },
+    {
+      "case_id": "FW-F003-missing",
+      "family_id": "FW-F003",
+      "category": "missing",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "citations": [
+        "F4"
+      ],
+      "valid_citations": [
+        "F4"
+      ],
+      "input_tokens": 1095,
+      "output_tokens": 53,
+      "cost_usd": 0.00136,
+      "request_id": "lc_run--01a10631-9418-7d50-8e40-0edaa7c723a6-0",
+      "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F4\"]}",
+      "latency_ms": 1028.969664999991
+    },
+    {
+      "case_id": "FW-F003-unit",
+      "family_id": "FW-F003",
+      "category": "unit",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1294,
+      "output_tokens": 57,
+      "cost_usd": 0.001579,
+      "request_id": "lc_run--01a10631-981d-73f1-bbf8-5b169cfe9507-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 612.5747220000051
+    },
+    {
+      "case_id": "FW-F003-revision",
+      "family_id": "FW-F003",
+      "category": "revision",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1282,
+      "output_tokens": 57,
+      "cost_usd": 0.001567,
+      "request_id": "lc_run--01a10631-9a82-70e1-ab9f-cda5b9698472-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 613.5714990000025
+    },
+    {
+      "case_id": "FW-F012-match",
+      "family_id": "FW-F012",
+      "category": "match",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1275,
+      "output_tokens": 57,
+      "cost_usd": 0.00156,
+      "request_id": "lc_run--01a10631-9ce7-7930-aa71-af625889da13-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 628.3971049999906
+    },
+    {
+      "case_id": "FW-F012-dimension",
+      "family_id": "FW-F012",
+      "category": "dimension",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1281,
+      "output_tokens": 59,
+      "cost_usd": 0.001576,
+      "request_id": "lc_run--01a10631-9f5c-78d3-940f-8a646fe56571-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 774.2488289999869
+    },
+    {
+      "case_id": "FW-F012-material",
+      "family_id": "FW-F012",
+      "category": "material",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1265,
+      "output_tokens": 59,
+      "cost_usd": 0.00156,
+      "request_id": "lc_run--01a10631-a263-7222-b77a-92a7d6979330-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 642.0454609999808
+    },
+    {
+      "case_id": "FW-F012-missing",
+      "family_id": "FW-F012",
+      "category": "missing",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "citations": [
+        "F3"
+      ],
+      "valid_citations": [
+        "F3"
+      ],
+      "input_tokens": 1100,
+      "output_tokens": 53,
+      "cost_usd": 0.001365,
+      "request_id": "lc_run--01a10631-a4e5-7a32-bfd1-3880b09ccfff-0",
+      "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F3\"]}",
+      "latency_ms": 656.1321649999741
+    },
+    {
+      "case_id": "FW-F012-unit",
+      "family_id": "FW-F012",
+      "category": "unit",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1281,
+      "output_tokens": 57,
+      "cost_usd": 0.001566,
+      "request_id": "lc_run--01a10631-a775-7661-8be2-917f2f0b0082-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 731.7545359999826
+    },
+    {
+      "case_id": "FW-F012-revision",
+      "family_id": "FW-F012",
+      "category": "revision",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1277,
+      "output_tokens": 59,
+      "cost_usd": 0.001572,
+      "request_id": "lc_run--01a10631-aa51-7e80-8bef-f4f505afd8dc-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 743.2260559999975
+    },
+    {
+      "case_id": "FW-F018-match",
+      "family_id": "FW-F018",
+      "category": "match",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F5",
+        "F3"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1262,
+      "output_tokens": 57,
+      "cost_usd": 0.001547,
+      "request_id": "lc_run--01a10631-ad38-7fc1-a2e3-f29c6a8c2f0e-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+      "latency_ms": 836.3372599999934
+    },
+    {
+      "case_id": "FW-F018-dimension",
+      "family_id": "FW-F018",
+      "category": "dimension",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1286,
+      "output_tokens": 59,
+      "cost_usd": 0.001581,
+      "request_id": "lc_run--01a10631-b07d-7342-98ab-d0d8e4893d9e-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 634.6290950000082
+    },
+    {
+      "case_id": "FW-F018-material",
+      "family_id": "FW-F018",
+      "category": "material",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1278,
+      "output_tokens": 59,
+      "cost_usd": 0.001573,
+      "request_id": "lc_run--01a10631-b2f7-7af3-9a6e-96148f7fc82b-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 711.1010169999759
+    },
+    {
+      "case_id": "FW-F018-missing",
+      "family_id": "FW-F018",
+      "category": "missing",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "citations": [
+        "F4"
+      ],
+      "valid_citations": [
+        "F4"
+      ],
+      "input_tokens": 1095,
+      "output_tokens": 53,
+      "cost_usd": 0.00136,
+      "request_id": "lc_run--01a10631-b5bf-7ef1-82b2-6f5c9378ce6a-0",
+      "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F4\"]}",
+      "latency_ms": 591.3462560000085
+    },
+    {
+      "case_id": "FW-F018-unit",
+      "family_id": "FW-F018",
+      "category": "unit",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1268,
+      "output_tokens": 57,
+      "cost_usd": 0.001553,
+      "request_id": "lc_run--01a10631-b80e-72d1-85b1-394a6416adaf-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 758.6068690000047
+    },
+    {
+      "case_id": "FW-F018-revision",
+      "family_id": "FW-F018",
+      "category": "revision",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F5",
+        "F3"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1266,
+      "output_tokens": 57,
+      "cost_usd": 0.001551,
+      "request_id": "lc_run--01a10631-bb05-7893-ac70-1611cede5138-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+      "latency_ms": 656.1692530000016
+    },
+    {
+      "case_id": "FW-F029-match",
+      "family_id": "FW-F029",
+      "category": "match",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1287,
+      "output_tokens": 57,
+      "cost_usd": 0.001572,
+      "request_id": "lc_run--01a10631-bd95-71b1-84ca-e6e9b4c5025a-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 599.0757369999926
+    },
+    {
+      "case_id": "FW-F029-dimension",
+      "family_id": "FW-F029",
+      "category": "dimension",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1280,
+      "output_tokens": 59,
+      "cost_usd": 0.001575,
+      "request_id": "lc_run--01a10631-bfed-76a2-b095-685d12f07fca-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 650.2407159999848
+    },
+    {
+      "case_id": "FW-F029-material",
+      "family_id": "FW-F029",
+      "category": "material",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1273,
+      "output_tokens": 59,
+      "cost_usd": 0.001568,
+      "request_id": "lc_run--01a10631-c277-7712-aa3e-75818e415eae-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 616.207922000001
+    },
+    {
+      "case_id": "FW-F029-missing",
+      "family_id": "FW-F029",
+      "category": "missing",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "unknown",
+      "predicted": "unknown",
+      "status": "ok",
+      "citations": [
+        "F3"
+      ],
+      "valid_citations": [
+        "F3"
+      ],
+      "input_tokens": 1109,
+      "output_tokens": 53,
+      "cost_usd": 0.001374,
+      "request_id": "lc_run--01a10631-c4e0-7b22-b2c4-255bb158b7ee-0",
+      "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F3\"]}",
+      "latency_ms": 596.8277139999998
+    },
+    {
+      "case_id": "FW-F029-unit",
+      "family_id": "FW-F029",
+      "category": "unit",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "match",
+      "predicted": "match",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1293,
+      "output_tokens": 57,
+      "cost_usd": 0.001578,
+      "request_id": "lc_run--01a10631-c735-7701-9c20-bf86ddd60781-0",
+      "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 770.8146639999995
+    },
+    {
+      "case_id": "FW-F029-revision",
+      "family_id": "FW-F029",
+      "category": "revision",
+      "method": "anthropic",
+      "repeat": 2,
+      "expected": "mismatch",
+      "predicted": "mismatch",
+      "status": "ok",
+      "citations": [
+        "F3",
+        "F5"
+      ],
+      "valid_citations": [
+        "F3",
+        "F5"
+      ],
+      "input_tokens": 1280,
+      "output_tokens": 59,
+      "cost_usd": 0.001575,
+      "request_id": "lc_run--01a10631-ca37-7290-b9ff-02f75c3126f3-0",
+      "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+      "latency_ms": 796.548400000006
+    }
+  ],
+  "blocked": [
+    {
+      "provider": "openai",
+      "status": "not_measured",
+      "reason": "API 키 미연결"
+    }
+  ],
+  "limitations": [
+    "합성 PDF에서 추출한 사실을 입력으로 사용한 판정 평가입니다.",
+    "24개 사례·4개 설계 family의 소규모 pilot이며 산업 데이터 성능이 아닙니다.",
+    "입력 언어 이해·검색·VLM·전체 Agent 성능은 이 점수에 포함되지 않습니다.",
+    "신뢰구간은 4개 family 단위 bootstrap이며 작은 표본에 주의해야 합니다.",
+    "로컬 API 비용은 0 USD이며 컴퓨트·전력 비용을 포함하지 않습니다."
+  ]
+}

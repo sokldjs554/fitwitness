@@ -1,0 +1,31 @@
+{
+  "sources": [
+    {
+      "id": "f034cb94-e149-586c-aa73-48215f808667",
+      "source_hash": "7c45f4e11e2a90eb996d775698ae6761c19c25c76d74c95ca29c5481e9925c33"
+    },
+    {
+      "id": "ce12d88f-8053-5b69-a6fc-bcbb21a4eef6",
+      "source_hash": "dfeb1c3a8a62c7a37ea3204e5a94faed3e90922599b99bd67324d0c8814dfc8b"
+    },
+    {
+      "id": "8e1380b3-604d-5106-a35b-54839dd1b993",
+      "source_hash": "dc62f462aa708e3bdee719c10a002baf7c13f331b395f628161a38700d121cf7"
+    },
+    {
+      "id": "70d0cea0-249b-5ea4-9e29-2f6bd769d908",
+      "source_hash": "35338fdcf59748a8f2985c74fbe3271ddb323c3588a804a5070f0779faad6671"
+    },
+    {
+      "id": "55f3c8cc-0a1c-5608-94bc-ee8aad390c29",
+      "source_hash": "b5e945edde8325a7936e67b374f63979f474ccaf2907231338d21386426e23cf"
+    }
+  ],
+  "expected": {
+    "f034cb94-e149-586c-aa73-48215f808667": "match",
+    "ce12d88f-8053-5b69-a6fc-bcbb21a4eef6": "mismatch",
+    "8e1380b3-604d-5106-a35b-54839dd1b993": "mismatch",
+    "70d0cea0-249b-5ea4-9e29-2f6bd769d908": "unknown",
+    "55f3c8cc-0a1c-5608-94bc-ee8aad390c29": "match"
+  }
+}

@@ -91,8 +91,14 @@ const ms = (v: number | null) =>
   v == null ? "—" : v < 1 ? `${v.toFixed(2)} ms` : `${(v / 1000).toFixed(2)} s`;
 export function ExperimentLab() {
   const [experiment, setExperiment] = useState("qwen");
-  const [catalog, setCatalog] = useState<{id:string;label:string}[]>([]);
-  useEffect(() => { api<{experiments:{id:string;label:string}[]}>("/evaluations/catalog").then(r=>setCatalog(r.experiments)).catch(()=>{}); }, []);
+  const [catalog, setCatalog] = useState<{ id: string; label: string }[]>([]);
+  useEffect(() => {
+    api<{ experiments: { id: string; label: string }[] }>(
+      "/evaluations/catalog",
+    )
+      .then((r) => setCatalog(r.experiments))
+      .catch(() => {});
+  }, []);
   const [report, setReport] = useState<Report | null>(null),
     [error, setError] = useState(""),
     [onlyErrors, setOnlyErrors] = useState(false),
@@ -100,7 +106,10 @@ export function ExperimentLab() {
     [trial, setTrial] = useState(0);
   useEffect(() => {
     let live = true;
-    setError(""); setReport(null); setOnlyErrors(false); setTrial(0);
+    setError("");
+    setReport(null);
+    setOnlyErrors(false);
+    setTrial(0);
     api<Report>(`/evaluations?experiment=${experiment}`)
       .then((r) => {
         if (live) {
@@ -181,12 +190,29 @@ export function ExperimentLab() {
         </a>
       </div>
       <div className="experiment-meta">
-        <label>측정 모델 <select aria-label="측정 모델" value={experiment} onChange={e=>setExperiment(e.target.value)}>{catalog.map(x=><option key={x.id} value={x.id}>{x.label}</option>)}</select></label>
+        <label>
+          측정 모델{" "}
+          <select
+            aria-label="측정 모델"
+            value={experiment}
+            onChange={(e) => setExperiment(e.target.value)}
+          >
+            {catalog.map((x) => (
+              <option key={x.id} value={x.id}>
+                {x.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <span className="live-tag recorded">실측 기록</span>
         <span>{report.protocol.case_count} cases</span>
         <span>{report.protocol.families.length} families</span>
         <span>{report.protocol.repeats} trials</span>
-        <span>{report.model.provider ? `${report.model.provider} · API` : `CPU · ${report.model.dtype}`}</span>
+        <span>
+          {report.model.provider
+            ? `${report.model.provider} · API`
+            : `CPU · ${report.model.dtype}`}
+        </span>
         <time>{new Date(report.created_at).toLocaleDateString("ko-KR")}</time>
       </div>
       <section className="comparison" data-testid="experiment-comparison">
@@ -221,7 +247,9 @@ export function ExperimentLab() {
                     <small>
                       {m.kind === "rules"
                         ? "BASELINE · 운영 검증기"
-                        : report.model.provider ? "API LLM · 실제 호출" : "LOCAL LLM · 실제 추론"}
+                        : report.model.provider
+                          ? "API LLM · 실제 호출"
+                          : "LOCAL LLM · 실제 추론"}
                     </small>
                   </td>
                   <td>
@@ -434,7 +462,10 @@ export function ExperimentLab() {
             <dt>프롬프트 hash</dt>
             <dd>{report.protocol.prompt_hash}</dd>
             <dt>반복 seed</dt>
-            <dd>{report.protocol.seeds?.join(", ") || "API seed 미지정 · 반복 실행"}</dd>
+            <dd>
+              {report.protocol.seeds?.join(", ") ||
+                "API seed 미지정 · 반복 실행"}
+            </dd>
           </dl>
           <ul>
             {report.limitations.map((x) => (
