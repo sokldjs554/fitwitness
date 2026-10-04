@@ -340,6 +340,11 @@ def create_app():
         p = ROOT / "docs/evaluation" / ("agent-v1.json" if version == "v1" else "agent.json")
         return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
 
+    @app.get("/api/evaluations/retrieval")
+    def retrieval_evaluation():
+        p = ROOT / "docs/evaluation/retrieval.json"
+        return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
+
     @app.get("/health")
     def health():
         return {

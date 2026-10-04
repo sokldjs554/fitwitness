@@ -122,3 +122,19 @@ test("published API measurement selection and real agent traces", async ({
     ),
   ).toBe(false);
 });
+
+test("retrieval comparison reveals modality limits and ranked evidence", async ({page,request}) => {
+  const report=await (await request.get('/api/evaluations/retrieval')).json();
+  test.skip(report.status!=='measured','retrieval measurement not published');
+  await page.goto('/');
+  await page.getByRole('button',{name:'실험실',exact:true}).click();
+  const region=page.getByRole('region',{name:'도면 검색 방식 비교',exact:true});
+  await expect(region).toBeVisible();
+  await expect(region).toContainText('E5');
+  await expect(region).toContainText('OpenCLIP');
+  await region.getByRole('combobox',{name:'검색 질문 유형'}).selectOption('image');
+  await expect(region.getByRole('img',{name:'실제 검색에 사용한 변형 도면'})).toBeVisible();
+  await expect(region).toContainText('관련 도면');
+  await expect(region.getByRole('table',{name:'검색 방식별 측정 지표'})).toContainText('0.0%');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)).toBe(false);
+});

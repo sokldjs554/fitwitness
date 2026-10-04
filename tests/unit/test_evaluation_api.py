@@ -47,3 +47,9 @@ def test_every_published_model_recomputes_and_keeps_provider_metadata():
             assert report['protocol']['seeds'] is None
             assert report['model']['provider']=='anthropic'
             assert len([r for r in report['predictions'] if r['method']=='anthropic'])==72
+
+
+def test_retrieval_report_endpoint_has_explicit_status():
+    result=TestClient(create_app()).get('/api/evaluations/retrieval')
+    assert result.status_code==200
+    assert result.json()['status'] in ('measured','not_measured')

@@ -1,3 +1,4 @@
+import { RetrievalTrials } from "./RetrievalTrials";
 import { AgentTrials } from "./AgentTrials";
 import { useEffect, useState } from "react";
 import {
@@ -449,6 +450,7 @@ export function ExperimentLab() {
           )}
         </aside>
       </section>
+      <RetrievalTrials />
       <AgentTrials />
       <details className="protocol">
         <summary>

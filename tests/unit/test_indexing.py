@@ -80,3 +80,20 @@ def test_model_lock_requires_pinned_hashes():
     for model in lock.values():
         assert all(len(x)==64 for x in model['files'].values())
         assert any(x.endswith('.safetensors') for x in model['files'])
+
+
+def test_semantic_search_without_text_does_not_embed_empty_query():
+    class ReadyRepo(Repo):
+        def vector_metadata(self,*args):return {self.rev.id:{'text':{'encoder_fingerprint':Encoder.fingerprint},'image':{'encoder_fingerprint':Encoder.fingerprint}}}
+    class NoQuery(Encoder):
+        def encode_text(self,*args,**kwargs):raise AssertionError('empty text must not be encoded')
+    repo=ReadyRepo()
+    assert search(scope,SearchRequest(text=''),repo.snapshot(scope),repo,NoQuery(),{'semantic'})==[]
+
+
+def test_model_lock_excludes_local_download_temporary_files():
+    from pathlib import PurePosixPath
+    from fitwitness.retrieval.embeddings import model_lock
+    for model in model_lock().values():
+        assert all(not part.startswith('.') for name in model['files'] for part in PurePosixPath(name).parts)
+        assert all(name.endswith(('.json','.model','.safetensors')) for name in model['files'])

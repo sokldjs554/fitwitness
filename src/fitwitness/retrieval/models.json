@@ -5,7 +5,6 @@
     "license": "MIT (upstream weights; FitWitness code Apache-2.0)",
     "folder": "e5",
     "files": {
-      ".model.safetensors.ay1sdN": "1e0e0eafff69b673cac5e67b723ccea05c4b6cb4bf9069dcd7fa713bab582b4c",
       "1_Pooling/config.json": "987f7a67a38fa564c849bb5d277c52ab9088a84368fc0be31a354125aebb12a0",
       "config.json": "69137736cab8b8903a07fe8afaafdda25aac55415a12a55d1bffa9f581abf959",
       "model.safetensors": "1a55775f53449dac10a2bcbc312469fac40b96d53198c407081a831f81c98477",
@@ -23,7 +22,6 @@
     "license": "MIT (upstream weights; FitWitness code Apache-2.0)",
     "folder": "clip",
     "files": {
-      ".open_clip_model.safetensors.EDfUhH": "af69a82d5aaca0061d73a484eae3dc0fd99e9975ca74d28bfc2f61a65d54a542",
       "open_clip_model.safetensors": "ac4f8c4b88af6d963118cbf40ad93176d092abbedfcb752601ae1866352656e6"
     }
   }

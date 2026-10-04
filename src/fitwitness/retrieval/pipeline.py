@@ -128,7 +128,7 @@ def search(
         for r, v in ordered:
             if r.id in matched:
                 scores[r.id]["bm25"] = float(v)
-    if encoders and "semantic" in channels:
+    if encoders and request.text.strip() and "semantic" in channels:
         vec = encoders.encode_text([request.text], query=True)[0].tolist()
         rows = repo.vector_search(scope, "text", vec, snapshot.revision_ids, 50)
         rankings["semantic"] = [r["revision_id"] for r in rows]
