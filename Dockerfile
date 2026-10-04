@@ -14,6 +14,7 @@ COPY --from=ghcr.io/astral-sh/uv:0.9.4 /uv /usr/local/bin/uv
 RUN uv sync --frozen --no-dev
 ENV PATH="/app/.venv/bin:$PATH"
 COPY scripts/ scripts/
+COPY docs/evaluation/ docs/evaluation/
 RUN python -m fitwitness.data.generate
 COPY --from=web /build/web/dist web/dist/
 RUN useradd --uid 10001 --create-home app && chown -R app:app /app
