@@ -17,6 +17,10 @@ async function openLab(page: Page) {
   await page.goto('/');
   await page.getByRole('button', { name: '실험실', exact: true }).click();
   await expect(page.getByRole('heading', { name: '평가 결과 비교', exact: true })).toBeVisible();
+  const nav=page.getByRole('navigation',{name:'실험실 빠른 이동'});
+  await expect(nav.getByRole('link')).toHaveCount(5);
+  await expect(nav).toContainText('Agent');
+  await expect(nav).toContainText('외부 CAD');
 }
 
 test('every recorded model, query, vision repetition and agent run can be inspected', async ({ page }) => {
@@ -66,7 +70,7 @@ test('every recorded model, query, vision repetition and agent run can be inspec
     for (let repeat = 1; repeat <= 3; repeat++) {
       await vision.getByRole('combobox', {name:'이미지 읽기 반복'}).selectOption(String(repeat));
       const row = fixture('vision').rows.find((r: any) => r.case_id === c.id && r.repeat === repeat);
-      if (row.status === 'error') await expect(vision.getByRole('status')).toContainText('호출 실패');
+      if (row.status === 'error') await expect(vision.getByRole('status')).toContainText('실패 사례 · 평가에 포함');
       else await expect(vision.getByRole('table')).toBeVisible();
     }
   }

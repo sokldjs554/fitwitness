@@ -73,7 +73,8 @@ export function AgentTrials() {
       {report.runs.length === 0 && <p role="status">기록된 실행 사례가 없습니다.</p>}
       <p className="agent-caption">
         검색 → 도구 선택 → 근거 조회 → 조건 검증. 행을 선택하면 실제 호출 기록을
-        볼 수 있습니다.
+        볼 수 있습니다. 단일 계획은 한 번 계획한 뒤 도구를 실행하고, 반복 계획은
+        필요한 경우 다시 계획하며, 탐색 + 반례 검토는 별도 challenger가 결과를 재검토합니다.
       </p>
       <div className="table-scroll">
         <table>
@@ -82,7 +83,7 @@ export function AgentTrials() {
               <th>구조 / 반복</th>
               <th>판정 일치</th>
               <th>상태</th>
-              <th>모델 / 도구 호출</th>
+              <th>모델 호출 / 도구 호출</th>
               <th>총 지연</th>
               <th>API 비용</th>
             </tr>
@@ -110,7 +111,7 @@ export function AgentTrials() {
                 </td>
                 <td>{r.state}</td>
                 <td>
-                  {r.result.usage.model_calls} / {r.result.usage.tool_calls}
+                  모델 {r.result.usage.model_calls} · 도구 {r.result.usage.tool_calls}
                 </td>
                 <td>{(r.latency_ms / 1000).toFixed(2)} s</td>
                 <td>

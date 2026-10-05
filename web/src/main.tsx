@@ -245,6 +245,21 @@ function App() {
     setZoom(1);
   }
   function browse(id: string) { setFilter("all"); choose(id); }
+  function beginGuidedDemo() {
+    setQuery("장비에 고정할 브래킷을 찾아줘");
+    setSpacing("40");
+    setMaterial("SUS304");
+    setFault(false);
+    setTimeline(false);
+    setFilter("all");
+    setEventSelection(null);
+    requestAnimationFrame(() =>
+      document.getElementById("review-request")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      }),
+    );
+  }
   const selectedIndex = active.findIndex(d => d.id === selected);
   return (
     <div className={`app-shell ${hiddenRail ? "rail-collapsed" : ""}`}>
@@ -260,7 +275,7 @@ function App() {
         <div className="project-switch">
           <span className="project-icon">T</span>
           <div>
-            Tellus research<small>제조 도면 / 합성 데이터</small>
+            Tellus research<small>제조 도면 / 검증된 연구 데모</small>
           </div>
           <ChevronRight size={13} />
         </div>
@@ -378,6 +393,22 @@ function App() {
                   </strong>
                 </div>
               </div>
+              <section className="demo-guide" aria-label="3분 데모 가이드">
+                <div className="demo-guide-copy">
+                  <span className="kicker">3-MINUTE REVIEW</span>
+                  <strong>근거를 보고 판단하고, 변경되면 다시 검증합니다.</strong>
+                  <p>면접관이 핵심 흐름만 빠르게 확인할 수 있도록 4단계로 정리했습니다.</p>
+                </div>
+                <ol>
+                  <li><b>01</b><span>조건 검증<small>치수·소재 입력</small></span></li>
+                  <li><b>02</b><span>근거·반례<small>PDF 위치까지 확인</small></span></li>
+                  <li><b>03</b><span>개정판 적용<small>40 → 42 mm</small></span></li>
+                  <li><b>04</b><span>자동 무효화<small>새 도면으로 재검증</small></span></li>
+                </ol>
+                <button className="secondary demo-guide-cta" onClick={beginGuidedDemo}>
+                  3분 체험 시작 <ArrowRight size={13} />
+                </button>
+              </section>
               {error && (
                 <div role="alert" className="notice danger">
                   <AlertTriangle size={16} />
@@ -393,7 +424,7 @@ function App() {
                   </button>
                 </div>
               )}
-              <section className="request-bar" aria-label="검토 조건">
+              <section id="review-request" className="request-bar" aria-label="검토 조건">
                 <div className="query-control">
                   <label htmlFor="query">
                     <Search size={13} /> 찾는 부품{" "}
@@ -844,17 +875,23 @@ function App() {
                       className={timeline ? "rotated" : ""}
                     />
                   </button>
-                  <div className="run-summary">
-                    <span>
-                      도구 <b>{run?.usage.tool_calls || 0}</b>
-                    </span>
-                    <span>
-                      모델 <b>{run?.usage.model_calls || 0}</b>
-                    </span>
-                    <span>
-                      경과 <b>{elapsed}s</b>
-                    </span>
-                  </div>
+                  {run ? (
+                    <div className="run-summary">
+                      <span>
+                        도구 <b>{run.usage.tool_calls}</b>
+                      </span>
+                      <span>
+                        모델 <b>{run.usage.model_calls}</b>
+                      </span>
+                      <span>
+                        경과 <b>{elapsed}s</b>
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="run-summary empty">
+                      아직 실행 전 · 조건 검증 후 모델·도구 이벤트를 확인할 수 있습니다.
+                    </div>
+                  )}
                   <label className="fault-toggle">
                     <input
                       type="checkbox"
@@ -902,7 +939,7 @@ function App() {
                       ))}
                       {!events.length && (
                         <p className="empty-note">
-                          검증을 실행하면 실제 이벤트가 기록됩니다.
+                          아직 실행 기록이 없습니다. 먼저 조건 검증을 시작하면 모델·도구 호출과 복구 이벤트가 시간순으로 기록됩니다.
                         </p>
                       )}
                     </ol>

@@ -6,6 +6,12 @@ test("conditions, evidence and revision revalidation use real API", async ({
   await expect(
     page.getByRole("heading", { name: "도면 검토대", exact: false }),
   ).toBeVisible();
+  const guide = page.getByRole("region", { name: "3분 데모 가이드" });
+  await expect(guide).toContainText("조건 검증");
+  await expect(guide).toContainText("자동 무효화");
+  await expect(page.getByText("아직 실행 전 · 조건 검증 후 모델·도구 이벤트를 확인할 수 있습니다.")).toBeVisible();
+  await guide.getByRole("button", { name: "3분 체험 시작" }).click();
+  await expect(page.locator("#review-request")).toBeInViewport();
   await page
     .getByRole("button", { name: "조건 검증 시작", exact: true })
     .click();
@@ -160,7 +166,7 @@ test('reranking and visual success/error evidence are inspectable',async({page,r
   await expect(v).toContainText('msg_');await expect(v).toContainText('검증 전');
   await v.getByRole('combobox',{name:'이미지 읽기 사례'}).selectOption('FW-F001-original');
   await v.getByRole('combobox',{name:'이미지 읽기 반복'}).selectOption('1');
-  await expect(v.getByRole('status')).toContainText('호출 실패');
+  await expect(v.getByRole('status')).toContainText('실패 사례 · 평가에 포함');
   await expect(v.locator('pre')).toContainText('ImageReading');
   await expect(v).toContainText('msg_');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)).toBe(false);

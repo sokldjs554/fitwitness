@@ -212,13 +212,20 @@ export function ExperimentLab() {
         <time>{new Date(report.created_at).toLocaleDateString("ko-KR")}</time>
         </>}
       </div>
+      <nav className="lab-section-nav" aria-label="실험실 빠른 이동">
+        <a href="#lab-llm">LLM 판정</a>
+        <a href="#lab-agent">Agent</a>
+        <a href="#lab-retrieval">Retrieval</a>
+        <a href="#lab-vision">Vision</a>
+        <a href="#lab-cad">외부 CAD</a>
+      </nav>
       {error ? <div role="alert" className="notice danger">평가 결과를 불러오지 못했습니다. {error}</div> :
         !report || report.status !== "measured" ?
           <section className="loading-panel" role="status"><FlaskConical size={28} />
             <h2>{report ? "아직 측정된 결과가 없습니다" : "실측 결과 확인 중"}</h2>
             <p>측정이 완료된 실험만 비교 화면에 표시합니다.</p>
           </section> : <>
-      <section className="comparison" data-testid="experiment-comparison">
+      <section id="lab-llm" className="comparison lab-anchor" data-testid="experiment-comparison">
         <div className="section-bar">
           <h2>동일 입력 비교</h2>
           <span>실패한 호출도 정확도 분모에 포함</span>
@@ -453,10 +460,10 @@ export function ExperimentLab() {
         </aside>
       </section>
       </>}
-      <RetrievalTrials />
-      <CadTrials />
-      <VisionTrials />
-      <AgentTrials />
+      <div id="lab-agent" className="lab-anchor"><AgentTrials /></div>
+      <div id="lab-retrieval" className="lab-anchor"><RetrievalTrials /></div>
+      <div id="lab-vision" className="lab-anchor"><VisionTrials /></div>
+      <div id="lab-cad" className="lab-anchor"><CadTrials /></div>
       {report?.status === "measured" && <details className="protocol">
         <summary>
           재현 정보와 측정 범위{" "}
