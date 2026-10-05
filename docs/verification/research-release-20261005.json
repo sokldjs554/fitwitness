@@ -23,5 +23,26 @@
     "sha256": "c630b346263db6847f364c163e44cfca103de51a69a73b3df3bc3eadd4672a0b"
   },
   "container": "passed including measured reranking and vision endpoints",
-  "public_deploy": "pending hosted verification"
+  "public_deploy": {
+    "id": "dep-db1ma0dg1s2s73as94gg",
+    "status": "live",
+    "sha": "e2a1dbd921aa5cb214cf9a583415d60b71db8fb0"
+  },
+  "hosted": "hosted-research-20261005.json",
+  "public_reports_equal_local": true,
+  "public_browser": [
+    "reranking metrics",
+    "VLM schema error raw output and provider ID",
+    "omitted annotations repeat2",
+    "unknown final graph verdict"
+  ],
+  "app_error_logs": {
+    "from": "2026-10-05T08:54:05Z",
+    "to": "2026-10-05T08:58:17Z",
+    "count": 0
+  },
+  "limitations": [
+    "No new model calls during publication/recovery",
+    "Synthetic diagnostic; external industrial generalization not established"
+  ]
 }
