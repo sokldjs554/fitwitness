@@ -1,0 +1,50 @@
+name: nist-external-cad-evaluation
+on:
+  push:
+    branches: [feat/fitwitness-foundation]
+permissions:
+  contents: read
+concurrency:
+  group: nist-external-cad-evaluation
+  cancel-in-progress: false
+jobs:
+  evaluate:
+    if: startsWith(github.event.head_commit.message, 'eval: NIST external CAD [no-api]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
+      - run: uv sync --frozen --extra dev
+      - name: Download pinned public NIST STEP archive
+        run: |
+          mkdir -p artifacts/nist-source
+          python - <<'PY'
+          import hashlib,urllib.request
+          from pathlib import Path
+          url='https://raw.githubusercontent.com/usnistgov/SFA/72375d17c09cf7072c30d9393b5c08b7aa272285/Release/NIST-PMI-STEP-Files.zip'
+          with urllib.request.urlopen(url,timeout=120) as response:
+              body=response.read()
+          digest=hashlib.sha256(body).hexdigest()
+          assert digest=='1fb91bb8ff0fe02032b948fda0775bc74591cd0bebc0988347d32574e5884f90'
+          Path('artifacts/nist-source/NIST-PMI-STEP-Files.zip').write_bytes(body)
+          print('source sha256',digest,'bytes',len(body))
+          PY
+      - name: Regression tests for STEP selection and CAD distance
+        env:
+          PYTHONPATH: src
+        run: uv run pytest tests/unit/test_ingest.py tests/unit/test_geometry.py -q
+      - name: Run external AP203 to AP242 geometry retrieval
+        env:
+          PYTHONPATH: src
+        run: >-
+          uv run python -m fitwitness.evaluation.external_cad
+          --source-zip artifacts/nist-source/NIST-PMI-STEP-Files.zip
+          --output artifacts/nist-cad-${{ github.run_id }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nist-cad-${{ github.run_id }}
+          path: artifacts/nist-cad-${{ github.run_id }}/
+          if-no-files-found: warn
