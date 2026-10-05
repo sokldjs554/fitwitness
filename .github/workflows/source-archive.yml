@@ -1,0 +1,16 @@
+name: tracked-source-archive
+on: [push]
+permissions:
+  contents: read
+jobs:
+  archive:
+    if: contains(github.event.head_commit.message, '[source-archive]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: git archive --format=tar.gz --output=fitwitness-source.tar.gz HEAD
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tracked-source
+          path: fitwitness-source.tar.gz
