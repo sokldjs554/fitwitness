@@ -1,0 +1,1 @@
+실행37207929539는 보고서 datetime 직렬화에서 실패했습니다. protocol.json·runs.jsonl·graph.json·budget 파일은 원본 그대로이며 report.json과 runs.jsonl.gz만 오프라인 집계로 생성했습니다. 호출 코드3e2662368438091463426a668b1acbe06ac9f690. 추가 API 호출0. 검산은 scripts/verify-research.py.

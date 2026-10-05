@@ -138,3 +138,30 @@ test("retrieval comparison reveals modality limits and ranked evidence", async (
   await expect(region.getByRole('table',{name:'검색 방식별 측정 지표'})).toContainText('0.0%');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)).toBe(false);
 });
+
+// Published experiments are required here: absence must fail, never skip.
+test('reranking and visual success/error evidence are inspectable',async({page,request})=>{
+  const ranking=await(await request.get('/api/evaluations/retrieval?experiment=reranking')).json();
+  const vision=await(await request.get('/api/evaluations/vision')).json();
+  expect(ranking.status).toBe('measured');expect(vision.status).toBe('measured');
+  await page.goto('/');await page.getByRole('button',{name:'실험실',exact:true}).click();
+  const region=page.getByRole('region',{name:'도면 검색 방식 비교',exact:true});
+  await region.getByRole('combobox',{name:'검색 비교 실험'}).selectOption('reranking');
+  await expect(region).toContainText('복합 + BGE 재정렬');
+  await expect(region).toContainText('복합 + 조건 근거 정렬');
+  await region.getByRole('combobox',{name:'검색 질문 유형'}).selectOption('paraphrase');
+  await expect(region).toContainText('관련 도면');
+  const v=page.getByRole('region',{name:'도면 이미지 읽기',exact:true});
+  await v.getByRole('combobox',{name:'이미지 읽기 사례'}).selectOption('FW-F001-no_annotations');
+  await expect(v.getByRole('img',{name:'실제 VLM에 전달한 도면 이미지'})).toBeVisible();
+  await expect(v.getByRole('table')).toContainText('표기 없음');
+  await v.getByRole('combobox',{name:'이미지 읽기 반복'}).selectOption('2');
+  await v.getByText('실제 응답과 관측값',{exact:true}).click();
+  await expect(v).toContainText('msg_');await expect(v).toContainText('검증 전');
+  await v.getByRole('combobox',{name:'이미지 읽기 사례'}).selectOption('FW-F001-original');
+  await v.getByRole('combobox',{name:'이미지 읽기 반복'}).selectOption('1');
+  await expect(v.getByRole('status')).toContainText('호출 실패');
+  await expect(v.locator('pre')).toContainText('ImageReading');
+  await expect(v).toContainText('msg_');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)).toBe(false);
+});

@@ -1,0 +1,9 @@
+{
+  "input_tokens": 1779,
+  "output_tokens": 176,
+  "model_calls": 1,
+  "tool_calls": 0,
+  "cost_usd": "0.002659",
+  "reserved_cost_usd": "0.000000",
+  "reserved_tokens": 0
+}

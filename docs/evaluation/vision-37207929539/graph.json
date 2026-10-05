@@ -1,0 +1,337 @@
+{
+  "run": {
+    "id": "64e80711-1956-44f1-99fa-d102bc9e097f",
+    "state": "completed",
+    "decisions": [
+      {
+        "revision_id": "ece43c0a-13a8-5bb6-8a10-1215d0557832",
+        "verdict": "unknown",
+        "evidence": [
+          {
+            "requirement_id": "04db6ce5-a016-4cc6-9ab8-e3776954aa4d",
+            "candidate_revision_id": "ece43c0a-13a8-5bb6-8a10-1215d0557832",
+            "field": "width",
+            "fact_ids": [
+              "df481f57-f5df-4615-9a27-54b496eb5fe3"
+            ],
+            "source_refs": [
+              {
+                "revision_id": "ece43c0a-13a8-5bb6-8a10-1215d0557832",
+                "source_hash": "f465e4f0e0bb6f5409ca69c49b87875d67b7f8b8fb0e40f1c973eeb8ae1ff5c6",
+                "page": 1,
+                "bbox": [
+                  0.0,
+                  0.6,
+                  0.4,
+                  0.72
+                ],
+                "feature_id": null
+              }
+            ],
+            "verdict": "unknown",
+            "summary": "근거 부족 또는 충돌",
+            "verifier_version": "interval-v1"
+          }
+        ],
+        "snapshot_id": "b3dd1c3bebb469fc4fb5e3f109c1ed4537babe59cbc6b4a9e50cb14098067b16",
+        "stale": false
+      }
+    ],
+    "question": null,
+    "usage": {
+      "input_tokens": 5685,
+      "output_tokens": 354,
+      "model_calls": 3,
+      "tool_calls": 2,
+      "cost_usd": "0.007455",
+      "reserved_cost_usd": "0.000000",
+      "reserved_tokens": 0
+    },
+    "error": null,
+    "input_hash": "641d5590a9e2ce4b6163b5868cdef026b2b3dd673689a176e278a560684dd1ff",
+    "snapshot_id": "b3dd1c3bebb469fc4fb5e3f109c1ed4537babe59cbc6b4a9e50cb14098067b16",
+    "provider": "anthropic",
+    "model_id": "claude-haiku-4-5-20251001"
+  },
+  "events": [
+    {
+      "run_id": "64e80711-1956-44f1-99fa-d102bc9e097f",
+      "seq": 1,
+      "kind": "queued",
+      "payload": {
+        "mode": "react",
+        "provider": "anthropic"
+      },
+      "timestamp": "2026-10-04 14:06:22.733339+00:00"
+    },
+    {
+      "run_id": "64e80711-1956-44f1-99fa-d102bc9e097f",
+      "seq": 2,
+      "kind": "started",
+      "payload": {
+        "recovered": false
+      },
+      "timestamp": "2026-10-04 14:06:22.771505+00:00"
+    },
+    {
+      "run_id": "64e80711-1956-44f1-99fa-d102bc9e097f",
+      "seq": 3,
+      "kind": "intent",
+      "payload": {
+        "requirements": [
+          {
+            "id": "04db6ce5-a016-4cc6-9ab8-e3776954aa4d",
+            "unit": "mm",
+            "field": "width",
+            "value": {
+              "low": "67",
+              "high": "67"
+            },
+            "operator": "eq",
+            "required": true,
+            "source_text": "폭 67mm"
+          }
+        ]
+      },
+      "timestamp": "2026-10-04 14:06:22.816949+00:00"
+    },
+    {
+      "run_id": "64e80711-1956-44f1-99fa-d102bc9e097f",
+      "seq": 4,
+      "kind": "retrieved",
+      "payload": {
+        "candidates": [
+          {
+            "scores": {
+              "rrf": 0.03278688524590164,
+              "bm25": 7.189180529787001,
+              "exact": 1.0
+            },
+            "revision_id": "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+          }
+        ]
+      },
+      "timestamp": "2026-10-04 14:06:22.901651+00:00"
+    },
+    {
+      "run_id": "64e80711-1956-44f1-99fa-d102bc9e097f",
+      "seq": 5,
+      "kind": "model",
+      "payload": {
+        "role": "planner",
+        "usage": {
+          "input_tokens": 1889,
+          "total_tokens": 1996,
+          "output_tokens": 107,
+          "input_token_details": {
+            "cache_read": 0,
+            "cache_creation": 0,
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          }
+        },
+        "attempt": 1,
+        "model_id": "claude-haiku-4-5-20251001",
+        "provider": "anthropic",
+        "latency_ms": 969.0733559999671,
+        "request_id": "msg_011CfhKrK1TeijXxZnm9fo5Z",
+        "prompt_hash": "9ce06fe676b5b8ae4922160d28be8691407ecd72890c394d2f9911de0c0e7508",
+        "context_hash": "2bfcb35498650050036fa400d655bc783ba5779edf015e6075cc19539eba9db6",
+        "langchain_run_id": "lc_run--01a1073c-bad3-7513-81b7-daef71241243-0",
+        "provider_response_id": "msg_011CfhKrK1TeijXxZnm9fo5Z"
+      },
+      "timestamp": "2026-10-04 14:06:23.897852+00:00"
+    },
+    {
+      "run_id": "64e80711-1956-44f1-99fa-d102bc9e097f",
+      "seq": 6,
+      "kind": "agent_plan",
+      "payload": {
+        "role": "planner",
+        "stop": false,
+        "operations": [
+          {
+            "name": "read_image_region",
+            "arguments": {
+              "bbox": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "page": 1,
+              "fields": [
+                "width"
+              ],
+              "revision_id": "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+            }
+          }
+        ],
+        "stop_condition": ""
+      },
+      "timestamp": "2026-10-04 14:06:23.904728+00:00"
+    },
+    {
+      "run_id": "64e80711-1956-44f1-99fa-d102bc9e097f",
+      "seq": 7,
+      "kind": "model",
+      "payload": {
+        "role": "vision",
+        "usage": {
+          "input_tokens": 1756,
+          "total_tokens": 1865,
+          "output_tokens": 109,
+          "input_token_details": {
+            "cache_read": 0,
+            "cache_creation": 0,
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          }
+        },
+        "attempt": 1,
+        "model_id": "claude-haiku-4-5-20251001",
+        "provider": "anthropic",
+        "latency_ms": 1232.9721229999677,
+        "request_id": "msg_011CfhKrPPdodZ2PYrBGTzUC",
+        "prompt_hash": "19458cfc490f466c469907f78ead1a8ebd37762873cc05f20c9d6817b5b21fe2",
+        "context_hash": "16e64979b93f22c524a411c033dfe227e998de326ecb48f1e28ac83eda149903",
+        "image_sha256": "f465e4f0e0bb6f5409ca69c49b87875d67b7f8b8fb0e40f1c973eeb8ae1ff5c6",
+        "langchain_run_id": "lc_run--01a1073c-befc-7122-bbf9-7a5bfa9e0ef3-0",
+        "provider_response_id": "msg_011CfhKrPPdodZ2PYrBGTzUC"
+      },
+      "timestamp": "2026-10-04 14:06:25.226848+00:00"
+    },
+    {
+      "run_id": "64e80711-1956-44f1-99fa-d102bc9e097f",
+      "seq": 8,
+      "kind": "tool",
+      "payload": {
+        "name": "read_image_region",
+        "role": "planner",
+        "items": 1,
+        "fact_ids": [
+          "df481f57-f5df-4615-9a27-54b496eb5fe3"
+        ],
+        "arguments": {
+          "bbox": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "page": 1,
+          "fields": [
+            "width"
+          ],
+          "revision_id": "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+        },
+        "latency_ms": 1341.2556700000096
+      },
+      "timestamp": "2026-10-04 14:06:25.258233+00:00"
+    },
+    {
+      "run_id": "64e80711-1956-44f1-99fa-d102bc9e097f",
+      "seq": 9,
+      "kind": "verified",
+      "payload": {
+        "mode": "react",
+        "match": 0,
+        "unknown": 1,
+        "mismatch": 0
+      },
+      "timestamp": "2026-10-04 14:06:25.264756+00:00"
+    },
+    {
+      "run_id": "64e80711-1956-44f1-99fa-d102bc9e097f",
+      "seq": 10,
+      "kind": "model",
+      "payload": {
+        "role": "planner",
+        "usage": {
+          "input_tokens": 2040,
+          "total_tokens": 2178,
+          "output_tokens": 138,
+          "input_token_details": {
+            "cache_read": 0,
+            "cache_creation": 0,
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          }
+        },
+        "attempt": 1,
+        "model_id": "claude-haiku-4-5-20251001",
+        "provider": "anthropic",
+        "latency_ms": 1237.997623999945,
+        "request_id": "msg_011CfhKrV3hNtvCUpr9FxE3G",
+        "prompt_hash": "9ce06fe676b5b8ae4922160d28be8691407ecd72890c394d2f9911de0c0e7508",
+        "context_hash": "a856bd2b1dfb1a83e4af2e9cd49dfa44ccd89667c8375feb56164cfc1b5135ed",
+        "langchain_run_id": "lc_run--01a1073c-c410-79e0-acd7-e2863eb9b867-0",
+        "provider_response_id": "msg_011CfhKrV3hNtvCUpr9FxE3G"
+      },
+      "timestamp": "2026-10-04 14:06:26.532960+00:00"
+    },
+    {
+      "run_id": "64e80711-1956-44f1-99fa-d102bc9e097f",
+      "seq": 11,
+      "kind": "agent_plan",
+      "payload": {
+        "role": "planner",
+        "stop": false,
+        "operations": [
+          {
+            "name": "read_image_region",
+            "arguments": {
+              "bbox": [
+                0,
+                0,
+                1,
+                1
+              ],
+              "page": 1,
+              "fields": [
+                "width"
+              ],
+              "revision_id": "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+            }
+          }
+        ],
+        "stop_condition": "Width annotation visually inspected and compared to requirement 67mm"
+      },
+      "timestamp": "2026-10-04 14:06:26.539731+00:00"
+    },
+    {
+      "run_id": "64e80711-1956-44f1-99fa-d102bc9e097f",
+      "seq": 12,
+      "kind": "tool_skipped",
+      "payload": {
+        "name": "read_image_region",
+        "reason": "identical query already observed"
+      },
+      "timestamp": "2026-10-04 14:06:26.552447+00:00"
+    },
+    {
+      "run_id": "64e80711-1956-44f1-99fa-d102bc9e097f",
+      "seq": 13,
+      "kind": "verified",
+      "payload": {
+        "mode": "react",
+        "match": 0,
+        "unknown": 1,
+        "mismatch": 0
+      },
+      "timestamp": "2026-10-04 14:06:26.559009+00:00"
+    },
+    {
+      "run_id": "64e80711-1956-44f1-99fa-d102bc9e097f",
+      "seq": 14,
+      "kind": "completed",
+      "payload": {
+        "candidates": 1
+      },
+      "timestamp": "2026-10-04 14:06:26.573661+00:00"
+    }
+  ],
+  "error": null,
+  "visual_calls": 1,
+  "limitation": "vector facts intentionally removed for one synthetic drawing; visual observations remain uncertain"
+}

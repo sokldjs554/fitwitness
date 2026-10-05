@@ -91,3 +91,22 @@ def test_extreme_visual_numbers_are_scored_wrong_without_losing_raw_reading(valu
     reading=ImageReading(annotations=[dict(field='width',value=value,unit='mm',visible_text='?',bbox=(0,0,1,1))])
     assert field_scores(reading,{'width':'40','material':None})=={'width':False,'material':True}
     assert reading.annotations[0].value==value
+
+
+def test_offline_report_recovery_preserves_costs_dates_and_errors(tmp_path, monkeypatch):
+    import json
+    import fitwitness.evaluation.vision as evaluation
+    monkeypatch.setattr(evaluation,'create_model',lambda *a,**kw:pytest.fail('offline summary called a model'))
+    row={'status':'error','fields':{'width':False,'material':False},'latency_ms':100,
+         'usage':{'cost_usd':'0.001','reserved_cost_usd':'0.002'}}
+    graph={'run':{'state':'completed','usage':{'cost_usd':'0.003','reserved_cost_usd':'0'},'decisions':[]},
+           'events':[{'created_at':'2026-10-04T14:06:26+00:00'}]}
+    (tmp_path/'protocol.json').write_text(json.dumps({'cases':[]}))
+    (tmp_path/'runs.jsonl').write_text(json.dumps(row)+'\n')
+    (tmp_path/'graph.json').write_text(json.dumps(graph))
+    report=evaluation.summarize_saved(tmp_path,'original-execution-sha')
+    assert report['code_sha']=='original-execution-sha'
+    assert report['metrics']['known_cost_usd']=='0.004'
+    assert report['metrics']['unresolved_reserved_usd']=='0.002'
+    assert report['metrics']['field_accuracy']==0
+    assert json.loads((tmp_path/'report.json').read_text())['graph']==graph

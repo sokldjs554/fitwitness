@@ -1,0 +1,367 @@
+{
+  "run": {
+    "id": "687081fe-7b91-4815-85b0-5ac4461e2d48",
+    "state": "completed",
+    "decisions": [
+      {
+        "revision_id": "9e344ed1-b3cf-503d-892f-cbaef7fd7cee",
+        "verdict": "match",
+        "evidence": [
+          {
+            "requirement_id": "595c5e6e-7605-46a0-82de-00d484e88435",
+            "candidate_revision_id": "9e344ed1-b3cf-503d-892f-cbaef7fd7cee",
+            "field": "width",
+            "fact_ids": [
+              "bded4805-8b39-5507-9cc2-d46bb0fd38f3"
+            ],
+            "source_refs": [
+              {
+                "revision_id": "9e344ed1-b3cf-503d-892f-cbaef7fd7cee",
+                "source_hash": "17de974a58a32145e7c112db51ea9c198c8af4acd58bc43f67ea5d5b6fbe9eb8",
+                "page": 1,
+                "bbox": [
+                  0.05555555555555555,
+                  0.8515235294117647,
+                  0.18204027777777781,
+                  0.8730921568627451
+                ],
+                "feature_id": null
+              }
+            ],
+            "verdict": "match",
+            "summary": "확인된 조건 일치",
+            "verifier_version": "interval-v1"
+          }
+        ],
+        "snapshot_id": "28159f7141903f47b5aeebd9beea73e54f35f57659ab95362a413ccbbec378fa",
+        "stale": false
+      },
+      {
+        "revision_id": "28253dfb-9576-5756-973c-4fbba08de4ce",
+        "verdict": "mismatch",
+        "evidence": [
+          {
+            "requirement_id": "595c5e6e-7605-46a0-82de-00d484e88435",
+            "candidate_revision_id": "28253dfb-9576-5756-973c-4fbba08de4ce",
+            "field": "width",
+            "fact_ids": [
+              "02f4fbcc-21a4-5c35-b4aa-eefda6d5f22c"
+            ],
+            "source_refs": [
+              {
+                "revision_id": "28253dfb-9576-5756-973c-4fbba08de4ce",
+                "source_hash": "6ac7420a8df81406316991d744b7ffeec604cf9d1ec891377d74a7e8608a5de8",
+                "page": 1,
+                "bbox": [
+                  0.05555555555555555,
+                  0.8515235294117647,
+                  0.19053472222222223,
+                  0.8730921568627451
+                ],
+                "feature_id": null
+              }
+            ],
+            "verdict": "mismatch",
+            "summary": "요청 조건과 다름",
+            "verifier_version": "interval-v1"
+          }
+        ],
+        "snapshot_id": "28159f7141903f47b5aeebd9beea73e54f35f57659ab95362a413ccbbec378fa",
+        "stale": false
+      },
+      {
+        "revision_id": "e4a08990-36ec-5594-ac33-0ab6e9b64e3b",
+        "verdict": "mismatch",
+        "evidence": [
+          {
+            "requirement_id": "595c5e6e-7605-46a0-82de-00d484e88435",
+            "candidate_revision_id": "e4a08990-36ec-5594-ac33-0ab6e9b64e3b",
+            "field": "width",
+            "fact_ids": [
+              "5ead2f04-7df0-51a8-95f0-a8e391b350c2"
+            ],
+            "source_refs": [
+              {
+                "revision_id": "e4a08990-36ec-5594-ac33-0ab6e9b64e3b",
+                "source_hash": "55a412605802dde7bd16691f0e152ad5a1cc04d105f38f423d0021724edb9206",
+                "page": 1,
+                "bbox": [
+                  0.05555555555555555,
+                  0.8515235294117647,
+                  0.19053472222222223,
+                  0.8730921568627451
+                ],
+                "feature_id": null
+              }
+            ],
+            "verdict": "mismatch",
+            "summary": "요청 조건과 다름",
+            "verifier_version": "interval-v1"
+          }
+        ],
+        "snapshot_id": "28159f7141903f47b5aeebd9beea73e54f35f57659ab95362a413ccbbec378fa",
+        "stale": false
+      },
+      {
+        "revision_id": "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f",
+        "verdict": "mismatch",
+        "evidence": [
+          {
+            "requirement_id": "595c5e6e-7605-46a0-82de-00d484e88435",
+            "candidate_revision_id": "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f",
+            "field": "width",
+            "fact_ids": [
+              "6ac20896-b137-52be-a2ec-d5daff9d8b6b"
+            ],
+            "source_refs": [
+              {
+                "revision_id": "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f",
+                "source_hash": "f0817938715580b55b8c7ff128c0712d73c9cdbb4d1890a750b08771ad7df419",
+                "page": 1,
+                "bbox": [
+                  0.05555555555555555,
+                  0.8515235294117647,
+                  0.19053472222222223,
+                  0.8730921568627451
+                ],
+                "feature_id": null
+              }
+            ],
+            "verdict": "mismatch",
+            "summary": "요청 조건과 다름",
+            "verifier_version": "interval-v1"
+          }
+        ],
+        "snapshot_id": "28159f7141903f47b5aeebd9beea73e54f35f57659ab95362a413ccbbec378fa",
+        "stale": false
+      },
+      {
+        "revision_id": "eeb80e6b-aaff-5b7f-9a53-e18e61d95461",
+        "verdict": "mismatch",
+        "evidence": [
+          {
+            "requirement_id": "595c5e6e-7605-46a0-82de-00d484e88435",
+            "candidate_revision_id": "eeb80e6b-aaff-5b7f-9a53-e18e61d95461",
+            "field": "width",
+            "fact_ids": [
+              "bb7e145d-cb1a-5428-b525-aee0144b1ac5"
+            ],
+            "source_refs": [
+              {
+                "revision_id": "eeb80e6b-aaff-5b7f-9a53-e18e61d95461",
+                "source_hash": "dfb2ad991d036d754eac086bc65da72f79456f73a4b4113b0d8d16ddcd4ea53c",
+                "page": 1,
+                "bbox": [
+                  0.05555555555555555,
+                  0.8515235294117647,
+                  0.19053472222222223,
+                  0.8730921568627451
+                ],
+                "feature_id": null
+              }
+            ],
+            "verdict": "mismatch",
+            "summary": "요청 조건과 다름",
+            "verifier_version": "interval-v1"
+          }
+        ],
+        "snapshot_id": "28159f7141903f47b5aeebd9beea73e54f35f57659ab95362a413ccbbec378fa",
+        "stale": false
+      }
+    ],
+    "question": null,
+    "usage": {
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "model_calls": 0,
+      "tool_calls": 6,
+      "cost_usd": null,
+      "reserved_cost_usd": "0",
+      "reserved_tokens": 0
+    },
+    "error": null,
+    "input_hash": "33cf5f031797b436dc06e767196b20889ffca23331276ab89fe8187ee157e0a2",
+    "snapshot_id": "28159f7141903f47b5aeebd9beea73e54f35f57659ab95362a413ccbbec378fa",
+    "provider": "rules",
+    "model_id": ""
+  },
+  "events": [
+    {
+      "run_id": "687081fe-7b91-4815-85b0-5ac4461e2d48",
+      "seq": 1,
+      "kind": "queued",
+      "payload": {
+        "mode": "fitwitness",
+        "provider": "rules"
+      },
+      "timestamp": "2026-10-04 14:06:08.063090+00:00"
+    },
+    {
+      "run_id": "687081fe-7b91-4815-85b0-5ac4461e2d48",
+      "seq": 2,
+      "kind": "started",
+      "payload": {
+        "recovered": false
+      },
+      "timestamp": "2026-10-04 14:06:08.139428+00:00"
+    },
+    {
+      "run_id": "687081fe-7b91-4815-85b0-5ac4461e2d48",
+      "seq": 3,
+      "kind": "intent",
+      "payload": {
+        "requirements": [
+          {
+            "id": "595c5e6e-7605-46a0-82de-00d484e88435",
+            "unit": "mm",
+            "field": "width",
+            "value": {
+              "low": "77",
+              "high": "77"
+            },
+            "operator": "eq",
+            "required": true,
+            "source_text": "폭 77mm"
+          }
+        ]
+      },
+      "timestamp": "2026-10-04 14:06:08.227093+00:00"
+    },
+    {
+      "run_id": "687081fe-7b91-4815-85b0-5ac4461e2d48",
+      "seq": 4,
+      "kind": "retrieved",
+      "payload": {
+        "candidates": [
+          {
+            "scores": {
+              "rrf": 0.031024531024531024,
+              "image": 0.630156736667256,
+              "semantic": 0.8246630534730537
+            },
+            "revision_id": "e4a08990-36ec-5594-ac33-0ab6e9b64e3b"
+          },
+          {
+            "scores": {
+              "rrf": 0.030679156908665108,
+              "image": 0.6139928285477476,
+              "semantic": 0.8265438779268353
+            },
+            "revision_id": "9e344ed1-b3cf-503d-892f-cbaef7fd7cee"
+          },
+          {
+            "scores": {
+              "rrf": 0.030117753623188408,
+              "image": 0.6390812612127518,
+              "semantic": 0.8233509870349184
+            },
+            "revision_id": "eeb80e6b-aaff-5b7f-9a53-e18e61d95461"
+          },
+          {
+            "scores": {
+              "rrf": 0.03009207275993712,
+              "image": 0.661410351437646,
+              "semantic": 0.8228710399346938
+            },
+            "revision_id": "28253dfb-9576-5756-973c-4fbba08de4ce"
+          },
+          {
+            "scores": {
+              "rrf": 0.030017921146953404,
+              "image": 0.6567310094833421,
+              "semantic": 0.8229869219080302
+            },
+            "revision_id": "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f"
+          }
+        ]
+      },
+      "timestamp": "2026-10-04 14:06:08.887161+00:00"
+    },
+    {
+      "run_id": "687081fe-7b91-4815-85b0-5ac4461e2d48",
+      "seq": 5,
+      "kind": "tool",
+      "payload": {
+        "name": "query_dimensions",
+        "fields": [
+          "width"
+        ],
+        "revision_id": "e4a08990-36ec-5594-ac33-0ab6e9b64e3b"
+      },
+      "timestamp": "2026-10-04 14:06:08.947344+00:00"
+    },
+    {
+      "run_id": "687081fe-7b91-4815-85b0-5ac4461e2d48",
+      "seq": 6,
+      "kind": "tool",
+      "payload": {
+        "name": "query_dimensions",
+        "fields": [
+          "width"
+        ],
+        "revision_id": "9e344ed1-b3cf-503d-892f-cbaef7fd7cee"
+      },
+      "timestamp": "2026-10-04 14:06:08.985474+00:00"
+    },
+    {
+      "run_id": "687081fe-7b91-4815-85b0-5ac4461e2d48",
+      "seq": 7,
+      "kind": "tool",
+      "payload": {
+        "name": "query_dimensions",
+        "fields": [
+          "width"
+        ],
+        "revision_id": "eeb80e6b-aaff-5b7f-9a53-e18e61d95461"
+      },
+      "timestamp": "2026-10-04 14:06:09.023283+00:00"
+    },
+    {
+      "run_id": "687081fe-7b91-4815-85b0-5ac4461e2d48",
+      "seq": 8,
+      "kind": "tool",
+      "payload": {
+        "name": "query_dimensions",
+        "fields": [
+          "width"
+        ],
+        "revision_id": "28253dfb-9576-5756-973c-4fbba08de4ce"
+      },
+      "timestamp": "2026-10-04 14:06:09.061912+00:00"
+    },
+    {
+      "run_id": "687081fe-7b91-4815-85b0-5ac4461e2d48",
+      "seq": 9,
+      "kind": "tool",
+      "payload": {
+        "name": "query_dimensions",
+        "fields": [
+          "width"
+        ],
+        "revision_id": "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f"
+      },
+      "timestamp": "2026-10-04 14:06:09.103322+00:00"
+    },
+    {
+      "run_id": "687081fe-7b91-4815-85b0-5ac4461e2d48",
+      "seq": 10,
+      "kind": "verified",
+      "payload": {
+        "mode": "규칙 기반 검증",
+        "match": 1,
+        "unknown": 0,
+        "mismatch": 4
+      },
+      "timestamp": "2026-10-04 14:06:09.114043+00:00"
+    },
+    {
+      "run_id": "687081fe-7b91-4815-85b0-5ac4461e2d48",
+      "seq": 11,
+      "kind": "completed",
+      "payload": {
+        "candidates": 5
+      },
+      "timestamp": "2026-10-04 14:06:09.140090+00:00"
+    }
+  ]
+}

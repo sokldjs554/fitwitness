@@ -99,10 +99,19 @@ def run(root,output):
         visual_calls=sum(e['kind']=='model' and e['payload'].get('role')=='vision' for e in events),
         limitation='vector facts intentionally removed for one synthetic drawing; visual observations remain uncertain')
     (output/'graph.json').write_text(json.dumps(graph,ensure_ascii=False,indent=2,default=str))
-    known=sum(Decimal(r['usage']['cost_usd'] or '0') for r in rows)+Decimal(str(view.usage.cost_usd or 0))
-    reserved=sum(Decimal(r['usage']['reserved_cost_usd']) for r in rows)+view.usage.reserved_cost_usd
+    summarize_saved(output,os.getenv('GITHUB_SHA') or subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip())
+
+
+def summarize_saved(output,code_sha):
+    """Recover a report from persisted records without DB or model calls."""
+    protocol=json.loads((output/'protocol.json').read_text())
+    rows=[json.loads(line) for line in (output/'runs.jsonl').read_text().splitlines()]
+    graph=json.loads((output/'graph.json').read_text())
+    usage=graph['run']['usage']
+    known=sum(Decimal(r['usage']['cost_usd'] or '0') for r in rows)+Decimal(str(usage['cost_usd'] or 0))
+    reserved=sum(Decimal(r['usage']['reserved_cost_usd']) for r in rows)+Decimal(str(usage['reserved_cost_usd']))
     report=dict(status='measured',protocol=protocol,rows=rows,graph=graph,
-        code_sha=os.getenv('GITHUB_SHA',subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()),
+        code_sha=code_sha,
         metrics=dict(attempts=len(rows),completed=sum(r['status']=='ok' for r in rows),
             field_accuracy=mean(v for r in rows for v in r['fields'].values()),
             latency_p50_ms=percentile([r['latency_ms'] for r in rows],.5),latency_p95_ms=percentile([r['latency_ms'] for r in rows],.95),
@@ -115,8 +124,14 @@ def run(root,output):
     (output/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
     with gzip.GzipFile(filename=str(output/'runs.jsonl.gz'),mode='wb',mtime=0) as f:f.write((output/'runs.jsonl').read_bytes())
     print(json.dumps(report['metrics']),flush=True)
+    return report
 
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--root',type=Path,default=Path('var/corpus'));p.add_argument('--output',type=Path,required=True)
-    a=p.parse_args();run(a.root,a.output)
+    p.add_argument('--summarize-only',action='store_true');p.add_argument('--execution-sha')
+    a=p.parse_args()
+    if a.summarize_only:
+        if not a.execution_sha:p.error('--execution-sha is required for offline recovery')
+        summarize_saved(a.output,a.execution_sha)
+    else:run(a.root,a.output)

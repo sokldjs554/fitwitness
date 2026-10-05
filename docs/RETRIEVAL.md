@@ -44,7 +44,7 @@ uv run python -m fitwitness.evaluation.retrieval --output artifacts/retrieval-ne
 
 첫 실행은 모델 목록에 다운로드 임시 파일이 들어가404가 발생해 추론 전 종료됐습니다. 공식 파일명만 고정하고 회귀 검증했습니다. 두 번째 실행 중, 점수를 보기 전에 설명 질문의 정답 기준에 질문에 없는 구멍 간격이 포함된 문제를 확인했습니다. 실패 재현 후 v2에서 유형별 정답 기준으로 수정했습니다. 이전 protocol은 유효한 비교 성과로 사용하지 않습니다.
 
-이 작업은 VLM/OCR, 3D 파생 거리, reranker, 외부 산업 자료, 대규모 색인, 모델 의도 파서의 일반화까지 완료한 것이 아닙니다.
+아래 v2는 검색 채널 비교입니다. 후속 재정렬·VLM은 별도 실험이며 CAD 거리·외부 산업 자료·대규모 색인·의도 일반화는 미완료입니다.
 
 ## 실제 측정 — v2
 
@@ -75,3 +75,26 @@ GitHub Actions37198685994, 코드5fbc5feec8f58827aed5028a2d8d8c2be0c8b093에서2
 [실험과 바이트가 일치하는 PDF·PNG·manifest·gold](evaluation/retrieval-37198685994/sources.zip.xz)를 보존했습니다. `xz -d sources.zip.xz` 후 ZIP을 풀면 됩니다. 로컬에 예전부터 있던 PNG는 실험 PNG와 바이트가 달랐으므로 이를 실험 원본이라고 부르지 않았습니다. 동일한 CI 환경에서 원본을 다시 만들고, 동결 protocol의 PDF150개·PNG150개 해시가 모두 일치하는 것을 확인한 자료입니다. 화면에 표시되는 변형 질문 이미지12개도 동결 해시와 일치합니다.
 
 자료 재생성 workflow37199579387, 보존 archive SHA-256 `7481215aa5a6844588d3fb7e93970258349a1af54d8be40c0011bb79547eebb3`. 이 작업에서 모델 추론·점수 계산을 다시 수행하지 않았습니다.
+
+## 후보 재정렬 후속 실측
+
+기존 test/dev와 겹치지 않는 기존 train6개 family를 SHA 순서로 사전 선택했습니다. 같은150개 합성 코퍼스의 신규24질문×3방법×3회=216검색입니다. 이전 v2와 점수를 직접 비교하지 않습니다.
+
+| 방식 | Recall@5 | nDCG@10 | p50 / p95 |
+|---|---:|---:|---:|
+| RRF | 39.9% | 0.478 | 326 /443 ms |
+| RRF+BGE | 54.2% | 0.595 | 16,832 /21,424 ms |
+| RRF+치수 조건 정렬 | 64.2% | 0.670 | 326 /433 ms |
+
+설명 질문 Recall은29.2/62.5/75.0%, 복합 질문은22.2/45.8/73.6%입니다. 이미지 전용은 세 방식 모두8.3%로 개선되지 않았습니다. 이 합성 치수 질의에서는 결정적 조건 정렬이 가장 좋았고 BGE는 CPU 지연 부담이 컸습니다. 독립 산업 데이터에서 같은 우위가 반복된다는 뜻은 아닙니다.
+
+[보고서](evaluation/reranking.json) · [동결 protocol](evaluation/reranking-37206750470/protocol.json) · [216개 raw](evaluation/reranking-37206750470/runs.jsonl.gz). workflow37206750470, 코드f0cf0af9에서216/216완료, dense LangGraph completed. 개별·집계 지표·이미지·원본 해시를 `scripts/verify-research.py`로 검산합니다.
+
+BGE 모델 `BAAI/bge-reranker-v2-m3` revision `953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e`와 파일 SHA256을 고정했습니다. RRF후보20개를 재정렬해10개 반환하며 정확 도번은 먼저 보존합니다. 이미지 전용 질문은 텍스트가 없어 BGE 순서를 바꾸지 않습니다. 조건 순위는 최종 적합성 승인이 아닙니다. operator의 큰 top_k는 `max(20,top_k)`만큼 후보를 사용합니다.
+
+```bash
+uv run python scripts/download_encoders.py --reranker
+uv run python -m fitwitness.evaluation.retrieval --ablation --output artifacts/reranking-new
+```
+
+worker는 `FITWITNESS_ENCODERS=pretrained`, `FITWITNESS_RERANKER=pretrained`, 요청 `search.ranking="cross_encoder"`로 실행합니다. 기본은 `rrf`, 조건 정렬은 `constraints`입니다. 무료 공개 서버는 모델을 로드하지 않고 측정 기록을 제공합니다.

@@ -24,5 +24,7 @@ jobs:
           for method in report['methods']:
               rows = [r for r in report['predictions'] if r['method'] == method['id']]
               assert method['metrics'] == summarize(rows)
+          for path in ['/api/evaluations/retrieval?experiment=reranking','/api/evaluations/vision']:
+              assert client.get(path).json()['status']=='measured'
           print('Built container serves UI and reproducible measured evaluation.')
           PY
