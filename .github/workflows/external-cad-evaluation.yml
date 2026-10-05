@@ -32,6 +32,11 @@ jobs:
           Path('artifacts/nist-source/NIST-PMI-STEP-Files.zip').write_bytes(body)
           print('source sha256',digest,'bytes',len(body))
           PY
+      - name: Build the repository-owned synthetic fixtures for regression tests
+        env:
+          PYTHONPATH: src
+        run: >-
+          uv run python -c "from pathlib import Path; from fitwitness.data.generate import generate_dataset; generate_dataset(Path('var/corpus'))"
       - name: Regression tests for STEP selection and CAD distance
         env:
           PYTHONPATH: src
