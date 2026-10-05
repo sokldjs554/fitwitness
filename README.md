@@ -86,4 +86,4 @@ PLAYWRIGHT_BASE_URL=http://localhost:8787 npm run test:e2e
 
 NIST 공개 PMI STEP 검증 모델에서 AP203 geometry-only 11개를 질의, 대응 AP242 11개를 후보로 두고 실제 CadQuery 특징 거리를 측정했습니다. GitHub Actions `37313290927`에서 선택 STEP 22/22를 파싱했고 Top-1 11/11, Top-3 11/11, MRR 1.000을 기록했습니다. 이 결과는 외부 engineering benchmark의 **cross-format geometry retrieval** 실측이며 생산 공장의 산업 도면 성능으로 표현하지 않습니다. 세부 프로토콜은 [docs/CAD.md](docs/CAD.md), 게시 JSON은 [docs/evaluation/nist-cad.json](docs/evaluation/nist-cad.json)에 있습니다.
 
-최종 provider gate는 Claude Haiku 4.5로 진행했습니다. 현재 코드 SHA `0347d5af`에서 단일 도구 계획·반복 계획·planner+challenger 세 구조가 모두 완료됐고 각각 5/5 판정을 기록했습니다. 모델/도구 호출은 1/6, 1/6, 2/7회였고 비용은 $0.004102 / $0.004102 / $0.008382였습니다. 원시 결과는 [Actions 37321337436](https://github.com/sokldjs554/fitwitness/actions/runs/37321337436)에 보존했습니다.
+최종 provider gate는 Claude Haiku 4.5로 진행했습니다. 현재 코드 SHA `0347d5af`에서 단일 도구 계획·반복 계획·planner+challenger 세 구조가 모두 완료됐고 각각 5/5 판정을 기록했습니다. 모델/도구 호출은 1/6, 1/6, 2/7회였고 비용은 $0.004102 / $0.004102 / $0.008382였습니다. 원시 결과는 [Actions 37321337436](https://github.com/sokldjs554/fitwitness/actions/runs/37321337436)에 보존했고, 제출용 요약은 [claude-final-gate.json](docs/evaluation/claude-final-gate.json)에 정리했습니다.
