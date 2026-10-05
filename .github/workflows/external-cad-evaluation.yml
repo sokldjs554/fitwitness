@@ -9,7 +9,8 @@ concurrency:
   cancel-in-progress: false
 jobs:
   evaluate:
-    if: startsWith(github.event.head_commit.message, 'eval: NIST external CAD [no-api]')
+    if: >-
+      startsWith(github.event.head_commit.message, 'eval: NIST external CAD [no-api]')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
