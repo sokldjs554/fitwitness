@@ -9,7 +9,7 @@ test.beforeEach(async ({page}) => {
   await page.route(/\/api\/evaluations/, route => {
     const url = new URL(route.request().url());
     if (url.pathname.endsWith('/catalog')) return route.fulfill({json:{experiments:[{id:'qwen',label:'Qwen3 · 로컬'},{id:'claude',label:'Claude Haiku 4.5 · API'}]}});
-    const file = url.pathname.endsWith('/retrieval') ? (url.searchParams.get('experiment') === 'reranking' ? 'reranking' : 'retrieval') : url.pathname.endsWith('/vision') ? 'vision' : url.pathname.endsWith('/agent') ? (url.searchParams.get('version') === 'v1' ? 'agent-v1' : 'agent') : url.searchParams.get('experiment') === 'claude' ? 'claude' : 'latest';
+    const file = url.pathname.endsWith('/cad') ? 'nist-cad' : url.pathname.endsWith('/retrieval') ? (url.searchParams.get('experiment') === 'reranking' ? 'reranking' : 'retrieval') : url.pathname.endsWith('/vision') ? 'vision' : url.pathname.endsWith('/agent') ? (url.searchParams.get('version') === 'v1' ? 'agent-v1' : 'agent') : url.searchParams.get('experiment') === 'claude' ? 'claude' : 'latest';
     return route.fulfill({json:fixture(file)});
   });
 });
@@ -55,7 +55,10 @@ test('every recorded model, query, vision repetition and agent run can be inspec
       }
     }
   }
-  const vision = page.getByRole('region', {name:'도면 이미지 읽기', exact:true});
+  const cad = page.getByRole('region', {name:'외부 CAD 형상 일반화', exact:true});
+  await expect(cad.getByRole('table', {name:'외부 CAD 형상 거리 실측'})).toContainText('11 / 11');
+  await expect(cad.getByRole('table', {name:'외부 CAD 사례별 순위'}).locator('tbody tr')).toHaveCount(11);
+    const vision = page.getByRole('region', {name:'도면 이미지 읽기', exact:true});
   for (const c of fixture('vision').protocol.cases) {
     await vision.getByRole('combobox', {name:'이미지 읽기 사례'}).selectOption(c.id);
     await expect(vision.getByRole('img')).toHaveJSProperty('complete', true);

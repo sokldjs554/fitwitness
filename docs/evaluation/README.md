@@ -116,3 +116,19 @@ VLM 실험 이전 사용량 기준 계산 비용: PDF $0.110455 + 최초 Agent $
 ## 후속 재정렬·VLM
 
 [재정렬216회](../RETRIEVAL.md): RRF/BGE/조건 정렬 Recall@5 39.9/54.2/64.2%. [VLM18회+실제graph](../VISION.md):15회 구조화 출력 완료, 오류 포함23/36필드 정답, 이미지 근거 단독 판정은 unknown. 원시 실패도 보존했습니다. VLM+$0.050821로 누적 계산 비용은 **$0.238662**, 미확정 예약0입니다. 공개 실험실은 이 기록을 읽으며 새 API 호출을 하지 않습니다.
+
+
+## NIST 외부 CAD
+
+- Actions run: `37313290927`
+- code: `e084c28ba2f1aceb4bee17a56705a207dc0576ca`
+- source ZIP SHA-256: `1fb91bb8ff0fe02032b948fda0775bc74591cd0bebc0988347d32574e5884f90`
+- 22/22 STEP parse, AP203→AP242 Top-1 11/11, Top-3 11/11, MRR 1.0
+- raw `runs.jsonl` SHA-256: `9041974fa5b2f6343349553dce446a62b26c2fb57e58532304725ff312b740f1`
+- 게시 요약: `nist-cad.json`; 전체 parse/protocol/report/raw는 run artifact `nist-cad-37313290927`.
+
+생산 산업 도면 성능이 아니라 NIST의 외부 engineering benchmark에서 서로 다른 STEP 표현의 geometry retrieval을 측정한 결과입니다.
+
+## OpenAI 상태
+
+OpenAI provider는 같은 evidence-verdict runner와 구조화 출력 계약으로 연결돼 있습니다. 전용 `openai-evidence-pilot` workflow는 최대 $0.25로 제한됩니다. 2026-10-05 credential-readiness에서는 `OPENAI_API_KEY=false`였으므로 실제 OpenAI 점수·지연·비용은 **미측정**으로 유지합니다.

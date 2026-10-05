@@ -1,3 +1,4 @@
+import { CadTrials } from "./CadTrials";
 import { RetrievalTrials } from "./RetrievalTrials";
 import { VisionTrials } from "./VisionTrials";
 import { AgentTrials } from "./AgentTrials";
@@ -453,6 +454,7 @@ export function ExperimentLab() {
       </section>
       </>}
       <RetrievalTrials />
+      <CadTrials />
       <VisionTrials />
       <AgentTrials />
       {report?.status === "measured" && <details className="protocol">

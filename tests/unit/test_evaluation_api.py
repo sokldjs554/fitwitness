@@ -87,3 +87,15 @@ def test_published_retrieval_recomputes_from_raw_and_preserves_protocol():
             assert metrics==summarize_retrieval([r for r in subset if r['category']==cat])
     assert report['rows']==[r for r in rows if r['repeat']==1]
     assert report['graph_state']=='completed'
+
+
+def test_external_cad_report_is_published_with_immutable_evidence():
+    body=TestClient(create_app()).get('/api/evaluations/cad').json()
+    assert body['status']=='measured'
+    assert body['metrics']['selected_files_parsed']==22
+    assert body['metrics']['paired_cases']==11
+    assert body['metrics']['top1_accuracy']==1
+    assert body['metrics']['mrr']==1
+    assert len(body['cases'])==11 and all(row['rank']==1 for row in body['cases'])
+    assert body['evidence']['workflow_run_id']==37313290927
+    assert len(body['evidence']['raw_sha256'])==64

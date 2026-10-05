@@ -351,6 +351,11 @@ def create_app():
         p = ROOT / 'docs/evaluation/vision.json'
         return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
 
+    @app.get('/api/evaluations/cad')
+    def cad_evaluation():
+        p = ROOT / 'docs/evaluation/nist-cad.json'
+        return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
+
     @app.get("/health")
     def health():
         return {

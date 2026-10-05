@@ -80,3 +80,10 @@ PLAYWRIGHT_BASE_URL=http://localhost:8787 npm run test:e2e
 ## 라이선스
 
 직접 작성한 코드는 Apache-2.0입니다. 의존성·모델·글꼴에는 각 원저작자의 라이선스가 적용됩니다.
+
+
+## 외부 CAD 형상 실측
+
+NIST 공개 PMI STEP 검증 모델에서 AP203 geometry-only 11개를 질의, 대응 AP242 11개를 후보로 두고 실제 CadQuery 특징 거리를 측정했습니다. GitHub Actions `37313290927`에서 선택 STEP 22/22를 파싱했고 Top-1 11/11, Top-3 11/11, MRR 1.000을 기록했습니다. 이 결과는 외부 engineering benchmark의 **cross-format geometry retrieval** 실측이며 생산 공장의 산업 도면 성능으로 표현하지 않습니다. 세부 프로토콜은 [docs/CAD.md](docs/CAD.md), 게시 JSON은 [docs/evaluation/nist-cad.json](docs/evaluation/nist-cad.json)에 있습니다.
+
+OpenAI adapter는 Anthropic과 동일한 평가 계약으로 구현돼 있고 최대 $0.25의 전용 workflow도 준비했습니다. 그러나 2026-10-05 credential-readiness 기록에서 `OPENAI_API_KEY=false`였으므로 OpenAI 실제 호출 수치가 있다고 주장하지 않습니다. 키·모델·가격 변수가 모두 설정된 경우에만 전용 marker workflow가 시작됩니다.

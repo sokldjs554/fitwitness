@@ -1,0 +1,47 @@
+name: openai-evidence-pilot
+on:
+  push:
+    branches: [feat/fitwitness-foundation]
+permissions:
+  contents: read
+concurrency:
+  group: openai-evidence-pilot
+  cancel-in-progress: false
+jobs:
+  evaluate:
+    if: >-
+      startsWith(github.event.head_commit.message, 'eval: OpenAI evidence pilot [max-usd=0.25]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      FITWITNESS_OPENAI_MODEL: ${{ vars.FITWITNESS_OPENAI_MODEL }}
+      FITWITNESS_OPENAI_INPUT_USD_PER_MILLION: ${{ vars.FITWITNESS_OPENAI_INPUT_USD_PER_MILLION }}
+      FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION: ${{ vars.FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen --extra dev
+      - name: Preflight credential, model and pricing configuration
+        run: |
+          python - <<'PY'
+          import os
+          required=['OPENAI_API_KEY','FITWITNESS_OPENAI_MODEL','FITWITNESS_OPENAI_INPUT_USD_PER_MILLION','FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION']
+          missing=[key for key in required if not os.getenv(key)]
+          if missing: raise SystemExit('missing required OpenAI experiment configuration: '+','.join(missing))
+          print('OpenAI experiment configuration present; secret values are not printed')
+          PY
+      - name: Run bounded same-evidence OpenAI pilot
+        run: >-
+          uv run python -m fitwitness.evaluation.runner
+          --provider openai
+          --model "$FITWITNESS_OPENAI_MODEL"
+          --max-cost-usd 0.25
+          --repeats 3
+          --output artifacts/openai-${{ github.run_id }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: openai-${{ github.run_id }}
+          path: artifacts/openai-${{ github.run_id }}/
+          if-no-files-found: warn

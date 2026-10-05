@@ -1,0 +1,108 @@
+{
+  "status": "measured",
+  "created_at": "2026-10-05T13:00:36Z",
+  "protocol": {
+    "version": "nist-cad-v1",
+    "scope": "external STEP cross-format geometry retrieval; not production industrial validation",
+    "source_url": "https://raw.githubusercontent.com/usnistgov/SFA/72375d17c09cf7072c30d9393b5c08b7aa272285/Release/NIST-PMI-STEP-Files.zip",
+    "source_sha256": "1fb91bb8ff0fe02032b948fda0775bc74591cd0bebc0988347d32574e5884f90",
+    "source_file_count": 28,
+    "paired_case_count": 11,
+    "pairing": "NIST CTC/FTC filename ID; AP203 geometry-only query -> canonical AP242 candidate",
+    "weights": {
+      "bbox": 0.3,
+      "volume": 0.35,
+      "surface": 0.35
+    },
+    "ranking_input": [
+      "bbox_mm",
+      "volume_mm3",
+      "surface_mm2"
+    ],
+    "selection": "all 11 CTC01-05/FTC06-11 pairs in the pinned archive; no post-score filtering",
+    "code_sha": "e084c28ba2f1aceb4bee17a56705a207dc0576ca"
+  },
+  "metrics": {
+    "paired_cases": 11,
+    "selected_files_parsed": 22,
+    "parse_success_rate": 1,
+    "top1_accuracy": 1,
+    "top3_accuracy": 1,
+    "mrr": 1,
+    "paired_distance_p50": 0.018478720154041187,
+    "paired_distance_p95": 0.052907376633837225,
+    "parse_latency_p50_ms": 768.0326635000015,
+    "parse_latency_p95_ms": 2271.8144414999983
+  },
+  "cases": [
+    {
+      "case_id": "ctc_01",
+      "rank": 1,
+      "distance": 0.07521976891037747
+    },
+    {
+      "case_id": "ctc_02",
+      "rank": 1,
+      "distance": 0.018478720154041187
+    },
+    {
+      "case_id": "ctc_03",
+      "rank": 1,
+      "distance": 0.030594984357296982
+    },
+    {
+      "case_id": "ctc_04",
+      "rank": 1,
+      "distance": 0.021711047805238966
+    },
+    {
+      "case_id": "ctc_05",
+      "rank": 1,
+      "distance": 0.004331713358748012
+    },
+    {
+      "case_id": "ftc_06",
+      "rank": 1,
+      "distance": 0.009725650179570533
+    },
+    {
+      "case_id": "ftc_07",
+      "rank": 1,
+      "distance": 0.028958347021070432
+    },
+    {
+      "case_id": "ftc_08",
+      "rank": 1,
+      "distance": 0.00007115335550760949
+    },
+    {
+      "case_id": "ftc_09",
+      "rank": 1,
+      "distance": 1.9502862019294525e-9
+    },
+    {
+      "case_id": "ftc_10",
+      "rank": 1,
+      "distance": 0.01931042333427316
+    },
+    {
+      "case_id": "ftc_11",
+      "rank": 1,
+      "distance": 0.00044306503591800097
+    }
+  ],
+  "evidence": {
+    "workflow_run_id": 37313290927,
+    "workflow_url": "https://github.com/sokldjs554/fitwitness/actions/runs/37313290927",
+    "artifact_id": 11346184591,
+    "artifact_sha256": "928cc750811524c91637e43e5ceab5bf03ae4ba3b2ffcea07377112e3e55e6f0",
+    "raw_sha256": "9041974fa5b2f6343349553dce446a62b26c2fb57e58532304725ff312b740f1"
+  },
+  "limitations": [
+    "NIST PMI validation test cases are external engineering benchmark models, not production drawings from a factory.",
+    "The AP203/AP242 pair represents the same design in different STEP encodings; this measures cross-format geometry extraction and nearest-geometry retrieval, not semantic PMI correctness.",
+    "Only 11 paired CTC/FTC cases are scored; this is not a broad industrial dataset.",
+    "The distance uses three auditable global features: sorted bounding-box axes, volume and surface area. Local feature matching, assembly constraints, tolerances and expert manufacturing approval are outside this result.",
+    "Weights and pair selection were frozen before the GitHub Actions measurement; no score-based tuning was performed."
+  ]
+}
