@@ -10,9 +10,9 @@
 
 ![실제 LLM 평가와 오류 사례 탐색](docs/media/evaluation-lab.png)
 
-핵심 수정 코드 `85a4af3`와 실제 Claude 실측 기록을 포함합니다. [PDF 평가](https://github.com/sokldjs554/fitwitness/actions/runs/37191423446) · [Agent 실패 기록](https://github.com/sokldjs554/fitwitness/actions/runs/37191644166) · [수정 후 재실행](https://github.com/sokldjs554/fitwitness/actions/runs/37191981503).
+실제 Claude 실측과 실패→수정 기록을 포함합니다. [PDF 72회](https://github.com/sokldjs554/fitwitness/actions/runs/37191423446) · [Agent 최초 실패 포함](https://github.com/sokldjs554/fitwitness/actions/runs/37191644166) · [수정 후 재실행](https://github.com/sokldjs554/fitwitness/actions/runs/37191981503) · [최종 코드 Claude gate](https://github.com/sokldjs554/fitwitness/actions/runs/37321337436).
 
-앱 코드 `e2a1dbd9` 검증: 독립 DB 두 환경 각각 Python **140개**·데스크톱/모바일 E2E **12개**, 실제 컨테이너 패키징 통과. [CI](https://github.com/sokldjs554/fitwitness/actions/runs/37285703317) · [컨테이너](https://github.com/sokldjs554/fitwitness/actions/runs/37285703254).
+최종 앱 코드 `b6c86fe0` 검증: 독립 PostgreSQL 두 환경 각각 Python **145개**와 Playwright **58개**, 실제 API 캡처까지 통과했고 Docker package도 성공했습니다. [CI](https://github.com/sokldjs554/fitwitness/actions/runs/37314544837) · [컨테이너](https://github.com/sokldjs554/fitwitness/actions/runs/37314544842).
 
 ## 구현된 기능
 
@@ -27,7 +27,7 @@
 - 도구로 조회한 사실만 판정에 반영하는 Agent, 별도 탐색/반례 검토 단계, 가용 도구·호출·토큰·비용 제한과 bounded retry
 - [재현 가능한 LLM 평가](docs/evaluation/README.md): 고정 모델 revision, 입력·프롬프트·소스 SHA256, 호출별 JSONL
 
-공개 데모는 Render Free + Neon Free로 배포했습니다. 기본 체험은 명시적인 규칙 기반 엔진이며 API 호출을 흉내 내지 않습니다. 실험실에는 Qwen3-1.7B의 실제 측정 기록을 공개했습니다. 24개 PDF 근거 판정 사례를 3회 반복한 pilot에서 정확도 75%, 잘못된 일치 28.6%를 기록했습니다. 동일 입력의 Claude Haiku 4.5 실측 72회는 72/72 정답, 잘못된 일치 0/42, API 비용 $0.110455를 기록했습니다. 이는 좁은 PDF 근거 판정 과제이며 전체 Agent·검색·VLM 성능과 구분합니다. 전체 Agent 첫6회는3회 실패했고, 관측·종료 처리를 수정한 뒤 세 구조의 진단 재실행이 모두 완료됐습니다. 실험실에서 개선 전/후를 선택할 수 있습니다. VLM 후속 포함 전체 API 계산 비용은 $0.238662입니다. OpenAI는 미측정입니다. 무료 서버는 첫 접속·실행이 느릴 수 있습니다.
+공개 데모는 Render Free + Neon Free로 배포했습니다. 기본 체험은 명시적인 규칙 기반 엔진이며 API 호출을 흉내 내지 않습니다. 실험실에는 Qwen3-1.7B의 실제 측정 기록을 공개했습니다. 24개 PDF 근거 판정 사례를 3회 반복한 pilot에서 정확도 75%, 잘못된 일치 28.6%를 기록했습니다. 동일 입력의 Claude Haiku 4.5 실측 72회는 72/72 정답, 잘못된 일치 0/42, API 비용 $0.110455를 기록했습니다. 이는 좁은 PDF 근거 판정 과제이며 전체 Agent·검색·VLM 성능과 구분합니다. 전체 Agent 첫6회는3회 실패했고, 관측·종료 처리를 수정한 뒤 세 구조의 진단 재실행이 모두 완료됐습니다. 실험실에서 개선 전/후를 선택할 수 있습니다. VLM 후속까지 누적 API 계산 비용은 $0.238662였습니다. 현재 최종 코드에서 Claude Agent를 다시 실측한 $0.016586를 더해 **누적 $0.255248**이며 미확정 예약은 0입니다. 최종 측정 provider는 Claude로 고정했고 OpenAI는 선택적 어댑터만 유지하며 성능 비교 범위에서는 제외했습니다. 무료 서버는 첫 접속·실행이 느릴 수 있습니다.
 
 복합 검색도 실제 모델과 PostgreSQL로288회 측정했습니다. 합성150개 도면·24개 질문에서 Recall@5는 도번+BM25 25.0%, 복합33.3%였지만 설명+이미지 질문에서는 복합9.7%로 의미 검색12.5%보다 낮았습니다. 원시 실패·한계를 포함한 [검색 실험과 재현 방법](docs/RETRIEVAL.md)을 공개했습니다. 무료 체험의 실시간 검색은 계속 도번·키워드 방식이며 실험실에는 별도 측정 기록을 표시합니다.
 
@@ -86,4 +86,4 @@ PLAYWRIGHT_BASE_URL=http://localhost:8787 npm run test:e2e
 
 NIST 공개 PMI STEP 검증 모델에서 AP203 geometry-only 11개를 질의, 대응 AP242 11개를 후보로 두고 실제 CadQuery 특징 거리를 측정했습니다. GitHub Actions `37313290927`에서 선택 STEP 22/22를 파싱했고 Top-1 11/11, Top-3 11/11, MRR 1.000을 기록했습니다. 이 결과는 외부 engineering benchmark의 **cross-format geometry retrieval** 실측이며 생산 공장의 산업 도면 성능으로 표현하지 않습니다. 세부 프로토콜은 [docs/CAD.md](docs/CAD.md), 게시 JSON은 [docs/evaluation/nist-cad.json](docs/evaluation/nist-cad.json)에 있습니다.
 
-OpenAI adapter는 Anthropic과 동일한 평가 계약으로 구현돼 있고 최대 $0.25의 전용 workflow도 준비했습니다. 그러나 2026-10-05 credential-readiness 기록에서 `OPENAI_API_KEY=false`였으므로 OpenAI 실제 호출 수치가 있다고 주장하지 않습니다. 키·모델·가격 변수가 모두 설정된 경우에만 전용 marker workflow가 시작됩니다.
+최종 provider gate는 Claude Haiku 4.5로 진행했습니다. 현재 코드 SHA `0347d5af`에서 단일 도구 계획·반복 계획·planner+challenger 세 구조가 모두 완료됐고 각각 5/5 판정을 기록했습니다. 모델/도구 호출은 1/6, 1/6, 2/7회였고 비용은 $0.004102 / $0.004102 / $0.008382였습니다. 원시 결과는 [Actions 37321337436](https://github.com/sokldjs554/fitwitness/actions/runs/37321337436)에 보존했습니다.
