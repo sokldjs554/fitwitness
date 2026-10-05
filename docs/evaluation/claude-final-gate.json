@@ -1,0 +1,58 @@
+{
+  "status": "measured",
+  "created_at": "2026-10-05T14:02:53.392749+00:00",
+  "provider": "anthropic",
+  "model": "claude-haiku-4-5-20251001",
+  "code_sha": "0347d5af08b81a9f5182dd18144e314a339007f9",
+  "workflow_run_id": 37321337436,
+  "artifact_id": 11350975678,
+  "artifact_zip_sha256": "deeb2014e3a59cd172f01d9c8cef09f66bc1214d7a41d54fadc9c51f74e05e0a",
+  "report_sha256": "b378a1930f89d9296a42d74b641f4b43978a87ce18cefbea2ba131c45e3f3859",
+  "runs_jsonl_sha256": "5eec450116a2f792166b766d334647eab0ed9c4993b5a07697bbb83b68d77645",
+  "total_cost_usd": 0.016586,
+  "unresolved_reserved_usd": 0,
+  "cumulative_api_compute_usd": 0.255248,
+  "runs": [
+    {
+      "mode": "fixed",
+      "state": "completed",
+      "correct": 5,
+      "total": 5,
+      "model_calls": 1,
+      "tool_calls": 6,
+      "latency_ms": 5657.985376,
+      "input_tokens": 2012,
+      "output_tokens": 418,
+      "cost_usd": 0.004102
+    },
+    {
+      "mode": "react",
+      "state": "completed",
+      "correct": 5,
+      "total": 5,
+      "model_calls": 1,
+      "tool_calls": 6,
+      "latency_ms": 3623.640027,
+      "input_tokens": 2012,
+      "output_tokens": 418,
+      "cost_usd": 0.004102
+    },
+    {
+      "mode": "fitwitness",
+      "state": "completed",
+      "correct": 5,
+      "total": 5,
+      "model_calls": 2,
+      "tool_calls": 7,
+      "latency_ms": 5674.197529,
+      "input_tokens": 5452,
+      "output_tokens": 586,
+      "cost_usd": 0.008382
+    }
+  ],
+  "limitations": [
+    "One synthetic family and one query were used for the final connectivity gate.",
+    "Each Claude mode was run once; these rows are not an independent performance benchmark.",
+    "The deterministic verifier owns final verdicts; Claude selects bounded tools."
+  ]
+}
