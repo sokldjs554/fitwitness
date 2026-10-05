@@ -4,7 +4,7 @@
 
 | 주요업무 | 실제 구현·측정 근거 | 남은 한계 |
 |---|---|---|
-| Agentic System Design | LangGraph 단일 계획·반복 계획·별도 planner/challenger, typed tools, Claude 실제 도구 호출, 조회한 사실만 검증 | 최초6회 중3회 실패 보존. 수정 후 각 구조1회 완료는 같은 사례의 진단이며 일반 성공률이 아님 |
+| Agentic System Design | LangGraph 단일 계획·반복 계획·별도 planner/challenger, typed tools, Claude 실제 도구 호출, 조회한 사실만 검증. 최종 코드 `0347d5af`에서도 세 구조 3/3 완료·각 5/5 확인 | 최초6회 중3회 실패 보존. 최종 gate도 같은 synthetic family의 연결 검증이며 일반 성공률이 아님 |
 | Advanced Retrieval | 도번·BM25·E5·OpenCLIP·pgvector·원자적 색인·snapshot 검증. RRF/BGE/조건 정렬216회 실제 비교 | NIST 외부 STEP 11쌍에서 AP203→AP242 CAD 거리 Top-1 11/11 실측. ANN·생산 공장 분포·대규모 산업 데이터는 미검증 |
 | Prompt Engineering & Orchestration | LangChain 구조화 출력, LangGraph 반복·종료, 가용 도구, 누락/미조회 구분, 프롬프트·입력 해시 | 독립 프롬프트 최적화 비교 없음. trace는 도구·근거·결정 기록이며 비공개 사고과정이 아님 |
 | Evaluation | Qwen/Claude PDF 비교, Agent 실패·수정 기록, 검색 Recall/nDCG/지연, VLM18회와 graph 실측, 동결 protocol·원시 기록 | 반복을 독립 표본으로 세지 않음. 실제 산업 도면·다양한 의도·전체 업무 성공률 평가 필요 |
@@ -13,7 +13,7 @@
 
 ## 자격요건·우대사항
 
-- LangChain/LangGraph와 Claude는 실제 앱·API·도구 사용 기록이 있습니다. OpenAI 어댑터와 비용 제한 workflow는 준비했지만 2026-10-05 credential-readiness에서 OPENAI_API_KEY=false라 실제 호출은 미측정입니다.
+- LangChain/LangGraph와 Claude는 실제 앱·API·도구 사용 기록이 있습니다. 최종 provider gate `37321337436`에서 현재 코드로 Claude 세 구조 3/3 완료, 실제 model/tool usage와 비용까지 보존했습니다. OpenAI는 선택적 어댑터만 유지하며 최종 측정 범위에서 제외했습니다.
 - VLM은 operator opt-in이며 관측은 항상 `uncertain`입니다. 이번 실측23/36은 추출·누락 판정이며 업무 적합성 정확도가 아닙니다.
 - PostgreSQL checkpoint·lease·worker 종료 복구와 제한된 API 재시도를 구현했습니다. 수일간 작업·human resume·외부 청구 exactly-once는 미검증입니다.
 - Codex 개발·리뷰·회귀 수정 기록이 있습니다. 사용하지 않은 Claude Code나 측정하지 않은 생산성 향상률을 주장하지 않습니다.
@@ -30,3 +30,8 @@
 ## 외부 CAD 후속 — 2026-10-05
 
 NIST PMI STEP 원본 SHA를 고정한 Actions `37313290927`에서 AP203/AP242 11쌍을 측정했습니다. 22개 선택 파일 모두 파싱됐고 같은 설계가 Top-1 11/11, MRR 1.0이었습니다. 이 결과는 실제 외부 engineering benchmark에 대한 geometry extraction/거리 검색 근거이지만, 생산 산업 도면·PMI 의미·공차 승인 일반화로 소개하지 않습니다. 원시 runs SHA-256은 `9041974fa5b2f6343349553dce446a62b26c2fb57e58532304725ff312b740f1`입니다.
+
+
+## 최종 Claude provider gate — 2026-10-05
+
+현재 코드 트리에서 Actions `37321337436`으로 Claude Haiku 4.5를 다시 실측했습니다. 단일 도구 계획·반복 계획·planner+challenger가 모두 completed였고 각 5/5 판정이었습니다. 실제 모델/도구 호출은 1/6, 1/6, 2/7회, 추가 비용은 총 $0.016586, 예약 잔액은 0입니다. 이는 단일 synthetic family의 연결 검증이며 일반 성공률이나 구조 우위를 주장하지 않습니다.
