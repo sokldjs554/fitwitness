@@ -1,0 +1,27 @@
+{
+  "code_sha": "e2a1dbd921aa5cb214cf9a583415d60b71db8fb0",
+  "ci_run": 37285703317,
+  "container_run": 37285703254,
+  "independent_postgres_rounds": [
+    {
+      "round": 1,
+      "job": 111683953869,
+      "python_passed": 140,
+      "e2e_passed": 12,
+      "capture": "passed"
+    },
+    {
+      "round": 2,
+      "job": 111683954170,
+      "python_passed": 140,
+      "e2e_passed": 12,
+      "capture": "passed"
+    }
+  ],
+  "artifact_round1": {
+    "id": 11334471569,
+    "sha256": "c630b346263db6847f364c163e44cfca103de51a69a73b3df3bc3eadd4672a0b"
+  },
+  "container": "passed including measured reranking and vision endpoints",
+  "public_deploy": "pending hosted verification"
+}

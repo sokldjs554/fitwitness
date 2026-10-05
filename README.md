@@ -12,7 +12,7 @@
 
 핵심 수정 코드 `85a4af3`와 실제 Claude 실측 기록을 포함합니다. [PDF 평가](https://github.com/sokldjs554/fitwitness/actions/runs/37191423446) · [Agent 실패 기록](https://github.com/sokldjs554/fitwitness/actions/runs/37191644166) · [수정 후 재실행](https://github.com/sokldjs554/fitwitness/actions/runs/37191981503).
 
-최종 앱 코드 `431d6998` 검증: 독립 DB 두 환경 각각 Python 116개·데스크톱/모바일 E2E 10개, 실제 컨테이너 패키징 통과. [CI](https://github.com/sokldjs554/fitwitness/actions/runs/37199419442) · [컨테이너](https://github.com/sokldjs554/fitwitness/actions/runs/37199419433) · [공개 서버 검증](docs/verification/hosted-retrieval-20261004.json).
+앱 코드 `e2a1dbd9` 검증: 독립 DB 두 환경 각각 Python **140개**·데스크톱/모바일 E2E **12개**, 실제 컨테이너 패키징 통과. [CI](https://github.com/sokldjs554/fitwitness/actions/runs/37285703317) · [컨테이너](https://github.com/sokldjs554/fitwitness/actions/runs/37285703254).
 
 ## 구현된 기능
 
@@ -40,6 +40,12 @@
 신규24개 합성 질문에서 RRF/BGE/치수 조건 정렬216회를 비교했습니다. Recall@5는39.9/54.2/64.2%였고 BGE의 CPU 지연 p50은16.8초였습니다. 이미지 전용 검색은 개선되지 않았습니다. [실측과 한계](docs/RETRIEVAL.md).
 
 Claude 이미지18회는15회 구조화 출력 완료, 오류 포함23/36필드 정답이었습니다. 실제 Agent가 이미지 도구를 호출하되 검증 전 관측으로 조건 일치를 확정하지 않는 것도 확인했습니다. [원시 실패·비용·graph](docs/VISION.md). 실험실에서 재정렬 비교와 이미지 입력·반복별 실제 응답을 확인할 수 있습니다.
+
+[실제 API·복구·개정판·새 평가 화면 데모 영상](docs/media/research-demo.webm)
+
+![실측 후보 재정렬 비교](docs/media/reranking-comparison.png)
+
+![주석 없는 이미지와 실제 모델 관측](docs/media/vision-omission.png)
 
 ## 로컬 실행
 

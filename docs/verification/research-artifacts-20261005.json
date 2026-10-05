@@ -1,0 +1,20 @@
+{
+  "reranking_rows": 216,
+  "vision_attempts": 18,
+  "vision_correct_fields": 23,
+  "vision_cost_usd": "0.050821",
+  "aggregate_cost_usd": "0.238662",
+  "unresolved_usd": "0.000000",
+  "graph": "completed, one visual call, unknown verdict",
+  "source_hashes": "match frozen archive",
+  "reranking_workflow": 37206750470,
+  "vision_workflow": 37207929539,
+  "vision_workflow_status": "failed at final report serialization; raw calls and graph preserved",
+  "report_recovery": "offline, no additional model calls",
+  "reranking_archive_sha256": "c042b165b98f351cb16597835c9413086da3e8fccc119280cd5253e2478e0198",
+  "vision_archive_sha256": "d5f36ab04d18a0a1f3ba93215a7e267f41fa19727d7e9b47cc8589d5bf175a76",
+  "published_report_sha256": {
+    "reranking": "aa0fe5f518e761fadcb7801a358a54cfb27c7173cd9053c5315dc11e4024aa11",
+    "vision": "1b9f0f0b6fbc62c483171bdbc7fe1f931aba197d8fba66d512d39721841dfe8f"
+  }
+}
