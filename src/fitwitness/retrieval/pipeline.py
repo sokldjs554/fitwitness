@@ -21,7 +21,15 @@ KINDS = {
 
 
 def tokenize(text: str):
-    return re.findall(r"[a-z0-9]+(?:-[a-z0-9]+)*|[가-힣]+", text.casefold())
+    tokens = re.findall(r"[a-z0-9]+(?:-[a-z0-9]+)*|[가-힣]+", text.casefold())
+    aliases = []
+    for token in tokens:
+        for name, kind in KINDS.items():
+            if re.fullmatch(r"[가-힣]+", name) and re.fullmatch(
+                re.escape(name) + r"(?:을|를|이|가|은|는|에|용)?", token
+            ):
+                aliases.extend([name, kind])
+    return tokens + [alias for alias in dict.fromkeys(aliases) if alias not in tokens]
 
 
 def extract_requirements(text: str) -> list[Requirement]:

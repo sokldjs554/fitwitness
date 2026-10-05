@@ -2,6 +2,7 @@
 import argparse
 from collections import Counter
 from datetime import datetime, timezone
+from hashlib import sha256
 from http.cookiejar import CookieJar
 import json
 from pathlib import Path
@@ -50,9 +51,21 @@ def verify(base):
     assert list(jar) and all(cookie.secure for cookie in jar), "Hosted cookie must use HTTPS"
     print("Session and database ready", flush=True)
     docs = call("/api/documents")
-    for kind, signature in [("pdf", b"%PDF"), ("step", b"ISO-10303-21")]:
-        assert call(f"/api/documents/{docs[0]['id']}/assets/{kind}").startswith(signature)
-    assert call(f"/api/documents/{docs[0]['id']}/assets/mesh")
+    assets = []
+    for doc in docs:
+        hashes = {}
+        for kind, signature in [("pdf", b"%PDF"), ("png", b"\x89PNG"), ("step", b"ISO-10303-21")]:
+            data = call(f"/api/documents/{doc['id']}/assets/{kind}")
+            assert data.startswith(signature), (doc['drawing_number'], kind)
+            hashes[kind] = sha256(data).hexdigest()
+        assert hashes['pdf'] == doc['source_hash']
+        mesh = call(f"/api/documents/{doc['id']}/assets/mesh")
+        assert mesh['vertices'] and mesh['faces']
+        found = call('/api/search', {'text':doc['drawing_number']})
+        assert found[0]['revision_id'] == doc['id']
+        assets.append({'drawing':doc['drawing_number'], 'revision':doc['revision_label'],
+                       'hashes':hashes, 'vertices':len(mesh['vertices']), 'faces':len(mesh['faces'])})
+    assert len({a['hashes']['png'] for a in assets}) == 5
     body = {"search": {"text": "구멍 간격 40mm SUS304 브래킷"}, "provider": "rules"}
     key = str(uuid4())
     run = call("/api/runs", body, {"Idempotency-Key": key, "X-Demo-Fault": "1"})
@@ -81,8 +94,8 @@ def verify(base):
     assert len(call("/api/documents")) == 5
     return {"url": base, "sha": health["sha"], "verified_at": datetime.now(timezone.utc).isoformat(),
             "status": "passed", "before": dict(before),
-            "after": dict(after), "events": dict(kinds), "checks": ["readiness", "secure cookie",
-            "PDF/STEP/mesh", "idempotency", "worker recovery", "revision invalidation",
+            "after": dict(after), "events": dict(kinds), "assets":assets, "checks": ["readiness", "secure cookie",
+            "all five PDF/PNG/STEP/mesh assets and exact-ID search", "idempotency", "worker recovery", "revision invalidation",
             "reverification", "tenant isolation", "origin rejection", "paid API disabled", "private metrics"]}
 
 

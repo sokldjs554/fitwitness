@@ -137,7 +137,8 @@ def create_app():
         peer = hashlib.sha256(
             (request.client.host if request.client else "unknown").encode()
         ).hexdigest()[:16]
-        if not jobs.admit(bucket, 100) or not jobs.admit(bucket + ":" + peer, 20):
+        per_peer = int(os.getenv("FITWITNESS_SESSION_LIMIT_PER_PEER", "20"))
+        if not jobs.admit(bucket, 100) or not jobs.admit(bucket + ":" + peer, per_peer):
             raise HTTPException(
                 429, "체험 공간 생성 한도입니다. 잠시 후 다시 시도해 주세요."
             )

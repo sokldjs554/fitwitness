@@ -27,6 +27,7 @@ import {
 import "@fontsource-variable/noto-sans-kr";
 import "@fontsource-variable/dm-sans";
 import "./style.css";
+import { DrawingImage } from "./components/DrawingImage";
 import {
   api,
   asset,
@@ -72,12 +73,20 @@ function App() {
   const queryRef = useRef<HTMLTextAreaElement>(null);
   const focusQueryOnMount = useRef(false);
   const reload = async () => {
-    const d = await api<Doc[]>("/documents");
+    const d = (await api<Doc[]>("/documents")).sort((a,b) =>
+      a.drawing_number.localeCompare(b.drawing_number, undefined, {numeric:true}) ||
+      b.revision_label.localeCompare(a.revision_label));
     setDocs(d);
     return d;
   };
   async function initialize() {
     setError("");
+    setReady(false);
+    setRun(null);
+    setEvents([]);
+    setRevised(false);
+    setFilter("all");
+    setEventSelection(null);
     try {
       await api("/demo-sessions", { method: "POST" });
       const d = await reload();
@@ -146,6 +155,7 @@ function App() {
     setFilter("all");
     setEventSelection(null);
     try {
+      if (!query.trim()) throw Error("찾는 부품이나 도번을 입력해 주세요.");
       const value = Number(spacing);
       if (!Number.isFinite(value) || value <= 0)
         throw Error("간격은 0보다 큰 숫자로 입력해 주세요.");
@@ -157,7 +167,7 @@ function App() {
         },
         body: JSON.stringify({
           search: {
-            text: query + " 브래킷",
+            text: query.trim(),
             requirements: [
               {
                 field: "hole_spacing",
@@ -185,6 +195,7 @@ function App() {
         method: "POST",
       });
       setRevised(true);
+      setFilter("all");
       await reload();
       setSelected(result.revision.id);
       if (run) setRun(await api<Run>("/runs/" + run.id));
@@ -212,14 +223,10 @@ function App() {
             : run?.state === "cancelled"
               ? "실행 취소"
               : "검증 대기";
-  const candidates = (
-    decisions.length
-      ? decisions.map((d) => ({
-          doc: docs.find((x) => x.id === d.revision_id),
-          decision: d,
-        }))
-      : active.map((doc) => ({ doc, decision: undefined }))
-  ).filter(
+  // Catalog navigation must survive a narrow search and revision invalidation.
+  const candidates = active.map((doc) => ({
+    doc, decision: decisions.find(d => d.revision_id === doc.id),
+  })).filter(
     (x) => x.doc && (filter === "all" || x.decision?.verdict === filter),
   );
   const inspectedEvent =
@@ -235,9 +242,10 @@ function App() {
   function choose(id: string) {
     setSelected(id);
     setField("hole_spacing");
-    setView("2d");
     setZoom(1);
   }
+  function browse(id: string) { setFilter("all"); choose(id); }
+  const selectedIndex = active.findIndex(d => d.id === selected);
   return (
     <div className={`app-shell ${hiddenRail ? "rail-collapsed" : ""}`}>
       <aside className="navigation">
@@ -375,6 +383,7 @@ function App() {
                   <AlertTriangle size={16} />
                   <span>{error}</span>
                   {!ready && <button onClick={initialize}>다시 연결</button>}
+                  {ready && !running && <button onClick={initialize}>새 체험 공간 열기</button>}
                   <button
                     className="icon-button"
                     aria-label="오류 닫기"
@@ -500,6 +509,15 @@ function App() {
                       </a>
                     )}
                   </div>
+                  <div className="drawing-navigation">
+                    <button aria-label="이전 도면" disabled={selectedIndex <= 0} onClick={()=>browse(active[selectedIndex-1].id)}>← 이전</button>
+                    <select aria-label="도면 바로 선택" value={selected} onChange={e=>browse(e.target.value)} disabled={!active.length}>
+                      {!active.length && <option value="">도면 로딩 중</option>}
+                      {active.map(d=><option key={d.id} value={d.id}>{d.drawing_number} · {d.revision_label}</option>)}
+                    </select>
+                    <span>{Math.max(0,selectedIndex+1)} / {active.length}</span>
+                    <button aria-label="다음 도면" disabled={selectedIndex < 0 || selectedIndex >= active.length-1} onClick={()=>browse(active[selectedIndex+1].id)}>다음 →</button>
+                  </div>
                   <div
                     className={`drawing-stage ${view === "3d" ? "three-stage" : ""}`}
                   >
@@ -513,10 +531,7 @@ function App() {
                             className="paper"
                             style={{ width: `${Math.round(zoom * 88)}%` }}
                           >
-                            <img
-                              src={asset(doc.id, "png")}
-                              alt="원본 도면과 근거 영역"
-                            />
+                            <DrawingImage key={doc.id} src={asset(doc.id, "png")} />
                             {bbox && (
                               <span
                                 className={`bbox ${evidence?.verdict}`}
@@ -631,7 +646,11 @@ function App() {
                           aria-label="불일치만 보기"
                           title="불일치만 보기"
                           className={filter === "mismatch" ? "selected" : ""}
-                          onClick={() => setFilter("mismatch")}
+                          onClick={() => {
+                            setFilter("mismatch");
+                            const first=active.find(d=>decisions.some(c=>c.revision_id===d.id&&c.verdict==="mismatch"));
+                            if(first) choose(first.id);
+                          }}
                         >
                           불일치
                         </button>
@@ -646,6 +665,7 @@ function App() {
                         <button
                           key={d!.id}
                           data-testid="candidate-card"
+                          aria-pressed={selected === d!.id}
                           className={`candidate ${selected === d!.id ? "selected" : ""} ${run?.state === "stale" ? "outdated" : ""}`}
                           onClick={() => choose(d!.id)}
                         >
@@ -680,10 +700,10 @@ function App() {
                               className={`verdict-text ${c?.verdict || ""}`}
                             >
                               {run?.state === "stale"
-                                ? "이전 판정"
+                                ? c ? "이전 판정" : "재검증 전"
                                 : c
                                   ? labels[c.verdict]
-                                  : "검증 전"}
+                                  : run?.state === "completed" ? "검색 제외" : "검증 전"}
                             </span>
                           </div>
                         </button>
@@ -696,7 +716,7 @@ function App() {
                         </p>
                       )}
                     </div>
-                    {decisions.length > 0 && (
+                    {decisions.length > 0 && run?.state !== "stale" && (
                       <div className="counts">
                         {["match", "mismatch", "unknown"].map((v) => (
                           <span className={v} key={v}>

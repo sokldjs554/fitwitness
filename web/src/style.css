@@ -2575,3 +2575,8 @@ footer button {
 .vision-case pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:280px;overflow:auto;font-size:12px}
 .vision-case code{overflow-wrap:anywhere}
 @media(max-width:760px){.vision-case{grid-template-columns:1fr}.vision-case>img{max-height:280px}.vision-case th,.vision-case td{padding:9px 5px;font-size:12px}}
+
+.drawing-navigation{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);background:#fafbf8;font-size:12px}
+.drawing-navigation select{min-width:0;flex:1;border:1px solid var(--line);padding:7px;background:white;color:inherit}
+.drawing-navigation button{white-space:nowrap;padding:6px}
+.drawing-navigation span{white-space:nowrap;color:var(--muted)}

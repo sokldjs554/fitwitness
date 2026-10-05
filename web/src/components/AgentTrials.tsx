@@ -27,19 +27,21 @@ type Report = {
 export function AgentTrials() {
   const [version, setVersion] = useState("latest");
   const [report, setReport] = useState<Report | null>(null),
-    [selected, setSelected] = useState(0);
+    [selected, setSelected] = useState(0),
+    [error, setError] = useState(false);
   useEffect(() => {
     let live = true;
     setSelected(0);
+    setReport(null);
+    setError(false);
     api<Report>(`/evaluations/agent?version=${version}`)
       .then((r) => live && setReport(r))
-      .catch(() => {});
+      .catch(() => live && setError(true));
     return () => {
       live = false;
     };
   }, [version]);
-  if (report?.status !== "measured") return null;
-  const trial = report.runs[selected];
+  const trial = report?.runs?.[selected];
   return (
     <section
       className="comparison agent-trials"
@@ -67,6 +69,8 @@ export function AgentTrials() {
           </select>
         </label>
       </div>
+      {error ? <p role="alert">Agent 실행 기록을 불러오지 못했습니다. 다른 실행 버전을 선택해 주세요.</p> : !report ? <p role="status">Agent 실행 기록 확인 중</p> : report.status !== "measured" ? <p role="status">아직 측정된 Agent 결과가 없습니다.</p> : <>
+      {report.runs.length === 0 && <p role="status">기록된 실행 사례가 없습니다.</p>}
       <p className="agent-caption">
         검색 → 도구 선택 → 근거 조회 → 조건 검증. 행을 선택하면 실제 호출 기록을
         볼 수 있습니다.
@@ -167,6 +171,7 @@ export function AgentTrials() {
           <p key={x}>{x}</p>
         ))}
       </div>
+      </>}
     </section>
   );
 }

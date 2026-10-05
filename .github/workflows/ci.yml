@@ -23,6 +23,7 @@ jobs:
     env:
       FITWITNESS_DATABASE_URL: postgresql://fitwitness:test-only@localhost:5432/fitwitness
       PYTHONPATH: src
+      FITWITNESS_SESSION_LIMIT_PER_PEER: '100'
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -55,3 +56,23 @@ jobs:
           path: |
             artifacts/
             web/test-results/
+  credential-readiness:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/feat/fitwitness-foundation'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record credential presence only (no API calls)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          result={key:bool(os.getenv(key)) for key in ('OPENAI_API_KEY','ANTHROPIC_API_KEY')}
+          Path('credential-readiness.json').write_text(json.dumps(result))
+          print(json.dumps(result))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: credential-readiness
+          path: credential-readiness.json

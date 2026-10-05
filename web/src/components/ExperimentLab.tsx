@@ -94,13 +94,18 @@ const ms = (v: number | null) =>
 export function ExperimentLab() {
   const [experiment, setExperiment] = useState("qwen");
   const [catalog, setCatalog] = useState<{ id: string; label: string }[]>([]);
+  const [catalogError, setCatalogError] = useState(false);
+  const [catalogAttempt, setCatalogAttempt] = useState(0);
   useEffect(() => {
+    let live = true;
+    setCatalogError(false);
     api<{ experiments: { id: string; label: string }[] }>(
       "/evaluations/catalog",
     )
-      .then((r) => setCatalog(r.experiments))
-      .catch(() => {});
-  }, []);
+      .then((r) => live && setCatalog(r.experiments))
+      .catch(() => live && setCatalogError(true));
+    return () => { live = false; };
+  }, [catalogAttempt]);
   const [report, setReport] = useState<Report | null>(null),
     [error, setError] = useState(""),
     [onlyErrors, setOnlyErrors] = useState(false),
@@ -135,19 +140,31 @@ export function ExperimentLab() {
       live = false;
     };
   }, [experiment]);
-  if (error)
+  const experimentPicker = (
+    <>
+    <label>측정 모델{" "}
+      <select aria-label="측정 모델" value={experiment} onChange={(e) => setExperiment(e.target.value)}>
+        {catalog.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}
+      </select>
+    </label>
+    {catalogError && <div role="alert">
+      모델 목록을 불러오지 못했습니다.{" "}
+      <button className="text-button" onClick={() => setCatalogAttempt((n) => n + 1)}>모델 목록 다시 불러오기</button>
+    </div>}
+    </>
+  );
+  if (error || !report || report.status !== "measured")
     return (
-      <div role="alert" className="notice danger">
-        평가 결과를 불러오지 못했습니다. {error}
+      <div className="lab">
+        <div className="page-heading"><h1>평가 결과 비교</h1></div>
+        <div className="experiment-meta">{experimentPicker}</div>
+        {error ? <div role="alert" className="notice danger">평가 결과를 불러오지 못했습니다. {error}</div> :
+          <section className="loading-panel" role="status"><FlaskConical size={28} />
+            <h2>{report ? "아직 측정된 결과가 없습니다" : "실측 결과 확인 중"}</h2>
+            <p>측정이 완료된 실험만 비교 화면에 표시합니다.</p>
+          </section>}
+        <RetrievalTrials /><VisionTrials /><AgentTrials />
       </div>
-    );
-  if (!report || report.status !== "measured")
-    return (
-      <section className="loading-panel">
-        <FlaskConical size={28} />
-        <h2>실측 결과 확인 중</h2>
-        <p>측정이 완료된 실험만 비교 화면에 표시합니다.</p>
-      </section>
     );
   const llm = report.methods.find((m) => m.kind === "llm");
   const caseRows = report.cases.filter(
@@ -160,12 +177,13 @@ export function ExperimentLab() {
           (p.status !== "ok" || p.predicted !== c.expected),
       ),
   );
-  const chosen = report.cases.find((c) => c.case_id === selected);
+  const chosen = caseRows.find((c) => c.case_id === selected) || caseRows[0];
+  const selectedCaseId = chosen?.case_id;
   const modelRow = report.predictions.find(
-    (p) => p.case_id === selected && p.method !== "rules" && p.repeat === trial,
+    (p) => p.case_id === selectedCaseId && p.method !== "rules" && p.repeat === trial,
   );
   const ruleRow = report.predictions.find(
-    (p) => p.case_id === selected && p.method === "rules" && p.repeat === trial,
+    (p) => p.case_id === selectedCaseId && p.method === "rules" && p.repeat === trial,
   );
   const badCases = report.cases.filter((c) =>
     report.predictions.some(
@@ -192,20 +210,7 @@ export function ExperimentLab() {
         </a>
       </div>
       <div className="experiment-meta">
-        <label>
-          측정 모델{" "}
-          <select
-            aria-label="측정 모델"
-            value={experiment}
-            onChange={(e) => setExperiment(e.target.value)}
-          >
-            {catalog.map((x) => (
-              <option key={x.id} value={x.id}>
-                {x.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        {experimentPicker}
         <span className="live-tag recorded">실측 기록</span>
         <span>{report.protocol.case_count} cases</span>
         <span>{report.protocol.families.length} families</span>
@@ -320,7 +325,7 @@ export function ExperimentLab() {
           <div className="case-table">
             <div className="case-table-head">
               <span>사례 / 정답</span>
-              <span>LLM · 3회 반복</span>
+              <span>LLM · {report.protocol.repeats}회 반복</span>
             </div>
             {caseRows.map((c) => {
               const rows = report.predictions.filter(
@@ -328,7 +333,7 @@ export function ExperimentLab() {
               );
               return (
                 <button
-                  className={`case-row ${selected === c.case_id ? "active" : ""}`}
+                  className={`case-row ${selectedCaseId === c.case_id ? "active" : ""}`}
                   key={c.case_id}
                   onClick={() => {
                     setSelected(c.case_id);
