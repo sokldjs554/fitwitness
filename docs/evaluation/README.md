@@ -34,7 +34,7 @@ PYTHONPATH=src uv run python -m fitwitness.evaluation.runner \
 
 프로토콜·입력·프롬프트는 추론 전에 저장됩니다. JSONL은 호출마다 추가되어 실패나 중단도 추적할 수 있습니다. 기존 출력 디렉터리에 덮어쓰지 않습니다. `report.json`을 검토한 후 `docs/evaluation/latest.json`으로 게시하면 공개 비교 화면에 반영됩니다.
 
-OpenAI 또는 Claude는 비밀 환경변수의 API 키, 정확한 모델 ID와 현재 단가가 필요합니다. `--provider openai` 또는 `--provider anthropic`, `--model`, `--max-cost-usd`를 명시해야 합니다. Claude Haiku 4.5는 아래에 실측을 게시했으며 OpenAI는 미측정입니다. 익명 웹 요청으로 유료 평가를 시작할 수 없습니다.
+외부 API provider는 비밀 환경변수의 API 키, 정확한 모델 ID와 현재 단가가 필요합니다. 최종 측정 provider는 Claude Haiku 4.5로 고정했습니다. OpenAI 어댑터 코드는 유지하지만 최종 성능 비교 범위에는 포함하지 않습니다. 익명 웹 요청으로 유료 평가를 시작할 수 없습니다.
 
 비교 UI는 catalog에서 모델을 선택합니다. Qwen 원본 latest.json과 Claude의 claude.json을 분리하고, API provider 표시 및 null seed를 지원합니다. API 반복은 로컬 모델과 달리 seed 고정을 주장하지 않습니다.
 
@@ -115,7 +115,7 @@ VLM 실험 이전 사용량 기준 계산 비용: PDF $0.110455 + 최초 Agent $
 
 ## 후속 재정렬·VLM
 
-[재정렬216회](../RETRIEVAL.md): RRF/BGE/조건 정렬 Recall@5 39.9/54.2/64.2%. [VLM18회+실제graph](../VISION.md):15회 구조화 출력 완료, 오류 포함23/36필드 정답, 이미지 근거 단독 판정은 unknown. 원시 실패도 보존했습니다. VLM+$0.050821로 누적 계산 비용은 **$0.238662**, 미확정 예약0입니다. 공개 실험실은 이 기록을 읽으며 새 API 호출을 하지 않습니다.
+[재정렬216회](../RETRIEVAL.md): RRF/BGE/조건 정렬 Recall@5 39.9/54.2/64.2%. [VLM18회+실제graph](../VISION.md):15회 구조화 출력 완료, 오류 포함23/36필드 정답, 이미지 근거 단독 판정은 unknown. 원시 실패도 보존했습니다. VLM까지 누적 계산 비용은 **$0.238662**, 미확정 예약0이었습니다. 아래 최종 Claude provider gate $0.016586를 포함하면 누적 **$0.255248**입니다. 공개 실험실은 저장된 기록을 읽으며 방문자 요청으로 새 API 호출을 하지 않습니다.
 
 
 ## NIST 외부 CAD
@@ -129,6 +129,16 @@ VLM 실험 이전 사용량 기준 계산 비용: PDF $0.110455 + 최초 Agent $
 
 생산 산업 도면 성능이 아니라 NIST의 외부 engineering benchmark에서 서로 다른 STEP 표현의 geometry retrieval을 측정한 결과입니다.
 
-## OpenAI 상태
+## 최종 Claude provider gate — 2026-10-05
 
-OpenAI provider는 같은 evidence-verdict runner와 구조화 출력 계약으로 연결돼 있습니다. 전용 `openai-evidence-pilot` workflow는 최대 $0.25로 제한됩니다. 2026-10-05 credential-readiness에서는 `OPENAI_API_KEY=false`였으므로 실제 OpenAI 점수·지연·비용은 **미측정**으로 유지합니다.
+최종 앱 코드와 같은 트리에서 marker SHA `0347d5af08b81a9f5182dd18144e314a339007f9`를 만들고 [Actions 37321337436](https://github.com/sokldjs554/fitwitness/actions/runs/37321337436)에서 Claude Haiku 4.5를 실제 호출했습니다. 전용 workflow는 구조별 최대 $0.066만 예약했고 자동 재실행을 금지했습니다.
+
+| 구조 | 최종 판정 | 모델 / 도구 호출 | 전체 지연 | 입력 / 출력 토큰 | API 계산 비용 |
+|---|---:|---:|---:|---:|---:|
+| 단일 도구 계획 | 5/5 | 1 / 6 | 5.658s | 2,012 / 418 | $0.004102 |
+| 반복 계획 | 5/5 | 1 / 6 | 3.624s | 2,012 / 418 | $0.004102 |
+| 탐색 + 별도 반례 검토 | 5/5 | 2 / 7 | 5.674s | 5,452 / 586 | $0.008382 |
+
+이번 추가 실측 비용은 **$0.016586**, 미확정 예약은 0입니다. artifact `11350975678`의 ZIP digest는 `deeb2014e3a59cd172f01d9c8cef09f66bc1214d7a41d54fadc9c51f74e05e0a`입니다. raw report SHA-256은 `b378a1930f89d9296a42d74b641f4b43978a87ce18cefbea2ba131c45e3f3859`, JSONL SHA-256은 `5eec450116a2f792166b766d334647eab0ed9c4993b5a07697bbb83b68d77645`입니다.
+
+같은 합성 family의 단일 질문을 구조별1회 다시 실행한 연결 검증이므로 일반적인 Agent 성공률이나 구조 우위를 뜻하지 않습니다. OpenAI는 최종 측정 provider에서 제외했고, 필요할 때 사용할 수 있는 어댑터 코드만 유지합니다.
