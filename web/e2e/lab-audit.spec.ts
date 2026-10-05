@@ -154,3 +154,30 @@ test('failed model catalog is explained and can be retried without losing result
   await page.getByRole('combobox',{name:'측정 모델',exact:true}).selectOption('claude');
   await expect(page.getByTestId('experiment-comparison')).toContainText('claude-haiku-4-5');
 });
+
+for (const target of ['retrieval', 'agent']) test(`${target} selection survives the primary model report finishing`, async ({page}) => {
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/api/evaluations?experiment=qwen', async route => {
+    await pending;
+    await route.fulfill({json:fixture('latest')});
+  });
+  await openLab(page);
+  const control = page.getByRole('combobox',{name:target==='retrieval'?'검색 비교 실험':'Agent 실행 버전',exact:true});
+  const choice = target==='retrieval'?'reranking':'v1';
+  await control.selectOption(choice);
+  await expect(control).toHaveValue(choice);
+  release();
+  await expect(page.getByTestId('experiment-comparison')).toBeVisible();
+  await expect(control).toHaveValue(choice);
+  const region=page.getByRole('region',{name:target==='retrieval'?'도면 검색 방식 비교':'실제 Agent 실행 비교',exact:true});
+  await expect(region).toContainText(target==='retrieval'?'복합 + BGE 재정렬':'failed');
+});
+
+test('an unmeasured primary report leaves other experiments usable', async ({page}) => {
+  await page.route('**/api/evaluations?experiment=qwen',route=>route.fulfill({json:{status:'not_measured'}}));
+  await openLab(page);
+  await expect(page.getByRole('status').filter({hasText:'아직 측정된 결과가 없습니다'})).toBeVisible();
+  await page.getByRole('combobox',{name:'검색 비교 실험',exact:true}).selectOption('reranking');
+  await expect(page.getByRole('region',{name:'도면 검색 방식 비교',exact:true})).toContainText('복합 + BGE 재정렬');
+});

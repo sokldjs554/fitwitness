@@ -153,24 +153,11 @@ export function ExperimentLab() {
     </div>}
     </>
   );
-  if (error || !report || report.status !== "measured")
-    return (
-      <div className="lab">
-        <div className="page-heading"><h1>평가 결과 비교</h1></div>
-        <div className="experiment-meta">{experimentPicker}</div>
-        {error ? <div role="alert" className="notice danger">평가 결과를 불러오지 못했습니다. {error}</div> :
-          <section className="loading-panel" role="status"><FlaskConical size={28} />
-            <h2>{report ? "아직 측정된 결과가 없습니다" : "실측 결과 확인 중"}</h2>
-            <p>측정이 완료된 실험만 비교 화면에 표시합니다.</p>
-          </section>}
-        <RetrievalTrials /><VisionTrials /><AgentTrials />
-      </div>
-    );
-  const llm = report.methods.find((m) => m.kind === "llm");
-  const caseRows = report.cases.filter(
+  const llm = report?.methods?.find((m) => m.kind === "llm");
+  const caseRows = (report?.cases || []).filter(
     (c) =>
       !onlyErrors ||
-      report.predictions.some(
+      (report?.predictions || []).some(
         (p) =>
           p.case_id === c.case_id &&
           p.method !== "rules" &&
@@ -179,14 +166,14 @@ export function ExperimentLab() {
   );
   const chosen = caseRows.find((c) => c.case_id === selected) || caseRows[0];
   const selectedCaseId = chosen?.case_id;
-  const modelRow = report.predictions.find(
+  const modelRow = report?.predictions?.find(
     (p) => p.case_id === selectedCaseId && p.method !== "rules" && p.repeat === trial,
   );
-  const ruleRow = report.predictions.find(
+  const ruleRow = report?.predictions?.find(
     (p) => p.case_id === selectedCaseId && p.method === "rules" && p.repeat === trial,
   );
-  const badCases = report.cases.filter((c) =>
-    report.predictions.some(
+  const badCases = (report?.cases || []).filter((c) =>
+    (report?.predictions || []).some(
       (p) =>
         p.case_id === c.case_id &&
         p.method !== "rules" &&
@@ -211,6 +198,7 @@ export function ExperimentLab() {
       </div>
       <div className="experiment-meta">
         {experimentPicker}
+        {report?.status === "measured" && <>
         <span className="live-tag recorded">실측 기록</span>
         <span>{report.protocol.case_count} cases</span>
         <span>{report.protocol.families.length} families</span>
@@ -221,7 +209,14 @@ export function ExperimentLab() {
             : `CPU · ${report.model.dtype}`}
         </span>
         <time>{new Date(report.created_at).toLocaleDateString("ko-KR")}</time>
+        </>}
       </div>
+      {error ? <div role="alert" className="notice danger">평가 결과를 불러오지 못했습니다. {error}</div> :
+        !report || report.status !== "measured" ?
+          <section className="loading-panel" role="status"><FlaskConical size={28} />
+            <h2>{report ? "아직 측정된 결과가 없습니다" : "실측 결과 확인 중"}</h2>
+            <p>측정이 완료된 실험만 비교 화면에 표시합니다.</p>
+          </section> : <>
       <section className="comparison" data-testid="experiment-comparison">
         <div className="section-bar">
           <h2>동일 입력 비교</h2>
@@ -456,10 +451,11 @@ export function ExperimentLab() {
           )}
         </aside>
       </section>
+      </>}
       <RetrievalTrials />
       <VisionTrials />
       <AgentTrials />
-      <details className="protocol">
+      {report?.status === "measured" && <details className="protocol">
         <summary>
           재현 정보와 측정 범위{" "}
           <span>dataset {report.protocol.dataset_hash.slice(0, 12)}</span>
@@ -497,7 +493,7 @@ export function ExperimentLab() {
             평가 프로토콜과 재현 코드 <ArrowUpRight size={12} />
           </a>
         </div>
-      </details>
+      </details>}
     </div>
   );
 }

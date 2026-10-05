@@ -17,13 +17,14 @@ jobs:
           import hashlib,json,urllib.request,zipfile,io
           from pathlib import Path
           out=Path('artifacts/nist'); entries=[]
-          for kind in ('ctc','ftc'):
-              url=f'https://www.nist.gov/document/nist-{kind}-test-case-definitions'
-              with urllib.request.urlopen(url,timeout=120) as response:
-                  body=response.read();resolved=response.url
-              archive=zipfile.ZipFile(io.BytesIO(body))
-              (out/f'{kind}.zip').write_bytes(body)
-              entries.append(dict(name=kind,url=url,resolved_url=resolved,sha256=hashlib.sha256(body).hexdigest(),files=archive.namelist()))
+          url='https://raw.githubusercontent.com/usnistgov/SFA/72375d17c09cf7072c30d9393b5c08b7aa272285/Release/NIST-PMI-STEP-Files.zip'
+          with urllib.request.urlopen(url,timeout=120) as response:
+              body=response.read();resolved=response.url
+          digest=hashlib.sha256(body).hexdigest()
+          assert digest=='1fb91bb8ff0fe02032b948fda0775bc74591cd0bebc0988347d32574e5884f90'
+          archive=zipfile.ZipFile(io.BytesIO(body))
+          (out/'NIST-PMI-STEP-Files.zip').write_bytes(body)
+          entries.append(dict(name='NIST-PMI-STEP-Files',url=url,resolved_url=resolved,sha256=digest,files=archive.namelist()))
           (out/'sources.json').write_text(json.dumps(entries,indent=2))
           print(json.dumps(entries,indent=2))
           PY
