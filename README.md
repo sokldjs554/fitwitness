@@ -29,6 +29,7 @@
 - 도번·BM25와 해시 고정 E5·OpenCLIP/pgvector 색인·검색·worker 연결. 도번은 공백·밑줄·O/0·시리즈 변형과 한 글자 오타까지 정규화해 찾습니다
 - PDF 실제 위치를 근거로 조건 일치·불일치·확인 필요 판정
 - LangGraph + PostgreSQL checkpoint, 실제 worker 종료 후 복구, 일시 오류의 지수 백오프 재시도와 보류함(dead-letter)
+- 미리 데워 둔 worker 프로세스 풀: 실행마다 인터프리터와 LangGraph import를 다시 치르지 않아 큐 등록 → worker 시작이 로컬 1.65초 → 0.16초
 - 근거가 부족하면 담당자에게 묻고 멈추는 `waiting_input`, 답변을 받아 checkpoint에서 이어가는 resume API
 - 도면 40 → 42mm 개정 시 기존 결과 무효화 및 재검증
 - 방문자별 세션·RLS, typed tools, OpenAI·Claude 어댑터, 실행 예산

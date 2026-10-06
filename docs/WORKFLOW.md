@@ -36,6 +36,19 @@
 
 검토대에서는 "확인 필요 시 담당자에게 묻기"를 켜고 실행하면 대기 상태에서 도면별 판정 선택과 재개 버튼이 나타납니다.
 
+## worker 시작 시간: 미리 띄워 둔 프로세스
+
+실행은 별도 프로세스에서 돕니다(중단·강제 종료 데모와 서버 보호를 위해). 예전에는 실행마다 새 Python 프로세스를 띄웠고, 인터프리터 기동과 LangGraph·LangChain·psycopg import에 로컬 약 1초, 공유 CPU인 무료 서버에서는 10초 넘게 걸린 뒤에야 일이 시작됐습니다.
+
+이제 서버는 기동 시 `FITWITNESS_WARM_WORKERS`(기본 1)개의 worker를 미리 띄워 import와 checkpointer 스키마 확인까지 마친 채 stdin에서 기다리게 합니다(`fitwitness.runtime.pool.WarmWorkers`, worker의 `--pool` 모드). 실행이 들어오면 JSON 한 줄로 작업을 건네고, worker는 그 작업 하나만 처리한 뒤 종료하므로 종료 코드 의미(0, 데모용 86, 그 외 실패)는 그대로입니다. worker를 하나 쓰면 즉시 다음 worker가 뒤에서 데워집니다. 또 API가 실행을 큐에 넣으면 dispatcher를 바로 깨워 최대 1초의 폴링 대기도 없앱니다.
+
+| 측정(로컬, rules provider, 도면 20개) | 이전 | 이후 |
+|---|---|---|
+| 큐 등록 → worker 시작 (중앙값 4회) | 1.65초 | 0.16초 |
+| 큐 등록 → 완료 (중앙값 4회) | 2.07초 | 0.51초 |
+
+대기 중인 worker 하나는 약 90MB RSS를 차지합니다. 512MB 인스턴스에서는 기본값 1을 권하고, 메모리가 넉넉하면 2로 올리면 동시 실행 둘 다 즉시 시작합니다. 테스트처럼 lifespan 없이 앱을 만들면 미리 띄우지 않고 예전처럼 실행마다 cold로 띄웁니다.
+
 ## 관측
 
 - `GET /metrics`(토큰 필요)는 프로세스 내 HTTP 지표에 더해 **DB에서 계산한** 지표를 붙입니다: `fitwitness_runs_total{state}`, `fitwitness_cost_usd_total`, `fitwitness_tokens_total{kind}`, `fitwitness_model_calls_total`, `fitwitness_tool_calls_total{tool}`, 이벤트별 카운터(`retry_scheduled`, `dead_lettered`, `waiting_input`, `resumed_by_human` …), 히스토그램 `fitwitness_model_latency_ms{role}`, `fitwitness_tool_latency_ms{tool}`. worker 프로세스가 여럿이어도 한 곳에서 맞는 값을 냅니다. DB가 내려가면 HTTP 지표만 내려가고 주석으로 사유를 남깁니다.

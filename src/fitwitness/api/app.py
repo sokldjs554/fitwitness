@@ -5,6 +5,7 @@ from typing import Literal
 import hashlib, json, os, secrets, subprocess, sys, time
 from contextlib import asynccontextmanager
 from fitwitness.runtime.dispatcher import Dispatcher
+from fitwitness.runtime.pool import WarmWorkers
 from pathlib import Path
 from uuid import uuid4
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request, Response
@@ -44,16 +45,31 @@ def create_app():
         key = path.read_text().strip()
     signer = URLSafeTimedSerializer(key, salt="fitwitness-session-v1")
 
+    # Runs execute in their own process; warm ones have already paid the interpreter and
+    # import cost (seconds on a shared CPU) before a job arrives. Without the lifespan
+    # (tests) nothing is pre-warmed and a worker is spawned cold per run, as before.
+    workers = WarmWorkers(
+        [sys.executable, "-m", "fitwitness.runtime.worker", "--pool"],
+        env={**os.environ, "PYTHONPATH": str(ROOT / "src"), "FITWITNESS_DATABASE_URL": dsn},
+        cwd=ROOT,
+        size=int(os.getenv("FITWITNESS_WARM_WORKERS", "1")),
+    )
+
     @asynccontextmanager
     async def lifespan(app):
         dispatcher = Dispatcher(jobs, supervise)
         app.state.dispatcher = True
+        app.state.nudge = dispatcher.nudge
+        workers.start()
         dispatcher.start()
         yield
         dispatcher.close()
+        workers.close()
 
     app = FastAPI(title="FitWitness", version="0.1.0", lifespan=lifespan)
     app.state.dispatcher = False
+    app.state.nudge = lambda: None
+    app.state.workers = workers
     app.state.repo = repo
     app.state.jobs = jobs
     allowed = set(
@@ -219,38 +235,15 @@ def create_app():
         return [c.model_dump(mode="json") for c in search(s, q, repo.snapshot(s), repo)]
 
     def supervise(s, run_id, fault=False):
-        env = {
-            **os.environ,
-            "PYTHONPATH": str(ROOT / "src"),
-            "FITWITNESS_DATABASE_URL": dsn,
-        }
         token = str(uuid4())
-        args = [
-            sys.executable,
-            "-m",
-            "fitwitness.runtime.worker",
-            "--tenant",
-            s.tenant_id,
-            "--run",
-            run_id,
-            "--token",
-            token,
-        ]
+        job = {"tenant": s.tenant_id, "run": run_id, "token": token, "fault": bool(fault)}
         try:
-            first = subprocess.run(
-                args + (["--fault"] if fault else []),
-                env=env,
-                capture_output=True,
-                timeout=180,
-                cwd=ROOT,
-            )
-            if first.returncode != 0:
+            code = workers.run(job, timeout=180)
+            if code != 0:
                 jobs.release_crashed(s, run_id, token)
                 # TestClient without lifespan still demonstrates one real restart.
-                if first.returncode == 86 and not app.state.dispatcher:
-                    subprocess.run(
-                        args, env=env, capture_output=True, timeout=180, cwd=ROOT
-                    )
+                if code == 86 and not app.state.dispatcher:
+                    workers.run({**job, "fault": False}, timeout=180)
         except subprocess.TimeoutExpired:
             # Never borrow a replacement worker's token.
             jobs.fail(s, run_id, token, "worker 실행 시간 초과")
@@ -287,6 +280,7 @@ def create_app():
             background.add_task(
                 supervise, s, view.id, request.headers.get("x-demo-fault") == "1"
             )
+        app.state.nudge()
         return view
 
     @app.get("/api/runs/{run_id}")
@@ -312,6 +306,7 @@ def create_app():
             raise HTTPException(409, str(exc))
         if not app.state.dispatcher:
             background.add_task(supervise, s, view.id, False)
+        app.state.nudge()
         return view
 
     @app.get("/api/runs/{run_id}/trace")

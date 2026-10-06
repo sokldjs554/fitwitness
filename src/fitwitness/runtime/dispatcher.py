@@ -12,6 +12,7 @@ class Dispatcher:
         self.jobs = jobs
         self.supervise = supervise
         self.stop = Event()
+        self.wake = Event()  # set by the API after an enqueue so a run does not wait for the next poll
         self.thread = None
 
     def start(self):
@@ -20,12 +21,20 @@ class Dispatcher:
 
     def close(self):
         self.stop.set()
+        self.wake.set()
         self.thread.join(timeout=3)
+
+    def nudge(self):
+        self.wake.set()
 
     def loop(self):
         active = {}
         with ThreadPoolExecutor(max_workers=2) as pool:
-            while not self.stop.wait(1):
+            while not self.stop.is_set():
+                self.wake.wait(1)
+                self.wake.clear()
+                if self.stop.is_set():
+                    break
                 try:
                     active = {k: f for k, f in active.items() if not f.done()}
                     for tenant, run_id in self.jobs.pending():
