@@ -12,6 +12,8 @@ from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from fitwitness.contracts import TenantScope, RunRequest, DrawingRevision, SearchRequest, ReviewInput
+from fitwitness.runtime.metrics import collect as collect_db_metrics
+from fitwitness.runtime.trace import build_trace
 from fitwitness.storage.repository import Repository
 from fitwitness.runtime.jobs import Jobs
 from fitwitness.ingest.pdf import extract_pdf
@@ -305,6 +307,12 @@ def create_app():
             background.add_task(supervise, s, view.id, False)
         return view
 
+    @app.get("/api/runs/{run_id}/trace")
+    def trace(run_id: str, s: TenantScope = Depends(scope)):
+        if not jobs.get(s, run_id):
+            raise HTTPException(404, "없음")
+        return build_trace(run_id, jobs.events(s, run_id))
+
     @app.post("/api/runs/{run_id}/cancel")
     def cancel(run_id: str, s: TenantScope = Depends(scope)):
         if not jobs.get(s, run_id):
@@ -400,7 +408,11 @@ def create_app():
         token = os.getenv("FITWITNESS_METRICS_TOKEN")
         if not token or request.headers.get("authorization") != "Bearer " + token:
             raise HTTPException(401)
-        return Response(generate_latest(registry), media_type="text/plain")
+        try:
+            derived = collect_db_metrics(dsn)
+        except Exception as exc:  # the HTTP counters still serve when the database is unavailable
+            derived = f"# database-derived metrics unavailable: {type(exc).__name__}\n"
+        return Response(generate_latest(registry).decode() + derived, media_type="text/plain")
 
     if (ROOT / "web/dist").exists():
         app.mount("/", StaticFiles(directory=ROOT / "web/dist", html=True), name="web")
