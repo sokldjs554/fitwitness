@@ -52,6 +52,46 @@ class ImageRegionArgs(RegionArgs):
     fields: list[Literal['width','height','thickness','hole_spacing','material']] = Field(min_length=1,max_length=5)
 
 
+SavedChannel = Literal["exact", "bm25", "semantic"]
+TOOL_NAME = r"^[a-z][a-z0-9_]{2,40}$"
+
+
+class DefineToolArgs(Strict):
+    """A reusable, parameterised search the agent defines for its workspace.
+
+    The definition is data, never code: channels are chosen from a closed set, the
+    query template only receives the caller's text, and the optional dimension fields
+    are read through the same repository path as query_dimensions, with the same
+    source check when the result is observed.
+    """
+
+    name: str = Field(pattern=TOOL_NAME)
+    description: str = Field(min_length=1, max_length=300)
+    channels: list[SavedChannel] = Field(min_length=1, max_length=3)
+    query_template: str = Field(
+        min_length=7, max_length=500, description="Fixed search text with {query} where the caller's text goes."
+    )
+    top_k: int = Field(default=6, ge=1, le=20)
+    fields: list[Literal["width", "height", "thickness", "hole_spacing", "material"]] = Field(
+        default_factory=list, max_length=5, description="Dimension fields attached to every hit."
+    )
+
+    @model_validator(mode="after")
+    def well_formed(self):
+        if "{query}" not in self.query_template:
+            raise ValueError("query_template must contain {query}")
+        if self.name in SCHEMAS or self.name in ("define_search_tool", "run_saved_search"):
+            raise ValueError("name collides with a built-in tool")
+        if len(set(self.channels)) != len(self.channels):
+            raise ValueError("duplicate channel")
+        return self
+
+
+class RunSavedArgs(Strict):
+    name: str = Field(pattern=TOOL_NAME)
+    query: str = Field(min_length=1, max_length=500)
+
+
 SCHEMAS = {
     "search_exact": ExactArgs,
     "search_keyword": QueryArgs,
@@ -61,7 +101,10 @@ SCHEMAS = {
     "read_region": RegionArgs,
     "compare_revisions": CompareArgs,
     "read_image_region": ImageRegionArgs,
+    "define_search_tool": DefineToolArgs,
+    "run_saved_search": RunSavedArgs,
 }
+SAVED_TOOL_CHANNEL = {"exact": "search_exact", "bm25": "search_keyword", "semantic": "search_semantic"}
 
 
 class ToolRequest(Strict):
@@ -74,6 +117,8 @@ class ToolRequest(Strict):
         "read_region",
         "compare_revisions",
         "read_image_region",
+        "define_search_tool",
+        "run_saved_search",
     ]
     arguments: dict
 
@@ -90,20 +135,27 @@ class SearchPlan(Strict):
 
 
 class EvidenceTools:
-    def __init__(self, scope, snapshot, repo, budget, encoders=None, vision=None):
+    def __init__(self, scope, snapshot, repo, budget, encoders=None, vision=None, run_id=None):
         self.scope = scope
         self.snapshot = snapshot
         self.repo = repo
         self.budget = budget
         self.encoders = encoders
         self.vision = vision
+        self.run_id = run_id
 
     @property
     def available(self):
         names=set(SCHEMAS)
         if not self.encoders:names-={'search_semantic','search_image'}
         if self.vision is None:names.discard('read_image_region')
+        if not hasattr(self.repo, "saved_tools"):names-={'define_search_tool','run_saved_search'}
         return names
+
+    def saved_tools(self):
+        """Definitions the agent (or an operator) saved for this tenant; shown to the model as context."""
+        lister = getattr(self.repo, "saved_tools", None)
+        return lister(self.scope) if lister else []
 
     def execute(self, request: ToolRequest):
         self.budget.tool()
@@ -111,6 +163,28 @@ class EvidenceTools:
         a = SCHEMAS[name].model_validate(request.arguments)
         if name not in self.available:
             raise ValueError('unavailable tool')
+        if name == "define_search_tool":
+            missing = sorted(ch for ch in a.channels if SAVED_TOOL_CHANNEL[ch] not in self.available)
+            if missing:
+                raise ValueError(f"channels not available in this workspace: {missing}")
+            definition = a.model_dump(mode="json")
+            definition.pop("name")
+            self.repo.save_tool(self.scope, a.name, definition, self.run_id)
+            return {"defined": a.name, **definition}
+        if name == "run_saved_search":
+            stored = self.repo.saved_tool(self.scope, a.name)
+            if stored is None:
+                raise ValueError("unknown saved tool")
+            d = DefineToolArgs.model_validate({"name": a.name, **stored})
+            if "semantic" in d.channels and not self.encoders:
+                raise RuntimeError("해당 임베딩 모델이 연결되지 않았습니다")
+            q = SearchRequest(text=d.query_template.replace("{query}", a.query)[:2000], top_k=d.top_k)
+            hits = search(self.scope, q, self.snapshot, self.repo, self.encoders, set(d.channels))
+            if d.fields:
+                facts = self.repo.load_facts_many(self.scope, [h.revision_id for h in hits])
+                for h in hits:
+                    h.facts = [f for f in facts[h.revision_id] if f.field in d.fields]
+            return [c.model_dump(mode="json") for c in hits]
         if name == 'read_image_region':
             from hashlib import sha256
             from fitwitness.ingest.vision import validated_png,image_facts

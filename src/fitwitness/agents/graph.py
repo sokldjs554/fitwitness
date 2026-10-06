@@ -127,7 +127,7 @@ def _execute_run(
         if snapshot.id != raw["snapshot_id"]:
             jobs.finalize(scope, run_id, raw["snapshot_id"], [], token)
             return
-        tools = EvidenceTools(scope, snapshot, repo, budget, encoders)
+        tools = EvidenceTools(scope, snapshot, repo, budget, encoders, run_id=run_id)
         model = (
             create_model(request.provider, request.model_id, budget)
             if request.provider != "rules"
@@ -202,7 +202,8 @@ def _execute_run(
             if model:
                 session = EvidenceSession(candidates, tools.available, restored=True)
                 context = session.context(request.search.text, state["requirements"], observations,
-                                          state.get("decisions", []) if role == "challenger" else [])
+                                          state.get("decisions", []) if role == "challenger" else [],
+                                          saved_tools=tools.saved_tools())
                 try:
                     plan, metadata = model.plan(context, role=role)
                     emit("model", metadata)

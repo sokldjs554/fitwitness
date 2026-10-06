@@ -53,6 +53,8 @@ class ModelClient:
             "Set stop only when further tools cannot add evidence. Keep stop_condition under 120 characters. "
             "missing_fields were queried and absent in the source. Do not repeat those queries or infer their value. "
             "If read_image_region is available, missing vector-PDF fields may be visually inspected once; its uncertain observations never prove a match. "
+            "define_search_tool saves a reusable search (channels, fixed query template with {query}, dimension fields) for this workspace; "
+            "run_saved_search runs one by name and returns candidates with those fields already read. Reuse saved_tools before defining a new one. "
             + (
                 "Look for a fact that would disprove the proposed candidate."
                 if role == "challenger"

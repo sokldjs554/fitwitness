@@ -313,6 +313,11 @@ def create_app():
             raise HTTPException(404, "없음")
         return build_trace(run_id, jobs.events(s, run_id))
 
+    @app.get("/api/tools")
+    def saved_tools(s: TenantScope = Depends(scope)):
+        """Search tools the agent defined for this workspace."""
+        return repo.saved_tools(s)
+
     @app.post("/api/runs/{run_id}/cancel")
     def cancel(run_id: str, s: TenantScope = Depends(scope)):
         if not jobs.get(s, run_id):

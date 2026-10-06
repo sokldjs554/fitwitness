@@ -16,13 +16,23 @@ class EvidenceSession:
         if op.name not in self.available:
             raise ValueError('unavailable tool')
         known = {c.revision_id: c for c in self.candidates}
-        if op.name.startswith('search_'):
+        if op.name == 'define_search_tool':
+            return  # a definition is not evidence
+        if op.name.startswith('search_') or op.name == 'run_saved_search':
             for item in result:
                 c = Candidate.model_validate(item)
+                # Facts ride along only from a saved search, and only when they cite the returned revision.
+                facts = c.facts if op.name == 'run_saved_search' else []
+                if any(f.source.revision_id != c.revision_id for f in facts):
+                    raise ValueError('observation source does not match returned revision')
                 if c.revision_id not in known:
                     c.facts = []
                     self.candidates.append(c)
                     known[c.revision_id] = c
+                if facts:
+                    merged = {f.id: f for f in known[c.revision_id].facts}
+                    merged.update({f.id: f for f in facts})
+                    known[c.revision_id].facts = list(merged.values())
             return
         if op.name == 'compare_revisions':
             groups = [(op.arguments['old_id'], result['old']), (op.arguments['new_id'], result['new'])]
@@ -52,6 +62,11 @@ class EvidenceSession:
             op = x['tool']
             if op['name'] == 'query_dimensions' and op['arguments']['revision_id'] == revision_id:
                 fields.update(op['arguments'].get('fields') or required)
+            if op['name'] == 'run_saved_search':
+                # A saved search examines the fields it brought back for that revision.
+                for item in x['result']:
+                    if item['revision_id'] == revision_id:
+                        fields.update(f['field'] for f in item.get('facts', []))
         return fields
 
     def exhausted(self, requirements, observations):
@@ -67,7 +82,7 @@ class EvidenceSession:
                     return False
         return True
 
-    def context(self, query, requirements, observations, decisions=()):
+    def context(self, query, requirements, observations, decisions=(), saved_tools=()):
         return {
             'query': query,
             'requirements': [{k: r[k] for k in ('field', 'operator', 'value', 'unit', 'required') if k in r} for r in requirements],
@@ -78,6 +93,8 @@ class EvidenceSession:
             'observations': [{'tool': x['tool'], 'items': len(x['result'])} for x in observations[-8:]],
             'decisions': [{'revision_id': d['revision_id'], 'verdict': d['verdict']} for d in decisions],
             'tools': {k: SCHEMAS[k].model_json_schema() for k in sorted(self.available)},
+            'saved_tools': [{k: t[k] for k in ('name', 'description', 'channels', 'query_template', 'fields', 'top_k') if k in t}
+                            for t in saved_tools],
         }
 
     @staticmethod

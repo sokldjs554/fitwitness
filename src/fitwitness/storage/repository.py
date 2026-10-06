@@ -45,7 +45,11 @@ class Repository:
                 "CREATE TABLE IF NOT EXISTS fw_vectors (tenant_id text NOT NULL, revision_id text NOT NULL, channel text NOT NULL, embedding vector NOT NULL, PRIMARY KEY(tenant_id,revision_id,channel), FOREIGN KEY(tenant_id,revision_id) REFERENCES fw_revisions(tenant_id,id))"
             )
             c.execute("ALTER TABLE fw_vectors ADD COLUMN IF NOT EXISTS metadata jsonb NOT NULL DEFAULT '{}'::jsonb")
-            for name in ["fw_revisions", "fw_assets", "fw_facts", "fw_vectors"]:
+            c.execute(
+                "CREATE TABLE IF NOT EXISTS fw_saved_tools (tenant_id text NOT NULL, name text NOT NULL, definition jsonb NOT NULL, "
+                "created_by_run text, created_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY(tenant_id,name))"
+            )
+            for name in ["fw_revisions", "fw_assets", "fw_facts", "fw_vectors", "fw_saved_tools"]:
                 c.execute(f"ALTER TABLE {name} ENABLE ROW LEVEL SECURITY")
                 c.execute(f"ALTER TABLE {name} FORCE ROW LEVEL SECURITY")
                 if not c.execute(
@@ -174,6 +178,32 @@ class Repository:
                 (revision_id,),
             ).fetchall()
         return [Fact.model_validate(r["data"]) for r in rs]
+
+    MAX_SAVED_TOOLS = 20
+
+    def save_tool(self, scope, name, definition: dict, run_id=None):
+        """Store an agent-defined search tool for this tenant; redefining a name replaces it."""
+        with self.connection(scope) as c:
+            self.lock(c, scope.tenant_id)
+            used = c.execute("SELECT count(*) AS n FROM fw_saved_tools WHERE name<>%s", (name,)).fetchone()["n"]
+            if used >= self.MAX_SAVED_TOOLS:
+                raise ValueError(f"saved tool limit reached ({self.MAX_SAVED_TOOLS})")
+            c.execute(
+                "INSERT INTO fw_saved_tools (tenant_id,name,definition,created_by_run) VALUES (%s,%s,%s,%s) "
+                "ON CONFLICT(tenant_id,name) DO UPDATE SET definition=excluded.definition,created_by_run=excluded.created_by_run,created_at=now()",
+                (scope.tenant_id, name, Jsonb(definition), run_id),
+            )
+
+    def saved_tools(self, scope):
+        with self.connection(scope) as c:
+            rows = c.execute("SELECT name,definition,created_by_run,created_at FROM fw_saved_tools ORDER BY name").fetchall()
+        return [{"name": r["name"], **r["definition"], "created_by_run": r["created_by_run"],
+                 "created_at": r["created_at"].isoformat()} for r in rows]
+
+    def saved_tool(self, scope, name):
+        with self.connection(scope) as c:
+            row = c.execute("SELECT definition FROM fw_saved_tools WHERE name=%s", (name,)).fetchone()
+        return row["definition"] if row else None
 
     def load_facts_many(self, scope, revision_ids):
         result = {rid: [] for rid in revision_ids}
