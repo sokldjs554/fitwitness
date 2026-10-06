@@ -25,6 +25,8 @@ export type Decision = {
   revision_id: string;
   verdict: string;
   evidence: Evidence[];
+  reviewed_by?: string | null;
+  review_note?: string | null;
 };
 export type Run = {
   id: string;
@@ -32,6 +34,9 @@ export type Run = {
   decisions: Decision[];
   snapshot_id: string;
   error?: string;
+  question?: string | null;
+  attempts?: number;
+  next_attempt_at?: string | null;
   usage: {
     tool_calls: number;
     model_calls: number;
@@ -72,6 +77,23 @@ export const eventNames: Record<string, string> = {
   model: "모델 응답",
   failed: "실행 실패",
   cancelled: "취소",
+  waiting_input: "담당자 확인 대기",
+  resumed_by_human: "담당자 답변으로 재개",
+  human_review: "담당자 판정 반영",
+  retry_scheduled: "일시 오류 · 재시도 예약",
+  dead_lettered: "재시도 소진 · 보류함 이동",
+  retry_wait: "모델 응답 대기",
+  model_error: "모델 호출 오류",
+  model_schema_error: "모델 응답 형식 오류",
+  agent_plan: "에이전트 계획",
+  tool_skipped: "도구 호출 생략",
+  budget_stop: "예산 한도 도달",
+  evidence_exhausted: "추가 근거 없음",
+};
+export type ReviewPending = {
+  revision_id: string;
+  drawing_number: string;
+  unknown_fields: string[];
 };
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const r = await fetch("/api" + path, {

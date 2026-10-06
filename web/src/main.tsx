@@ -38,6 +38,7 @@ import {
   type Doc,
   type Run,
   type RunEvent,
+  type ReviewPending,
 } from "./types";
 const Model = lazy(() =>
   import("./components/Model").then((m) => ({ default: m.Model })),
@@ -60,6 +61,8 @@ function App() {
     [field, setField] = useState("hole_spacing"),
     [view, setView] = useState("2d"),
     [fault, setFault] = useState(false),
+    [review, setReview] = useState(false),
+    [verdicts, setVerdicts] = useState<Record<string, string>>({}),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [timeline, setTimeline] = useState(false),
@@ -178,8 +181,10 @@ function App() {
             ],
           },
           provider: "rules",
+          review: review ? "on_unknown" : "none",
         }),
       });
+      setVerdicts({});
       setRun(r);
     } catch (e) {
       setError(String(e));
@@ -216,6 +221,10 @@ function App() {
       ? "검증 완료"
       : run?.state === "stale"
         ? "재검증 필요"
+        : run?.state === "waiting_input"
+          ? "담당자 확인 대기"
+          : run?.state === "retry_wait"
+            ? "일시 오류 · 재시도 대기"
         : running
           ? "검증 실행 중"
           : run?.state === "failed"
@@ -231,6 +240,34 @@ function App() {
   );
   const inspectedEvent =
     events.find((e) => e.seq === eventSelection) || events.at(-1);
+  const pendingReview: ReviewPending[] =
+    run?.state === "waiting_input"
+      ? (([...events].reverse().find((e) => e.kind === "waiting_input")
+          ?.payload.pending as ReviewPending[] | undefined) ?? [])
+      : [];
+  const reviewComplete =
+    pendingReview.length > 0 &&
+    pendingReview.every((p) => ["match", "mismatch", "unknown"].includes(verdicts[p.revision_id] ?? ""));
+  async function resume() {
+    if (!run) return;
+    setBusy(true);
+    setError("");
+    try {
+      const r = await api<Run>(`/runs/${run.id}/resume`, {
+        method: "POST",
+        body: JSON.stringify({
+          decisions: Object.fromEntries(pendingReview.map((p) => [p.revision_id, verdicts[p.revision_id]])),
+          reviewer: "검토대 사용자",
+          note: "",
+        }),
+      });
+      setRun(r);
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
   const elapsed =
     events.length > 1
       ? (
@@ -499,6 +536,49 @@ function App() {
                   <button onClick={start} disabled={running}>
                     바뀐 도면으로 재검증 <RotateCcw size={13} />
                   </button>
+                </div>
+              )}
+              {run?.state === "waiting_input" && (
+                <div className="notice review" data-testid="review-notice">
+                  <span>
+                    <b>담당자 확인이 필요합니다.</b>{" "}
+                    {run.question || "근거가 부족한 도면의 판정을 입력해 주세요."}
+                    <ul className="review-list">
+                      {pendingReview.map((p) => (
+                        <li key={p.revision_id}>
+                          <code>{p.drawing_number}</code>
+                          <small>{p.unknown_fields.map((f) => fields[f] || f).join(", ")} 미확인</small>
+                          <select
+                            aria-label={`${p.drawing_number} 판정`}
+                            value={verdicts[p.revision_id] ?? ""}
+                            onChange={(e) =>
+                              setVerdicts({ ...verdicts, [p.revision_id]: e.target.value })
+                            }
+                          >
+                            <option value="">판정 선택</option>
+                            <option value="match">조건 일치</option>
+                            <option value="mismatch">조건 불일치</option>
+                            <option value="unknown">확인 필요 유지</option>
+                          </select>
+                        </li>
+                      ))}
+                    </ul>
+                  </span>
+                  <button onClick={resume} disabled={busy || !reviewComplete}>
+                    답변 전송 후 재개 <ArrowRight size={13} />
+                  </button>
+                </div>
+              )}
+              {run?.state === "retry_wait" && (
+                <div className="notice stale" data-testid="retry-notice">
+                  <RotateCcw size={15} />
+                  <span>
+                    <b>모델 제공자 일시 오류.</b> {run.attempts ?? 1}회 시도 후 재시도를 예약했습니다
+                    {run.next_attempt_at
+                      ? ` (${new Date(run.next_attempt_at).toLocaleTimeString()} 이후)`
+                      : ""}
+                    . 저장된 지점부터 다시 이어집니다.
+                  </span>
                 </div>
               )}
               <div className="review-board">
@@ -900,6 +980,15 @@ function App() {
                       disabled={running}
                     />
                     중간 중단 후 복구 체험
+                  </label>
+                  <label className="fault-toggle">
+                    <input
+                      type="checkbox"
+                      checked={review}
+                      onChange={(e) => setReview(e.target.checked)}
+                      disabled={running}
+                    />
+                    확인 필요 시 담당자에게 묻기
                   </label>
                   {run && running && (
                     <button
