@@ -35,3 +35,19 @@ NIST PMI STEP 원본 SHA를 고정한 Actions `37313290927`에서 AP203/AP242 11
 ## 최종 Claude provider gate — 2026-10-05
 
 현재 코드 트리에서 Actions `37321337436`으로 Claude Haiku 4.5를 다시 실측했습니다. 단일 도구 계획·반복 계획·planner+challenger가 모두 completed였고 각 5/5 판정이었습니다. 실제 모델/도구 호출은 1/6, 1/6, 2/7회, 추가 비용은 총 $0.016586, 예약 잔액은 0입니다. 이는 단일 synthetic family의 연결 검증이며 일반 성공률이나 구조 우위를 주장하지 않습니다.
+
+
+## 워크플로 보강 후속 — 2026-10-06
+
+공고의 "agents that define their own tools", "human-in-the-loop", "모니터링" 항목에 대응해 다음을 추가하고 실제 PostgreSQL 통합 테스트로 확인했습니다. 유료 모델 호출은 없었습니다.
+
+| 항목 | 추가된 것 | 남은 한계 |
+|---|---|---|
+| Agentic System Design | 에이전트가 정의·재사용하는 저장 검색 도구(`define_search_tool`/`run_saved_search`), 닫힌 채널 집합·템플릿 자리·RLS·개수 제한 | 저장 도구는 텍스트 검색 조합에 한정. 실제 모델이 정의한 도구의 품질은 미측정 |
+| Human-in-the-loop | `waiting_input` 상태, LangGraph `interrupt()`, `POST /api/runs/{id}/resume`, 담당자 판정의 Evidence 기록, 검토대 입력 UI | 승인 권한 모델·감사 로그 보존 기간 없음. 장기 대기 미측정 |
+| 내결함성 | 일시 오류의 지수 백오프 `retry_wait`, 3회 소진 시 `dead_lettered`, checkpoint 재개, 대기 시간 마감 제외 | 외부 청구 exactly-once는 여전히 미보장 |
+| Monitoring | DB에서 계산하는 Prometheus 지표(상태·비용·토큰·도구·이벤트·지연 히스토그램), 실행별 span tree API | OpenTelemetry exporter·알림·SLO 기록은 없음 |
+| Evaluation | API 없이 매 커밋 베이스라인과 비교하는 게이트, 도번 변형·오타 질의 유형, 열화 대조군 | 산업 데이터·의미 채널은 게이트 밖 |
+| 검색 | 도번 정규화(공백·밑줄·O/0·시리즈·한 글자 오타) | 산업 도번 체계는 합성 규칙과 다를 수 있음 |
+
+이전 절의 "human resume 미검증"은 이번 후속으로 통합 테스트 수준에서 검증됐습니다. 세부는 [WORKFLOW.md](WORKFLOW.md), 자동 측정은 [EVALUATION-GATE.md](EVALUATION-GATE.md)에 있습니다.
