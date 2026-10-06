@@ -133,6 +133,12 @@ def create_app():
             repo.put_asset(s, r.id, k, (CORPUS / entry[k]).read_bytes())
         return r
 
+    DEMO_FAMILIES = ("FW-F000", "FW-F001", "FW-F002", "FW-F003")  # bracket, flange, shaft, housing
+
+    def demo_entries():
+        manifest = json.loads((CORPUS / "manifest.json").read_text())["document_entries"]
+        return [e for e in manifest if e["family_id"] in DEMO_FAMILIES and not e["is_revision_update"]]
+
     @app.post("/api/demo-sessions")
     def session(response: Response, request: Request):
         bucket = "sessions:" + str(int(time.time() // 3600))
@@ -147,10 +153,11 @@ def create_app():
         jobs.cleanup_sessions()
         s = TenantScope(tenant_id=str(uuid4()), user_id=str(uuid4()), role="operator")
         jobs.register_session(s)
-        # Five near-identical candidates, with a held-back genuine revision update.
-        entries = json.loads((CORPUS / "manifest.json").read_text())[
-            "document_entries"
-        ][:5]
+        # One bracket family carries the guided story (five near-identical candidates);
+        # one family of each other kind is loaded too, so retrieval has parts to exclude
+        # and a flange query finds flanges. The held-back FW-000-0 revision (manifest
+        # entry 5) only arrives through /api/demo/revision.
+        entries = demo_entries()
         for entry in entries:
             load_entry(entry, s)
         response.set_cookie(

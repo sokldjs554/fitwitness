@@ -21,7 +21,7 @@ async function disableWebGL(page: Page) {
 
 async function openModel(page: Page) {
   await page.goto("/");
-  await expect(page.getByTestId("candidate-card")).toHaveCount(5);
+  await expect(page.getByTestId("candidate-card")).toHaveCount(20);
   await page.getByRole("button", { name: "3D 형상", exact: true }).click();
 }
 

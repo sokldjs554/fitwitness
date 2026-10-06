@@ -203,3 +203,34 @@ test("a run that asks a reviewer pauses, takes verdicts and completes", async ({
     "담당자 답변으로 재개",
   );
 });
+test("other part kinds are in the workspace and retrieval excludes them", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(
+    page.getByRole("button", { name: "조건 검증 시작", exact: true }),
+  ).toBeEnabled();
+  await expect(page.getByTestId("candidate-card")).toHaveCount(20);
+  await expect(page.locator(".collection-details")).toContainText("플랜지 5");
+  await page.getByLabel("찾는 부품").fill("플랜지 연결판");
+  await page
+    .getByRole("button", { name: "조건 검증 시작", exact: true })
+    .click();
+  await expect(page.getByText("검증 완료", { exact: true })).toBeVisible({
+    timeout: 60000,
+  });
+  const cards = page.getByTestId("candidate-card");
+  await expect(cards).toHaveCount(5);
+  await expect(cards.first()).toContainText("FW-001-");
+  await page.getByRole("button", { name: /검색 제외 15개 보기/ }).click();
+  await expect(page.getByTestId("excluded-card")).toHaveCount(15);
+  await page.getByLabel("찾는 부품").fill("존재하지 않는 부품 이름");
+  await page
+    .getByRole("button", { name: "조건 검증 시작", exact: true })
+    .click();
+  await expect(page.getByTestId("empty-result")).toBeVisible({
+    timeout: 60000,
+  });
+  await expect(page.getByTestId("candidate-card")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /검색 제외 20개 보기/ })).toBeVisible();
+});

@@ -29,7 +29,9 @@ test('exact query is submitted unchanged and all sources remain accessible',asyn
  await page.getByRole('button',{name:'조건 검증 시작',exact:true}).click();
  expect((await req).postDataJSON().search.text).toBe('FW-000-0');
  await expect(page.getByText('검증 완료',{exact:true})).toBeVisible({timeout:60000});
- await expect(page.getByTestId('candidate-card')).toHaveCount(5);
+ // An exact drawing number retrieves that drawing alone; the rest of the workspace folds away.
+ await expect(page.getByTestId('candidate-card')).toHaveCount(1);
+ await expect(page.getByRole('button',{name:/검색 제외 19개 보기/})).toBeVisible();
  await page.getByRole('combobox',{name:'도면 바로 선택'}).selectOption({label:'FW-000-3 · A'});
  await expect(page.locator('.sheet-toolbar')).toContainText('FW-000-3');
 });

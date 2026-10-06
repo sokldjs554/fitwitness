@@ -73,3 +73,18 @@ def test_public_demo_cannot_spend_configured_provider_keys(clients,monkeypatch):
     a.post('/api/demo-sessions')
     assert a.get('/api/capabilities').json()['providers']['openai'] is False
     assert a.post('/api/runs',json={'provider':'openai','search':{'text':'브래킷'}}).status_code==409
+
+
+def test_demo_workspace_holds_other_part_kinds_and_search_excludes_them(clients):
+    a, _ = clients
+    assert a.post("/api/demo-sessions").status_code == 200
+    docs = a.get("/api/documents").json()
+    kind = {d["id"]: d["kind"] for d in docs}
+    assert len(docs) == 20 and set(kind.values()) == {"bracket", "flange", "shaft", "housing"}
+    brackets = a.post("/api/search", json={"text": "장비에 고정할 브래킷을 찾아줘", "top_k": 10}).json()
+    assert len(brackets) == 5 and {kind[c["revision_id"]] for c in brackets} == {"bracket"}
+    flanges = a.post("/api/search", json={"text": "플랜지 연결판", "top_k": 10}).json()
+    assert len(flanges) == 5 and {kind[c["revision_id"]] for c in flanges} == {"flange"}
+    assert a.post("/api/search", json={"text": "존재하지 않는 부품 이름"}).json() == []
+    # The guided revision story is untouched: FW-000-0 Rev B is still held back.
+    assert not any(d["drawing_number"] == "FW-000-0" and d["revision_label"] == "B" for d in docs)

@@ -14,6 +14,7 @@ export type Doc = {
   facts: Fact[];
   supersedes?: string;
   source_hash: string;
+  kind?: string;
 };
 export type Evidence = {
   field: string;
@@ -54,6 +55,12 @@ export const labels: Record<string, string> = {
   match: "조건 일치",
   mismatch: "조건 불일치",
   unknown: "확인 필요",
+};
+export const kindLabels: Record<string, string> = {
+  bracket: "브래킷",
+  flange: "플랜지",
+  shaft: "샤프트",
+  housing: "하우징",
 };
 export const fields: Record<string, string> = {
   hole_spacing: "구멍 간격",

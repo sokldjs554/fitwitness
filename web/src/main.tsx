@@ -34,6 +34,7 @@ import {
   fmt,
   labels,
   fields,
+  kindLabels,
   eventNames,
   type Doc,
   type Run,
@@ -62,6 +63,7 @@ function App() {
     [view, setView] = useState("2d"),
     [fault, setFault] = useState(false),
     [review, setReview] = useState(false),
+    [showExcluded, setShowExcluded] = useState(false),
     [verdicts, setVerdicts] = useState<Record<string, string>>({}),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
@@ -185,6 +187,7 @@ function App() {
         }),
       });
       setVerdicts({});
+      setShowExcluded(false);
       setRun(r);
     } catch (e) {
       setError(String(e));
@@ -226,18 +229,40 @@ function App() {
           : run?.state === "retry_wait"
             ? "일시 오류 · 재시도 대기"
         : running
-          ? "검증 실행 중"
+          ? run && !busy && run.state === "queued"
+            ? "검증 준비 중 · worker 시작"
+            : "검증 실행 중"
           : run?.state === "failed"
             ? "실행 실패"
             : run?.state === "cancelled"
               ? "실행 취소"
               : "검증 대기";
   // Catalog navigation must survive a narrow search and revision invalidation.
-  const candidates = active.map((doc) => ({
-    doc, decision: decisions.find(d => d.revision_id === doc.id),
-  })).filter(
-    (x) => x.doc && (filter === "all" || x.decision?.verdict === filter),
-  );
+  // Before a run every drawing in the workspace is a candidate. Once a run has judged,
+  // only the drawings retrieval returned stay in the list (a superseding revision stands
+  // in for the one it replaced) and the rest fold into "검색 제외".
+  const decidedIds = new Set(decisions.map((d) => d.revision_id));
+  const inRun = (d: Doc) =>
+    decidedIds.has(d.id) || (!!d.supersedes && decidedIds.has(d.supersedes));
+  const scoped =
+    !!run &&
+    !["queued", "running", "retry_wait"].includes(run.state) &&
+    (decisions.length > 0 || run.state === "completed");
+  const retrieved = scoped ? active.filter(inRun) : active;
+  const excluded = scoped ? active.filter((d) => !inRun(d)) : [];
+  const noMatch = !!run && run.state === "completed" && decisions.length === 0;
+  const candidates = retrieved
+    .map((doc) => ({ doc, decision: decisions.find((d) => d.revision_id === doc.id) }))
+    .filter((x) => filter === "all" || x.decision?.verdict === filter);
+  const kindSummary = Object.entries(
+    active.reduce<Record<string, number>>((acc, d) => {
+      const k = d.kind || "other";
+      acc[k] = (acc[k] || 0) + 1;
+      return acc;
+    }, {}),
+  )
+    .map(([k, n]) => `${kindLabels[k] || k} ${n}`)
+    .join(" · ");
   const inspectedEvent =
     events.find((e) => e.seq === eventSelection) || events.at(-1);
   const pendingReview: ReviewPending[] =
@@ -350,11 +375,11 @@ function App() {
         <div className="nav-label collections-label">COLLECTION</div>
         <div className="collection-item">
           <FolderClosed size={15} />
-          <span>Mounting brackets</span>
+          <span>합성 부품 도면</span>
           <code>{active.length.toString().padStart(2, "0")}</code>
         </div>
         <div className="collection-details">
-          <span>PDF · STEP · 개정 이력</span>
+          <span>{kindSummary || "PDF · STEP · 개정 이력"}</span>
           <span className="connection">
             <i className={ready ? "connected" : ""} />
             {ready ? "PostgreSQL 연결됨" : "체험 공간 연결 중"}
@@ -569,6 +594,16 @@ function App() {
                   </button>
                 </div>
               )}
+              {noMatch && (
+                <div className="notice" data-testid="empty-result">
+                  <ScanLine size={17} />
+                  <span>
+                    <b>조건에 맞는 도면을 찾지 못했습니다.</b> 작업 공간의 도면{" "}
+                    {active.length}개가 모두 검색에서 제외됐습니다. 부품 종류(브래킷·플랜지·샤프트·하우징)나
+                    도번을 넣어 다시 검색해 보세요.
+                  </span>
+                </div>
+              )}
               {run?.state === "retry_wait" && (
                 <div className="notice stale" data-testid="retry-notice">
                   <RotateCcw size={15} />
@@ -742,7 +777,10 @@ function App() {
                   <section className="candidate-panel">
                     <div className="section-bar">
                       <h2>
-                        후보 도면 <span>{active.length}</span>
+                        후보 도면 <span>{retrieved.length}</span>
+                        {excluded.length > 0 && (
+                          <small className="of-total">/ {active.length}</small>
+                        )}
                       </h2>
                       <div className="candidate-filters">
                         <button
@@ -821,12 +859,49 @@ function App() {
                       ))}
                       {!candidates.length && (
                         <p className="empty-note">
-                          {ready
-                            ? "해당 조건의 후보가 없습니다."
-                            : "도면 로딩 중…"}
+                          {!ready
+                            ? "도면 로딩 중…"
+                            : noMatch
+                              ? "검색 조건에 맞는 도면이 없습니다. 아래 목록에서 작업 공간의 도면을 볼 수 있습니다."
+                              : "해당 조건의 후보가 없습니다."}
                         </p>
                       )}
                     </div>
+                    {excluded.length > 0 && (
+                      <div className="excluded-group">
+                        <button
+                          type="button"
+                          className="excluded-toggle"
+                          aria-expanded={showExcluded}
+                          onClick={() => setShowExcluded(!showExcluded)}
+                        >
+                          검색 제외 {excluded.length}개 {showExcluded ? "숨기기" : "보기"}
+                        </button>
+                        {showExcluded &&
+                          excluded.map((d) => (
+                            <button
+                              key={d.id}
+                              data-testid="excluded-card"
+                              className={`candidate excluded ${selected === d.id ? "selected" : ""}`}
+                              onClick={() => browse(d.id)}
+                            >
+                              <div className="candidate-info">
+                                <strong>
+                                  {d.drawing_number}
+                                  <span className="revision">{d.revision_label}</span>
+                                </strong>
+                                <small>
+                                  {kindLabels[d.kind || ""] || d.kind || "부품"} ·{" "}
+                                  {fmt(d.facts.find((f) => f.field === "material"))}
+                                </small>
+                              </div>
+                              <div className="candidate-result">
+                                <span className="verdict-text excluded">검색 제외</span>
+                              </div>
+                            </button>
+                          ))}
+                      </div>
+                    )}
                     {decisions.length > 0 && run?.state !== "stale" && (
                       <div className="counts">
                         {["match", "mismatch", "unknown"].map((v) => (
@@ -838,6 +913,12 @@ function App() {
                             </b>
                           </span>
                         ))}
+                        {excluded.length > 0 && (
+                          <span className="excluded">
+                            <i />
+                            검색 제외 <b>{excluded.length}</b>
+                          </span>
+                        )}
                       </div>
                     )}
                   </section>
@@ -990,18 +1071,21 @@ function App() {
                     />
                     확인 필요 시 담당자에게 묻기
                   </label>
-                  {run && running && (
-                    <button
-                      className="text-button"
-                      onClick={() =>
-                        api<Run>(`/runs/${run.id}/cancel`, { method: "POST" })
-                          .then(setRun)
-                          .catch((e) => setError(String(e)))
-                      }
-                    >
-                      실행 취소
-                    </button>
-                  )}
+                  {run &&
+                    !busy &&
+                    ["queued", "running", "retry_wait", "waiting_input"].includes(run.state) && (
+                      <button
+                        className="text-button"
+                        onClick={() =>
+                          api<Run>(`/runs/${run.id}/cancel`, { method: "POST" })
+                            // A stale response must not replace a run started meanwhile.
+                            .then((r) => setRun((cur) => (cur && cur.id === r.id ? r : cur)))
+                            .catch((e) => setError(String(e)))
+                        }
+                      >
+                        실행 취소
+                      </button>
+                    )}
                 </div>
                 {timeline && (
                   <div className="trace-layout">
