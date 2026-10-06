@@ -1,40 +1,40 @@
 {
   "version": "gate-v1",
-  "code_sha": "b14eb48a432f04626b845dc990c614d4f35ac2cf",
-  "created_at": "2026-10-06T05:14:01.223890+00:00",
-  "wall_s": 22.87,
+  "code_sha": "67e71057201001900062933267b415c070772738",
+  "created_at": "2026-10-06T16:21:20.282245+00:00",
+  "wall_s": 72.37,
   "corpus_documents": 150,
   "rules_graph": {
     "state": "completed",
     "correct": 5,
     "total": 5,
     "accuracy": 1.0,
-    "latency_ms": 333.3054350000566
+    "latency_ms": 255.18852599998354
   },
   "lexical": {
     "exact": {
       "n": 6,
       "recall_at_5": 1.0,
       "ndcg_at_5": 1.0,
-      "latency_p50_ms": 193.35561699995196
+      "latency_p50_ms": 246.79340300008334
     },
     "id_typo": {
       "n": 6,
       "recall_at_5": 1.0,
       "ndcg_at_5": 0.7195882275513225,
-      "latency_p50_ms": 222.7232449999974
+      "latency_p50_ms": 241.44739500002288
     },
     "id_variant": {
       "n": 6,
       "recall_at_5": 1.0,
       "ndcg_at_5": 1.0,
-      "latency_p50_ms": 199.1131500001302
+      "latency_p50_ms": 246.5528100001393
     },
     "paraphrase": {
       "n": 6,
       "recall_at_5": 0.0,
       "ndcg_at_5": 0.0,
-      "latency_p50_ms": 230.10197799999332
+      "latency_p50_ms": 265.62693500000023
     }
   },
   "geometry": {
@@ -42,7 +42,7 @@
     "pool": 60,
     "same_family_at_1": 1,
     "same_family_at_3": 1,
-    "parse_latency_p50_ms": 10.981786000002103
+    "parse_latency_p50_ms": 12.368090000109078
   },
   "control": {
     "id_variant_gap": 0.5,
@@ -52,31 +52,217 @@
         "n": 6,
         "recall_at_5": 1.0,
         "ndcg_at_5": 1.0,
-        "latency_p50_ms": 197.64936399997168
+        "latency_p50_ms": 256.42642000002525
       },
       "id_typo": {
         "n": 6,
         "recall_at_5": 0.0,
         "ndcg_at_5": 0.0,
-        "latency_p50_ms": 185.91894599990155
+        "latency_p50_ms": 230.3535460000603
       },
       "id_variant": {
         "n": 6,
         "recall_at_5": 0.5,
         "ndcg_at_5": 0.5,
-        "latency_p50_ms": 204.1894249998677
+        "latency_p50_ms": 256.7288140000983
       },
       "paraphrase": {
         "n": 6,
         "recall_at_5": 0.0,
         "ndcg_at_5": 0.0,
-        "latency_p50_ms": 182.22769099998004
+        "latency_p50_ms": 235.08958299998994
       }
+    },
+    "claims_wrong_pay_gap": 0.1583,
+    "claims_degraded": {
+      "cases": 120,
+      "field_accuracy": 0.9768,
+      "field_accuracy_by_field": {
+        "admission_date": 0.945,
+        "diagnosis_code": 0.95,
+        "diagnosis_date": 0.9351,
+        "diagnosis_name": 1.0,
+        "discharge_date": 0.945,
+        "hospital": 1.0,
+        "insured_name": 1.0,
+        "surgery_date": 0.9783,
+        "surgery_grade": 1.0,
+        "surgery_name": 1.0,
+        "total_amount": 1.0
+      },
+      "decision_accuracy": 0.75,
+      "wrong_pay_rate": 0.1583,
+      "wrong_pay_count": 19,
+      "review_rate": 0.3083,
+      "auto_rate": 0.8846,
+      "latency_ms_p50": 39.4,
+      "by_scenario": {
+        "clean": {
+          "n": 36,
+          "decision_accuracy": 1.0,
+          "wrong_pay": 0,
+          "review": 0
+        },
+        "date_conflict": {
+          "n": 6,
+          "decision_accuracy": 1.0,
+          "wrong_pay": 0,
+          "review": 5
+        },
+        "duplicate": {
+          "n": 8,
+          "decision_accuracy": 0.0,
+          "wrong_pay": 7,
+          "review": 1
+        },
+        "exclusion": {
+          "n": 8,
+          "decision_accuracy": 1.0,
+          "wrong_pay": 0,
+          "review": 6
+        },
+        "format_variance": {
+          "n": 14,
+          "decision_accuracy": 0.714,
+          "wrong_pay": 4,
+          "review": 1
+        },
+        "grade_missing": {
+          "n": 8,
+          "decision_accuracy": 0.875,
+          "wrong_pay": 1,
+          "review": 3
+        },
+        "high_amount": {
+          "n": 5,
+          "decision_accuracy": 0.0,
+          "wrong_pay": 5,
+          "review": 0
+        },
+        "lapsed_policy": {
+          "n": 9,
+          "decision_accuracy": 1.0,
+          "wrong_pay": 0,
+          "review": 0
+        },
+        "missing_doc": {
+          "n": 8,
+          "decision_accuracy": 0.625,
+          "wrong_pay": 2,
+          "review": 5
+        },
+        "ocr_noise": {
+          "n": 9,
+          "decision_accuracy": 0.0,
+          "wrong_pay": 0,
+          "review": 9
+        },
+        "waiting_period": {
+          "n": 9,
+          "decision_accuracy": 1.0,
+          "wrong_pay": 0,
+          "review": 7
+        }
+      },
+      "degraded": true
     }
+  },
+  "claims": {
+    "cases": 120,
+    "field_accuracy": 0.9768,
+    "field_accuracy_by_field": {
+      "admission_date": 0.945,
+      "diagnosis_code": 0.95,
+      "diagnosis_date": 0.9351,
+      "diagnosis_name": 1.0,
+      "discharge_date": 0.945,
+      "hospital": 1.0,
+      "insured_name": 1.0,
+      "surgery_date": 0.9783,
+      "surgery_grade": 1.0,
+      "surgery_name": 1.0,
+      "total_amount": 1.0
+    },
+    "decision_accuracy": 0.925,
+    "wrong_pay_rate": 0.0,
+    "wrong_pay_count": 0,
+    "review_rate": 0.4,
+    "auto_rate": 0.8846,
+    "latency_ms_p50": 38.7,
+    "by_scenario": {
+      "clean": {
+        "n": 36,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 0
+      },
+      "date_conflict": {
+        "n": 6,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 5
+      },
+      "duplicate": {
+        "n": 8,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 0
+      },
+      "exclusion": {
+        "n": 8,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 6
+      },
+      "format_variance": {
+        "n": 14,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 5
+      },
+      "grade_missing": {
+        "n": 8,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 4
+      },
+      "high_amount": {
+        "n": 5,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 5
+      },
+      "lapsed_policy": {
+        "n": 9,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 0
+      },
+      "missing_doc": {
+        "n": 8,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 7
+      },
+      "ocr_noise": {
+        "n": 9,
+        "decision_accuracy": 0.0,
+        "wrong_pay": 0,
+        "review": 9
+      },
+      "waiting_period": {
+        "n": 9,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 7
+      }
+    },
+    "degraded": false
   },
   "limitations": [
     "합성 도면 150개·고정 test split 6 family 기준의 회귀 게이트입니다. 산업 데이터 성능이 아닙니다.",
     "모델·API 호출이 없습니다. 의미·이미지 채널과 LLM Agent 품질은 별도 실측 workflow가 측정합니다.",
-    "control 항목은 도번 정규화를 끈 열화 실행과의 차이이며, 벤치마크가 열화를 감지하는지 확인하는 용도입니다."
+    "control 항목은 도번 정규화를 끈 열화 실행과의 차이이며, 벤치마크가 열화를 감지하는지 확인하는 용도입니다.",
+    "claims 항목은 합성 청구 서류와 가상의 지급 기준표 기준입니다. 실제 약관·실제 서류의 성능이 아니며, 모델 추출 경로는 포함하지 않습니다."
   ]
 }

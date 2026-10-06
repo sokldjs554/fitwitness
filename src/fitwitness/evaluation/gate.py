@@ -8,6 +8,9 @@ block a regression before a paid experiment is ever scheduled. Four suites:
 * ``geometry``        STEP feature distance: does a family's base model find its own family?
 * ``control``         the same lexical suite with identifier normalization switched off; it
                       must score lower on identifier variants, or the benchmark has lost its teeth
+* ``claims``          the insurance claim pipeline (extraction, rules, challenge) on the synthetic
+                      claim corpus: decision accuracy, the wrong-pay rate (must be zero) and the
+                      automation rate, plus a degraded control that must pay claims it should not
 
 The report is compared with a committed baseline using absolute floors and a maximum
 allowed drop; ``--write-baseline`` refreshes the baseline deliberately.
@@ -44,6 +47,11 @@ THRESHOLDS: dict[str, dict] = {
     "geometry.same_family_at_3": {"min": 0.5, "max_drop": 0.10},
     "control.id_variant_gap": {"min": 0.3},
     "control.id_typo_gap": {"min": 0.3},
+    "claims.wrong_pay_rate": {"equals": 0.0},
+    "claims.decision_accuracy": {"min": 0.85, "max_drop": 0.02},
+    "claims.field_accuracy": {"min": 0.90, "max_drop": 0.02},
+    "claims.auto_rate": {"min": 0.60, "max_drop": 0.05},
+    "control.claims_wrong_pay_gap": {"min": 0.05},
 }
 
 
@@ -135,7 +143,16 @@ def run_geometry(root: Path, families: list[str]) -> dict:
             "same_family_at_3": mean(r["same_family_at_3"] for r in rows), "parse_latency_p50_ms": sorted(parse_ms)[len(parse_ms) // 2], "rows": rows}
 
 
-def run_gate(root: Path, output: Path) -> dict:
+def run_claims(root: Path) -> dict:
+    """Extraction + rules + challenge over the synthetic claim corpus, normal and degraded."""
+    from fitwitness.claims.evaluate import evaluate
+
+    normal = evaluate(root)
+    degraded = evaluate(root, degraded=True)
+    return {"normal": normal, "degraded": degraded}
+
+
+def run_gate(root: Path, output: Path, claims_root: Path | None = None) -> dict:
     from fitwitness.data.bootstrap import seed
     from fitwitness.runtime.jobs import Jobs
     from fitwitness.storage.repository import Repository
@@ -152,11 +169,16 @@ def run_gate(root: Path, output: Path) -> dict:
     degraded = run_lexical(repo, scope, root, id_matching="token")
     rules = run_rules_graph(repo, root)
     geometry = run_geometry(root, sorted(manifest["family_splits"]["test"]) + sorted(manifest["family_splits"]["dev"]))
+    claims_root = claims_root or Path("var/claims")
+    claims = run_claims(claims_root) if (claims_root / "manifest.json").exists() else None
     control = {
         "id_variant_gap": lexical["id_variant"]["recall_at_5"] - degraded["id_variant"]["recall_at_5"],
         "id_typo_gap": lexical["id_typo"]["recall_at_5"] - degraded["id_typo"]["recall_at_5"],
         "degraded": {k: v for k, v in degraded.items() if k != "rows"},
     }
+    if claims:
+        control["claims_wrong_pay_gap"] = claims["degraded"]["summary"]["wrong_pay_rate"] - claims["normal"]["summary"]["wrong_pay_rate"]
+        control["claims_degraded"] = claims["degraded"]["summary"]
     report = {
         "version": GATE_VERSION, "code_sha": _git_sha(), "created_at": datetime.now(timezone.utc).isoformat(),
         "wall_s": round(time.perf_counter() - started, 2), "corpus_documents": len(repo.snapshot(scope).revision_ids),
@@ -164,15 +186,18 @@ def run_gate(root: Path, output: Path) -> dict:
         "lexical": {k: v for k, v in lexical.items() if k != "rows"},
         "geometry": {k: v for k, v in geometry.items() if k != "rows"},
         "control": control,
+        "claims": claims["normal"]["summary"] if claims else None,
         "limitations": [
             "합성 도면 150개·고정 test split 6 family 기준의 회귀 게이트입니다. 산업 데이터 성능이 아닙니다.",
             "모델·API 호출이 없습니다. 의미·이미지 채널과 LLM Agent 품질은 별도 실측 workflow가 측정합니다.",
             "control 항목은 도번 정규화를 끈 열화 실행과의 차이이며, 벤치마크가 열화를 감지하는지 확인하는 용도입니다.",
+            "claims 항목은 합성 청구 서류와 가상의 지급 기준표 기준입니다. 실제 약관·실제 서류의 성능이 아니며, 모델 추출 경로는 포함하지 않습니다.",
         ],
     }
     (output / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2))
     (output / "rows.json").write_text(json.dumps({"lexical": lexical["rows"], "degraded": degraded["rows"], "geometry": geometry["rows"],
-                                                  "rules": {"expected": rules["expected"], "actual": rules["actual"]}}, ensure_ascii=False, indent=1))
+                                                  "rules": {"expected": rules["expected"], "actual": rules["actual"]},
+                                                  "claims": claims["normal"]["rows"] if claims else []}, ensure_ascii=False, indent=1))
     return report
 
 
@@ -209,9 +234,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--root", type=Path, default=Path("var/corpus"))
     p.add_argument("--output", type=Path, default=Path("artifacts/gate"))
     p.add_argument("--baseline", type=Path, default=Path("docs/evaluation/gate-baseline.json"))
+    p.add_argument("--claims-root", type=Path, default=Path("var/claims"))
     p.add_argument("--write-baseline", action="store_true", help="store this report as the new baseline (deliberate act)")
     args = p.parse_args(argv)
-    report = run_gate(args.root, args.output)
+    report = run_gate(args.root, args.output, args.claims_root)
     baseline = json.loads(args.baseline.read_text()) if args.baseline.exists() else None
     result = compare(report, baseline)
     for c in result["checks"]:
