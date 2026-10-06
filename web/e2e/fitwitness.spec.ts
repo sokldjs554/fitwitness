@@ -171,3 +171,35 @@ test('reranking and visual success/error evidence are inspectable',async({page,r
   await expect(v).toContainText('msg_');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)).toBe(false);
 });
+test("a run that asks a reviewer pauses, takes verdicts and completes", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("checkbox", { name: "확인 필요 시 담당자에게 묻기" })
+    .check();
+  await page
+    .getByRole("button", { name: "조건 검증 시작", exact: true })
+    .click();
+  const notice = page.getByTestId("review-notice");
+  await expect(notice).toBeVisible({ timeout: 30000 });
+  await expect(
+    page.getByText("담당자 확인 대기", { exact: true }).first(),
+  ).toBeVisible();
+  const resume = notice.getByRole("button", { name: "답변 전송 후 재개" });
+  await expect(resume).toBeDisabled();
+  const selects = notice.getByRole("combobox");
+  const pending = await selects.count();
+  expect(pending).toBeGreaterThan(0);
+  for (let i = 0; i < pending; i++) {
+    await selects.nth(i).selectOption("mismatch");
+  }
+  await resume.click();
+  await expect(page.getByText("검증 완료", { exact: true })).toBeVisible({
+    timeout: 30000,
+  });
+  await page.getByRole("button", { name: "실행 기록 보기" }).click();
+  await expect(page.getByTestId("run-timeline")).toContainText(
+    "담당자 답변으로 재개",
+  );
+});
