@@ -16,6 +16,7 @@ ENV PATH="/app/.venv/bin:$PATH"
 COPY scripts/ scripts/
 COPY docs/evaluation/ docs/evaluation/
 RUN python -m fitwitness.data.generate
+RUN python -m fitwitness.claims.synth var/claims 120
 COPY --from=web /build/web/dist web/dist/
 RUN useradd --uid 10001 --create-home app && chown -R app:app /app
 USER app

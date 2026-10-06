@@ -13,4 +13,8 @@ if not Path("var/corpus/manifest.json").exists():
     from fitwitness.data.generate import generate_dataset
 
     generate_dataset(Path("var/corpus"))
-print("Database, checkpoints and source CAD ready.")
+if not Path("var/claims/manifest.json").exists():
+    from fitwitness.claims.synth import generate_cases
+
+    generate_cases(Path("var/claims"), n=120)
+print("Database, checkpoints, source CAD and synthetic claims ready.")

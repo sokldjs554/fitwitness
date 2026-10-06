@@ -2,7 +2,7 @@ services:
   - type: web
     name: fitwitness
     runtime: python
-    buildCommand: uv sync --frozen --no-dev && .venv/bin/python -m fitwitness.data.generate && npm --prefix web ci && npm --prefix web run build
+    buildCommand: uv sync --frozen --no-dev && .venv/bin/python -m fitwitness.data.generate && .venv/bin/python -m fitwitness.claims.synth var/claims 120 && npm --prefix web ci && npm --prefix web run build
     startCommand: .venv/bin/python scripts/setup.py && exec .venv/bin/uvicorn fitwitness.api.app:create_app --factory --host 0.0.0.0 --port $PORT
     branch: feat/fitwitness-foundation
     plan: free
