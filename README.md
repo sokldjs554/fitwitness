@@ -18,6 +18,7 @@
 | 전체 Agent 세 구조, 최종 코드 Claude gate | 3/3 완료, 각 5/5 판정, $0.016586 | [claude-final-gate.json](docs/evaluation/claude-final-gate.json) |
 | 복합 검색 288회 + 재정렬 216회 | Recall@5 복합 33.3%, 조건 정렬 64.2% | [RETRIEVAL.md](docs/RETRIEVAL.md) |
 | 외부 NIST STEP 11쌍 CAD 거리 검색 | Top-1 11/11, MRR 1.000 | [CAD.md](docs/CAD.md) |
+| 보험 청구 자동 심사, 합성 120건 (API 없음) | 잘못 지급 0건, 결정 정확도 92.5%, 자동 처리 88.5% | [CLAIMS.md](docs/CLAIMS.md) |
 | VLM 이미지 18회 | 15회 구조화 완료, 23/36 필드 정답 | [VISION.md](docs/VISION.md) |
 | 누적 API 비용 | $0.255248, 미확정 예약 0 | [EVIDENCE.md](docs/EVIDENCE.md) |
 | 현재 브랜치 자동 검증 | Python 183개, Playwright 58개, API 없는 평가 게이트 통과 | [CI](.github/workflows/ci.yml) |
@@ -25,6 +26,7 @@
 ## 구현된 기능
 
 - CadQuery 기반 30개 family / 180개 합성 PDF·STEP·PNG·3D mesh
+- **보험금 청구 자동 심사**(두 번째 워크플로): 합성 진단서·입퇴원확인서·수술확인서·영수증에서 값과 위치를 읽고, 가상의 지급 기준표를 규칙 ID와 함께 적용해 지급·부지급·담당자 확인으로 나누며, 멱등 원장으로 한 번만 지급합니다. 120건 평가에서 잘못 지급 0건, 자동 처리율 88.5% ([docs/CLAIMS.md](docs/CLAIMS.md))
 - 체험 작업 공간은 브래킷·플랜지·샤프트·하우징 4종 20개 도면을 불러옵니다. 검색이 돌려준 후보만 판정하고 나머지는 "검색 제외"로 접어 보여 주며, 아무것도 맞지 않으면 그 사실을 알립니다
 - 도번·BM25와 해시 고정 E5·OpenCLIP/pgvector 색인·검색·worker 연결. 도번은 공백·밑줄·O/0·시리즈 변형과 한 글자 오타까지 정규화해 찾습니다
 - PDF 실제 위치를 근거로 조건 일치·불일치·확인 필요 판정
@@ -66,13 +68,14 @@ uv sync --extra dev
 export PYTHONPATH=src
 export FITWITNESS_DATABASE_URL='postgresql://USER:PASSWORD@localhost:5432/fitwitness'
 uv run python -m fitwitness.data.generate
+uv run python -m fitwitness.claims.synth var/claims 120
 uv run python scripts/setup.py
 npm ci --prefix web
 npm run build --prefix web
 uv run uvicorn fitwitness.api.app:create_app --factory --host 0.0.0.0 --port 8787
 ```
 
-`http://localhost:8787`에서 조건 검증, 원본 근거, 개정판 적용, worker 복구, 담당자 확인 흐름을 체험합니다. DB 초기화 계정에는 role/extension 생성 권한이 필요합니다.
+`http://localhost:8787`에서 조건 검증, 원본 근거, 개정판 적용, worker 복구, 담당자 확인 흐름과 "청구 심사" 탭의 보험금 자동 심사를 체험합니다. DB 초기화 계정에는 role/extension 생성 권한이 필요합니다.
 
 ## 검증
 

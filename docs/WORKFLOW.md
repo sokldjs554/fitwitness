@@ -49,6 +49,10 @@
 
 대기 중인 worker 하나는 약 90MB RSS를 차지합니다. 512MB 인스턴스에서는 기본값 1을 권하고, 메모리가 넉넉하면 2로 올리면 동시 실행 둘 다 즉시 시작합니다. 테스트처럼 lifespan 없이 앱을 만들면 미리 띄우지 않고 예전처럼 실행마다 cold로 띄웁니다.
 
+## 보험 청구 워크플로
+
+같은 상태 전이·재시도·`waiting_input`·resume 위에서 돌아가는 두 번째 워크플로입니다. 노드 구성, 지급 기준표, 멱등 원장, 측정은 [CLAIMS.md](CLAIMS.md)에 있습니다. 담당자 답변 계약은 도면 실행의 `ReviewInput` 대신 `ClaimReview{outcome, reviewer, note, total_amount?}`이며 같은 `POST /api/runs/{id}/resume`으로 들어옵니다.
+
 ## 관측
 
 - `GET /metrics`(토큰 필요)는 프로세스 내 HTTP 지표에 더해 **DB에서 계산한** 지표를 붙입니다: `fitwitness_runs_total{state}`, `fitwitness_cost_usd_total`, `fitwitness_tokens_total{kind}`, `fitwitness_model_calls_total`, `fitwitness_tool_calls_total{tool}`, 이벤트별 카운터(`retry_scheduled`, `dead_lettered`, `waiting_input`, `resumed_by_human` …), 히스토그램 `fitwitness_model_latency_ms{role}`, `fitwitness_tool_latency_ms{tool}`. worker 프로세스가 여럿이어도 한 곳에서 맞는 값을 냅니다. DB가 내려가면 HTTP 지표만 내려가고 주석으로 사유를 남깁니다.

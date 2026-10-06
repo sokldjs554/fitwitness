@@ -16,6 +16,7 @@ uv run python -m fitwitness.evaluation.gate --output artifacts/gate --baseline d
 | `lexical` | 고정 test split 6 family × 질의 유형(exact / id_variant / id_typo / paraphrase), 도번+BM25 채널만 | 유형별 Recall@5, nDCG@5, p50 지연 |
 | `geometry` | test+dev 12 family의 STEP 60개를 CadQuery로 읽어 특징 거리로 순위. 각 family의 기준 모델이 자기 family를 찾는지 | same-family@1, same-family@3 |
 | `control` | `lexical`을 도번 정규화를 끈 상태(`id_matching="token"`)로 다시 실행 | 정상 − 열화 차이. **차이가 작으면 벤치마크가 열화를 감지하지 못하는 것이므로 실패** |
+| `claims` | 합성 청구 120건에 추출 → 정합성 → 기준표 → 반례 검토를 실행, 생성기 gold와 대조. 열화 대조군은 서류 요건·원장 조회·자동승인 한도를 끈 실행 | 잘못 지급 비율(`== 0`), 결정 정확도, 필드 정확도, 자동 처리율, 열화 대조군과의 잘못 지급 차이(`≥ 0.05`) |
 
 질의 유형 `id_variant`(공백·밑줄·소문자·O/0 변형)와 `id_typo`(한 자리가 틀려 존재하지 않는 도번)는 `evaluation/retrieval.py`의 `make_cases`에 추가됐고(protocol `retrieval-v3`), 유료 검색 실측에서도 같은 유형이 측정됩니다. 이전 v2 결과는 그대로 보존되며 v3와 직접 비교하지 않습니다.
 
