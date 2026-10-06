@@ -15,9 +15,12 @@ def test_frozen_queries_exclude_train_and_hide_labels_from_request():
     import json
     manifest=json.loads(Path('var/corpus/manifest.json').read_text())
     cases=make_cases(manifest, json.loads(Path('var/corpus/gold/labels.json').read_text()))
-    assert len(cases)==24
+    assert len(cases)==36
     assert {c['family_id'] for c in cases}==set(manifest['family_splits']['test'])
-    assert {c['category'] for c in cases}=={'exact','paraphrase','image','mixed'}
+    assert {c['category'] for c in cases}=={'exact','id_variant','id_typo','paraphrase','image','mixed'}
+    numbers={d['drawing_number'] for d in manifest['document_entries']}
+    assert all(c['text'] not in numbers for c in cases if c['category']=='id_typo')
+    assert all('gold' not in c and 'expected' not in c for c in cases)
     assert all(c['relevance'] for c in cases)
     p=protocol(cases)
     assert p['repeats']==3 and p['rrf_k']==60 and p['top_k']==10

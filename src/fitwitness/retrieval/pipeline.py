@@ -93,8 +93,15 @@ def reciprocal_rank_fusion(rankings: dict[str, list[str]], k: int = 60):
 
 
 def search(
-    scope, request: SearchRequest, snapshot, repo, encoders=None, channels=None, reranker=None
+    scope, request: SearchRequest, snapshot, repo, encoders=None, channels=None, reranker=None,
+    id_matching: str = "normalized",
 ) -> list[Candidate]:
+    """Hybrid search over the active snapshot.
+
+    ``id_matching`` selects how the exact channel reads drawing numbers: ``"normalized"``
+    (default) understands spacing, underscores, confusable characters, series references
+    and one-edit typos; ``"token"`` is the historical casefolded-token match, kept for the
+    evaluation gate's degraded control."""
     channels = {"exact", "bm25"} if channels is None else channels
     if repo.snapshot(scope).id != snapshot.id:
         raise ValueError("stale search snapshot")
@@ -122,10 +129,23 @@ def search(
     scores = defaultdict(dict)
     tokens = tokenize(request.text)
     if "exact" in channels:
-        exact = [r.id for r in revisions if r.drawing_number.casefold() in tokens]
-        rankings["exact"] = exact
-        for rid in exact:
-            scores[rid]["exact"] = 1.0
+        if id_matching == "normalized":
+            from fitwitness.retrieval.drawing_number import match_text
+
+            hits = match_text(request.text, [r.drawing_number for r in revisions])
+            matched_ids = sorted(
+                ((r.id, *hits[r.drawing_number]) for r in revisions if r.drawing_number in hits),
+                key=lambda x: (-x[1], x[0]),
+            )
+            rankings["exact"] = [rid for rid, _, _ in matched_ids]
+            for rid, score, mode in matched_ids:
+                scores[rid]["exact"] = score
+                scores[rid]["id_mode"] = {"exact": 1.0, "series": 0.5, "fuzzy": 0.25}[mode]
+        else:
+            exact = [r.id for r in revisions if r.drawing_number.casefold() in tokens]
+            rankings["exact"] = exact
+            for rid in exact:
+                scores[rid]["exact"] = 1.0
     if "bm25" in channels and tokens:
         vals = BM25Okapi([tokenize(t) or ["_"] for t in texts]).get_scores(tokens)
         ordered = sorted(zip(revisions, vals), key=lambda rv: (-rv[1], rv[0].id))
@@ -154,7 +174,7 @@ def search(
     ranked = reciprocal_rank_fusion(rankings)
     # Explicit IDs remain the first results, not arbitrary prefix matches.
     exact = set(rankings.get("exact", []))
-    ranked.sort(key=lambda kv: (kv[0] not in exact, -kv[1], kv[0]))
+    ranked.sort(key=lambda kv: (kv[0] not in exact, -scores[kv[0]].get("exact", 0.0), -kv[1], kv[0]))
     candidates = [
         Candidate(
             revision_id=rid, scores={**scores[rid], "rrf": score}, facts=facts[rid]

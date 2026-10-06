@@ -31,12 +31,35 @@ def score_ranking(ranked, relevance, k=5):
     return {'recall':len(set(ranked)&relevant)/len(relevant),'ndcg':dcg/ideal}
 
 
+def id_variants(drawing_number, existing, seed):
+    """Deterministic surface variants of an identifier and one genuine one-digit typo.
+
+    The variant keeps the same canonical number (spacing, underscore, case, letter O for
+    zero). The typo changes one digit so that the result is NOT an existing number; only
+    fuzzy matching can recover the intended drawing from it."""
+    import random
+    rng=random.Random(f'{seed}:{drawing_number}')
+    prefix,rest=drawing_number.split('-',1)
+    forms=[f'{prefix.lower()} {rest.replace("-"," ")}', f'{prefix}_{rest.replace("-","_")}', f'{prefix.lower()}-{rest}',
+           f'{prefix}-{rest.replace("0","O",1)}' if '0' in rest else f'{prefix} {rest}', f'{drawing_number}의 치수 확인']
+    variant=rng.choice(forms)
+    digits=list(rest)
+    positions=[i for i,ch in enumerate(digits) if ch.isdigit()]
+    for _ in range(100):
+        i=rng.choice(positions); new=list(digits); new[i]=str((int(digits[i])+rng.randint(1,9))%10)
+        typo=f'{prefix}-{"".join(new)}'
+        if typo not in existing: return variant,typo
+    raise RuntimeError('could not build a typo')
+
+
 def make_cases(manifest, gold):
     active=[d for d in manifest['document_entries'] if not d['is_revision_update']]
+    existing={d['drawing_number'] for d in manifest['document_entries']}
     cases=[]
     for family in sorted(manifest['family_splits']['test']):
         source=next(d for d in active if d['family_id']==family)
         truth=gold[source['id']]
+        variant,typo=id_variants(source['drawing_number'],existing,manifest.get('seed',0))
         # Image relevance includes visible spacing; text only states kind+width.
         # Gold is independent of runtime facts. Material is irrelevant to lookup.
         qrels={d['id']:1 for d in active if d['kind']==source['kind']
@@ -44,23 +67,23 @@ def make_cases(manifest, gold):
                and gold[d['id']].get('hole_spacing')==truth.get('hole_spacing')}
         text_qrels={d['id']:1 for d in active if d['kind']==source['kind']
                     and gold[d['id']]['width']==truth['width']}
-        for category in ('exact','paraphrase','image','mixed'):
-            query=(source['drawing_number'] if category=='exact' else
+        for category in ('exact','id_variant','id_typo','paraphrase','image','mixed'):
+            query=(source['drawing_number'] if category=='exact' else variant if category=='id_variant' else typo if category=='id_typo' else
                    '' if category=='image' else f"{PARAPHRASES[source['kind']]} 외형 폭 {truth['width']}mm")
             cases.append(dict(id=family+'-'+category,family_id=family,category=category,text=query,
                               image_source=source['id'] if category in ('image','mixed') else None,
-                              relevance={source['id']:1} if category=='exact' else
+                              relevance={source['id']:1} if category in ('exact','id_variant','id_typo') else
                               text_qrels if category=='paraphrase' else qrels))
     return cases
 
 
 def protocol(cases):
-    return dict(version='retrieval-v2',scope='합성 도면 검색 pilot',repeats=3,rrf_k=60,top_k=10,
+    return dict(version='retrieval-v3',scope='합성 도면 검색 pilot',repeats=3,rrf_k=60,top_k=10,
                 recall_k=5,ndcg_k=10,methods=list(METHODS),cases=json.loads(json.dumps(cases)),
                 dataset_hash=sha256(json.dumps(cases,sort_keys=True,ensure_ascii=False).encode()).hexdigest(),
                 query_transform='top-view crop [0.10,0.13,0.85,0.55], resize 240x143, rotate 3deg white fill',
                 tuning='none; held-out family queries; no selection after test metrics',
-                relevance='exact: exact ID; paraphrase: kind+width; image/mixed: kind+width+hole spacing; generator gold',
+                relevance='exact/id_variant/id_typo: the referenced drawing; paraphrase: kind+width; image/mixed: kind+width+hole spacing; generator gold',
                 empty_relevance='excluded with explicit count; pilot has no empty-relevance cases')
 
 
@@ -180,7 +203,7 @@ def run(root, output, ablation=False):
         subset=[r for r in rows if r['method']==method]
         methods.append(dict(id=method,label=label,metrics=summarize_retrieval(subset),
                             categories={cat:summarize_retrieval([r for r in subset if r['category']==cat])
-                                        for cat in ('exact','paraphrase','image','mixed')}))
+                                        for cat in ('exact','id_variant','id_typo','paraphrase','image','mixed')}))
     docs={d['id']:dict(drawing_number=d['drawing_number'],kind=d['kind']) for d in manifest['document_entries']}
     for case in cases:
         if case.get('query_image_id'):case['image_data_url']='data:image/png;base64,'+base64.b64encode(previews[case['query_image_id']]).decode()
