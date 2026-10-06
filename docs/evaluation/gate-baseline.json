@@ -1,0 +1,82 @@
+{
+  "version": "gate-v1",
+  "code_sha": "b14eb48a432f04626b845dc990c614d4f35ac2cf",
+  "created_at": "2026-10-06T05:14:01.223890+00:00",
+  "wall_s": 22.87,
+  "corpus_documents": 150,
+  "rules_graph": {
+    "state": "completed",
+    "correct": 5,
+    "total": 5,
+    "accuracy": 1.0,
+    "latency_ms": 333.3054350000566
+  },
+  "lexical": {
+    "exact": {
+      "n": 6,
+      "recall_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "latency_p50_ms": 193.35561699995196
+    },
+    "id_typo": {
+      "n": 6,
+      "recall_at_5": 1.0,
+      "ndcg_at_5": 0.7195882275513225,
+      "latency_p50_ms": 222.7232449999974
+    },
+    "id_variant": {
+      "n": 6,
+      "recall_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "latency_p50_ms": 199.1131500001302
+    },
+    "paraphrase": {
+      "n": 6,
+      "recall_at_5": 0.0,
+      "ndcg_at_5": 0.0,
+      "latency_p50_ms": 230.10197799999332
+    }
+  },
+  "geometry": {
+    "queries": 12,
+    "pool": 60,
+    "same_family_at_1": 1,
+    "same_family_at_3": 1,
+    "parse_latency_p50_ms": 10.981786000002103
+  },
+  "control": {
+    "id_variant_gap": 0.5,
+    "id_typo_gap": 1.0,
+    "degraded": {
+      "exact": {
+        "n": 6,
+        "recall_at_5": 1.0,
+        "ndcg_at_5": 1.0,
+        "latency_p50_ms": 197.64936399997168
+      },
+      "id_typo": {
+        "n": 6,
+        "recall_at_5": 0.0,
+        "ndcg_at_5": 0.0,
+        "latency_p50_ms": 185.91894599990155
+      },
+      "id_variant": {
+        "n": 6,
+        "recall_at_5": 0.5,
+        "ndcg_at_5": 0.5,
+        "latency_p50_ms": 204.1894249998677
+      },
+      "paraphrase": {
+        "n": 6,
+        "recall_at_5": 0.0,
+        "ndcg_at_5": 0.0,
+        "latency_p50_ms": 182.22769099998004
+      }
+    }
+  },
+  "limitations": [
+    "합성 도면 150개·고정 test split 6 family 기준의 회귀 게이트입니다. 산업 데이터 성능이 아닙니다.",
+    "모델·API 호출이 없습니다. 의미·이미지 채널과 LLM Agent 품질은 별도 실측 workflow가 측정합니다.",
+    "control 항목은 도번 정규화를 끈 열화 실행과의 차이이며, 벤치마크가 열화를 감지하는지 확인하는 용도입니다."
+  ]
+}

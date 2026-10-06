@@ -1,0 +1,29 @@
+from fitwitness.evaluation.gate import THRESHOLDS, compare
+
+
+def _report(**over):
+    base = {"rules_graph": {"accuracy": 1.0}, "lexical": {"exact": {"recall_at_5": 1.0}, "id_variant": {"recall_at_5": 1.0},
+            "id_typo": {"recall_at_5": 1.0}, "paraphrase": {"recall_at_5": 0.2}}, "geometry": {"same_family_at_3": 0.9},
+            "control": {"id_variant_gap": 1.0, "id_typo_gap": 1.0}}
+    for path, value in over.items():
+        cur = base
+        parts = path.split(".")
+        for part in parts[:-1]:
+            cur = cur[part]
+        cur[parts[-1]] = value
+    return base
+
+
+def test_gate_passes_healthy_report_and_fails_regressions():
+    good = _report()
+    assert compare(good, None)["passed"]
+    worse = compare(_report(**{"lexical.id_typo.recall_at_5": 0.5}), good)
+    assert not worse["passed"] and any(c["metric"] == "lexical.id_typo.recall_at_5" and not c["ok"] for c in worse["checks"])
+    dropped = compare(_report(**{"lexical.paraphrase.recall_at_5": 0.05}), good)
+    assert not dropped["passed"] and "dropped" in next(c["why"] for c in dropped["checks"] if c["metric"].startswith("lexical.paraphrase"))
+
+
+def test_gate_requires_the_degraded_control_to_be_worse():
+    toothless = compare(_report(**{"control.id_variant_gap": 0.0}), None)
+    assert not toothless["passed"]
+    assert {"control.id_variant_gap", "control.id_typo_gap"} <= set(THRESHOLDS)

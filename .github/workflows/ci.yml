@@ -37,6 +37,8 @@ jobs:
       - run: uv run python scripts/setup.py
       - run: uv run python scripts/verify-research.py
       - run: uv run pytest -q --junitxml=artifacts/pytest.xml
+      - name: Evaluation gate (no API, real PostgreSQL) against committed baseline
+        run: uv run python -m fitwitness.evaluation.gate --output artifacts/gate --baseline docs/evaluation/gate-baseline.json
       - run: npm ci && npm run build && npx playwright install --with-deps chromium
         working-directory: web
       - run: |
