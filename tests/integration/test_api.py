@@ -88,3 +88,34 @@ def test_demo_workspace_holds_other_part_kinds_and_search_excludes_them(clients)
     assert a.post("/api/search", json={"text": "존재하지 않는 부품 이름"}).json() == []
     # The guided revision story is untouched: FW-000-0 Rev B is still held back.
     assert not any(d["drawing_number"] == "FW-000-0" and d["revision_label"] == "B" for d in docs)
+
+
+def test_claim_cases_are_seeded_runnable_and_reviewable(tmp_path, monkeypatch):
+    from fitwitness.claims.synth import generate_cases
+    from fitwitness.api.app import create_app
+
+    generate_cases(tmp_path, n=11, seed=5)  # one case per scenario
+    monkeypatch.setenv("FITWITNESS_CLAIMS_DIR", str(tmp_path))
+    a = TestClient(create_app())
+    assert a.post("/api/demo-sessions").status_code == 200
+    cases = a.get("/api/claims/cases").json()
+    assert {c["scenario"] for c in cases} >= {"clean", "duplicate", "high_amount"} and all(c["latest_run"] is None for c in cases)
+    clean = next(c for c in cases if c["scenario"] == "clean")
+    png = a.get(f"/api/claims/cases/{clean['case_id']}/documents/{clean['documents'][0]['id']}/png")
+    assert png.status_code == 200 and png.headers["content-type"] == "image/png"
+    run = a.post(f"/api/claims/cases/{clean['case_id']}/run", headers={"Idempotency-Key": "api-claim-1"}).json()
+    view = a.get("/api/runs/" + run["id"]).json()
+    assert view["kind"] == "claim" and view["state"] == "completed"
+    assert view["claim"]["decision"]["outcome"] == "APPROVE" and view["claim"]["payout"]["status"] == "paid"
+    assert a.get("/api/claims/ledger").json()[0]["claim_id"] == clean["claim_id"]
+    assert next(c for c in a.get("/api/claims/cases").json() if c["case_id"] == clean["case_id"])["latest_run"]["state"] == "completed"
+    high = next(c for c in cases if c["scenario"] == "high_amount")
+    run = a.post(f"/api/claims/cases/{high['case_id']}/run", headers={"Idempotency-Key": "api-claim-2"}).json()
+    assert a.get("/api/runs/" + run["id"]).json()["state"] == "waiting_input"
+    assert a.post(f"/api/runs/{run['id']}/resume", json={"outcome": "MAYBE", "reviewer": "qa"}).status_code == 422
+    assert a.post(f"/api/runs/{run['id']}/resume", json={"outcome": "DENY", "reviewer": "qa", "note": "서류 재요청"}).status_code == 200
+    final = a.get("/api/runs/" + run["id"]).json()
+    assert final["state"] == "completed" and final["claim"]["decision"]["outcome"] == "DENY" and final["claim"]["payout"]["status"] == "skipped"
+    # a drawing revision must not invalidate claim runs
+    a.post("/api/demo/revision")
+    assert a.get("/api/runs/" + run["id"]).json()["state"] == "completed"

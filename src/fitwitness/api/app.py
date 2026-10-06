@@ -13,6 +13,8 @@ from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from fitwitness.contracts import TenantScope, RunRequest, DrawingRevision, SearchRequest, ReviewInput
+from fitwitness.claims.models import ClaimRequest, ClaimReview, Policy
+from fitwitness.claims.synth import SCENARIO_LABELS
 from fitwitness.runtime.metrics import collect as collect_db_metrics
 from fitwitness.runtime.trace import build_trace
 from fitwitness.storage.repository import Repository
@@ -150,6 +152,32 @@ def create_app():
         return r
 
     DEMO_FAMILIES = ("FW-F000", "FW-F001", "FW-F002", "FW-F003")  # bracket, flange, shaft, housing
+    CLAIMS = Path(os.getenv("FITWITNESS_CLAIMS_DIR", str(ROOT / "var/claims")))
+    DEMO_CLAIM_SCENARIOS = ("clean", "format_variance", "missing_doc", "date_conflict", "waiting_period",
+                            "duplicate", "high_amount", "grade_missing")
+
+    def demo_claim_cases():
+        """One synthetic claim per demo scenario; nothing when the corpus was not generated."""
+        if not (CLAIMS / "manifest.json").exists():
+            return []
+        cases = json.loads((CLAIMS / "manifest.json").read_text())["cases"]
+        picked = []
+        for scenario in DEMO_CLAIM_SCENARIOS:
+            first = next((c for c in cases if c["scenario"] == scenario), None)
+            if first:
+                picked.append(first)
+        return picked
+
+    def load_claim_case(case, s):
+        if repo.claim_case(s, case["case_id"]):
+            return
+        repo.save_claim_case(s, case)
+        for d in case["documents"]:
+            folder = CLAIMS / case["case_id"]
+            png = folder / f"{d['id']}.png"
+            repo.save_claim_doc(s, d, (folder / f"{d['id']}.pdf").read_bytes(), png.read_bytes() if png.exists() else None)
+        if case.get("prior_paid_keys"):
+            repo.seed_paid_keys(s, case["policy"]["policy_id"], case["prior_paid_keys"])
 
     def demo_entries():
         manifest = json.loads((CORPUS / "manifest.json").read_text())["document_entries"]
@@ -176,6 +204,8 @@ def create_app():
         entries = demo_entries()
         for entry in entries:
             load_entry(entry, s)
+        for case in demo_claim_cases():
+            load_claim_case(case, s)
         response.set_cookie(
             "fw_session",
             signer.dumps(s.model_dump()),
@@ -293,7 +323,7 @@ def create_app():
     @app.post("/api/runs/{run_id}/resume")
     def resume(
         run_id: str,
-        body: ReviewInput,
+        body: ReviewInput | ClaimReview,
         background: BackgroundTasks,
         s: TenantScope = Depends(scope),
     ):
@@ -314,6 +344,53 @@ def create_app():
         if not jobs.get(s, run_id):
             raise HTTPException(404, "없음")
         return build_trace(run_id, jobs.events(s, run_id))
+
+    @app.get("/api/claims/cases")
+    def claim_cases(s: TenantScope = Depends(scope)):
+        """Synthetic claim cases loaded into this workspace, with their latest run."""
+        latest = {}
+        for run in jobs.list_runs(s):
+            cid = (run["request"].get("claim") or {}).get("case_id")
+            if cid and cid not in latest:
+                latest[cid] = {"run_id": run["id"], "state": run["state"]}
+        return [{**c, "scenario_label": SCENARIO_LABELS.get(c["scenario"], c["scenario"]), "latest_run": latest.get(c["case_id"])}
+                for c in repo.claim_cases(s)]
+
+    @app.post("/api/claims/cases/{case_id}/run")
+    def run_claim(case_id: str, request: Request, background: BackgroundTasks, s: TenantScope = Depends(scope)):
+        case = repo.claim_case(s, case_id)
+        if not case:
+            raise HTTPException(404, "청구 건을 찾을 수 없습니다")
+        review = "always" if request.headers.get("x-claim-review") == "always" else "rules"
+        claim = ClaimRequest(case_id=case["case_id"], claim_id=case["claim_id"], policy=Policy.model_validate(case["policy"]),
+                             requested=case["requested"], document_ids=[d["id"] for d in case["documents"]],
+                             submitted_at=case["submitted_at"], review=review)
+        body = RunRequest(kind="claim", claim=claim.model_dump(mode="json"), demo_fault=request.headers.get("x-demo-fault") == "1")
+        idem = request.headers.get("Idempotency-Key") or str(uuid4())
+        try:
+            view = jobs.enqueue(s, body, idem)
+        except ValueError as exc:
+            raise HTTPException(409, str(exc))
+        if view.state == "queued" and not app.state.dispatcher:
+            background.add_task(supervise, s, view.id, False)
+        app.state.nudge()
+        return view
+
+    @app.get("/api/claims/cases/{case_id}/documents/{doc_id}/{kind}")
+    def claim_document(case_id: str, doc_id: str, kind: str, s: TenantScope = Depends(scope)):
+        found = repo.claim_doc(s, doc_id)
+        if not found or found[0]["case_id"] != case_id or kind not in ("pdf", "png"):
+            raise HTTPException(404, "서류를 찾을 수 없습니다")
+        meta, pdf, png = found
+        if kind == "png":
+            if png is None:
+                raise HTTPException(404, "미리보기가 없습니다")
+            return Response(png, media_type="image/png")
+        return Response(pdf, media_type="application/pdf")
+
+    @app.get("/api/claims/ledger")
+    def claim_ledger(s: TenantScope = Depends(scope)):
+        return repo.payouts(s)
 
     @app.get("/api/tools")
     def saved_tools(s: TenantScope = Depends(scope)):

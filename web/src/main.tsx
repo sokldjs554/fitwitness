@@ -23,6 +23,7 @@ import {
   Command,
   FolderClosed,
   ArrowDownToLine,
+  ShieldCheck,
 } from "lucide-react";
 import "@fontsource-variable/noto-sans-kr";
 import "@fontsource-variable/dm-sans";
@@ -49,6 +50,9 @@ const ExperimentLab = lazy(() =>
     default: m.ExperimentLab,
   })),
 );
+const ClaimsDesk = lazy(() =>
+  import("./components/ClaimsDesk").then((m) => ({ default: m.ClaimsDesk })),
+);
 
 function App() {
   const [ready, setReady] = useState(false),
@@ -69,7 +73,7 @@ function App() {
     [busy, setBusy] = useState(false),
     [timeline, setTimeline] = useState(false),
     [revised, setRevised] = useState(false),
-    [tab, setTab] = useState<"work" | "eval">("work"),
+    [tab, setTab] = useState<"work" | "eval" | "claims">("work"),
     [filter, setFilter] = useState("all"),
     [zoom, setZoom] = useState(1),
     [eventSelection, setEventSelection] = useState<number | null>(null),
@@ -362,6 +366,15 @@ function App() {
             <kbd>02</kbd>
           </button>
           <button
+            className={tab === "claims" ? "active" : ""}
+            aria-label="청구 심사"
+            onClick={() => setTab("claims")}
+          >
+            <ShieldCheck size={16} />
+            <span>청구 심사</span>
+            <kbd>03</kbd>
+          </button>
+          <button
             onClick={() => {
               setTab("work");
               setTimeline(true);
@@ -427,7 +440,11 @@ function App() {
           </div>
         </header>
         <main>
-          {tab === "eval" ? (
+          {tab === "claims" ? (
+            <Suspense fallback={<div className="loading-panel">청구 심사대를 불러오는 중…</div>}>
+              <ClaimsDesk ready={ready} />
+            </Suspense>
+          ) : tab === "eval" ? (
             <Suspense
               fallback={
                 <div className="loading-panel">실험실을 불러오는 중…</div>

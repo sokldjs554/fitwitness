@@ -29,9 +29,77 @@ export type Decision = {
   reviewed_by?: string | null;
   review_note?: string | null;
 };
+export type ClaimOutcome = {
+  claim_id: string;
+  extraction: Record<string, unknown> & {
+    evidence: Record<string, { doc_id: string; page: number; bbox: number[]; snippet: string }>;
+    confidence: number;
+  };
+  flags: string[];
+  decision: ClaimDecision;
+  pre_review_decision: ClaimDecision;
+  human: { outcome: string; reviewer: string; note: string; total_amount?: number | null } | null;
+  payout: { status: string; claim_id: string; amount: number; paid_at?: string | null; run_id?: string | null };
+  explanation: string;
+  audit: string[];
+};
+export type ClaimDecision = {
+  outcome: "APPROVE" | "DENY" | "REVIEW";
+  line_items: { coverage: string; rule_id: string; amount: number; basis: string }[];
+  total_amount: number;
+  reasons: { rule_id: string; code: string; message: string; severity: string }[];
+  needs_human: boolean;
+};
+export type ClaimCase = {
+  case_id: string;
+  claim_id: string;
+  policy: { policy_id: string; product_id: string; effective_from: string; effective_to: string; status: string };
+  insured_name: string;
+  requested: string[];
+  documents: { id: string; case_id: string; kind: string; issued_at: string; pages: number }[];
+  submitted_at: string;
+  scenario: string;
+  scenario_label: string;
+  prior_paid_keys: string[];
+  latest_run: { run_id: string; state: string } | null;
+};
+export const claimLabels: Record<string, string> = {
+  hospitalization_daily: "입원일당",
+  surgery: "수술비",
+  diagnosis: "진단비",
+  diagnosis_doc: "진단서",
+  admission: "입퇴원확인서",
+  surgery_doc: "수술확인서",
+  receipt: "진료비 영수증",
+  APPROVE: "지급",
+  DENY: "부지급",
+  REVIEW: "심사자 확인",
+  paid: "지급 완료",
+  already_paid: "기지급 확인 (중복 지급 없음)",
+  skipped: "지급 없음",
+  insured_name: "피보험자",
+  hospital: "의료기관",
+  diagnosis_name: "병명",
+  diagnosis_code: "질병분류기호",
+  diagnosis_date: "진단일",
+  admission_date: "입원일",
+  discharge_date: "퇴원일",
+  surgery_name: "수술명",
+  surgery_date: "수술일",
+  surgery_grade: "수술 등급",
+  total_amount: "진료비 합계",
+};
+export const docKindLabels: Record<string, string> = {
+  diagnosis: "진단서",
+  admission: "입퇴원확인서",
+  surgery: "수술확인서",
+  receipt: "진료비 영수증",
+};
 export type Run = {
   id: string;
   state: string;
+  kind?: string;
+  claim?: ClaimOutcome | null;
   decisions: Decision[];
   snapshot_id: string;
   error?: string;
@@ -96,6 +164,13 @@ export const eventNames: Record<string, string> = {
   tool_skipped: "도구 호출 생략",
   budget_stop: "예산 한도 도달",
   evidence_exhausted: "추가 근거 없음",
+  intake: "청구 접수 확인",
+  extracted: "서류 필드 추출",
+  validated: "서류 간 정합성 검사",
+  adjudicated: "지급 기준 적용",
+  challenged: "반례 검토",
+  payout: "지급 원장 기록",
+  explained: "안내문 생성",
 };
 export type ReviewPending = {
   revision_id: string;
