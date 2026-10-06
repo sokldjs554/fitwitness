@@ -8,7 +8,14 @@ from psycopg.types.json import Jsonb
 from fitwitness.contracts import RunRequest, RunView, Usage, Decision, uid, now
 
 
+def backoff_seconds(attempt: int, base: int = 5, cap: int = 300) -> int:
+    """Exponential delay before retry number ``attempt`` (0-based), capped."""
+    return int(min(cap, base * 2**attempt))
+
+
 class Jobs:
+    MAX_ATTEMPTS = 3
+
     def __init__(self, repo):
         self.repo = repo
 
@@ -25,6 +32,15 @@ class Jobs:
                 tenant_id text NOT NULL,run_id text NOT NULL,seq integer NOT NULL,kind text NOT NULL,payload jsonb NOT NULL,
                 timestamp timestamptz NOT NULL DEFAULT now(),PRIMARY KEY(tenant_id,run_id,seq),
                 FOREIGN KEY(tenant_id,run_id) REFERENCES fw_runs(tenant_id,id));""")
+            for column, ddl in [
+                ("human_input", "jsonb"),
+                ("question", "text"),
+                ("attempts", "integer NOT NULL DEFAULT 0"),
+                ("next_attempt_at", "timestamptz"),
+                ("paused_since", "timestamptz"),
+                ("waited_seconds", "double precision NOT NULL DEFAULT 0"),
+            ]:
+                c.execute(f"ALTER TABLE fw_runs ADD COLUMN IF NOT EXISTS {column} {ddl}")
             c.execute(
                 "CREATE TABLE IF NOT EXISTS fw_dispatch (tenant_id text NOT NULL,run_id text NOT NULL,created_at timestamptz NOT NULL DEFAULT now(),PRIMARY KEY(tenant_id,run_id))"
             )
@@ -125,6 +141,9 @@ class Jobs:
             snapshot_id=r["snapshot_id"],
             provider=r["request"]["provider"],
             model_id=r["request"]["model_id"],
+            question=r["question"],
+            attempts=r["attempts"],
+            next_attempt_at=r["next_attempt_at"].isoformat() if r["next_attempt_at"] else None,
         )
 
     def claim(self, scope, run_id, lease_seconds=30, requested_token=None):
@@ -141,9 +160,17 @@ class Jobs:
                 ).fetchone()["active"]
             ):
                 return None
+            if (
+                r["state"] == "retry_wait"
+                and r["next_attempt_at"] is not None
+                and not c.execute("SELECT %s <= now() AS due", (r["next_attempt_at"],)).fetchone()["due"]
+            ):
+                return None
             token = requested_token or uid()
+            # Time spent waiting for a retry or a reviewer does not count against the run's deadline.
             c.execute(
-                "UPDATE fw_runs SET state='running',lease_token=%s,lease_until=now()+(%s * interval '1 second') WHERE id=%s",
+                "UPDATE fw_runs SET state='running',lease_token=%s,lease_until=now()+(%s * interval '1 second'),"
+                "waited_seconds=waited_seconds+COALESCE(EXTRACT(EPOCH FROM (now()-paused_since)),0),paused_since=NULL,next_attempt_at=NULL WHERE id=%s",
                 (token, lease_seconds, run_id),
             )
             self._event(
@@ -238,14 +265,71 @@ class Jobs:
                 self._event(c, scope, run_id, "cancelled", {})
         return self.get(scope, run_id)
 
-    def fail(self, scope, run_id, token, error):
+    def fail(self, scope, run_id, token, error, *, retryable=False, max_attempts=None):
+        """Terminal failure, or a scheduled retry when the cause is transient.
+
+        A retryable failure parks the run in ``retry_wait`` with exponential backoff and
+        keeps it on the dispatch queue; once ``max_attempts`` is reached it is dead-lettered
+        (state ``failed``, event ``dead_lettered``) so the operator can see it was not a
+        one-off error."""
+        max_attempts = max_attempts or self.MAX_ATTEMPTS
         with self.repo.connection(scope) as c:
             r = c.execute(
-                "UPDATE fw_runs SET state='failed',error=%s,lease_token=NULL WHERE id=%s AND lease_token=%s AND state='running' RETURNING id",
-                (error[:500], run_id, token),
+                "SELECT attempts FROM fw_runs WHERE id=%s AND lease_token=%s AND state='running' FOR UPDATE",
+                (run_id, token),
             ).fetchone()
-            if r:
-                self._event(c, scope, run_id, "failed", {"error": error[:500]})
+            if not r:
+                return
+            attempt = r["attempts"] + 1
+            if retryable and attempt < max_attempts:
+                delay = backoff_seconds(attempt - 1)
+                c.execute(
+                    "UPDATE fw_runs SET state='retry_wait',attempts=%s,error=%s,lease_token=NULL,"
+                    "next_attempt_at=now()+(%s * interval '1 second'),paused_since=now() WHERE id=%s",
+                    (attempt, error[:500], delay, run_id),
+                )
+                self._event(c, scope, run_id, "retry_scheduled", {"attempt": attempt, "max_attempts": max_attempts, "delay_seconds": delay, "error": error[:500]})
+                return
+            c.execute(
+                "UPDATE fw_runs SET state='failed',attempts=%s,error=%s,lease_token=NULL WHERE id=%s",
+                (attempt, error[:500], run_id),
+            )
+            c.execute("DELETE FROM fw_dispatch WHERE run_id=%s", (run_id,))
+            self._event(c, scope, run_id, "dead_lettered" if retryable else "failed", {"error": error[:500], "attempts": attempt})
+
+    def make_due(self, scope, run_id):
+        """Operator action: run a backed-off retry now."""
+        with self.repo.connection(scope) as c:
+            c.execute("UPDATE fw_runs SET next_attempt_at=now() WHERE id=%s AND state='retry_wait'", (run_id,))
+
+    def wait_input(self, scope, run_id, token, question, payload):
+        """Park a running job until a reviewer answers; it leaves the dispatch queue meanwhile."""
+        with self.repo.connection(scope) as c:
+            row = c.execute(
+                "UPDATE fw_runs SET state='waiting_input',question=%s,lease_token=NULL,paused_since=now() "
+                "WHERE id=%s AND lease_token=%s AND state='running' RETURNING id",
+                (question[:500], run_id, token),
+            ).fetchone()
+            if not row:
+                return False
+            c.execute("DELETE FROM fw_dispatch WHERE run_id=%s", (run_id,))
+            self._event(c, scope, run_id, "waiting_input", payload)
+            return True
+
+    def resume(self, scope, run_id, human_input):
+        """Store the reviewer's answer and queue the run again; the worker resumes the graph with it."""
+        if scope.role == "viewer":
+            raise PermissionError("read only")
+        with self.repo.connection(scope) as c:
+            row = c.execute(
+                "UPDATE fw_runs SET state='queued',human_input=%s,question=NULL WHERE id=%s AND state='waiting_input' RETURNING id",
+                (Jsonb(human_input), run_id),
+            ).fetchone()
+            if not row:
+                raise ValueError("실행이 담당자 검토 대기 상태가 아닙니다")
+            c.execute("INSERT INTO fw_dispatch(tenant_id,run_id) VALUES(%s,%s) ON CONFLICT DO NOTHING", (scope.tenant_id, run_id))
+            self._event(c, scope, run_id, "resumed_by_human", {"reviewer": human_input.get("reviewer"), "decisions": len(human_input.get("decisions") or {})})
+        return self.get(scope, run_id)
 
     def release_crashed(self, scope, run_id, token=None):
         with self.repo.connection(scope) as c:

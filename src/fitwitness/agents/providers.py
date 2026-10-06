@@ -7,6 +7,10 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from fitwitness.agents.tools import SearchPlan
 
 
+class TransientProviderError(RuntimeError):
+    """The provider failed in a way worth retrying later (429, 5xx, timeout, connection)."""
+
+
 class ModelClient:
     def __init__(self, provider, model_id, budget):
         self.provider = provider
@@ -73,8 +77,10 @@ class ModelClient:
                 code = getattr(exc, "status_code", None)
                 transient = code in (408, 429, 500, 502, 503, 504, 529) or type(exc).__name__ in ("APITimeoutError", "APIConnectionError")
                 self.emit("model_error", {"role": role, "attempt": attempt, "error_type": type(exc).__name__, "status_code": code, "retryable": transient})
-                if not transient or attempt == 2:
+                if not transient:
                     raise
+                if attempt == 2:
+                    raise TransientProviderError(f"{type(exc).__name__}: {exc}") from exc
                 self.emit("retry_wait", {"role": role, "attempt": attempt, "delay_seconds": 1})
                 self.wait(1)
         latency_ms = (time.monotonic() - started) * 1000

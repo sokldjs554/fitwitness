@@ -11,7 +11,7 @@ from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request, R
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-from fitwitness.contracts import TenantScope, RunRequest, DrawingRevision, SearchRequest
+from fitwitness.contracts import TenantScope, RunRequest, DrawingRevision, SearchRequest, ReviewInput
 from fitwitness.storage.repository import Repository
 from fitwitness.runtime.jobs import Jobs
 from fitwitness.ingest.pdf import extract_pdf
@@ -286,6 +286,24 @@ def create_app():
         if not r:
             raise HTTPException(404, "실행을 찾을 수 없습니다")
         return r
+
+    @app.post("/api/runs/{run_id}/resume")
+    def resume(
+        run_id: str,
+        body: ReviewInput,
+        background: BackgroundTasks,
+        s: TenantScope = Depends(scope),
+    ):
+        """A reviewer answers a run parked in waiting_input; the worker resumes the graph with it."""
+        if not jobs.get(s, run_id):
+            raise HTTPException(404, "실행을 찾을 수 없습니다")
+        try:
+            view = jobs.resume(s, run_id, body.model_dump(mode="json"))
+        except ValueError as exc:
+            raise HTTPException(409, str(exc))
+        if not app.state.dispatcher:
+            background.add_task(supervise, s, view.id, False)
+        return view
 
     @app.post("/api/runs/{run_id}/cancel")
     def cancel(run_id: str, s: TenantScope = Depends(scope)):

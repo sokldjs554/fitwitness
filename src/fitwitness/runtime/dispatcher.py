@@ -46,6 +46,8 @@ class Dispatcher:
                             timezone.utc
                         ):
                             continue
+                        if raw.get("next_attempt_at") and raw["next_attempt_at"] > datetime.now(timezone.utc):
+                            continue  # backing off; the retry is not due yet
                         active[(tenant, run_id)] = pool.submit(
                             self.supervise,
                             scope,

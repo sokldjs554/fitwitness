@@ -137,6 +137,16 @@ class Decision(Strict):
     evidence: list[Evidence]
     snapshot_id: str
     stale: bool = False
+    reviewed_by: str | None = None
+    review_note: str | None = None
+
+
+class ReviewInput(Strict):
+    """A reviewer's answer to a run that stopped on unknown verdicts."""
+
+    decisions: dict[str, Verdict] = Field(default_factory=dict, max_length=50)
+    reviewer: str = Field(min_length=1, max_length=100)
+    note: str = Field(default="", max_length=500)
 
 
 class SearchRequest(Strict):
@@ -179,6 +189,8 @@ class RunRequest(Strict):
     provider: Literal["openai", "anthropic", "rules"] = "rules"
     model_id: str = ""
     budget: Budget = Field(default_factory=Budget)
+    # "on_unknown": stop and wait for a reviewer when a required verdict stays unknown.
+    review: Literal["none", "on_unknown"] = "none"
 
 
 class RunView(Strict):
@@ -201,6 +213,8 @@ class RunView(Strict):
     snapshot_id: str
     provider: str
     model_id: str
+    attempts: int = 0
+    next_attempt_at: str | None = None
 
 
 class RunEvent(Strict):
