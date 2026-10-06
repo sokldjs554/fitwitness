@@ -142,7 +142,7 @@ class Decision(Strict):
 
 
 class ReviewInput(Strict):
-    """A reviewer's answer to a run that stopped on unknown verdicts."""
+    """A reviewer's answer to a drawing run that stopped on unknown verdicts (claims use claims.models.ClaimReview)."""
 
     decisions: dict[str, Verdict] = Field(default_factory=dict, max_length=50)
     reviewer: str = Field(min_length=1, max_length=100)
@@ -184,7 +184,10 @@ class Usage(Strict):
 
 class RunRequest(Strict):
     demo_fault: bool = False
-    search: SearchRequest
+    # "drawing": search + verify drawings (default). "claim": adjudicate an insurance claim.
+    kind: Literal["drawing", "claim"] = "drawing"
+    search: SearchRequest = Field(default_factory=SearchRequest)
+    claim: dict | None = None  # a claims.models.ClaimRequest, validated by the claim runner
     mode: Literal["fixed", "react", "fitwitness"] = "fitwitness"
     provider: Literal["openai", "anthropic", "rules"] = "rules"
     model_id: str = ""
@@ -205,7 +208,9 @@ class RunView(Strict):
         "cancelled",
         "stale",
     ]
+    kind: Literal["drawing", "claim"] = "drawing"
     decisions: list[Decision] = Field(default_factory=list)
+    claim: dict | None = None  # a claims.models.ClaimOutcome for kind == "claim"
     question: str | None = None
     usage: Usage = Field(default_factory=Usage)
     error: str | None = None

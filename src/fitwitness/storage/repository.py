@@ -49,7 +49,27 @@ class Repository:
                 "CREATE TABLE IF NOT EXISTS fw_saved_tools (tenant_id text NOT NULL, name text NOT NULL, definition jsonb NOT NULL, "
                 "created_by_run text, created_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY(tenant_id,name))"
             )
-            for name in ["fw_revisions", "fw_assets", "fw_facts", "fw_vectors", "fw_saved_tools"]:
+            c.execute(
+                "CREATE TABLE IF NOT EXISTS fw_claim_cases (tenant_id text NOT NULL, case_id text NOT NULL, data jsonb NOT NULL, "
+                "created_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY(tenant_id,case_id))"
+            )
+            c.execute(
+                "CREATE TABLE IF NOT EXISTS fw_claim_docs (tenant_id text NOT NULL, id text NOT NULL, case_id text NOT NULL, kind text NOT NULL, "
+                "issued_at text NOT NULL, pdf bytea NOT NULL, png bytea, PRIMARY KEY(tenant_id,id))"
+            )
+            # The payout ledger: one row per claim, one row per dedupe key. The unique keys are what
+            # makes paying idempotent: a node re-run after a crash cannot insert a second time.
+            c.execute(
+                "CREATE TABLE IF NOT EXISTS fw_payouts (tenant_id text NOT NULL, claim_id text NOT NULL, policy_id text NOT NULL, "
+                "amount bigint NOT NULL, line_items jsonb NOT NULL, run_id text, paid_at timestamptz NOT NULL DEFAULT now(), "
+                "PRIMARY KEY(tenant_id,claim_id))"
+            )
+            c.execute(
+                "CREATE TABLE IF NOT EXISTS fw_payout_keys (tenant_id text NOT NULL, dedupe_key text NOT NULL, claim_id text NOT NULL, "
+                "policy_id text NOT NULL, PRIMARY KEY(tenant_id,dedupe_key))"
+            )
+            for name in ["fw_revisions", "fw_assets", "fw_facts", "fw_vectors", "fw_saved_tools",
+                         "fw_claim_cases", "fw_claim_docs", "fw_payouts", "fw_payout_keys"]:
                 c.execute(f"ALTER TABLE {name} ENABLE ROW LEVEL SECURITY")
                 c.execute(f"ALTER TABLE {name} FORCE ROW LEVEL SECURITY")
                 if not c.execute(
@@ -204,6 +224,79 @@ class Repository:
         with self.connection(scope) as c:
             row = c.execute("SELECT definition FROM fw_saved_tools WHERE name=%s", (name,)).fetchone()
         return row["definition"] if row else None
+
+    # -- claims: cases, documents, ledger ------------------------------------------------
+    def save_claim_case(self, scope, case: dict) -> None:
+        with self.connection(scope) as c:
+            c.execute(
+                "INSERT INTO fw_claim_cases (tenant_id,case_id,data) VALUES (%s,%s,%s) ON CONFLICT(tenant_id,case_id) DO UPDATE SET data=excluded.data",
+                (scope.tenant_id, case["case_id"], Jsonb(case)),
+            )
+
+    def claim_cases(self, scope) -> list[dict]:
+        with self.connection(scope) as c:
+            rows = c.execute("SELECT data FROM fw_claim_cases ORDER BY case_id").fetchall()
+        return [r["data"] for r in rows]
+
+    def claim_case(self, scope, case_id) -> dict | None:
+        with self.connection(scope) as c:
+            row = c.execute("SELECT data FROM fw_claim_cases WHERE case_id=%s", (case_id,)).fetchone()
+        return row["data"] if row else None
+
+    def save_claim_doc(self, scope, doc: dict, pdf: bytes, png: bytes | None) -> None:
+        with self.connection(scope) as c:
+            c.execute(
+                "INSERT INTO fw_claim_docs (tenant_id,id,case_id,kind,issued_at,pdf,png) VALUES (%s,%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING",
+                (scope.tenant_id, doc["id"], doc["case_id"], doc["kind"], doc["issued_at"], pdf, png),
+            )
+
+    def claim_doc(self, scope, doc_id):
+        """(meta dict, pdf bytes, png bytes) or None."""
+        with self.connection(scope) as c:
+            row = c.execute("SELECT id,case_id,kind,issued_at,pdf,png FROM fw_claim_docs WHERE id=%s", (doc_id,)).fetchone()
+        if not row:
+            return None
+        meta = {k: row[k] for k in ("id", "case_id", "kind", "issued_at")}
+        return meta, bytes(row["pdf"]), (bytes(row["png"]) if row["png"] is not None else None)
+
+    def pay(self, scope, claim_id, policy_id, amount, dedupe_keys, line_items, run_id=None) -> dict:
+        """Record a payout once. Returns status 'paid' the first time and 'already_paid' afterwards."""
+        with self.connection(scope) as c:
+            self.lock(c, scope.tenant_id)
+            inserted = c.execute(
+                "INSERT INTO fw_payouts (tenant_id,claim_id,policy_id,amount,line_items,run_id) VALUES (%s,%s,%s,%s,%s,%s) "
+                "ON CONFLICT (tenant_id,claim_id) DO NOTHING RETURNING claim_id",
+                (scope.tenant_id, claim_id, policy_id, amount, Jsonb(line_items), run_id),
+            ).fetchone()
+            if inserted:
+                for key in dedupe_keys:
+                    c.execute(
+                        "INSERT INTO fw_payout_keys (tenant_id,dedupe_key,claim_id,policy_id) VALUES (%s,%s,%s,%s) ON CONFLICT DO NOTHING",
+                        (scope.tenant_id, key, claim_id, policy_id),
+                    )
+            row = c.execute("SELECT amount,paid_at,run_id FROM fw_payouts WHERE claim_id=%s", (claim_id,)).fetchone()
+        return {"status": "paid" if inserted else "already_paid", "claim_id": claim_id, "amount": int(row["amount"]),
+                "paid_at": row["paid_at"].isoformat(), "run_id": row["run_id"]}
+
+    def paid_keys(self, scope, policy_id) -> set[str]:
+        with self.connection(scope) as c:
+            rows = c.execute("SELECT dedupe_key FROM fw_payout_keys WHERE policy_id=%s", (policy_id,)).fetchall()
+        return {r["dedupe_key"] for r in rows}
+
+    def seed_paid_keys(self, scope, policy_id, keys, claim_id="PRIOR") -> None:
+        """Pretend earlier claims were paid (the duplicate scenario of the synthetic data)."""
+        with self.connection(scope) as c:
+            for key in keys:
+                c.execute(
+                    "INSERT INTO fw_payout_keys (tenant_id,dedupe_key,claim_id,policy_id) VALUES (%s,%s,%s,%s) ON CONFLICT DO NOTHING",
+                    (scope.tenant_id, key, claim_id, policy_id),
+                )
+
+    def payouts(self, scope) -> list[dict]:
+        with self.connection(scope) as c:
+            rows = c.execute("SELECT claim_id,policy_id,amount,line_items,run_id,paid_at FROM fw_payouts ORDER BY paid_at DESC").fetchall()
+        return [{**{k: r[k] for k in ("claim_id", "policy_id", "line_items", "run_id")}, "amount": int(r["amount"]),
+                 "paid_at": r["paid_at"].isoformat()} for r in rows]
 
     def load_facts_many(self, scope, revision_ids):
         result = {rid: [] for rid in revision_ids}

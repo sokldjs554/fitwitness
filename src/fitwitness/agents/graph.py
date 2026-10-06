@@ -94,6 +94,10 @@ def _execute_run(
     if not token:
         return
     request = RunRequest.model_validate(raw["request"])
+    if request.kind == "claim":
+        from fitwitness.claims.graph import execute_claim
+
+        return execute_claim(repo, scope, run_id, raw=raw, token=token, jobs=jobs, request=request)
     snapshot = repo.snapshot(scope)
     budget = BudgetTracker(request.budget)
     budget.usage = Usage.model_validate(raw["usage"])

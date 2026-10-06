@@ -117,6 +117,10 @@ class Jobs:
                 )
         return self.get(scope, run_id)
 
+    def list_runs(self, scope, limit=200):
+        with self.repo.connection(scope) as c:
+            return c.execute("SELECT id,state,request,created_at FROM fw_runs ORDER BY created_at DESC LIMIT %s", (limit,)).fetchall()
+
     def raw(self, scope, run_id):
         with self.repo.connection(scope) as c:
             return c.execute("SELECT * FROM fw_runs WHERE id=%s", (run_id,)).fetchone()
@@ -127,14 +131,18 @@ class Jobs:
             return None
         if (
             r["state"] == "completed"
+            and r["request"].get("kind") != "claim"
             and self.repo.snapshot(scope).id != r["snapshot_id"]
         ):
             self.invalidate(scope)
             r = self.raw(scope, run_id)
+        is_claim = r["request"].get("kind") == "claim"
         return RunView(
             id=r["id"],
             state=r["state"],
-            decisions=[Decision.model_validate(d) for d in r["result"]],
+            kind="claim" if is_claim else "drawing",
+            decisions=[] if is_claim else [Decision.model_validate(d) for d in r["result"]],
+            claim=(r["result"] if is_claim and isinstance(r["result"], dict) else None),
             usage=Usage.model_validate(r["usage"]),
             error=r["error"],
             input_hash=r["input_hash"],
@@ -297,6 +305,22 @@ class Jobs:
             c.execute("DELETE FROM fw_dispatch WHERE run_id=%s", (run_id,))
             self._event(c, scope, run_id, "dead_lettered" if retryable else "failed", {"error": error[:500], "attempts": attempt})
 
+    def finalize_result(self, scope, run_id, result: dict, lease_token, usage=None):
+        """Complete a run whose result is one object (a claim outcome) rather than drawing decisions."""
+        with self.repo.connection(scope) as c:
+            r = c.execute("SELECT * FROM fw_runs WHERE id=%s FOR UPDATE", (run_id,)).fetchone()
+            if not r or r["state"] != "running" or r["lease_token"] != lease_token:
+                return False
+            if not c.execute("SELECT %s>now() AS active", (r["lease_until"],)).fetchone()["active"]:
+                return False
+            c.execute(
+                "UPDATE fw_runs SET state='completed',result=%s,lease_token=NULL,usage=COALESCE(%s,usage) WHERE id=%s",
+                (Jsonb(result), Jsonb(usage.model_dump(mode="json")) if usage else None, run_id),
+            )
+            c.execute("DELETE FROM fw_dispatch WHERE run_id=%s", (run_id,))
+            self._event(c, scope, run_id, "completed", {"outcome": result.get("decision", {}).get("outcome")})
+            return True
+
     def make_due(self, scope, run_id):
         """Operator action: run a backed-off retry now."""
         with self.repo.connection(scope) as c:
@@ -324,6 +348,19 @@ class Jobs:
         """Store the reviewer's answer and queue the run again; the worker resumes the graph with it."""
         if scope.role == "viewer":
             raise PermissionError("read only")
+        current = self.raw(scope, run_id)
+        if not current or current["state"] != "waiting_input":
+            raise ValueError("실행이 담당자 검토 대기 상태가 아닙니다")
+        # Validate the answer against the shape this kind of run resumes with, before it is stored:
+        # a malformed answer must fail here, not inside the worker.
+        if current["request"].get("kind") == "claim":
+            from fitwitness.claims.models import ClaimReview
+
+            human_input = ClaimReview.model_validate(human_input).model_dump(mode="json")
+        else:
+            from fitwitness.contracts import ReviewInput
+
+            human_input = ReviewInput.model_validate(human_input).model_dump(mode="json")
         with self.repo.connection(scope) as c:
             row = c.execute(
                 "UPDATE fw_runs SET state='queued',human_input=%s,question=NULL,lease_until=NULL WHERE id=%s AND state='waiting_input' RETURNING id",
@@ -332,7 +369,8 @@ class Jobs:
             if not row:
                 raise ValueError("실행이 담당자 검토 대기 상태가 아닙니다")
             c.execute("INSERT INTO fw_dispatch(tenant_id,run_id) VALUES(%s,%s) ON CONFLICT DO NOTHING", (scope.tenant_id, run_id))
-            self._event(c, scope, run_id, "resumed_by_human", {"reviewer": human_input.get("reviewer"), "decisions": len(human_input.get("decisions") or {})})
+            self._event(c, scope, run_id, "resumed_by_human", {"reviewer": human_input.get("reviewer"),
+                        "decisions": len(human_input.get("decisions") or {}), "outcome": human_input.get("outcome")})
         return self.get(scope, run_id)
 
     def release_crashed(self, scope, run_id, token=None):
@@ -356,7 +394,7 @@ class Jobs:
             self.repo.lock(c, scope.tenant_id)
             snap = self.repo.snapshot_in(c, scope)
             rs = c.execute(
-                "UPDATE fw_runs SET state='stale' WHERE state='completed' AND snapshot_id<>%s RETURNING id",
+                "UPDATE fw_runs SET state='stale' WHERE state='completed' AND snapshot_id<>%s AND COALESCE(request->>'kind','drawing')<>'claim' RETURNING id",
                 (snap.id,),
             ).fetchall()
             for r in rs:

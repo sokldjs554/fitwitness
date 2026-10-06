@@ -66,6 +66,12 @@ class ModelClient:
         messages = [SystemMessage(content=prompt), HumanMessage(content=serialized)]
         return self._structured(SearchPlan,messages,prompt,serialized,role,bound)
 
+    def structured(self, schema, prompt: str, payload: str, role: str):
+        """Structured output for any role: the claim extractor uses it with a draft schema."""
+        bound = len((prompt + payload + json.dumps(schema.model_json_schema())).encode()) + 2048
+        messages = [SystemMessage(content=prompt), HumanMessage(content=payload)]
+        return self._structured(schema, messages, prompt, payload, role, bound)
+
     def _structured(self,schema,messages,prompt,serialized,role,bound):
         started = time.monotonic()
         # SDK retries are disabled. Every explicit attempt reserves cost durably.
