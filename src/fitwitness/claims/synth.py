@@ -80,7 +80,8 @@ def render_document(path: Path, title: str, rows: list[tuple[str, str]], issued:
 
     if FONT_NAME not in pdfmetrics.getRegisteredFontNames():
         pdfmetrics.registerFont(TTFont(FONT_NAME, str(FONT)))
-    _check_vocab(title, closing, hospital, doctor, doc_no, *(k + v for k, v in rows))
+    _check_vocab(title, closing, hospital, doctor, doc_no, "보험회사 제출용", "문서번호:", "발급일:", "발행기관:", "담당의:", "면허번호:",
+                 "연구용 합성 문서 · 실제 환자 정보가 아닙니다", *(k + v for k, v in rows))
     c = canvas.Canvas(str(path), pagesize=(595, 842), invariant=1)
     c.setTitle(title)
     c.setFont(FONT_NAME, 20)
