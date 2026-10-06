@@ -73,3 +73,18 @@ def test_review_resume_through_the_api(env):
     assert next(d for d in final["decisions"] if d["revision_id"] == rid)["verdict"] == "mismatch"
     again = client.post(f"/api/runs/{run['id']}/resume", json={"decisions": {}, "reviewer": "qa"})
     assert again.status_code == 409
+
+
+def test_parked_runs_do_not_keep_the_worker_lease(env):
+    """The dispatcher skips any run whose lease is still in the future, so parking must release it."""
+    from fitwitness.agents.graph import execute_run
+
+    r, j, s = env
+    run = j.enqueue(s, RunRequest(search=SearchRequest(text="브래킷 구멍 간격 40mm SUS304"), review="on_unknown"), "review-lease")
+    execute_run(r, s, run.id)
+    raw = j.raw(s, run.id)
+    assert raw["state"] == "waiting_input" and raw["lease_token"] is None and raw["lease_until"] is None
+    j.resume(s, run.id, {"decisions": {}, "reviewer": "qa", "note": ""})
+    raw = j.raw(s, run.id)
+    assert raw["state"] == "queued" and raw["lease_until"] is None
+    assert j.claim(s, run.id)  # immediately claimable, no lease to wait out

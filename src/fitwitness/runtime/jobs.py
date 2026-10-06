@@ -284,7 +284,7 @@ class Jobs:
             if retryable and attempt < max_attempts:
                 delay = backoff_seconds(attempt - 1)
                 c.execute(
-                    "UPDATE fw_runs SET state='retry_wait',attempts=%s,error=%s,lease_token=NULL,"
+                    "UPDATE fw_runs SET state='retry_wait',attempts=%s,error=%s,lease_token=NULL,lease_until=NULL,"
                     "next_attempt_at=now()+(%s * interval '1 second'),paused_since=now() WHERE id=%s",
                     (attempt, error[:500], delay, run_id),
                 )
@@ -303,10 +303,14 @@ class Jobs:
             c.execute("UPDATE fw_runs SET next_attempt_at=now() WHERE id=%s AND state='retry_wait'", (run_id,))
 
     def wait_input(self, scope, run_id, token, question, payload):
-        """Park a running job until a reviewer answers; it leaves the dispatch queue meanwhile."""
+        """Park a running job until a reviewer answers; it leaves the dispatch queue meanwhile.
+
+        The lease is released as well: the dispatcher skips any run whose lease is still in
+        the future, so a parked run that kept its expiry would wait out the full lease
+        before the reviewer's answer could be picked up."""
         with self.repo.connection(scope) as c:
             row = c.execute(
-                "UPDATE fw_runs SET state='waiting_input',question=%s,lease_token=NULL,paused_since=now() "
+                "UPDATE fw_runs SET state='waiting_input',question=%s,lease_token=NULL,lease_until=NULL,paused_since=now() "
                 "WHERE id=%s AND lease_token=%s AND state='running' RETURNING id",
                 (question[:500], run_id, token),
             ).fetchone()
@@ -322,7 +326,7 @@ class Jobs:
             raise PermissionError("read only")
         with self.repo.connection(scope) as c:
             row = c.execute(
-                "UPDATE fw_runs SET state='queued',human_input=%s,question=NULL WHERE id=%s AND state='waiting_input' RETURNING id",
+                "UPDATE fw_runs SET state='queued',human_input=%s,question=NULL,lease_until=NULL WHERE id=%s AND state='waiting_input' RETURNING id",
                 (Jsonb(human_input), run_id),
             ).fetchone()
             if not row:
