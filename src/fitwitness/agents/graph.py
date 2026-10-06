@@ -32,9 +32,28 @@ class State(TypedDict, total=False):
     stop: bool
 
 
+_CHECKPOINTER_READY: set[str] = set()
+
+
+def ensure_checkpointer(dsn: str) -> None:
+    """Create the LangGraph checkpoint tables once per process, outside any transaction.
+
+    ``PostgresSaver.setup()`` runs ``CREATE INDEX CONCURRENTLY`` on a fresh database. That
+    statement waits for every open transaction to finish, so calling it while this worker
+    already holds the per-run advisory-lock transaction deadlocks the worker against itself
+    (the first run on an un-migrated database never returned). Run it before taking the
+    fence; later calls are cheap no-ops."""
+    if dsn in _CHECKPOINTER_READY:
+        return
+    with PostgresSaver.from_conn_string(dsn) as cp:
+        cp.setup()
+    _CHECKPOINTER_READY.add(dsn)
+
+
 def execute_run(
     repo, scope, run_id, *, encoders=None, fault_after_retrieval=False, lease_token=None
 ):
+    ensure_checkpointer(repo.dsn)
     # A per-run DB session lock spans every model call and checkpoint write.
     # Another production worker cannot claim this run while the process is alive.
     with repo.connection(scope) as fence:
@@ -308,7 +327,6 @@ def _execute_run(
         else:
             builder.add_conditional_edges("inspect", route)
         with PostgresSaver.from_conn_string(repo.dsn) as cp:
-            cp.setup()
             graph = builder.compile(checkpointer=cp)
             config = {"configurable": {"thread_id": scope.tenant_id + ":" + run_id}}
             existing = graph.get_state(config)
