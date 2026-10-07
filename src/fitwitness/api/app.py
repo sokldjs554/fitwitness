@@ -342,10 +342,17 @@ def create_app():
         return view
 
     @app.get("/api/runs/{run_id}/trace")
-    def trace(run_id: str, s: TenantScope = Depends(scope)):
-        if not jobs.get(s, run_id):
+    def trace(run_id: str, format: Literal["tree", "otlp"] = "tree", s: TenantScope = Depends(scope)):
+        view = jobs.get(s, run_id)
+        if not view:
             raise HTTPException(404, "없음")
-        return build_trace(run_id, jobs.events(s, run_id))
+        tree = build_trace(run_id, jobs.events(s, run_id))
+        if format == "otlp":
+            # The same trace as an OTLP/HTTP JSON body: POST it to any collector's /v1/traces.
+            from fitwitness.runtime.otlp import trace_to_otlp
+
+            return trace_to_otlp(tree, kind=view.kind, state=view.state)
+        return tree
 
     @app.get("/api/claims/cases")
     def claim_cases(s: TenantScope = Depends(scope)):

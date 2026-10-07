@@ -10,7 +10,7 @@ requires-python = ">=3.12"
 license = "Apache-2.0"
 dependencies = ["pydantic>=2,<3", "fastapi", "uvicorn", "httpx", "sqlalchemy>=2", "psycopg[binary,pool]", "langgraph", "langgraph-checkpoint-postgres", "langchain-openai", "langchain-anthropic", "rank-bm25", "pgvector", "prometheus-client", "opentelemetry-sdk", "python-multipart", "itsdangerous", "alembic", "pdfplumber", "pypdfium2", "reportlab", "pillow", "numpy", "cadquery"]
 [project.optional-dependencies]
-dev = ["pytest", "pgserver; python_version < '3.13'"]
+dev = ["pytest", "pgserver; python_version < '3.13'", "opentelemetry-proto"]
 models = ["sentence-transformers", "open-clip-torch"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]

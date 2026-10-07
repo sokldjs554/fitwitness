@@ -51,13 +51,16 @@ def main():
 
 
 def run_job(repo, tenant, run_id, token, fault):
-    execute_run(
-        repo,
-        TenantScope(tenant_id=tenant, user_id="worker", role="operator"),
-        run_id,
-        fault_after_retrieval=fault,
-        lease_token=token,
-    )
+    scope = TenantScope(tenant_id=tenant, user_id="worker", role="operator")
+    try:
+        execute_run(repo, scope, run_id, fault_after_retrieval=fault, lease_token=token)
+    finally:
+        # A run that raised is exactly the one worth seeing in a trace viewer.
+        if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"):
+            from fitwitness.runtime.jobs import Jobs
+            from fitwitness.runtime.otlp import export_run
+
+            export_run(Jobs(repo), scope, run_id)
 
 
 if __name__ == "__main__":

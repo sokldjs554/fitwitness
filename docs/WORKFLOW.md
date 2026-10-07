@@ -78,7 +78,7 @@
 ## 관측
 
 - `GET /metrics`(토큰 필요)는 프로세스 내 HTTP 지표에 더해 **DB에서 계산한** 지표를 붙입니다: `fitwitness_runs_total{state}`, `fitwitness_cost_usd_total`, `fitwitness_tokens_total{kind}`, `fitwitness_model_calls_total`, `fitwitness_tool_calls_total{tool}`, 이벤트별 카운터(`retry_scheduled`, `dead_lettered`, `waiting_input`, `resumed_by_human` …), 히스토그램 `fitwitness_model_latency_ms{role}`, `fitwitness_tool_latency_ms{tool}`. worker 프로세스가 여럿이어도 한 곳에서 맞는 값을 냅니다. DB가 내려가면 HTTP 지표만 내려가고 주석으로 사유를 남깁니다.
-- `GET /api/runs/{id}/trace`는 이벤트 로그를 span tree로 바꿔 줍니다: 루트 `run`, planner/challenger 그룹, 도구·모델 span과 각 duration. 외부 tracing backend 없이 한 실행을 디버깅하는 용도이며, OpenTelemetry exporter는 아직 없습니다.
+- `GET /api/runs/{id}/trace`는 이벤트 로그를 span tree로 바꿔 줍니다: 루트 `run`, planner/challenger 그룹, 도구·모델 span과 각 duration. 외부 tracing backend 없이 한 실행을 디버깅하는 용도입니다. 같은 trace는 `?format=otlp`로 OTLP/HTTP 본문으로 받거나, `OTEL_EXPORTER_OTLP_ENDPOINT`를 주면 worker가 실행이 끝날 때 Jaeger·Tempo 같은 백엔드로 보냅니다([OBSERVABILITY.md](OBSERVABILITY.md)).
 
 ## 에이전트가 정의하는 저장 검색 도구
 

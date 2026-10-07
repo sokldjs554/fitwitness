@@ -48,4 +48,4 @@ def build_trace(run_id: str, events: list[dict]) -> dict:
     totals = {"model_ms": sum(s["duration_ms"] for r in root["children"] for s in r.get("children", []) + [r] if s["kind"] == "model"),
               "tool_ms": sum(s["duration_ms"] for r in root["children"] for s in r.get("children", []) + [r] if s["kind"] == "tool"),
               "events": len(events)}
-    return {"run_id": run_id, "duration_ms": root["duration_ms"], "totals": totals, "spans": [root]}
+    return {"run_id": run_id, "started_at_unix": start, "duration_ms": root["duration_ms"], "totals": totals, "spans": [root]}

@@ -1,0 +1,16 @@
+# Local trace viewer for fitwitness runs. Not part of the hosted demo.
+#
+#   docker compose -f deploy/observability/docker-compose.yml up -d
+#   OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318 uv run uvicorn fitwitness.api.app:create_app --factory
+#
+# then run something in the app and open http://localhost:16686 (service "fitwitness").
+# Any OTLP/HTTP receiver works the same way (Grafana Tempo, an OpenTelemetry Collector,
+# Honeycomb, ...): point OTEL_EXPORTER_OTLP_ENDPOINT, and OTEL_EXPORTER_OTLP_HEADERS if it needs a key.
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.76.0
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686"   # UI
+      - "4318:4318"     # OTLP over HTTP
