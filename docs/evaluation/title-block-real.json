@@ -1,0 +1,249 @@
+{
+  "summary": {
+    "drawings": 12,
+    "correct": {
+      "drawing_number": 10,
+      "material": 4,
+      "scale": 1
+    },
+    "expected": {
+      "drawing_number": 12,
+      "material": 8,
+      "scale": 9
+    },
+    "wrong_values_reported": 0,
+    "readings_where_the_block_has_no_such_cell": 0,
+    "seconds_median": 10.7,
+    "languages": "chi_sim+kor+eng"
+  },
+  "rows": [
+    {
+      "image": "1e88825c",
+      "seconds": 17.5,
+      "drawing_number": {
+        "expected": "WLJSQ475-00",
+        "read": "WLJSQ475-00",
+        "confidence": 0.91
+      },
+      "material": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "237c2ddf",
+      "seconds": 10.5,
+      "drawing_number": {
+        "expected": "DJZ-02",
+        "read": "DJZ-02",
+        "confidence": 0.92
+      },
+      "material": {
+        "expected": "HT200",
+        "read": "HT200",
+        "confidence": 0.93
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "2e5727a5",
+      "seconds": 12.3,
+      "drawing_number": {
+        "expected": "QF02-10",
+        "read": "QF02-10",
+        "confidence": 0.9
+      },
+      "material": {
+        "expected": "橡胶",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "2:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "3a4e151d",
+      "seconds": 12.0,
+      "drawing_number": {
+        "expected": "ZPT19",
+        "read": "ZPT19",
+        "confidence": 0.84
+      },
+      "material": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "3d4cebd4",
+      "seconds": 9.4,
+      "drawing_number": {
+        "expected": "PXZSB-03",
+        "read": "PXZSB-03",
+        "confidence": 0.92
+      },
+      "material": {
+        "expected": "40Cr",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "499c7e65",
+      "seconds": 12.5,
+      "drawing_number": {
+        "expected": "QF-08",
+        "read": "QF-08",
+        "confidence": 0.92
+      },
+      "material": {
+        "expected": "65Mn",
+        "read": "65Mn",
+        "confidence": 0.92
+      },
+      "scale": {
+        "expected": "10:1",
+        "read": "10:1",
+        "confidence": 0.87
+      }
+    },
+    {
+      "image": "5cf2fc80",
+      "seconds": 9.5,
+      "drawing_number": {
+        "expected": "ZPT04",
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "5ea4417d",
+      "seconds": 8.3,
+      "drawing_number": {
+        "expected": "CLYB-02",
+        "read": "CLYB-02",
+        "confidence": 0.92
+      },
+      "material": {
+        "expected": "ZL107",
+        "read": "ZL107",
+        "confidence": 0.75
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "6deebccb",
+      "seconds": 9.3,
+      "drawing_number": {
+        "expected": "ZD10-012",
+        "read": "ZD10-012",
+        "confidence": 0.91
+      },
+      "material": {
+        "expected": "HT200",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "86f2dc41",
+      "seconds": 9.5,
+      "drawing_number": {
+        "expected": "QF-01",
+        "read": "QF-01",
+        "confidence": 0.93
+      },
+      "material": {
+        "expected": "HT200",
+        "read": "HT200",
+        "confidence": 0.93
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "d3597cc7",
+      "seconds": 11.7,
+      "drawing_number": {
+        "expected": "ZPT18",
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "d40ad503",
+      "seconds": 10.7,
+      "drawing_number": {
+        "expected": "QF02-02",
+        "read": "QF02-02",
+        "confidence": 0.92
+      },
+      "material": {
+        "expected": "LY12",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    }
+  ]
+}

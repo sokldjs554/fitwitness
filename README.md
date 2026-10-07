@@ -20,6 +20,7 @@
 | 외부 NIST STEP 11쌍 CAD 거리 검색 | Top-1 11/11, MRR 1.000 | [CAD.md](docs/CAD.md) |
 | 보험 청구 자동 심사, 합성 120건 (API 없음) | 잘못 지급 0건, 결정 정확도 92.5%, 자동 처리 88.5% | [CLAIMS.md](docs/CLAIMS.md) |
 | 같은 서류를 스캔처럼 열화시켜 OCR로 읽기 (4단계 × 2분할, 480건) | 잘못 지급 0건, 잘못 부지급 0건, 필드 정확도 90.6~95.8%, 자동 처리 67.9~91.7% | [CLAIMS.md](docs/CLAIMS.md#스캔-문서-읽기-ocr) |
+| 실제 기계 도면 12장(이미지)의 표제란 OCR | 도번 10/12, 재질 4/8, 보고한 15건 모두 정답, 읽은 값은 "확인 필요"로만 사용 | [TITLE-BLOCK.md](docs/TITLE-BLOCK.md) |
 | VLM 이미지 18회 | 15회 구조화 완료, 23/36 필드 정답 | [VISION.md](docs/VISION.md) |
 | 누적 API 비용 | $0.255248, 미확정 예약 0 | [EVIDENCE.md](docs/EVIDENCE.md) |
 | 현재 브랜치 자동 검증 | Python 183개, Playwright 58개, API 없는 평가 게이트 통과 | [CI](.github/workflows/ci.yml) |

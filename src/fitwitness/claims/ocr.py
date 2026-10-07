@@ -68,7 +68,7 @@ def render(pdf: bytes, page_index: int, dpi: int = DPI):
     return page.render(scale=dpi / 72).to_pil().convert("L")
 
 
-def recognise(image, *, lang: str | None = None, timeout: float = 60.0) -> list[Token]:
+def recognise(image, *, lang: str | None = None, timeout: float = 60.0, psm: int = 6) -> list[Token]:
     exe = binary()
     if exe is None:
         return []
@@ -79,7 +79,7 @@ def recognise(image, *, lang: str | None = None, timeout: float = 60.0) -> list[
         # evaluation runs four) starve each other until they time out.
         env = {**os.environ, "OMP_THREAD_LIMIT": os.getenv("FITWITNESS_OCR_THREADS", "1")}
         try:
-            out = subprocess.run([exe, str(path), "-", "-l", lang or os.getenv("FITWITNESS_OCR_LANG", "kor+eng"), "--psm", "6", "tsv"],
+            out = subprocess.run([exe, str(path), "-", "-l", lang or os.getenv("FITWITNESS_OCR_LANG", "kor+eng"), "--psm", str(psm), "tsv"],
                                  capture_output=True, text=True, timeout=timeout, env=env).stdout
         except subprocess.TimeoutExpired:
             return []  # a page that cannot be read is a page with nothing on it: the claim goes to a person
