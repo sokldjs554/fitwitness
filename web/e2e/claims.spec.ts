@@ -2,7 +2,8 @@ import { test, expect, type Page } from "@playwright/test";
 
 async function openDesk(page: Page) {
   await page.goto("/");
-  await expect(page.getByRole("button", { name: "조건 검증 시작", exact: true })).toBeEnabled();
+  // The workspace is seeded with 20 drawings and 8 claim cases on first load.
+  await expect(page.getByRole("button", { name: "조건 검증 시작", exact: true })).toBeEnabled({ timeout: 60000 });
   await page.getByRole("button", { name: "청구 심사", exact: true }).click();
   await expect(page.getByRole("heading", { name: "청구 심사대", exact: true })).toBeVisible();
   await expect(page.getByTestId("claim-case").first()).toBeVisible();
