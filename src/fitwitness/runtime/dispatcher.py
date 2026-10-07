@@ -61,7 +61,8 @@ class Dispatcher:
                             self.supervise,
                             scope,
                             run_id,
-                            raw["request"].get("demo_fault", False),
+                            # Once the deliberate crash happened the recovery runs normally.
+                            bool(raw["request"].get("demo_fault", False)) and not raw.get("fault_consumed"),
                         )
                 except Exception:
                     logging.getLogger(__name__).exception("dispatcher cycle failed")

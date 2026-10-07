@@ -40,7 +40,9 @@
 
 실행은 별도 프로세스에서 돕니다(중단·강제 종료 데모와 서버 보호를 위해). 예전에는 실행마다 새 Python 프로세스를 띄웠고, 인터프리터 기동과 LangGraph·LangChain·psycopg import에 로컬 약 1초, 공유 CPU인 무료 서버에서는 10초 넘게 걸린 뒤에야 일이 시작됐습니다.
 
-이제 서버는 기동 시 `FITWITNESS_WARM_WORKERS`(기본 1)개의 worker를 미리 띄워 import와 checkpointer 스키마 확인까지 마친 채 stdin에서 기다리게 합니다(`fitwitness.runtime.pool.WarmWorkers`, worker의 `--pool` 모드). 실행이 들어오면 JSON 한 줄로 작업을 건네고, worker는 그 작업 하나만 처리한 뒤 종료하므로 종료 코드 의미(0, 데모용 86, 그 외 실패)는 그대로입니다. worker를 하나 쓰면 즉시 다음 worker가 뒤에서 데워집니다. 또 API가 실행을 큐에 넣으면 dispatcher를 바로 깨워 최대 1초의 폴링 대기도 없앱니다.
+이제 서버는 기동 시 `FITWITNESS_WARM_WORKERS`(기본 1)개의 worker를 미리 띄워 import, 연결 풀, checkpointer 스키마 확인까지 마친 채 stdin에서 기다리게 합니다(`fitwitness.runtime.pool.WarmWorkers`, worker의 `--pool` 모드). 실행이 들어오면 JSON 한 줄로 작업을 건네고, worker는 실행이 정상적으로 끝나면 전용 파이프로 `{"done": true}` 한 줄만 돌려준 뒤 살아 있는 채로 다음 작업을 기다립니다. 실행이 예외로 끝나거나 데모용 강제 종료(86)를 만나거나 시간 초과로 죽으면 프로세스가 끝나고 종료 코드가 결과가 되며(0, 86, 그 외 실패 의미는 그대로), 그때 교체 worker가 뒤에서 데워집니다. 강제 종료가 예정된 작업은 실행 중에 미리 교체 worker를 데워 두어 복구가 기다리지 않게 합니다. 또 API가 실행을 큐에 넣으면 dispatcher를 바로 깨워 최대 1초의 폴링 대기도 없앱니다.
+
+처음에는 실행이 끝날 때마다 worker가 종료되고 교체를 새로 띄웠습니다. 공개 서버(무료 CPU)에서 첫 실행은 빨랐지만, 바로 이어서 누른 두 번째 실행은 교체 worker가 아직 import 중이라 시작까지 17~21초를 기다렸습니다(실측). 교체를 띄우는 일이 다음 실행과 같은 CPU를 두고 경쟁하기도 했습니다. worker를 재사용하면 프로세스 기동 비용을 worker당 한 번만 냅니다.
 
 | 측정(로컬, rules provider, 도면 20개) | 이전 | 이후 |
 |---|---|---|
