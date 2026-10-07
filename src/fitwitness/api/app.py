@@ -141,14 +141,10 @@ def create_app():
 
     def load_entry(entry, s):
         r = revision_from(entry, s)
-        if repo.get_revision(s, r.id):
-            return r
         data = (CORPUS / entry["pdf"]).read_bytes()
         facts = extract_pdf(data, r)
-        repo.add_revision(s, r, data)
-        repo.save_facts(s, r.id, facts)
-        for k in ["png", "step", "mesh"]:
-            repo.put_asset(s, r.id, k, (CORPUS / entry[k]).read_bytes())
+        # One transaction per drawing instead of five separate connections.
+        repo.seed_revision(s, r, data, facts, {k: (CORPUS / entry[k]).read_bytes() for k in ["png", "step", "mesh"]})
         return r
 
     DEMO_FAMILIES = ("FW-F000", "FW-F001", "FW-F002", "FW-F003")  # bracket, flange, shaft, housing
@@ -169,15 +165,12 @@ def create_app():
         return picked
 
     def load_claim_case(case, s):
-        if repo.claim_case(s, case["case_id"]):
-            return
-        repo.save_claim_case(s, case)
+        folder = CLAIMS / case["case_id"]
+        documents = []
         for d in case["documents"]:
-            folder = CLAIMS / case["case_id"]
             png = folder / f"{d['id']}.png"
-            repo.save_claim_doc(s, d, (folder / f"{d['id']}.pdf").read_bytes(), png.read_bytes() if png.exists() else None)
-        if case.get("prior_paid_keys"):
-            repo.seed_paid_keys(s, case["policy"]["policy_id"], case["prior_paid_keys"])
+            documents.append((d, (folder / f"{d['id']}.pdf").read_bytes(), png.read_bytes() if png.exists() else None))
+        repo.seed_claim_case(s, case, documents, case.get("prior_paid_keys") or [])
 
     def demo_entries():
         manifest = json.loads((CORPUS / "manifest.json").read_text())["document_entries"]

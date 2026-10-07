@@ -22,11 +22,13 @@ def main():
     p.add_argument("--pool", action="store_true", help="wait for one JSON job on stdin instead of CLI arguments")
     args = p.parse_args()
     dsn = os.environ["FITWITNESS_DATABASE_URL"]
+    repo = Repository(dsn)
     if args.pool:
         try:
-            ensure_checkpointer(dsn)  # idle time is the right moment for the schema check
+            repo.warm()  # the pool's first connection and the checkpointer schema check
+            ensure_checkpointer(dsn)  # happen while idle, not on the run's clock
         except Exception:
-            pass  # the run repeats it and reports a real failure
+            pass  # the run repeats them and reports a real failure
         line = sys.stdin.readline()
         if not line.strip():
             return  # the pool is closing
@@ -37,7 +39,7 @@ def main():
             p.error("--tenant and --run are required without --pool")
         tenant, run_id, token, fault = args.tenant, args.run, args.token, args.fault
     execute_run(
-        Repository(dsn),
+        repo,
         TenantScope(tenant_id=tenant, user_id="worker", role="operator"),
         run_id,
         fault_after_retrieval=fault,

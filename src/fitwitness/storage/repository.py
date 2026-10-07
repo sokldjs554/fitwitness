@@ -5,10 +5,36 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from hashlib import sha256
 import json
+import os
+import threading
 from pathlib import Path
 import psycopg
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
+from psycopg_pool import ConnectionPool
+
+# One pool per DSN per process. Every request-scoped operation used to open its own TLS
+# connection; against a remote database that cost more than the query itself.
+_POOLS: dict[str, ConnectionPool] = {}
+_POOLS_LOCK = threading.Lock()
+
+
+def pool_for(dsn: str) -> ConnectionPool:
+    with _POOLS_LOCK:
+        pool = _POOLS.get(dsn)
+        if pool is None or pool.closed:
+            pool = ConnectionPool(
+                dsn,
+                min_size=1,
+                max_size=int(os.getenv("FITWITNESS_DB_POOL_MAX", "8")),
+                max_idle=120,
+                kwargs={"row_factory": dict_row},
+                check=ConnectionPool.check_connection,
+                open=True,
+                name=f"fitwitness-{len(_POOLS)}",
+            )
+            _POOLS[dsn] = pool
+        return pool
 from fitwitness.contracts import DrawingRevision, Fact, SearchSnapshot, TenantScope
 
 SCHEMA = """
@@ -83,11 +109,27 @@ class Repository:
                     f"GRANT SELECT,INSERT,UPDATE,DELETE ON {name} TO fitwitness_app"
                 )
 
+    def warm(self) -> None:
+        """Open the pool now (an idle worker does this before a job arrives)."""
+        pool_for(self.dsn)
+
     @contextmanager
     def connection(self, scope: TenantScope):
-        with psycopg.connect(self.dsn, row_factory=dict_row) as c:
-            c.execute("SET LOCAL ROLE fitwitness_app")
-            c.execute("SELECT set_config('app.tenant',%s,true)", (scope.tenant_id,))
+        """A pooled connection inside one transaction, as the non-bypass role, scoped to the tenant.
+
+        Both settings are transaction-local, so they vanish when the pool commits or rolls back
+        at exit; the next borrower starts from the owner role with no tenant."""
+        with pool_for(self.dsn).connection() as c:
+            c.execute(
+                "SELECT set_config('role','fitwitness_app',true), set_config('app.tenant',%s,true)",
+                (scope.tenant_id,),
+            )
+            yield c
+
+    @contextmanager
+    def plain(self):
+        """A pooled connection as the owner role, for tables without row-level security."""
+        with pool_for(self.dsn).connection() as c:
             yield c
 
     @staticmethod
@@ -134,6 +176,51 @@ class Repository:
                 (scope.tenant_id, revision.id, "pdf", payload),
             )
         return revision.id
+
+    def seed_revision(self, scope: TenantScope, revision: DrawingRevision, payload: bytes, facts: list[Fact],
+                      assets: dict[str, bytes]) -> bool:
+        """add_revision + save_facts + put_asset in one transaction (demo workspace seeding).
+
+        Returns False when the revision already exists. Same checks as the separate methods."""
+        if scope.role == "viewer" or revision.tenant_id != scope.tenant_id:
+            raise PermissionError("write scope mismatch")
+        if sha256(payload).hexdigest() != revision.source_hash:
+            raise ValueError("source hash mismatch")
+        for f in facts:
+            if f.source.revision_id != revision.id or f.source.source_hash != revision.source_hash:
+                raise ValueError("fact source mismatch")
+        with self.connection(scope) as c:
+            self.lock(c, scope.tenant_id)
+            if c.execute("SELECT 1 FROM fw_revisions WHERE id=%s", (revision.id,)).fetchone():
+                return False
+            if revision.supersedes:
+                parent = c.execute("SELECT document_id FROM fw_revisions WHERE id=%s", (revision.supersedes,)).fetchone()
+                if not parent or parent["document_id"] != revision.document_id:
+                    raise ValueError("supersedes must refer to an existing revision of this document")
+            c.execute("INSERT INTO fw_revisions VALUES (%s,%s,%s,%s,%s)",
+                      (scope.tenant_id, revision.id, revision.document_id, revision.supersedes, Jsonb(revision.model_dump(mode="json"))))
+            with c.cursor() as cur:
+                cur.executemany("INSERT INTO fw_assets VALUES (%s,%s,%s,%s) ON CONFLICT DO NOTHING",
+                                [(scope.tenant_id, revision.id, "pdf", payload)] + [(scope.tenant_id, revision.id, k, v) for k, v in assets.items()])
+                cur.executemany("INSERT INTO fw_facts VALUES (%s,%s,%s,%s)",
+                                [(scope.tenant_id, revision.id, f.id, Jsonb(f.model_dump(mode="json"))) for f in facts])
+        return True
+
+    def seed_claim_case(self, scope, case: dict, documents: list[tuple[dict, bytes, bytes | None]], prior_keys: list[str]) -> bool:
+        """Case row, its documents and any pre-paid ledger keys in one transaction."""
+        with self.connection(scope) as c:
+            if c.execute("SELECT 1 FROM fw_claim_cases WHERE case_id=%s", (case["case_id"],)).fetchone():
+                return False
+            c.execute("INSERT INTO fw_claim_cases (tenant_id,case_id,data) VALUES (%s,%s,%s)", (scope.tenant_id, case["case_id"], Jsonb(case)))
+            with c.cursor() as cur:
+                cur.executemany(
+                    "INSERT INTO fw_claim_docs (tenant_id,id,case_id,kind,issued_at,pdf,png) VALUES (%s,%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING",
+                    [(scope.tenant_id, d["id"], d["case_id"], d["kind"], d["issued_at"], pdf, png) for d, pdf, png in documents])
+                if prior_keys:
+                    cur.executemany(
+                        "INSERT INTO fw_payout_keys (tenant_id,dedupe_key,claim_id,policy_id) VALUES (%s,%s,%s,%s) ON CONFLICT DO NOTHING",
+                        [(scope.tenant_id, key, "PRIOR", case["policy"]["policy_id"]) for key in prior_keys])
+        return True
 
     def get_revision(self, scope, revision_id):
         with self.connection(scope) as c:

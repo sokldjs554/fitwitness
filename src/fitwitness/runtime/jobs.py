@@ -426,18 +426,19 @@ class Jobs:
                 raise RuntimeError("실행 소유권 만료")
 
     def pending(self, limit=100):
-        with psycopg.connect(self.repo.dsn) as c:
-            return c.execute(
+        with self.repo.plain() as c:
+            rows = c.execute(
                 "SELECT tenant_id,run_id FROM fw_dispatch ORDER BY created_at LIMIT %s",
                 (limit,),
             ).fetchall()
+        return [(r["tenant_id"], r["run_id"]) for r in rows]
 
     def drop_dispatch(self, scope, run_id):
         with self.repo.connection(scope) as c:
             c.execute("DELETE FROM fw_dispatch WHERE run_id=%s", (run_id,))
 
     def admit(self, bucket, limit):
-        with psycopg.connect(self.repo.dsn) as c:
+        with self.repo.plain() as c:
             row = c.execute(
                 "INSERT INTO fw_admission(bucket,used) VALUES(%s,1) ON CONFLICT(bucket) DO UPDATE SET used=fw_admission.used+1 WHERE fw_admission.used<%s RETURNING used",
                 (bucket, limit),
@@ -445,7 +446,7 @@ class Jobs:
             return row is not None
 
     def register_session(self, scope):
-        with psycopg.connect(self.repo.dsn) as c:
+        with self.repo.plain() as c:
             c.execute(
                 "CREATE TABLE IF NOT EXISTS fw_sessions (tenant_id text PRIMARY KEY,expires_at timestamptz NOT NULL)"
             )
@@ -457,14 +458,15 @@ class Jobs:
     def cleanup_sessions(self):
         from fitwitness.contracts import TenantScope
 
-        with psycopg.connect(self.repo.dsn) as c:
+        with self.repo.plain() as c:
             c.execute(
                 "CREATE TABLE IF NOT EXISTS fw_sessions (tenant_id text PRIMARY KEY,expires_at timestamptz NOT NULL)"
             )
             expired = c.execute(
                 "SELECT tenant_id FROM fw_sessions WHERE expires_at<now() LIMIT 20"
             ).fetchall()
-        for (tenant,) in expired:
+        for row in expired:
+            tenant = row["tenant_id"]
             s = TenantScope(tenant_id=tenant, user_id="retention")
             with self.repo.connection(s) as c:
                 self.repo.lock(c, tenant)
@@ -475,6 +477,11 @@ class Jobs:
                     "fw_vectors",
                     "fw_facts",
                     "fw_assets",
+                    "fw_claim_docs",
+                    "fw_claim_cases",
+                    "fw_payout_keys",
+                    "fw_payouts",
+                    "fw_saved_tools",
                 ):
                     c.execute(f"DELETE FROM {table} WHERE tenant_id=%s", (tenant,))
                 # Clear child revisions first to respect the revision DAG foreign key.
@@ -483,9 +490,9 @@ class Jobs:
                     (tenant,),
                 )
                 c.execute("DELETE FROM fw_revisions WHERE tenant_id=%s", (tenant,))
-            with psycopg.connect(self.repo.dsn) as c:
+            with self.repo.plain() as c:
                 for table in ("checkpoint_writes", "checkpoint_blobs", "checkpoints"):
-                    if c.execute("SELECT to_regclass(%s)", (table,)).fetchone()[0]:
+                    if c.execute("SELECT to_regclass(%s) AS t", (table,)).fetchone()["t"]:
                         c.execute(
                             f"DELETE FROM {table} WHERE thread_id LIKE %s",
                             (tenant + ":%",),
