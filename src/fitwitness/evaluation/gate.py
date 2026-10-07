@@ -11,6 +11,11 @@ block a regression before a paid experiment is ever scheduled. Four suites:
 * ``claims``          the insurance claim pipeline (extraction, rules, challenge) on the synthetic
                       claim corpus: decision accuracy, the wrong-pay rate (must be zero) and the
                       automation rate, plus a degraded control that must pay claims it should not
+* ``trajectory``      the road each run takes, not only where it ends: the real claim and drawing
+                      graphs are run through the job runtime and their event paths are compared with
+                      committed reference paths and checked against ordering, ledger and
+                      reviewer invariants (see ``evaluation/trajectory.py``); a degraded claim
+                      graph must be caught by it too
 
 The report is compared with a committed baseline using absolute floors and a maximum
 allowed drop; ``--write-baseline`` refreshes the baseline deliberately.
@@ -52,6 +57,11 @@ THRESHOLDS: dict[str, dict] = {
     "claims.field_accuracy": {"min": 0.90, "max_drop": 0.02},
     "claims.auto_rate": {"min": 0.60, "max_drop": 0.05},
     "control.claims_wrong_pay_gap": {"min": 0.05},
+    "trajectory.match_rate": {"equals": 1.0},
+    "trajectory.invariant_violations": {"equals": 0},
+    "trajectory.graph_wrong_pay": {"equals": 0},
+    "control.trajectory_gap": {"min": 0.05},
+    "control.trajectory_degraded_violations": {"min": 1},
 }
 
 
@@ -152,7 +162,8 @@ def run_claims(root: Path) -> dict:
     return {"normal": normal, "degraded": degraded}
 
 
-def run_gate(root: Path, output: Path, claims_root: Path | None = None) -> dict:
+def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajectories: Path | None = None,
+             adopt_trajectories: bool = False) -> dict:
     from fitwitness.data.bootstrap import seed
     from fitwitness.runtime.jobs import Jobs
     from fitwitness.storage.repository import Repository
@@ -171,6 +182,12 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None) -> dict:
     geometry = run_geometry(root, sorted(manifest["family_splits"]["test"]) + sorted(manifest["family_splits"]["dev"]))
     claims_root = claims_root or Path("var/claims")
     claims = run_claims(claims_root) if (claims_root / "manifest.json").exists() else None
+    trajectory = None
+    if claims:
+        from fitwitness.evaluation.trajectory import run_trajectories
+
+        trajectory = run_trajectories(repo, Jobs(repo), root, claims_root, trajectories, adopt=adopt_trajectories)
+        (output / "trajectories.observed.json").write_text(json.dumps(trajectory["observed"], ensure_ascii=False, indent=1))
     control = {
         "id_variant_gap": lexical["id_variant"]["recall_at_5"] - degraded["id_variant"]["recall_at_5"],
         "id_typo_gap": lexical["id_typo"]["recall_at_5"] - degraded["id_typo"]["recall_at_5"],
@@ -179,6 +196,10 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None) -> dict:
     if claims:
         control["claims_wrong_pay_gap"] = claims["degraded"]["summary"]["wrong_pay_rate"] - claims["normal"]["summary"]["wrong_pay_rate"]
         control["claims_degraded"] = claims["degraded"]["summary"]
+    if trajectory:
+        normal_rate, broken_rate = trajectory["normal"]["match_rate"], trajectory["degraded"]["match_rate"]
+        control["trajectory_gap"] = (normal_rate - broken_rate) if normal_rate is not None and broken_rate is not None else None
+        control["trajectory_degraded_violations"] = trajectory["degraded"]["invariant_violations"]
     report = {
         "version": GATE_VERSION, "code_sha": _git_sha(), "created_at": datetime.now(timezone.utc).isoformat(),
         "wall_s": round(time.perf_counter() - started, 2), "corpus_documents": len(repo.snapshot(scope).revision_ids),
@@ -187,11 +208,13 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None) -> dict:
         "geometry": {k: v for k, v in geometry.items() if k != "rows"},
         "control": control,
         "claims": claims["normal"]["summary"] if claims else None,
+        "trajectory": trajectory["normal"] if trajectory else None,
         "limitations": [
             "합성 도면 150개·고정 test split 6 family 기준의 회귀 게이트입니다. 산업 데이터 성능이 아닙니다.",
             "모델·API 호출이 없습니다. 의미·이미지 채널과 LLM Agent 품질은 별도 실측 workflow가 측정합니다.",
             "control 항목은 도번 정규화를 끈 열화 실행과의 차이이며, 벤치마크가 열화를 감지하는지 확인하는 용도입니다.",
             "claims 항목은 합성 청구 서류와 가상의 지급 기준표 기준입니다. 실제 약관·실제 서류의 성능이 아니며, 모델 추출 경로는 포함하지 않습니다.",
+            "trajectory 항목은 규칙 엔진과 고정 대본의 planner/challenger가 지나는 경로입니다. 실제 모델이 고르는 경로의 품질은 측정하지 않습니다.",
         ],
     }
     (output / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2))
@@ -235,9 +258,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--output", type=Path, default=Path("artifacts/gate"))
     p.add_argument("--baseline", type=Path, default=Path("docs/evaluation/gate-baseline.json"))
     p.add_argument("--claims-root", type=Path, default=Path("var/claims"))
+    p.add_argument("--trajectories", type=Path, default=Path("docs/evaluation/trajectories.json"),
+                   help="committed reference paths each claim and drawing run must reproduce")
+    p.add_argument("--write-trajectories", action="store_true", help="adopt the observed paths as the new reference (deliberate act)")
     p.add_argument("--write-baseline", action="store_true", help="store this report as the new baseline (deliberate act)")
     args = p.parse_args(argv)
-    report = run_gate(args.root, args.output, args.claims_root)
+    report = run_gate(args.root, args.output, args.claims_root, args.trajectories, adopt_trajectories=args.write_trajectories)
     baseline = json.loads(args.baseline.read_text()) if args.baseline.exists() else None
     result = compare(report, baseline)
     for c in result["checks"]:
@@ -245,7 +271,16 @@ def main(argv: list[str] | None = None) -> int:
         base = f" (baseline {c['baseline']:.3f})" if isinstance(c["baseline"], (int, float)) else ""
         value = f"{c['value']:.3f}" if isinstance(c["value"], (int, float)) else str(c["value"])
         print(f"{mark} {c['metric']}={value}{base}{' ' + c['why'] if c['why'] else ''}")
+    traj = report.get("trajectory") or {}
+    for m in traj.get("mismatches", [])[:5]:
+        print(f"  path differs: {m['path']} at step {m.get('at')}: expected {m.get('expected')!r}, got {m.get('actual')!r}")
+    for v in traj.get("violations", [])[:5]:
+        print(f"  invariant: {v}")
     (args.output / "gate.json").write_text(json.dumps(result, ensure_ascii=False, indent=2))
+    if args.write_trajectories:
+        args.trajectories.parent.mkdir(parents=True, exist_ok=True)
+        args.trajectories.write_text((args.output / "trajectories.observed.json").read_text() + "\n")
+        print(f"trajectory reference written to {args.trajectories}")
     if args.write_baseline:
         args.baseline.parent.mkdir(parents=True, exist_ok=True)
         args.baseline.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")

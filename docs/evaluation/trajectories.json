@@ -1,0 +1,2139 @@
+{
+ "version": "trajectory-v1",
+ "claims": {
+  "CLM-00000": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "rerun": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00001": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:skipped",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00002": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "rerun": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00003": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:skipped",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00004": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:skipped",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00005": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00006": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00007": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00008": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00009": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00010": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "rerun": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00011": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "rerun": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00012": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:skipped",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00013": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00014": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00015": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:skipped",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00016": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00017": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00018": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00019": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00020": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00021": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "rerun": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00022": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "rerun": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00023": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:skipped",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00024": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "rerun": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00025": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00026": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00027": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00028": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00029": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00030": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00031": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00032": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ],
+   "approve": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ],
+   "deny": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input",
+    "resumed_by_human",
+    "resumed",
+    "human_review:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00033": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00034": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00035": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00036": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00037": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00038": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00039": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00040": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00041": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00042": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00043": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00044": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00045": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00046": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00047": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00048": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00049": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00050": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00051": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00052": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00053": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00054": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00055": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00056": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00057": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00058": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00059": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00060": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00061": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00062": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00063": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00064": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00065": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00066": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00067": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00068": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00069": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00070": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00071": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00072": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00073": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00074": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00075": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00076": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00077": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00078": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00079": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00080": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00081": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00082": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00083": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00084": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00085": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00086": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00087": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00088": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00089": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00090": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00091": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00092": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00093": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00094": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00095": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00096": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00097": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00098": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00099": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00100": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00101": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00102": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00103": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00104": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00105": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00106": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00107": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00108": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00109": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00110": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  },
+  "CLM-00111": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00112": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00113": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00114": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00115": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00116": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00117": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:APPROVE",
+    "challenged:APPROVE",
+    "payout:paid",
+    "explained",
+    "completed:APPROVE"
+   ]
+  },
+  "CLM-00118": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:DENY",
+    "challenged:DENY",
+    "payout:skipped",
+    "explained",
+    "completed:DENY"
+   ]
+  },
+  "CLM-00119": {
+   "signature": [
+    "intake",
+    "tool:extract_documents",
+    "extracted",
+    "validated",
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
+   ]
+  }
+ },
+ "drawing": {
+  "rules": [
+   "intent",
+   "retrieved",
+   "tool:query_dimensions",
+   "tool:query_dimensions",
+   "tool:query_dimensions",
+   "tool:query_dimensions",
+   "tool:query_dimensions",
+   "verified",
+   "completed"
+  ],
+  "review_before": [
+   "intent",
+   "retrieved",
+   "tool:query_dimensions",
+   "tool:query_dimensions",
+   "tool:query_dimensions",
+   "tool:query_dimensions",
+   "tool:query_dimensions",
+   "verified",
+   "waiting_input"
+  ],
+  "review_after": [
+   "intent",
+   "retrieved",
+   "tool:query_dimensions",
+   "tool:query_dimensions",
+   "tool:query_dimensions",
+   "tool:query_dimensions",
+   "tool:query_dimensions",
+   "verified",
+   "waiting_input",
+   "resumed_by_human",
+   "resumed",
+   "human_review",
+   "completed"
+  ],
+  "multi_agent": [
+   "intent",
+   "retrieved",
+   "model:planner",
+   "agent_plan:planner",
+   "tool:query_dimensions",
+   "tool_skipped",
+   "verified",
+   "model:challenger",
+   "agent_plan:challenger",
+   "tool:query_dimensions",
+   "verified",
+   "completed"
+  ]
+ }
+}

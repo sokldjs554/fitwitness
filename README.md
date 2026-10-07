@@ -40,7 +40,7 @@
 - React·Three.js 도면 검토대: 후보 필터, 근거 위치, 실제 CAD 3D, 개정판·실행 기록 검사, 담당자 확인 입력
 - LLM 실험실: Qwen/Claude 모델 선택, 오류 사례·반복 실행별 원시 출력, 실제 Agent 호출 기록, 평가 프로토콜
 - 도구로 조회한 사실만 판정에 반영하는 Agent, 별도 탐색/반례 검토 단계, 가용 도구·호출·토큰·비용 제한과 bounded retry
-- [재현 가능한 LLM 평가](docs/evaluation/README.md)와 API 없이 매 커밋 베이스라인과 비교하는 [평가 게이트](docs/EVALUATION-GATE.md)
+- [재현 가능한 LLM 평가](docs/evaluation/README.md)와 API 없이 매 커밋 베이스라인과 비교하는 [평가 게이트](docs/EVALUATION-GATE.md). 결과뿐 아니라 실행이 지난 경로(노드 순서, 지급 전 반례 검토, 담당자 응답 한 번 적용, 재실행 시 원장 불변)도 커밋된 기준 경로와 대조합니다
 
 기본 체험은 명시적인 규칙 기반 엔진이며 API 호출을 흉내 내지 않습니다. 공개 익명 API는 키가 설정되어 있어도 유료 모델 실행을 거부합니다.
 
