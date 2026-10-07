@@ -36,3 +36,13 @@ test("a claim above the auto-approve limit waits for a reviewer and follows the 
   await expect(page.getByTestId("claim-decision")).toContainText("심사대 사용자");
   await expect(page.getByTestId("claim-payout")).toHaveText("지급 완료");
 });
+
+test("the claims desk has its own address", async ({ page }) => {
+  await page.goto("/#claims");
+  await expect(page.getByRole("heading", { name: "청구 심사대", exact: true })).toBeVisible({ timeout: 60000 });
+  await expect(page.getByTestId("claim-case").first()).toBeVisible({ timeout: 60000 });
+  await page.getByRole("button", { name: "검토대", exact: true }).click();
+  await expect(page).toHaveURL(/\/$|\/\?/);
+  await page.getByRole("button", { name: "청구 심사", exact: true }).click();
+  await expect(page).toHaveURL(/#claims$/);
+});

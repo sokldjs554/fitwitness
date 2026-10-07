@@ -4,7 +4,7 @@
 
 제조 부품의 도면을 검색하고 실제 치수·소재 근거로 검증하며, 개정판이 생기면 기존 판단을 무효화하는 연구 프로젝트입니다. 텔어스 채용 공고의 문제를 바탕으로 만든 독립 포트폴리오입니다.
 
-**[공개 데모 열기](https://fitwitness.onrender.com/)** · [검증 기록](docs/verification/hosted-research-20261005.json)
+**[공개 데모 열기](https://fitwitness.onrender.com/)** · **[보험 청구 심사 데모](https://fitwitness.onrender.com/#claims)** · [검증 기록](docs/verification/hosted-research-20261005.json)
 
 ![도면 검토 작업대](docs/media/review-workbench.png)
 

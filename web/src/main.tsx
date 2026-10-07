@@ -54,6 +54,9 @@ const ClaimsDesk = lazy(() =>
   import("./components/ClaimsDesk").then((m) => ({ default: m.ClaimsDesk })),
 );
 
+const TAB_FROM_HASH: Record<string, "work" | "eval" | "claims"> = { "#claims": "claims", "#lab": "eval", "#work": "work" };
+const HASH_FROM_TAB = { work: "", eval: "#lab", claims: "#claims" } as const;
+
 function App() {
   const [ready, setReady] = useState(false),
     [docs, setDocs] = useState<Doc[]>([]),
@@ -73,7 +76,9 @@ function App() {
     [busy, setBusy] = useState(false),
     [timeline, setTimeline] = useState(false),
     [revised, setRevised] = useState(false),
-    [tab, setTab] = useState<"work" | "eval" | "claims">("work"),
+    // The tab is part of the address: /#claims opens the claims desk directly, /#lab the
+    // experiments, so each demo can be linked on its own.
+    [tab, setTab] = useState<"work" | "eval" | "claims">(() => TAB_FROM_HASH[window.location.hash] ?? "work"),
     [filter, setFilter] = useState("all"),
     [zoom, setZoom] = useState(1),
     [eventSelection, setEventSelection] = useState<number | null>(null),
@@ -129,6 +134,17 @@ function App() {
       focusQueryOnMount.current = false;
     }
   }, [tab]);
+  useEffect(() => {
+    const wanted = HASH_FROM_TAB[tab];
+    if (window.location.hash !== wanted) {
+      window.history.replaceState(null, "", wanted || window.location.pathname + window.location.search);
+    }
+  }, [tab]);
+  useEffect(() => {
+    const onHash = () => { const t = TAB_FROM_HASH[window.location.hash]; if (t) setTab(t); };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
   useEffect(() => {
     if (!run || !["queued", "running", "retry_wait"].includes(run.state))
       return;
