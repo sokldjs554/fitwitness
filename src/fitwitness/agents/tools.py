@@ -135,9 +135,12 @@ class SearchPlan(Strict):
 
 
 class EvidenceTools:
-    def __init__(self, scope, snapshot, repo, budget, encoders=None, vision=None, run_id=None):
+    def __init__(self, scope, snapshot, repo, budget, encoders=None, vision=None, run_id=None, facts=None):
         self.scope = scope
         self.snapshot = snapshot
+        # Facts of the snapshot's revisions, when the run loaded them already. A snapshot id
+        # covers its facts, so serving them from memory reads the same rows a query would.
+        self.facts = facts
         self.repo = repo
         self.budget = budget
         self.encoders = encoders
@@ -223,7 +226,9 @@ class EvidenceTools:
         if name in ("query_dimensions", "read_region"):
             if a.revision_id not in self.snapshot.revision_ids:
                 raise ValueError("revision outside snapshot")
-            facts = self.repo.load_facts(self.scope, a.revision_id)
+            facts = self.facts.get(a.revision_id) if self.facts is not None else None
+            if facts is None:
+                facts = self.repo.load_facts(self.scope, a.revision_id)
             if name == "query_dimensions":
                 facts = [f for f in facts if not a.fields or f.field in a.fields]
             else:

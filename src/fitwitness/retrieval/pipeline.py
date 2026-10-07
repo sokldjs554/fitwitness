@@ -20,14 +20,25 @@ KINDS = {
 }
 
 
+_TOKEN = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*|[가-힣]+")
+_HANGUL = re.compile(r"[가-힣]+")
+# Korean kind names with the particles a query may attach, compiled once: tokenize() runs on
+# every indexed text for every search, and compiling these per token dominated its cost.
+_KOREAN_KINDS = [
+    (name, kind, re.compile(re.escape(name) + r"(?:을|를|이|가|은|는|에|용)?"))
+    for name, kind in KINDS.items()
+    if _HANGUL.fullmatch(name)
+]
+
+
 def tokenize(text: str):
-    tokens = re.findall(r"[a-z0-9]+(?:-[a-z0-9]+)*|[가-힣]+", text.casefold())
+    tokens = _TOKEN.findall(text.casefold())
     aliases = []
     for token in tokens:
-        for name, kind in KINDS.items():
-            if re.fullmatch(r"[가-힣]+", name) and re.fullmatch(
-                re.escape(name) + r"(?:을|를|이|가|은|는|에|용)?", token
-            ):
+        if not _HANGUL.fullmatch(token):
+            continue
+        for name, kind, pattern in _KOREAN_KINDS:
+            if pattern.fullmatch(token):
                 aliases.extend([name, kind])
     return tokens + [alias for alias in dict.fromkeys(aliases) if alias not in tokens]
 
@@ -103,18 +114,29 @@ def search(
     and one-edit typos; ``"token"`` is the historical casefolded-token match, kept for the
     evaluation gate's degraded control."""
     channels = {"exact", "bm25"} if channels is None else channels
-    if repo.snapshot(scope).id != snapshot.id:
-        raise ValueError("stale search snapshot")
+    corpus = getattr(repo, "corpus", None)
+    if corpus is not None:
+        # Staleness check, revisions and facts in one connection.
+        current, revisions, facts = corpus(scope)
+        if current.id != snapshot.id:
+            raise ValueError("stale search snapshot")
+    else:
+        if repo.snapshot(scope).id != snapshot.id:
+            raise ValueError("stale search snapshot")
+        revisions = facts = None
     if channels & {"semantic", "image"}:
         if encoders is None:
             raise ValueError("dense index encoders are not configured")
         from fitwitness.retrieval.indexing import require_index
         require_index(scope, snapshot, repo, encoders)
     allowed = set(snapshot.revision_ids)
-    revisions = [r for r in repo.list_revisions(scope) if r.id in allowed]
+    if revisions is None:
+        revisions = [r for r in repo.list_revisions(scope) if r.id in allowed]
+        facts = repo.load_facts_many(scope, [r.id for r in revisions]) if revisions else {}
+    else:
+        revisions = [r for r in revisions if r.id in allowed]
     if not revisions:
         return []
-    facts = repo.load_facts_many(scope, [r.id for r in revisions])
     texts = [
         r.title
         + " "

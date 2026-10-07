@@ -2,6 +2,7 @@
 
 from hashlib import sha256
 import json
+from time import monotonic
 from uuid import uuid4
 import psycopg
 from psycopg.types.json import Jsonb
@@ -15,9 +16,15 @@ def backoff_seconds(attempt: int, base: int = 5, cap: int = 300) -> int:
 
 class Jobs:
     MAX_ATTEMPTS = 3
+    LEASE_RECHECK_SECONDS = 2.0
 
     def __init__(self, repo):
         self.repo = repo
+        # (run_id, token) -> when a statement last proved the lease is held. ``owns_lease`` is
+        # asked before every step; a lease that a write confirmed within the last
+        # LEASE_RECHECK_SECONDS is not read again, since every event and usage write fails
+        # the moment the lease is lost.
+        self._lease_seen: dict[tuple[str, str], float] = {}
 
     def migrate(self):
         with psycopg.connect(self.repo.dsn, autocommit=True) as c:
@@ -126,14 +133,16 @@ class Jobs:
             return c.execute("SELECT * FROM fw_runs WHERE id=%s", (run_id,)).fetchone()
 
     def get(self, scope, run_id):
-        r = self.raw(scope, run_id)
-        if not r:
-            return None
-        if (
-            r["state"] == "completed"
-            and r["request"].get("kind") != "claim"
-            and self.repo.snapshot(scope).id != r["snapshot_id"]
-        ):
+        with self.repo.connection(scope) as c:
+            r = c.execute("SELECT * FROM fw_runs WHERE id=%s", (run_id,)).fetchone()
+            if not r:
+                return None
+            stale = (
+                r["state"] == "completed"
+                and r["request"].get("kind") != "claim"
+                and self.repo.snapshot_in(c, scope).id != r["snapshot_id"]
+            )
+        if stale:
             self.invalidate(scope)
             r = self.raw(scope, run_id)
         is_claim = r["request"].get("kind") == "claim"
@@ -188,34 +197,43 @@ class Jobs:
 
     def heartbeat(self, scope, run_id, token):
         with self.repo.connection(scope) as c:
-            return bool(
+            alive = bool(
                 c.execute(
                     "UPDATE fw_runs SET lease_until=now()+interval '30 seconds' WHERE id=%s AND lease_token=%s AND state='running' AND lease_until>now() RETURNING id",
                     (run_id, token),
                 ).fetchone()
             )
+        if alive:
+            self._lease_seen[(run_id, token)] = monotonic()
+        return alive
 
     def _event(self, c, scope, run_id, kind, payload):
+        # The run row is locked so sequence numbers are handed out one at a time; neither
+        # statement reads a result, so both are queued with the caller's transaction.
         c.execute("SELECT id FROM fw_runs WHERE id=%s FOR UPDATE", (run_id,))
-        seq = c.execute(
-            "SELECT COALESCE(MAX(seq),0)+1 AS n FROM fw_events WHERE run_id=%s",
-            (run_id,),
-        ).fetchone()["n"]
         c.execute(
-            "INSERT INTO fw_events(tenant_id,run_id,seq,kind,payload) VALUES(%s,%s,%s,%s,%s)",
-            (scope.tenant_id, run_id, seq, kind, Jsonb(payload)),
+            "INSERT INTO fw_events(tenant_id,run_id,seq,kind,payload) "
+            "SELECT %s,%s,COALESCE(MAX(seq),0)+1,%s,%s FROM fw_events WHERE run_id=%s",
+            (scope.tenant_id, run_id, kind, Jsonb(payload), run_id),
         )
 
     def event(self, scope, run_id, kind, payload, token=None):
         with self.repo.connection(scope) as c:
-            if token is not None:
-                row = c.execute(
-                    "SELECT id FROM fw_runs WHERE id=%s AND lease_token=%s AND state='running' AND lease_until>now() FOR UPDATE",
-                    (run_id, token),
-                ).fetchone()
-                if not row:
-                    raise RuntimeError("실행 소유권 만료")
-            self._event(c, scope, run_id, kind, payload)
+            if token is None:
+                self._event(c, scope, run_id, kind, payload)
+                return
+            # Lease check, sequence number and insert in one statement: the run row is
+            # locked by the FOR UPDATE and nothing is written when the lease is gone.
+            row = c.execute(
+                "INSERT INTO fw_events(tenant_id,run_id,seq,kind,payload) "
+                "SELECT r.tenant_id,r.id,(SELECT COALESCE(MAX(seq),0)+1 FROM fw_events e WHERE e.run_id=r.id),%s,%s "
+                "FROM fw_runs r WHERE r.id=%s AND r.lease_token=%s AND r.state='running' AND r.lease_until>now() FOR UPDATE "
+                "RETURNING seq",
+                (kind, Jsonb(payload), run_id, token),
+            ).fetchone()
+            if not row:
+                raise RuntimeError("실행 소유권 만료")
+        self._lease_seen[(run_id, token)] = monotonic()
 
     def events(self, scope, run_id, after=0):
         with self.repo.connection(scope) as c:
@@ -408,13 +426,18 @@ class Jobs:
         return [r["id"] for r in rs]
 
     def owns_lease(self, scope, run_id, token):
+        if monotonic() - self._lease_seen.get((run_id, token), float("-inf")) < self.LEASE_RECHECK_SECONDS:
+            return True
         with self.repo.connection(scope) as c:
-            return bool(
+            held = bool(
                 c.execute(
                     "SELECT id FROM fw_runs WHERE id=%s AND lease_token=%s AND state='running' AND lease_until>now()",
                     (run_id, token),
                 ).fetchone()
             )
+        if held:
+            self._lease_seen[(run_id, token)] = monotonic()
+        return held
 
     def save_usage(self, scope, run_id, token, usage):
         with self.repo.connection(scope) as c:
@@ -424,6 +447,7 @@ class Jobs:
             ).fetchone()
             if not row:
                 raise RuntimeError("실행 소유권 만료")
+        self._lease_seen[(run_id, token)] = monotonic()
 
     def pending(self, limit=100):
         with self.repo.plain() as c:
@@ -462,13 +486,19 @@ class Jobs:
             c.execute(
                 "CREATE TABLE IF NOT EXISTS fw_sessions (tenant_id text PRIMARY KEY,expires_at timestamptz NOT NULL)"
             )
-            expired = c.execute(
-                "SELECT tenant_id FROM fw_sessions WHERE expires_at<now() LIMIT 20"
-            ).fetchall()
-        for row in expired:
-            tenant = row["tenant_id"]
-            s = TenantScope(tenant_id=tenant, user_id="retention")
-            with self.repo.connection(s) as c:
+            expired = [
+                r["tenant_id"]
+                for r in c.execute("SELECT tenant_id FROM fw_sessions WHERE expires_at<now() LIMIT 20").fetchall()
+            ]
+        if not expired:
+            return
+        # One transaction for every expired workspace instead of two connections per tenant.
+        # The tenant setting is switched before each tenant's statements, so row-level
+        # security still scopes every DELETE; nothing reads a result, so the whole sweep is
+        # queued and travels in one round trip.
+        with self.repo.connection(TenantScope(tenant_id=expired[0], user_id="retention")) as c:
+            for tenant in expired:
+                c.execute("SELECT set_config('app.tenant',%s,true)", (tenant,))
                 self.repo.lock(c, tenant)
                 for table in (
                     "fw_dispatch",
@@ -485,19 +515,12 @@ class Jobs:
                 ):
                     c.execute(f"DELETE FROM {table} WHERE tenant_id=%s", (tenant,))
                 # Clear child revisions first to respect the revision DAG foreign key.
-                c.execute(
-                    "UPDATE fw_revisions SET supersedes=NULL WHERE tenant_id=%s",
-                    (tenant,),
-                )
+                c.execute("UPDATE fw_revisions SET supersedes=NULL WHERE tenant_id=%s", (tenant,))
                 c.execute("DELETE FROM fw_revisions WHERE tenant_id=%s", (tenant,))
-            with self.repo.plain() as c:
-                for table in ("checkpoint_writes", "checkpoint_blobs", "checkpoints"):
-                    if c.execute("SELECT to_regclass(%s) AS t", (table,)).fetchone()["t"]:
-                        c.execute(
-                            f"DELETE FROM {table} WHERE thread_id LIKE %s",
-                            (tenant + ":%",),
-                        )
-                c.execute("DELETE FROM fw_sessions WHERE tenant_id=%s", (tenant,))
-                c.execute(
-                    "DELETE FROM fw_admission WHERE created_at<now()-interval '2 days'"
-                )
+        with self.repo.plain() as c:
+            tables = ("checkpoint_writes", "checkpoint_blobs", "checkpoints")
+            present = [c.execute("SELECT to_regclass(%s) AS t", (table,)) for table in tables]
+            for table, q in zip(tables, present):
+                if q.fetchone()["t"]:
+                    c.execute(f"DELETE FROM {table} WHERE thread_id LIKE ANY(%s)", ([t + ":%" for t in expired],))
+            c.execute("DELETE FROM fw_sessions WHERE tenant_id=ANY(%s)", (expired,))

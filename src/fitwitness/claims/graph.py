@@ -24,9 +24,10 @@ import time
 from datetime import datetime, timezone
 from typing import TypedDict
 
-from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command, interrupt
+
+from fitwitness.agents.graph import checkpointer
 
 from fitwitness.agents.budget import BudgetTracker
 from fitwitness.agents.providers import TransientProviderError, create_model
@@ -241,7 +242,7 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
         builder.add_edge("review", "payout")
         builder.add_edge("payout", END)
 
-        with PostgresSaver.from_conn_string(repo.dsn) as cp:
+        with checkpointer(repo.dsn) as cp:
             graph = builder.compile(checkpointer=cp)
             config = {"configurable": {"thread_id": scope.tenant_id + ":" + run_id}}
 

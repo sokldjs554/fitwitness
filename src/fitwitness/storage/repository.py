@@ -7,6 +7,7 @@ from hashlib import sha256
 import json
 import os
 import threading
+import time
 from pathlib import Path
 import psycopg
 from psycopg.rows import dict_row
@@ -16,7 +17,24 @@ from psycopg_pool import ConnectionPool
 # One pool per DSN per process. Every request-scoped operation used to open its own TLS
 # connection; against a remote database that cost more than the query itself.
 _POOLS: dict[str, ConnectionPool] = {}
+_CHECKPOINT_POOLS: dict[str, ConnectionPool] = {}
 _POOLS_LOCK = threading.Lock()
+_IDLE_PING_SECONDS = 30.0
+
+
+def _check_when_idle(conn) -> None:
+    """Ping a pooled connection only when it has been idle long enough to have been dropped.
+
+    psycopg_pool's default check costs one round trip per borrow, which on a remote database
+    is as expensive as the query it protects. A connection used within the last few seconds
+    is alive; one idle for longer (a suspended serverless database, a closed TCP session) is
+    verified before it is handed out."""
+    if time.monotonic() - getattr(conn, "_fw_used", 0.0) > _IDLE_PING_SECONDS:
+        ConnectionPool.check_connection(conn)
+
+
+def _touch(conn) -> None:
+    conn._fw_used = time.monotonic()
 
 
 def pool_for(dsn: str) -> ConnectionPool:
@@ -28,13 +46,49 @@ def pool_for(dsn: str) -> ConnectionPool:
                 min_size=1,
                 max_size=int(os.getenv("FITWITNESS_DB_POOL_MAX", "8")),
                 max_idle=120,
-                kwargs={"row_factory": dict_row},
-                check=ConnectionPool.check_connection,
+                # Autocommit: ``connection()`` and ``plain()`` open and close their own
+                # transaction with queued BEGIN/COMMIT statements (see there).
+                kwargs={"row_factory": dict_row, "autocommit": True},
+                check=_check_when_idle,
                 open=True,
                 name=f"fitwitness-{len(_POOLS)}",
             )
             _POOLS[dsn] = pool
         return pool
+
+
+def checkpoint_pool_for(dsn: str) -> ConnectionPool:
+    """Autocommit connections for the LangGraph checkpointer, kept open between runs.
+
+    The checkpointer used to connect for every run; a worker that stays alive between jobs
+    pays that handshake (TLS, authentication, a few round trips) only once this way. The
+    connection settings mirror ``PostgresSaver.from_conn_string``."""
+    with _POOLS_LOCK:
+        pool = _CHECKPOINT_POOLS.get(dsn)
+        if pool is None or pool.closed:
+            pool = ConnectionPool(
+                dsn,
+                min_size=1,
+                max_size=4,
+                max_idle=120,
+                kwargs={"autocommit": True, "prepare_threshold": 0, "row_factory": dict_row},
+                check=_check_when_idle,
+                open=True,
+                name=f"fitwitness-checkpoint-{len(_CHECKPOINT_POOLS)}",
+            )
+            _CHECKPOINT_POOLS[dsn] = pool
+        return pool
+
+
+@contextmanager
+def checkpoint_connection(dsn: str):
+    with checkpoint_pool_for(dsn).connection() as c:
+        try:
+            yield c
+        finally:
+            _touch(c)
+
+
 from fitwitness.contracts import DrawingRevision, Fact, SearchSnapshot, TenantScope
 
 SCHEMA = """
@@ -110,16 +164,25 @@ class Repository:
                 )
 
     def warm(self) -> None:
-        """Open the pool now (an idle worker does this before a job arrives)."""
+        """Open both pools now (an idle worker does this before a job arrives)."""
         pool_for(self.dsn)
+        checkpoint_pool_for(self.dsn)
 
     @contextmanager
     def connection(self, scope: TenantScope):
         """A pooled connection inside one transaction, as the non-bypass role, scoped to the tenant.
 
-        Both settings are transaction-local, so they vanish when the pool commits or rolls back
-        at exit; the next borrower starts from the owner role with no tenant."""
-        with pool_for(self.dsn).connection() as c:
+        Both settings are transaction-local, so they vanish when the transaction commits or
+        rolls back at exit; the next borrower starts from the owner role with no tenant.
+
+        The block is one exchange with the server. The connection runs in libpq pipeline
+        mode and the transaction is opened and closed with queued BEGIN and COMMIT
+        statements rather than psycopg's transaction handling, which syncs after its own
+        BEGIN: this way BEGIN, the role switch, the statements and COMMIT travel together,
+        and the round trip is paid when a result is read or the block ends. Errors surface
+        at that point with the same exception types as before; the transaction is then
+        rolled back."""
+        with self._pipelined() as c:
             c.execute(
                 "SELECT set_config('role','fitwitness_app',true), set_config('app.tenant',%s,true)",
                 (scope.tenant_id,),
@@ -129,8 +192,28 @@ class Repository:
     @contextmanager
     def plain(self):
         """A pooled connection as the owner role, for tables without row-level security."""
-        with pool_for(self.dsn).connection() as c:
+        with self._pipelined() as c:
             yield c
+
+    @contextmanager
+    def _pipelined(self):
+        pool = pool_for(self.dsn)
+        c = pool.getconn()
+        try:
+            try:
+                with c.pipeline():
+                    c.execute("BEGIN")
+                    yield c
+                    c.execute("COMMIT")
+            except BaseException:
+                # A failed statement leaves the transaction aborted (its COMMIT was skipped);
+                # an exception from the caller leaves it open. Either way, end it.
+                if c.pgconn.transaction_status != psycopg.pq.TransactionStatus.IDLE:
+                    c.rollback()
+                raise
+        finally:
+            _touch(c)
+            pool.putconn(c)
 
     @staticmethod
     def lock(c, tenant_id):
@@ -182,45 +265,109 @@ class Repository:
         """add_revision + save_facts + put_asset in one transaction (demo workspace seeding).
 
         Returns False when the revision already exists. Same checks as the separate methods."""
-        if scope.role == "viewer" or revision.tenant_id != scope.tenant_id:
-            raise PermissionError("write scope mismatch")
-        if sha256(payload).hexdigest() != revision.source_hash:
-            raise ValueError("source hash mismatch")
-        for f in facts:
-            if f.source.revision_id != revision.id or f.source.source_hash != revision.source_hash:
-                raise ValueError("fact source mismatch")
+        return self.seed_revisions(scope, [(revision, payload, facts, assets)]) == 1
+
+    def seed_revisions(self, scope: TenantScope,
+                       items: list[tuple[DrawingRevision, bytes, list[Fact], dict[str, bytes]]]) -> int:
+        """Several drawings (revision, PDF, facts, other assets) in one transaction.
+
+        A demo workspace is twenty drawings; one transaction and one existence query for all
+        of them costs a couple of round trips instead of a couple per drawing. Revisions that
+        already exist are skipped; a revision may supersede one seeded earlier in the same
+        batch. Returns how many were new."""
+        for revision, payload, facts, _ in items:
+            if scope.role == "viewer" or revision.tenant_id != scope.tenant_id:
+                raise PermissionError("write scope mismatch")
+            if sha256(payload).hexdigest() != revision.source_hash:
+                raise ValueError("source hash mismatch")
+            for f in facts:
+                if f.source.revision_id != revision.id or f.source.source_hash != revision.source_hash:
+                    raise ValueError("fact source mismatch")
+        wanted = [r.id for r, *_ in items] + [r.supersedes for r, *_ in items if r.supersedes]
         with self.connection(scope) as c:
             self.lock(c, scope.tenant_id)
-            if c.execute("SELECT 1 FROM fw_revisions WHERE id=%s", (revision.id,)).fetchone():
-                return False
-            if revision.supersedes:
-                parent = c.execute("SELECT document_id FROM fw_revisions WHERE id=%s", (revision.supersedes,)).fetchone()
-                if not parent or parent["document_id"] != revision.document_id:
+            known = {
+                row["id"]: row["document_id"]
+                for row in c.execute("SELECT id,document_id FROM fw_revisions WHERE id=ANY(%s)", (wanted,)).fetchall()
+            }
+            new = []
+            for revision, payload, facts, assets in items:
+                if revision.id in known:
+                    continue
+                if revision.supersedes and known.get(revision.supersedes) != revision.document_id:
                     raise ValueError("supersedes must refer to an existing revision of this document")
-            c.execute("INSERT INTO fw_revisions VALUES (%s,%s,%s,%s,%s)",
-                      (scope.tenant_id, revision.id, revision.document_id, revision.supersedes, Jsonb(revision.model_dump(mode="json"))))
-            with c.cursor() as cur:
-                cur.executemany("INSERT INTO fw_assets VALUES (%s,%s,%s,%s) ON CONFLICT DO NOTHING",
-                                [(scope.tenant_id, revision.id, "pdf", payload)] + [(scope.tenant_id, revision.id, k, v) for k, v in assets.items()])
-                cur.executemany("INSERT INTO fw_facts VALUES (%s,%s,%s,%s)",
-                                [(scope.tenant_id, revision.id, f.id, Jsonb(f.model_dump(mode="json"))) for f in facts])
-        return True
+                known[revision.id] = revision.document_id
+                new.append((revision, payload, facts, assets))
+            if new:
+                with c.cursor() as cur:
+                    cur.executemany(
+                        "INSERT INTO fw_revisions VALUES (%s,%s,%s,%s,%s)",
+                        [(scope.tenant_id, r.id, r.document_id, r.supersedes, Jsonb(r.model_dump(mode="json")))
+                         for r, *_ in new])
+                    cur.executemany(
+                        "INSERT INTO fw_assets VALUES (%s,%s,%s,%s) ON CONFLICT DO NOTHING",
+                        [(scope.tenant_id, r.id, kind, blob) for r, payload, _, assets in new
+                         for kind, blob in [("pdf", payload), *assets.items()]])
+                    rows = [(scope.tenant_id, r.id, f.id, Jsonb(f.model_dump(mode="json"))) for r, _, facts, _ in new for f in facts]
+                    if rows:
+                        cur.executemany("INSERT INTO fw_facts VALUES (%s,%s,%s,%s)", rows)
+        return len(new)
 
     def seed_claim_case(self, scope, case: dict, documents: list[tuple[dict, bytes, bytes | None]], prior_keys: list[str]) -> bool:
         """Case row, its documents and any pre-paid ledger keys in one transaction."""
+        return self.seed_claim_cases(scope, [(case, documents, prior_keys)]) == 1
+
+    def seed_claim_cases(self, scope, items: list[tuple[dict, list[tuple[dict, bytes, bytes | None]], list[str]]]) -> int:
+        """Several claim cases in one transaction; existing cases are skipped. Returns how many were new."""
+        if scope.role == "viewer":
+            raise PermissionError("read only")
         with self.connection(scope) as c:
-            if c.execute("SELECT 1 FROM fw_claim_cases WHERE case_id=%s", (case["case_id"],)).fetchone():
-                return False
-            c.execute("INSERT INTO fw_claim_cases (tenant_id,case_id,data) VALUES (%s,%s,%s)", (scope.tenant_id, case["case_id"], Jsonb(case)))
-            with c.cursor() as cur:
-                cur.executemany(
-                    "INSERT INTO fw_claim_docs (tenant_id,id,case_id,kind,issued_at,pdf,png) VALUES (%s,%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING",
-                    [(scope.tenant_id, d["id"], d["case_id"], d["kind"], d["issued_at"], pdf, png) for d, pdf, png in documents])
-                if prior_keys:
+            existing = {
+                row["case_id"] for row in c.execute(
+                    "SELECT case_id FROM fw_claim_cases WHERE case_id=ANY(%s)", ([case["case_id"] for case, _, _ in items],)
+                ).fetchall()
+            }
+            new = [(case, docs, keys) for case, docs, keys in items if case["case_id"] not in existing]
+            if new:
+                with c.cursor() as cur:
+                    cur.executemany("INSERT INTO fw_claim_cases (tenant_id,case_id,data) VALUES (%s,%s,%s)",
+                                    [(scope.tenant_id, case["case_id"], Jsonb(case)) for case, _, _ in new])
                     cur.executemany(
-                        "INSERT INTO fw_payout_keys (tenant_id,dedupe_key,claim_id,policy_id) VALUES (%s,%s,%s,%s) ON CONFLICT DO NOTHING",
-                        [(scope.tenant_id, key, "PRIOR", case["policy"]["policy_id"]) for key in prior_keys])
-        return True
+                        "INSERT INTO fw_claim_docs (tenant_id,id,case_id,kind,issued_at,pdf,png) VALUES (%s,%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING",
+                        [(scope.tenant_id, d["id"], d["case_id"], d["kind"], d["issued_at"], pdf, png)
+                         for _, docs, _ in new for d, pdf, png in docs])
+                    keys = [(scope.tenant_id, key, "PRIOR", case["policy"]["policy_id"]) for case, _, prior in new for key in prior]
+                    if keys:
+                        cur.executemany(
+                            "INSERT INTO fw_payout_keys (tenant_id,dedupe_key,claim_id,policy_id) VALUES (%s,%s,%s,%s) ON CONFLICT DO NOTHING",
+                            keys)
+        return len(new)
+
+    def documents(self, scope) -> list[dict]:
+        """Every revision with its facts and active flag, in one connection (the workbench's first call)."""
+        with self.connection(scope) as c:
+            snapshot, revisions, fact_rows = self.corpus_in(c)
+        by_rev: dict[str, list] = {}
+        for f in fact_rows:
+            by_rev.setdefault(f["revision_id"], []).append(f["data"])
+        active = set(snapshot.revision_ids)
+        return [{**r.model_dump(mode="json"), "active": r.id in active, "facts": by_rev.get(r.id, [])} for r in revisions]
+
+    def corpus(self, scope):
+        """The current snapshot, its active revisions and their facts, in one connection.
+
+        Search and a run's tools used to load these in three or four separate connections
+        (a snapshot for the staleness check, the revisions, the facts); on a remote database
+        each connection is a round trip or two."""
+        with self.connection(scope) as c:
+            snapshot, revisions, fact_rows = self.corpus_in(c)
+        active = set(snapshot.revision_ids)
+        revisions = [r for r in revisions if r.id in active]
+        facts: dict[str, list[Fact]] = {r.id: [] for r in revisions}
+        for row in fact_rows:
+            if row["revision_id"] in facts:
+                facts[row["revision_id"]].append(Fact.model_validate(row["data"]))
+        return snapshot, revisions, facts
 
     def get_revision(self, scope, revision_id):
         with self.connection(scope) as c:
@@ -421,18 +568,26 @@ class Repository:
             return self.snapshot_in(c, scope)
 
     def snapshot_in(self, c, scope):
-        rows = c.execute("SELECT data FROM fw_revisions ORDER BY id").fetchall()
-        facts = c.execute("SELECT data FROM fw_facts ORDER BY id").fetchall()
+        return self.corpus_in(c)[0]
+
+    def corpus_in(self, c):
+        """Revisions, facts and vector digests of the current tenant on an open connection.
+
+        The three reads are queued before the first fetch, so in pipeline mode they travel in
+        one round trip. The snapshot digest is computed over the same rows as before."""
+        revision_q = c.execute("SELECT data FROM fw_revisions ORDER BY id")
+        fact_q = c.execute("SELECT revision_id,data FROM fw_facts ORDER BY id")
+        vector_q = c.execute(
+            "SELECT revision_id,channel,md5(embedding::text) AS hash,metadata FROM fw_vectors ORDER BY revision_id,channel"
+        )
+        rows, fact_rows, vectors = revision_q.fetchall(), fact_q.fetchall(), vector_q.fetchall()
         revisions = [DrawingRevision.model_validate(r["data"]) for r in rows]
         ids, _ = self.active(revisions)
-        vectors = c.execute(
-            "SELECT revision_id,channel,md5(embedding::text) AS hash,metadata FROM fw_vectors ORDER BY revision_id,channel"
-        ).fetchall()
         digest = sha256(
             json.dumps(
                 {
                     "revisions": rows,
-                    "facts": facts,
+                    "facts": [{"data": f["data"]} for f in fact_rows],
                     "vectors": vectors,
                     "active_ids": ids,
                 },
@@ -440,7 +595,7 @@ class Repository:
                 default=str,
             ).encode()
         ).hexdigest()
-        return SearchSnapshot(id=digest, revision_ids=ids, index_hash=digest)
+        return SearchSnapshot(id=digest, revision_ids=ids, index_hash=digest), revisions, fact_rows
 
     def save_vector(self, scope, revision_id, channel, vector):
         if scope.role == "viewer":

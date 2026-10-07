@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from typing import Literal
-import hashlib, json, os, secrets, subprocess, sys, time
+import functools, hashlib, json, os, secrets, subprocess, sys, threading, time
 from contextlib import asynccontextmanager
 from fitwitness.runtime.dispatcher import Dispatcher
 from fitwitness.runtime.pool import WarmWorkers
@@ -64,6 +64,7 @@ def create_app():
         app.state.nudge = dispatcher.nudge
         workers.start()
         dispatcher.start()
+        threading.Thread(target=lambda: [corpus_facts(e["id"]) for e in demo_entries()], daemon=True).start()
         yield
         dispatcher.close()
         workers.close()
@@ -139,13 +140,27 @@ def create_app():
             },
         )
 
-    def load_entry(entry, s):
-        r = revision_from(entry, s)
+    @functools.lru_cache(maxsize=512)
+    def corpus_facts(entry_id: str):
+        """PDF extraction of a corpus entry does not depend on the tenant: do it once per process."""
+        entry = next(e for e in json.loads((CORPUS / "manifest.json").read_text())["document_entries"] if e["id"] == entry_id)
+        template = revision_from(entry, TenantScope(tenant_id="template", user_id="template"))
         data = (CORPUS / entry["pdf"]).read_bytes()
-        facts = extract_pdf(data, r)
-        # One transaction per drawing instead of five separate connections.
-        repo.seed_revision(s, r, data, facts, {k: (CORPUS / entry[k]).read_bytes() for k in ["png", "step", "mesh"]})
-        return r
+        return data, extract_pdf(data, template)
+
+    def load_entries(entries, s):
+        """Seed corpus entries into a workspace: one transaction for all of them."""
+        items = []
+        for entry in entries:
+            r = revision_from(entry, s)
+            data, template_facts = corpus_facts(entry["id"])
+            # Facts carry no tenant: source refs point at the revision id and hash.
+            items.append((r, data, list(template_facts), {k: (CORPUS / entry[k]).read_bytes() for k in ["png", "step", "mesh"]}))
+        repo.seed_revisions(s, items)
+        return [r for r, *_ in items]
+
+    def load_entry(entry, s):
+        return load_entries([entry], s)[0]
 
     DEMO_FAMILIES = ("FW-F000", "FW-F001", "FW-F002", "FW-F003")  # bracket, flange, shaft, housing
     CLAIMS = Path(os.getenv("FITWITNESS_CLAIMS_DIR", str(ROOT / "var/claims")))
@@ -164,13 +179,17 @@ def create_app():
                 picked.append(first)
         return picked
 
-    def load_claim_case(case, s):
-        folder = CLAIMS / case["case_id"]
-        documents = []
-        for d in case["documents"]:
-            png = folder / f"{d['id']}.png"
-            documents.append((d, (folder / f"{d['id']}.pdf").read_bytes(), png.read_bytes() if png.exists() else None))
-        repo.seed_claim_case(s, case, documents, case.get("prior_paid_keys") or [])
+    def load_claim_cases(cases, s):
+        """Seed claim cases with their documents into a workspace: one transaction for all of them."""
+        items = []
+        for case in cases:
+            folder = CLAIMS / case["case_id"]
+            documents = []
+            for d in case["documents"]:
+                png = folder / f"{d['id']}.png"
+                documents.append((d, (folder / f"{d['id']}.pdf").read_bytes(), png.read_bytes() if png.exists() else None))
+            items.append((case, documents, case.get("prior_paid_keys") or []))
+        repo.seed_claim_cases(s, items)
 
     def demo_entries():
         manifest = json.loads((CORPUS / "manifest.json").read_text())["document_entries"]
@@ -195,10 +214,8 @@ def create_app():
         # and a flange query finds flanges. The held-back FW-000-0 revision (manifest
         # entry 5) only arrives through /api/demo/revision.
         entries = demo_entries()
-        for entry in entries:
-            load_entry(entry, s)
-        for case in demo_claim_cases():
-            load_claim_case(case, s)
+        load_entries(entries, s)
+        load_claim_cases(demo_claim_cases(), s)
         response.set_cookie(
             "fw_session",
             signer.dumps(s.model_dump()),
@@ -228,15 +245,7 @@ def create_app():
 
     @app.get("/api/documents")
     def documents(s: TenantScope = Depends(scope)):
-        active = set(repo.snapshot(s).revision_ids)
-        return [
-            {
-                **r.model_dump(),
-                "active": r.id in active,
-                "facts": [f.model_dump(mode="json") for f in repo.load_facts(s, r.id)],
-            }
-            for r in repo.list_revisions(s)
-        ]
+        return repo.documents(s)
 
     @app.get("/api/documents/{rid}/assets/{kind}")
     def asset(rid: str, kind: str, s: TenantScope = Depends(scope)):

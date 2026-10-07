@@ -25,8 +25,10 @@ def main():
     repo = Repository(dsn)
     if args.pool:
         try:
-            repo.warm()  # the pool's first connection and the checkpointer schema check
+            repo.warm()  # the pools' first connections and the checkpointer schema check
             ensure_checkpointer(dsn)  # happen while idle, not on the run's clock
+            import fitwitness.retrieval.embeddings  # noqa: F401  (imported lazily by a run otherwise)
+            import fitwitness.claims.graph  # noqa: F401
         except Exception:
             pass  # the run repeats them and reports a real failure
         line = sys.stdin.readline()

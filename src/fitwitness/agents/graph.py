@@ -1,6 +1,7 @@
 """LangGraph executes evidence steps with durable PostgreSQL checkpoints."""
 
 from typing import TypedDict
+from contextlib import contextmanager
 import json, os, threading, time
 from datetime import datetime, timezone
 from langgraph.graph import StateGraph, START, END
@@ -23,6 +24,7 @@ from fitwitness.agents.budget import BudgetTracker, BudgetExhausted
 from fitwitness.agents.providers import create_model, TransientProviderError
 from fitwitness.agents.evidence import EvidenceSession
 from fitwitness.runtime.jobs import Jobs
+from fitwitness.storage.repository import checkpoint_connection
 
 
 class State(TypedDict, total=False):
@@ -52,6 +54,17 @@ def ensure_checkpointer(dsn: str) -> None:
     with PostgresSaver.from_conn_string(dsn) as cp:
         cp.setup()
     _CHECKPOINTER_READY.add(dsn)
+
+
+@contextmanager
+def checkpointer(dsn: str):
+    """A PostgresSaver on a pooled autocommit connection.
+
+    ``PostgresSaver.from_conn_string`` connects anew for every run; a warm worker that stays
+    alive between jobs would pay that handshake each time. The saver still batches its own
+    writes in pipeline mode on the borrowed connection."""
+    with checkpoint_connection(dsn) as conn:
+        yield PostgresSaver(conn)
 
 
 def execute_run(
@@ -98,7 +111,7 @@ def _execute_run(
         from fitwitness.claims.graph import execute_claim
 
         return execute_claim(repo, scope, run_id, raw=raw, token=token, jobs=jobs, request=request)
-    snapshot = repo.snapshot(scope)
+    snapshot, _, facts = repo.corpus(scope)
     budget = BudgetTracker(request.budget)
     budget.usage = Usage.model_validate(raw["usage"])
     # Deadline counts from creation, minus the time the run spent parked for a retry or a reviewer.
@@ -131,7 +144,7 @@ def _execute_run(
         if snapshot.id != raw["snapshot_id"]:
             jobs.finalize(scope, run_id, raw["snapshot_id"], [], token)
             return
-        tools = EvidenceTools(scope, snapshot, repo, budget, encoders, run_id=run_id)
+        tools = EvidenceTools(scope, snapshot, repo, budget, encoders, run_id=run_id, facts=facts)
         model = (
             create_model(request.provider, request.model_id, budget)
             if request.provider != "rules"
@@ -387,7 +400,7 @@ def _execute_run(
             builder.add_conditional_edges("challenge", route)
         else:
             builder.add_conditional_edges("inspect", route)
-        with PostgresSaver.from_conn_string(repo.dsn) as cp:
+        with checkpointer(repo.dsn) as cp:
             graph = builder.compile(checkpointer=cp)
             config = {"configurable": {"thread_id": scope.tenant_id + ":" + run_id}}
 

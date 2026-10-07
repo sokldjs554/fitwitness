@@ -29,10 +29,10 @@ def test_graph_does_not_approve_uninspected_search_results(monkeypatch):
             return SearchPlan(stop=True), {'role':role}
     saver=InMemorySaver(); saver.setup=lambda:None
     monkeypatch.setattr(mod,'Jobs',Jobs)
-    monkeypatch.setattr(mod.PostgresSaver,'from_conn_string',lambda dsn:nullcontext(saver))
+    monkeypatch.setattr(mod,'checkpointer',lambda dsn:nullcontext(saver))
     monkeypatch.setattr(mod,'search',lambda *args:[candidate()])
     monkeypatch.setattr(mod,'create_model',lambda *args:Model())
-    repo=SimpleNamespace(dsn='unused',snapshot=lambda s:SimpleNamespace(id='snap'))
+    repo=SimpleNamespace(dsn='unused',snapshot=lambda s:SimpleNamespace(id='snap'),corpus=lambda s:(SimpleNamespace(id='snap'),[],{}))
     mod._execute_run(repo,TenantScope(tenant_id='t',user_id='u'),'run')
     assert [d.verdict for d in output]==['unknown']
     assert roles==['planner','challenger']
@@ -65,10 +65,10 @@ def test_budget_stop_keeps_verified_result_without_extra_challenger(monkeypatch,
             return SearchPlan(operations=[ToolRequest(name='query_dimensions',arguments={'revision_id':'r'})]), {'role':role}
     saver=InMemorySaver(); saver.setup=lambda:None
     monkeypatch.setattr(mod,'Jobs',Jobs)
-    monkeypatch.setattr(mod.PostgresSaver,'from_conn_string',lambda dsn:nullcontext(saver))
+    monkeypatch.setattr(mod,'checkpointer',lambda dsn:nullcontext(saver))
     monkeypatch.setattr(mod,'search',lambda *args:[candidate()])
     monkeypatch.setattr(mod,'create_model',lambda p,m,b:Model(b))
-    repo=SimpleNamespace(dsn='unused',snapshot=lambda s:SimpleNamespace(id='snap',revision_ids=['r']),load_facts=lambda *args:candidate().facts)
+    repo=SimpleNamespace(dsn='unused',snapshot=lambda s:SimpleNamespace(id='snap',revision_ids=['r']),corpus=lambda s:(SimpleNamespace(id='snap',revision_ids=['r']),[],{}),load_facts=lambda *args:candidate().facts)
     mod._execute_run(repo,TenantScope(tenant_id='t',user_id='u'),'run')
     assert [d.verdict for d in output]==['match']
     assert roles[0]=='planner'
