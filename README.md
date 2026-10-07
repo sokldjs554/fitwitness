@@ -32,7 +32,7 @@
 - PDF 실제 위치를 근거로 조건 일치·불일치·확인 필요 판정
 - LangGraph + PostgreSQL checkpoint, 실제 worker 종료 후 복구, 일시 오류의 지수 백오프 재시도와 보류함(dead-letter)
 - 미리 데워 둔 worker 프로세스 풀: 실행마다 인터프리터와 LangGraph import를 다시 치르지 않아 큐 등록 → worker 시작이 로컬 1.65초 → 0.16초
-- 근거가 부족하면 담당자에게 묻고 멈추는 `waiting_input`, 답변을 받아 checkpoint에서 이어가는 resume API
+- 근거가 부족하면 담당자에게 묻고 멈추는 `waiting_input`, 답변을 받아 checkpoint에서 이어가는 resume API. 청구는 금액에 따른 승인 구간을 두어, 상급 검토 건은 사유와 서로 다른 두 담당자의 승인이 있어야 지급하고, 응답 기한을 넘기면 대신 결정하지 않고 상급 검토로 올립니다 ([CLAIMS.md](docs/CLAIMS.md))
 - 도면 40 → 42mm 개정 시 기존 결과 무효화 및 재검증
 - 방문자별 세션·RLS, typed tools, OpenAI·Claude 어댑터, 실행 예산
 - 에이전트가 스스로 정의해 재사용하는 저장 검색 도구(`define_search_tool` / `run_saved_search`), 테넌트별 격리·개수 제한

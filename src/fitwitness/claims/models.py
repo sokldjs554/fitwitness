@@ -30,6 +30,7 @@ class Product(Strict):
     name: str
     coverages: dict[str, Coverage]
     auto_approve_limit: int = 5_000_000  # above this a person signs off
+    second_approval_above: int | None = None  # above this the sign-off needs two different people (four eyes)
 
 
 class Policy(Strict):
@@ -144,6 +145,7 @@ class ClaimOutcome(Strict):
     decision: ClaimDecision
     pre_review_decision: ClaimDecision
     human: ClaimReview | None = None
+    approvers: list[str] = Field(default_factory=list)  # everyone who signed off, in order
     payout: Payout
     explanation: str
     audit: list[str] = Field(default_factory=list)

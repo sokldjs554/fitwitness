@@ -73,7 +73,7 @@
 
 ## 보험 청구 워크플로
 
-같은 상태 전이·재시도·`waiting_input`·resume 위에서 돌아가는 두 번째 워크플로입니다. 노드 구성, 지급 기준표, 멱등 원장, 측정은 [CLAIMS.md](CLAIMS.md)에 있습니다. 담당자 답변 계약은 도면 실행의 `ReviewInput` 대신 `ClaimReview{outcome, reviewer, note, total_amount?}`이며 같은 `POST /api/runs/{id}/resume`으로 들어옵니다.
+같은 상태 전이·재시도·`waiting_input`·resume 위에서 돌아가는 두 번째 워크플로입니다. 노드 구성, 지급 기준표, 멱등 원장, 측정은 [CLAIMS.md](CLAIMS.md)에 있습니다. 담당자 답변 계약은 도면 실행의 `ReviewInput` 대신 `ClaimReview{outcome, reviewer, note, total_amount?}`이며 같은 `POST /api/runs/{id}/resume`으로 들어옵니다. 담당자를 기다리는 모든 실행에는 응답 기한이 붙고(`FITWITNESS_REVIEW_TTL_SECONDS`), 넘기면 dispatcher의 30초 점검이 `review_escalated` 이벤트를 남겨 상급 검토로 올립니다. 청구는 이 단계에서 금액에 따라 2인 승인 규칙이 적용됩니다([CLAIMS.md](CLAIMS.md#승인-권한과-응답-기한)).
 
 ## 관측
 

@@ -2743,6 +2743,11 @@ footer button {
 .claims-timeline li small { margin-left: auto; color: #a09f9a; font-size: 10px; }
 .review-note { width: 100%; margin-top: 8px; font-size: 11px; padding: 6px 8px; border: 1px solid #c5d6ea; border-radius: 3px; }
 .review-buttons { display: grid; gap: 6px; }
+.review-reviewer { width: 100%; margin-top: 8px; font-size: 11px; padding: 6px 8px; border: 1px solid #c5d6ea; border-radius: 3px; }
+.review-tier mark { background: #f3e2c7; color: #7a5516; padding: 0 5px; border-radius: 2px; font-size: 10px; font-weight: 600; }
+.review-due { color: #8a8984; font-size: 10px; }
+.review-hint { display: block; margin-top: 4px; color: #a5563b; font-size: 10px; }
+.review-buttons button:disabled { opacity: .45; cursor: not-allowed; }
 @media (max-width: 900px) {
   .claims-layout, .claims-board, .claims-decision { grid-template-columns: 1fr; }
 }

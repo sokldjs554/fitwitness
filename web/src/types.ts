@@ -39,6 +39,7 @@ export type ClaimOutcome = {
   decision: ClaimDecision;
   pre_review_decision: ClaimDecision;
   human: { outcome: string; reviewer: string; note: string; total_amount?: number | null } | null;
+  approvers?: string[];
   payout: { status: string; claim_id: string; amount: number; paid_at?: string | null; run_id?: string | null };
   explanation: string;
   audit: string[];
@@ -106,6 +107,8 @@ export type Run = {
   question?: string | null;
   attempts?: number;
   next_attempt_at?: string | null;
+  review_due_at?: string | null;
+  escalated?: boolean;
   usage: {
     tool_calls: number;
     model_calls: number;
@@ -155,6 +158,7 @@ export const eventNames: Record<string, string> = {
   waiting_input: "담당자 확인 대기",
   resumed_by_human: "담당자 답변으로 재개",
   human_review: "담당자 판정 반영",
+  review_escalated: "응답 기한 초과 · 상급 검토로 이관",
   retry_scheduled: "일시 오류 · 재시도 예약",
   dead_lettered: "재시도 소진 · 보류함 이동",
   retry_wait: "모델 응답 대기",

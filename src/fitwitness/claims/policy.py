@@ -16,6 +16,7 @@ PRODUCTS: dict[str, Product] = {
         product_id="HLTH-A",
         name="종합건강보험 A형",
         auto_approve_limit=5_000_000,
+        second_approval_above=10_000_000,
         coverages={
             "hospitalization_daily": Coverage(kind="hospitalization_daily", per_day=30_000, deductible_days=3, max_days=120),
             "surgery": Coverage(
@@ -35,6 +36,7 @@ PRODUCTS: dict[str, Product] = {
         product_id="CANCER-B",
         name="암진단 플러스 B형",
         auto_approve_limit=20_000_000,
+        second_approval_above=30_000_000,
         coverages={
             "diagnosis": Coverage(
                 kind="diagnosis", diagnosis_table={"C": 30_000_000, "D0": 6_000_000}, waiting_days=90, exclusion_prefixes=["C44"]

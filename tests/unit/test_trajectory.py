@@ -9,8 +9,8 @@ GOLD_DENY = {"gold": {"outcome": "DENY", "total_amount": 0}}
 GOLD_REVIEW = {"gold": {"outcome": "REVIEW", "total_amount": 90000}}
 
 
-def run(sig, ledger=(), state="completed", proposed=None):
-    return {"state": state, "signature": list(sig), "ledger": list(ledger), "proposed": proposed}
+def run(sig, ledger=(), state="completed", proposed=None, need=1):
+    return {"state": state, "signature": list(sig), "ledger": list(ledger), "proposed": proposed, "approvals_required": need}
 
 
 def test_tokens_keep_the_path_and_drop_the_detail():
@@ -89,3 +89,17 @@ def test_drawing_path_checks():
     early.insert(2, {"kind": "verified"})
     assert drawing_invariants("rules", early, "completed"), "a verdict before the first lookup"
     assert drawing_invariants("rules", _drawing([_tool("a")]) + [{"kind": "failed"}], "failed")
+
+
+def test_a_senior_claim_is_paid_only_after_two_people_were_asked():
+    parked = run(PARKED, [], state="waiting_input", proposed=31_600_000, need=2)
+    two_asks = PARKED + ["resumed_by_human", "resumed", "waiting_input", "resumed_by_human", "resumed", "human_review:APPROVE", "payout:paid", "explained", "completed:APPROVE"]
+    ok = run(two_asks, [("CLM-1", 31_600_000)])
+    gold = {"gold": {"outcome": "REVIEW", "total_amount": 31_600_000}}
+    assert claim_invariants({}, gold, parked, {"approve": ok}, None) == []
+    one_ask = run(PARKED + ["resumed_by_human", "resumed", "human_review:APPROVE", "payout:paid", "explained", "completed:APPROVE"], [("CLM-1", 31_600_000)])
+    assert any("needs 2 people" in v for v in claim_invariants({}, gold, parked, {"approve": one_ask}, None))
+    early = run(PARKED + ["resumed_by_human", "resumed", "payout:paid", "waiting_input", "resumed_by_human", "resumed", "human_review:APPROVE", "explained", "completed:APPROVE"], [("CLM-1", 31_600_000)])
+    assert any("before the last required approval" in v for v in claim_invariants({}, gold, parked, {"approve": early}, None))
+    denied_twice = run(PARKED + ["resumed_by_human", "resumed", "waiting_input", "resumed_by_human", "human_review:DENY", "payout:skipped", "explained", "completed:DENY"], [])
+    assert any("one refusal is final" in v for v in claim_invariants({}, gold, parked, {"deny": denied_twice}, None))

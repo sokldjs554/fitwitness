@@ -23,6 +23,7 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [reviewNote, setReviewNote] = useState("");
+  const [reviewer, setReviewer] = useState("심사대 사용자");
   const [crash, setCrash] = useState(false);
   const [alwaysReview, setAlwaysReview] = useState(false);
   const [ledger, setLedger] = useState<{ claim_id: string; amount: number; paid_at: string }[]>([]);
@@ -54,7 +55,10 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
     }
   }, [selected]);
   useEffect(() => {
-    if (!run || !ACTIVE.includes(run.state)) return;
+    // A run that is working is polled quickly; one that is waiting for a person slowly, so an escalation
+    // (the reviewer missed the deadline) shows up without a reload.
+    const waiting = run?.state === "waiting_input";
+    if (!run || !(ACTIVE.includes(run.state) || waiting)) return;
     let stopped = false;
     const poll = async () => {
       try {
@@ -62,14 +66,14 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
         if (!stopped) {
           setRun(r);
           setEvents(e);
-          if (!ACTIVE.includes(r.state)) { void loadLedger(); void loadCases(); }
+          if (r.state !== run.state && !ACTIVE.includes(r.state)) { void loadLedger(); void loadCases(); }
         }
       } catch (e) {
         if (!stopped) setError(String(e));
       }
     };
-    const t = setInterval(poll, 800);
-    void poll();
+    const t = setInterval(poll, waiting ? 5000 : 800);
+    if (!waiting) void poll();
     return () => { stopped = true; clearInterval(t); };
   }, [run?.id, run?.state]);
 
@@ -102,7 +106,7 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
     try {
       const r = await api<Run>(`/runs/${run.id}/resume`, {
         method: "POST",
-        body: JSON.stringify({ outcome, reviewer: "심사대 사용자", note: reviewNote }),
+        body: JSON.stringify({ outcome, reviewer: reviewer.trim(), note: reviewNote }),
       });
       setRun(r);
       setReviewNote("");
@@ -115,9 +119,18 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
 
   const pending = run?.state === "waiting_input"
     ? ([...events].reverse().find((e) => e.kind === "waiting_input")?.payload as
-        | { proposed: string; total_amount: number; reasons: { rule_id: string; message: string }[]; line_items: { basis: string; amount: number }[] }
+        | {
+            proposed: string; total_amount: number; reasons: { rule_id: string; message: string }[]; line_items: { basis: string; amount: number }[];
+            tier?: string; step?: number; approvals_required?: number; first_reviewer?: string; threshold?: number | null; note_required?: boolean;
+          }
         | undefined)
     : undefined;
+  // The sign-off rules the server enforces, mirrored so the buttons say why they are off.
+  const senior = pending?.tier === "senior" || !!run?.escalated;
+  const secondStep = (pending?.step ?? 1) >= 2;
+  const sameAsFirst = secondStep && !!pending?.first_reviewer && reviewer.trim().replace(/\s+/g, " ").toLowerCase() === pending.first_reviewer.trim().replace(/\s+/g, " ").toLowerCase();
+  const needsNote = senior && reviewNote.trim().length < 10;
+  const approveBlocked = busy || !reviewer.trim() || sameAsFirst || needsNote;
   const outcome = run?.claim ?? null;
   const extraction = outcome?.extraction;
   const evidence = extraction?.evidence ?? {};
@@ -193,15 +206,27 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
               {run?.state === "waiting_input" && pending && (
                 <div className="notice review" data-testid="claim-review">
                   <span>
-                    <b>담당자 확인이 필요합니다.</b> 자동 심사 제안: {claimLabels[pending.proposed] || pending.proposed}, 지급 가능액 {won(pending.total_amount)}.
+                    <b>{secondStep ? `2차 승인이 필요합니다. 1차 승인: ${pending.first_reviewer}.` : "담당자 확인이 필요합니다."}</b> 자동 심사 제안: {claimLabels[pending.proposed] || pending.proposed}, 지급 가능액 {won(pending.total_amount)}.
+                    {senior && (
+                      <span className="review-tier" data-testid="claim-tier">
+                        {" "}<mark>상급 검토</mark>{" "}
+                        {run?.escalated ? "응답 기한을 넘겨 상급 검토로 올라갔습니다. " : pending.threshold ? `지급액이 ${won(pending.threshold)}을 넘습니다. ` : ""}
+                        승인에는 사유(10자 이상)와 서로 다른 두 담당자의 승인이 필요하고, 한 명이 거절하면 거절로 끝납니다.
+                      </span>
+                    )}
+                    {run?.review_due_at && <small className="review-due"> 응답 기한 {new Date(run.review_due_at).toLocaleString("ko-KR")}</small>}
                     <ul className="review-list">
                       {pending.reasons.map((r) => <li key={r.rule_id + r.message}><code>{r.rule_id}</code><small>{r.message}</small></li>)}
                     </ul>
-                    <input className="review-note" aria-label="검토 메모" placeholder="검토 메모 (선택)" value={reviewNote} onChange={(e) => setReviewNote(e.target.value)} />
+                    <input className="review-reviewer" aria-label="담당자 이름" placeholder="담당자 이름" value={reviewer} onChange={(e) => setReviewer(e.target.value)} />
+                    <input className="review-note" aria-label="검토 메모" placeholder={senior ? "승인 사유 (10자 이상)" : "검토 메모 (선택)"} value={reviewNote} onChange={(e) => setReviewNote(e.target.value)} />
+                    {sameAsFirst && <small className="review-hint" data-testid="claim-same-person">2차 승인은 1차 승인자와 다른 담당자여야 합니다.</small>}
                   </span>
                   <div className="review-buttons">
-                    <button onClick={() => decide("APPROVE")} disabled={busy}>승인 · 지급 <ArrowRight size={13} /></button>
-                    <button onClick={() => decide("DENY")} disabled={busy}>부지급</button>
+                    <button onClick={() => decide("APPROVE")} disabled={approveBlocked} title={needsNote ? "승인 사유를 10자 이상 적어 주세요" : sameAsFirst ? "다른 담당자 이름이 필요합니다" : undefined}>
+                      {secondStep ? "2차 승인 · 지급" : senior ? "1차 승인" : "승인 · 지급"} <ArrowRight size={13} />
+                    </button>
+                    <button onClick={() => decide("DENY")} disabled={busy || !reviewer.trim()}>부지급</button>
                   </div>
                 </div>
               )}
@@ -222,7 +247,7 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
                   </div>
                   <div>
                     <span className="eyebrow">사람 개입</span>
-                    <strong>{outcome.human ? `${outcome.human.reviewer} · ${claimLabels[outcome.human.outcome]}` : "없음 · 자동 처리"}</strong>
+                    <strong>{outcome.human ? `${outcome.approvers && outcome.approvers.length > 1 ? outcome.approvers.join(" · ") : outcome.human.reviewer} · ${claimLabels[outcome.human.outcome]}` : "없음 · 자동 처리"}</strong>
                     <small>추출 신뢰도 {Math.round(outcome.extraction.confidence * 100)}%{outcome.flags.length ? ` · 정합성 플래그 ${outcome.flags.length}` : ""}</small>
                   </div>
                 </div>

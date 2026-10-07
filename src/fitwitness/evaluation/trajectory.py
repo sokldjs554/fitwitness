@@ -96,10 +96,16 @@ def _claim_run(repo, jobs, scope, case: dict):
 
 
 def _answer(repo, jobs, scope, run_id: str, outcome: str):
+    """Answer every question the run asks, with a different person each time and a written reason.
+
+    A standard claim asks once. A senior claim asks a second person after an approval; a denial ends it."""
     from fitwitness.agents.graph import execute_run
 
-    jobs.resume(scope, run_id, {"outcome": outcome, "reviewer": "gate", "note": "trajectory check"})
-    execute_run(repo, scope, run_id)
+    for person in ("gate-reviewer-a", "gate-reviewer-b", "gate-reviewer-c"):
+        if jobs.get(scope, run_id).state != "waiting_input":
+            break
+        jobs.resume(scope, run_id, {"outcome": outcome, "reviewer": person, "note": "trajectory check: documents verified"})
+        execute_run(repo, scope, run_id)
 
 
 def _snapshot(repo, jobs, scope, run_id: str) -> dict:
@@ -107,7 +113,7 @@ def _snapshot(repo, jobs, scope, run_id: str) -> dict:
     events = jobs.events(scope, run_id)
     waiting = next((e["payload"] for e in reversed(events) if e["kind"] == "waiting_input"), None)
     return {"state": view.state, "signature": signature(events), "ledger": [(p["claim_id"], p["amount"]) for p in repo.payouts(scope)],
-            "proposed": (waiting or {}).get("total_amount")}
+            "proposed": (waiting or {}).get("total_amount"), "approvals_required": (waiting or {}).get("approvals_required") or 1}
 
 
 @contextmanager
@@ -167,10 +173,20 @@ def claim_invariants(case: dict, gold: dict, first: dict, answers: dict, rerun: 
             bad.append("approving a claim with nothing owed must not pay")
         if "human_review:APPROVE" not in after["signature"]:
             bad.append("the reviewer's answer is not in the path")
+        need = first.get("approvals_required") or 1
+        asked = after["signature"].count("waiting_input")
+        if asked != need:
+            bad.append(f"approval needs {need} people, the path asked {asked} times")
+        last_ask = max((i for i, t in enumerate(after["signature"]) if t == "waiting_input"), default=-1)
+        pay_idx = next((i for i, t in enumerate(after["signature"]) if t.startswith("payout:")), -1)
+        if owed and pay_idx < last_ask:
+            bad.append("paid before the last required approval")
     if "deny" in answers:
         after = answers["deny"]
         if after["ledger"] or "payout:skipped" not in after["signature"]:
             bad.append("denying a parked claim must not pay")
+        if after["signature"].count("waiting_input") != 1:
+            bad.append("one refusal is final: a denial must not ask for a second opinion")
     if rerun is not None and len(rerun["ledger"]) != len(first["ledger"]):
         bad.append("running the same claim again changed the ledger")
     return bad

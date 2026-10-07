@@ -4,10 +4,13 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from threading import Thread, Event
 import logging
+import time
 from fitwitness.contracts import TenantScope
 
 
 class Dispatcher:
+    SWEEP_SECONDS = 30.0
+
     def __init__(self, jobs, supervise):
         self.jobs = jobs
         self.supervise = supervise
@@ -29,6 +32,7 @@ class Dispatcher:
 
     def loop(self):
         active = {}
+        last_sweep = 0.0
         with ThreadPoolExecutor(max_workers=2) as pool:
             while not self.stop.is_set():
                 self.wake.wait(1)
@@ -36,6 +40,9 @@ class Dispatcher:
                 if self.stop.is_set():
                     break
                 try:
+                    if time.monotonic() - last_sweep >= self.SWEEP_SECONDS:
+                        last_sweep = time.monotonic()
+                        self.jobs.escalate_overdue()  # reviews nobody answered in time move to senior handling
                     active = {k: f for k, f in active.items() if not f.done()}
                     for tenant, run_id in self.jobs.pending():
                         scope = TenantScope(tenant_id=tenant, user_id="dispatcher")

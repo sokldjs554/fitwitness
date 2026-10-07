@@ -2,6 +2,7 @@
 
 from hashlib import sha256
 import json
+import os
 from time import monotonic
 from uuid import uuid4
 import psycopg
@@ -16,6 +17,14 @@ def backoff_seconds(attempt: int, base: int = 5, cap: int = 300) -> int:
 
 class Jobs:
     MAX_ATTEMPTS = 3
+
+    @staticmethod
+    def review_ttl_seconds() -> int:
+        """How long a run may wait for a reviewer before it is escalated (FITWITNESS_REVIEW_TTL_SECONDS, default a day)."""
+        try:
+            return max(1, int(os.getenv("FITWITNESS_REVIEW_TTL_SECONDS", "86400")))
+        except ValueError:
+            return 86400
     LEASE_RECHECK_SECONDS = 2.0
 
     def __init__(self, repo):
@@ -46,6 +55,8 @@ class Jobs:
                 ("next_attempt_at", "timestamptz"),
                 ("paused_since", "timestamptz"),
                 ("waited_seconds", "double precision NOT NULL DEFAULT 0"),
+                ("review_due_at", "timestamptz"),
+                ("escalated_at", "timestamptz"),
             ]:
                 c.execute(f"ALTER TABLE fw_runs ADD COLUMN IF NOT EXISTS {column} {ddl}")
             c.execute(
@@ -59,6 +70,19 @@ class Jobs:
                     "CREATE POLICY tenant_scope ON fw_dispatch USING (tenant_id=current_setting('app.tenant',true)) WITH CHECK (tenant_id=current_setting('app.tenant',true))"
                 )
             c.execute("GRANT SELECT,INSERT,DELETE ON fw_dispatch TO fitwitness_app")
+            # Runs waiting for a reviewer, by deadline. Like fw_dispatch this is a cross-tenant work queue the
+            # escalation sweep reads as the owner, so row-level security is enabled but not forced.
+            c.execute(
+                "CREATE TABLE IF NOT EXISTS fw_review_due (tenant_id text NOT NULL,run_id text NOT NULL,due_at timestamptz NOT NULL,PRIMARY KEY(tenant_id,run_id))"
+            )
+            c.execute("ALTER TABLE fw_review_due ENABLE ROW LEVEL SECURITY")
+            if not c.execute(
+                "SELECT 1 FROM pg_policies WHERE tablename='fw_review_due' AND policyname='tenant_scope'"
+            ).fetchone():
+                c.execute(
+                    "CREATE POLICY tenant_scope ON fw_review_due USING (tenant_id=current_setting('app.tenant',true)) WITH CHECK (tenant_id=current_setting('app.tenant',true))"
+                )
+            c.execute("GRANT SELECT,INSERT,UPDATE,DELETE ON fw_review_due TO fitwitness_app")
             c.execute(
                 "CREATE TABLE IF NOT EXISTS fw_admission (bucket text PRIMARY KEY,used integer NOT NULL,created_at timestamptz NOT NULL DEFAULT now())"
             )
@@ -161,6 +185,8 @@ class Jobs:
             question=r["question"],
             attempts=r["attempts"],
             next_attempt_at=r["next_attempt_at"].isoformat() if r["next_attempt_at"] else None,
+            review_due_at=r["review_due_at"].isoformat() if r.get("review_due_at") and r["state"] == "waiting_input" else None,
+            escalated=bool(r.get("escalated_at")),
         )
 
     def claim(self, scope, run_id, lease_seconds=30, requested_token=None):
@@ -288,6 +314,7 @@ class Jobs:
                 (run_id,),
             ).fetchone()
             if r:
+                c.execute("DELETE FROM fw_review_due WHERE run_id=%s", (run_id,))
                 self._event(c, scope, run_id, "cancelled", {})
         return self.get(scope, run_id)
 
@@ -352,14 +379,18 @@ class Jobs:
         before the reviewer's answer could be picked up."""
         with self.repo.connection(scope) as c:
             row = c.execute(
-                "UPDATE fw_runs SET state='waiting_input',question=%s,lease_token=NULL,lease_until=NULL,paused_since=now() "
-                "WHERE id=%s AND lease_token=%s AND state='running' RETURNING id",
-                (question[:500], run_id, token),
+                "UPDATE fw_runs SET state='waiting_input',question=%s,lease_token=NULL,lease_until=NULL,paused_since=now(),"
+                "review_due_at=now()+(%s * interval '1 second') WHERE id=%s AND lease_token=%s AND state='running' RETURNING id,review_due_at",
+                (question[:500], self.review_ttl_seconds(), run_id, token),
             ).fetchone()
             if not row:
                 return False
             c.execute("DELETE FROM fw_dispatch WHERE run_id=%s", (run_id,))
-            self._event(c, scope, run_id, "waiting_input", payload)
+            c.execute(
+                "INSERT INTO fw_review_due(tenant_id,run_id,due_at) VALUES(%s,%s,%s) ON CONFLICT(tenant_id,run_id) DO UPDATE SET due_at=excluded.due_at",
+                (scope.tenant_id, run_id, row["review_due_at"]),
+            )
+            self._event(c, scope, run_id, "waiting_input", {**payload, "review_due_at": row["review_due_at"].isoformat()})
             return True
 
     def resume(self, scope, run_id, human_input):
@@ -373,8 +404,12 @@ class Jobs:
         # a malformed answer must fail here, not inside the worker.
         if current["request"].get("kind") == "claim":
             from fitwitness.claims.models import ClaimReview
+            from fitwitness.claims.review import check_answer
 
             human_input = ClaimReview.model_validate(human_input).model_dump(mode="json")
+            # The sign-off rules (a reason, a second person) belong to the question that was asked.
+            waiting = next((e["payload"] for e in reversed(self.events(scope, run_id)) if e["kind"] == "waiting_input"), {})
+            check_answer(waiting, ClaimReview.model_validate(human_input), escalated=bool(current.get("escalated_at")))
         else:
             from fitwitness.contracts import ReviewInput
 
@@ -387,6 +422,7 @@ class Jobs:
             if not row:
                 raise ValueError("실행이 담당자 검토 대기 상태가 아닙니다")
             c.execute("INSERT INTO fw_dispatch(tenant_id,run_id) VALUES(%s,%s) ON CONFLICT DO NOTHING", (scope.tenant_id, run_id))
+            c.execute("DELETE FROM fw_review_due WHERE run_id=%s", (run_id,))
             self._event(c, scope, run_id, "resumed_by_human", {"reviewer": human_input.get("reviewer"),
                         "decisions": len(human_input.get("decisions") or {}), "outcome": human_input.get("outcome")})
         return self.get(scope, run_id)
@@ -448,6 +484,31 @@ class Jobs:
             if not row:
                 raise RuntimeError("실행 소유권 만료")
         self._lease_seen[(run_id, token)] = monotonic()
+
+    def escalate_overdue(self, limit: int = 20) -> int:
+        """Move runs whose reviewer did not answer in time to senior handling. Returns how many moved.
+
+        Nothing is decided on the reviewer's behalf: an overdue claim is not paid and not denied. It gets an
+        ``review_escalated`` event and, from then on, the stricter sign-off rules (see claims/review.py)."""
+        from fitwitness.contracts import TenantScope
+
+        with self.repo.plain() as c:
+            due = c.execute("SELECT tenant_id,run_id FROM fw_review_due WHERE due_at<now() ORDER BY due_at LIMIT %s", (limit,)).fetchall()
+        moved = 0
+        for row in due:
+            scope = TenantScope(tenant_id=row["tenant_id"], user_id="escalation", role="operator")
+            with self.repo.connection(scope) as c:
+                hit = c.execute(
+                    "UPDATE fw_runs SET escalated_at=now() WHERE id=%s AND state='waiting_input' AND escalated_at IS NULL "
+                    "RETURNING EXTRACT(EPOCH FROM (now()-paused_since)) AS waited",
+                    (row["run_id"],),
+                ).fetchone()
+                c.execute("DELETE FROM fw_review_due WHERE run_id=%s", (row["run_id"],))
+                if hit:
+                    self._event(c, scope, row["run_id"], "review_escalated",
+                                {"level": "senior", "waited_seconds": round(float(hit["waited"] or 0), 1), "ttl_seconds": self.review_ttl_seconds()})
+                    moved += 1
+        return moved
 
     def pending(self, limit=100):
         with self.repo.plain() as c:
@@ -523,4 +584,5 @@ class Jobs:
             for table, q in zip(tables, present):
                 if q.fetchone()["t"]:
                     c.execute(f"DELETE FROM {table} WHERE thread_id LIKE ANY(%s)", ([t + ":%" for t in expired],))
+            c.execute("DELETE FROM fw_review_due WHERE tenant_id=ANY(%s)", (expired,))
             c.execute("DELETE FROM fw_sessions WHERE tenant_id=ANY(%s)", (expired,))

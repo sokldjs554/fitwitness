@@ -332,8 +332,12 @@ def create_app():
         """A reviewer answers a run parked in waiting_input; the worker resumes the graph with it."""
         if not jobs.get(s, run_id):
             raise HTTPException(404, "실행을 찾을 수 없습니다")
+        from fitwitness.claims.review import ReviewRuleError
+
         try:
             view = jobs.resume(s, run_id, body.model_dump(mode="json"))
+        except ReviewRuleError as exc:
+            raise HTTPException(422, str(exc))  # the answer breaks the sign-off rules; the run is still waiting
         except ValueError as exc:
             raise HTTPException(409, str(exc))
         if not app.state.dispatcher:

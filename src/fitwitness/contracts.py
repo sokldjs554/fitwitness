@@ -220,6 +220,8 @@ class RunView(Strict):
     model_id: str
     attempts: int = 0
     next_attempt_at: str | None = None
+    review_due_at: str | None = None  # a run waiting for a reviewer must be answered by then
+    escalated: bool = False  # it was not: it moved to senior handling
 
 
 class RunEvent(Strict):
