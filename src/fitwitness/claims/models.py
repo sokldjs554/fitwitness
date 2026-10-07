@@ -65,6 +65,7 @@ class Extraction(Strict):
     total_amount: int | None = Field(None, description="total billed, KRW")
     evidence: dict[str, EvidenceRef] = Field(default_factory=dict)
     confidence: float = Field(1.0, ge=0.0, le=1.0)
+    scanned: bool = Field(False, description="read from a picture by OCR rather than from a text layer")
 
     FIELDS: ClassVar[tuple[str, ...]] = (
         "insured_name", "hospital", "diagnosis_name", "diagnosis_code", "diagnosis_date",

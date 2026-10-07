@@ -19,7 +19,7 @@ uv run python -m fitwitness.evaluation.gate --output artifacts/gate --write-traj
 | `geometry` | test+dev 12 family의 STEP 60개를 CadQuery로 읽어 특징 거리로 순위. 각 family의 기준 모델이 자기 family를 찾는지 | same-family@1, same-family@3 |
 | `control` | `lexical`을 도번 정규화를 끈 상태(`id_matching="token"`)로 다시 실행 | 정상 − 열화 차이. **차이가 작으면 벤치마크가 열화를 감지하지 못하는 것이므로 실패** |
 | `claims` | 합성 청구 120건에 추출 → 정합성 → 기준표 → 반례 검토를 실행, 생성기 gold와 대조. 열화 대조군은 서류 요건·원장 조회·자동승인 한도를 끈 실행 | 잘못 지급 비율(`== 0`), 결정 정확도, 필드 정확도, 자동 처리율, 열화 대조군과의 잘못 지급 차이(`≥ 0.05`) |
-
+| `claims_scan` | 위 청구 중 시나리오당 2건(22건)을 스캔처럼 열화시켜(`medium`) Tesseract로 읽고 같은 파이프라인에 통과. **Tesseract가 없으면 건너뜀**(CI는 `tesseract-ocr-kor`를 설치) | 잘못 지급 비율(`== 0`), 잘못 부지급 비율(`== 0`), 필드 정확도(`≥ 0.90`, 하락폭 0.03), 자동 처리율(`≥ 0.50`, 표본에서 지급 대상이 6건 안팎이라 하락폭은 보지 않음) |
 | `trajectory` | 청구 120건과 도면 실행 4가지를 **실제 LangGraph 그래프로 작업 큐를 거쳐** 실행하고, 이벤트 로그에 남은 경로를 커밋된 기준 경로와 대조. 청구는 담당자 승인·부지급 분기와 같은 청구의 재실행까지 | 경로 일치율(`== 1.0`), 불변식 위반(`== 0`), 그래프 수준 잘못 지급(`== 0`), 열화 대조군의 경로 차이(`≥ 0.05`)와 위반 수(`≥ 1`) |
 
 질의 유형 `id_variant`(공백·밑줄·소문자·O/0 변형)와 `id_typo`(한 자리가 틀려 존재하지 않는 도번)는 `evaluation/retrieval.py`의 `make_cases`에 추가됐고(protocol `retrieval-v3`), 유료 검색 실측에서도 같은 유형이 측정됩니다. 이전 v2 결과는 그대로 보존되며 v3와 직접 비교하지 않습니다.

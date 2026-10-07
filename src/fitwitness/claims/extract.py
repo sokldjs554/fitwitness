@@ -29,6 +29,11 @@ AUTHORITY = {"diagnosis_code": "diagnosis", "diagnosis_name": "diagnosis", "diag
              "admission_date": "admission", "discharge_date": "admission",
              "surgery_name": "surgery", "surgery_date": "surgery", "surgery_grade": "surgery",
              "total_amount": "receipt", "insured_name": "diagnosis", "hospital": "diagnosis"}
+# What a payment depends on. A scanner's doubt about one of these is a reason for a person to look
+# (R-CONF-01); its doubt about a hospital's name or a procedure's wording is not, since nothing is paid
+# on them. (The synthetic policies carry no name to compare the insured's against; a real system would
+# add insured_name here.)
+DECISIVE = {"diagnosis_code", "diagnosis_date", "admission_date", "discharge_date", "surgery_date", "surgery_grade", "total_amount"}
 DATE_RES = [
     re.compile(r"^(\d{4})-(\d{1,2})-(\d{1,2})$"), re.compile(r"^(\d{4})\.(\d{1,2})\.(\d{1,2})$"),
     re.compile(r"^(\d{4})/(\d{1,2})/(\d{1,2})$"), re.compile(r"^(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일$"),
@@ -51,53 +56,93 @@ def normalise_amount(text: str) -> int | None:
     return int(digits) if digits else None
 
 
-def read_pairs(data: bytes, doc_id: str) -> list[tuple[str, str, EvidenceRef]]:
-    """(label, value text, evidence) for every ``label: value`` group in the PDF."""
+def _kind(field: str) -> str:
+    """What kind of value a field holds, for the OCR reader's rule on how many words it may span."""
+    return ("date" if field.endswith("_date") else "code" if field == "diagnosis_code" else "amount" if field == "total_amount"
+            else "grade" if field == "surgery_grade" else "name")
+
+
+def _text_pairs(page, n: int, doc_id: str) -> list[tuple[str, str, EvidenceRef]]:
     pairs = []
+    rows: dict[int, list] = {}
+    for w in page.extract_words():
+        rows.setdefault(round(w["top"] / 3), []).append(w)
+    for row in rows.values():
+        row.sort(key=lambda w: w["x0"])
+        i = 0
+        while i < len(row):
+            if not row[i]["text"].endswith(":"):
+                i += 1
+                continue
+            label, start = row[i]["text"], i
+            i += 1
+            values = []
+            while i < len(row) and not row[i]["text"].endswith(":"):
+                values.append(row[i]["text"])
+                i += 1
+            if not values:
+                continue
+            group = row[start:i]
+            bbox = (min(w["x0"] for w in group) / page.width, min(w["top"] for w in group) / page.height,
+                    max(w["x1"] for w in group) / page.width, max(w["bottom"] for w in group) / page.height)
+            text = " ".join(values)
+            pairs.append((label, text, EvidenceRef(doc_id=doc_id, page=n, bbox=bbox, snippet=f"{label} {text}")))
+    return pairs
+
+
+def read_pairs_scored(data: bytes, doc_id: str) -> list[tuple[str, str, EvidenceRef, float, str]]:
+    """(label, value text, evidence, confidence, source) for every ``label: value`` group.
+
+    A page with a text layer is read exactly (confidence 1.0, source "text"). A page without one
+    is a scan: it is read by OCR (``claims/ocr.py``), source "ocr", with the reader's own
+    confidence per value. Without an OCR engine a scanned page yields nothing."""
+    out = []
     with pdfplumber.open(BytesIO(data)) as pdf:
         for n, page in enumerate(pdf.pages, 1):
-            rows: dict[int, list] = {}
-            for w in page.extract_words():
-                rows.setdefault(round(w["top"] / 3), []).append(w)
-            for row in rows.values():
-                row.sort(key=lambda w: w["x0"])
-                i = 0
-                while i < len(row):
-                    if not row[i]["text"].endswith(":"):
-                        i += 1
-                        continue
-                    label, start = row[i]["text"], i
-                    i += 1
-                    values = []
-                    while i < len(row) and not row[i]["text"].endswith(":"):
-                        values.append(row[i]["text"])
-                        i += 1
-                    if not values:
-                        continue
-                    group = row[start:i]
-                    bbox = (min(w["x0"] for w in group) / page.width, min(w["top"] for w in group) / page.height,
-                            max(w["x1"] for w in group) / page.width, max(w["bottom"] for w in group) / page.height)
-                    text = " ".join(values)
-                    pairs.append((label, text, EvidenceRef(doc_id=doc_id, page=n, bbox=bbox, snippet=f"{label} {text}")))
-    return pairs
+            if page.extract_words():
+                out += [(label, text, ref, 1.0, "text") for label, text, ref in _text_pairs(page, n, doc_id)]
+            else:
+                from fitwitness.claims import ocr
+
+                out += [(label, text, ref, conf, "ocr") for label, text, ref, conf in ocr.read_pairs_ocr(
+                    data, doc_id, n - 1, {**{label: _kind(field) for label, field in LABELS.items()}, **dict.fromkeys(ocr.PART_LABELS, "amount")})]
+    return out
+
+
+def read_pairs(data: bytes, doc_id: str) -> list[tuple[str, str, EvidenceRef]]:
+    """(label, value text, evidence) for every ``label: value`` group in the PDF."""
+    return [(label, text, ref) for label, text, ref, _, _ in read_pairs_scored(data, doc_id)]
 
 
 def extract_documents(documents: list[tuple[str, str, bytes]]) -> Extraction:
     """documents: (doc_id, kind, pdf bytes). Deterministic, no model."""
-    values: dict[str, tuple[str, EvidenceRef, bool]] = {}  # field -> (raw, evidence, authoritative)
+    from fitwitness.claims import ocr
+
+    values: dict[str, tuple[str, EvidenceRef, bool, float, str]] = {}  # field -> (raw, evidence, authoritative, confidence, source)
+    origin: dict[str, str] = {}  # field -> the document its value was read from
+    lines: dict[str, list[str]] = {}  # document -> the receipt lines that add up to its total (scans only)
     problems = 0
     for doc_id, kind, data in documents:
-        for label, text, ref in read_pairs(data, doc_id):
+        for label, text, ref, conf, source in read_pairs_scored(data, doc_id):
+            if source == "ocr" and label in ocr.PART_LABELS:
+                lines.setdefault(doc_id, []).append(text)
+                continue
             field = LABELS.get(label)
             if not field:
                 continue
             authoritative = AUTHORITY.get(field) == kind
             if field in values and values[field][2] and not authoritative:
                 continue  # keep the authoritative document's value
-            values[field] = (text, ref, authoritative)
+            values[field] = (text, ref, authoritative, conf, source)
+            origin[field] = doc_id
     out: dict = {}
     evidence: dict[str, EvidenceRef] = {}
-    for field, (raw, ref, _) in values.items():
+    floor = 1.0
+    for field, (raw, ref, _, conf, source) in values.items():
+        confirmed = False
+        if source == "ocr":  # a scanner confuses letters with digits; fix only where the field's shape demands a digit
+            raw = ocr.repair_date(raw) if field.endswith("_date") else ocr.repair_code(raw) if field == "diagnosis_code" \
+                else ocr.repair_amount(raw) if field == "total_amount" else ocr.repair_grade(raw) if field == "surgery_grade" else raw
         if field.endswith("_date"):
             iso = normalise_date(raw)
             if iso is None:
@@ -111,7 +156,7 @@ def extract_documents(documents: list[tuple[str, str, bytes]]) -> Extraction:
                 problems += 1
                 continue
         elif field == "total_amount":
-            amount = normalise_amount(raw)
+            amount, confirmed = ocr.checked_amount(raw, lines.get(origin[field], [])) if source == "ocr" else (normalise_amount(raw), False)
             if amount is None:
                 problems += 1
                 continue
@@ -119,8 +164,11 @@ def extract_documents(documents: list[tuple[str, str, bytes]]) -> Extraction:
         else:
             out[field] = raw
         evidence[field] = ref
-    confidence = max(0.0, 1.0 - 0.2 * problems)
-    return Extraction(**out, evidence=evidence, confidence=confidence)
+        if field in DECISIVE and not confirmed:  # a total the receipt's own lines add up to needs no further doubt
+            floor = min(floor, conf)
+    # The least certain value limits what the whole extraction can be trusted for.
+    confidence = max(0.0, min(1.0 - 0.2 * problems, floor))
+    return Extraction(**out, evidence=evidence, confidence=confidence, scanned=any(v[4] == "ocr" for v in values.values()))
 
 
 def ground(candidate: dict, documents: list[tuple[str, str, bytes]]) -> Extraction:

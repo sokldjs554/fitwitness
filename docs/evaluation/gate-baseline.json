@@ -1,40 +1,40 @@
 {
   "version": "gate-v1",
-  "code_sha": "931afca480a0f78e66d95c683b14ab570d58f9ea",
-  "created_at": "2026-10-07T07:01:11.841945+00:00",
-  "wall_s": 42.76,
+  "code_sha": "fc6c0e9084a4ae1c43f8ef2be11d550b790b0594",
+  "created_at": "2026-10-07T08:59:17.089067+00:00",
+  "wall_s": 102.26,
   "corpus_documents": 150,
   "rules_graph": {
     "state": "completed",
     "correct": 5,
     "total": 5,
     "accuracy": 1.0,
-    "latency_ms": 98.1945830000086
+    "latency_ms": 92.1236840003985
   },
   "lexical": {
     "exact": {
       "n": 6,
       "recall_at_5": 1.0,
       "ndcg_at_5": 1.0,
-      "latency_p50_ms": 80.08462200007216
+      "latency_p50_ms": 96.1290139994162
     },
     "id_typo": {
       "n": 6,
       "recall_at_5": 1.0,
       "ndcg_at_5": 0.7195882275513225,
-      "latency_p50_ms": 77.29450800002269
+      "latency_p50_ms": 97.28649800035782
     },
     "id_variant": {
       "n": 6,
       "recall_at_5": 1.0,
       "ndcg_at_5": 1.0,
-      "latency_p50_ms": 82.19043799999781
+      "latency_p50_ms": 72.67271099954087
     },
     "paraphrase": {
       "n": 6,
       "recall_at_5": 0.0,
       "ndcg_at_5": 0.0,
-      "latency_p50_ms": 71.39793700002883
+      "latency_p50_ms": 82.07301700076641
     }
   },
   "geometry": {
@@ -42,7 +42,7 @@
     "pool": 60,
     "same_family_at_1": 1,
     "same_family_at_3": 1,
-    "parse_latency_p50_ms": 12.916223999923204
+    "parse_latency_p50_ms": 12.34661899979983
   },
   "control": {
     "id_variant_gap": 0.5,
@@ -52,25 +52,25 @@
         "n": 6,
         "recall_at_5": 1.0,
         "ndcg_at_5": 1.0,
-        "latency_p50_ms": 67.96714600000087
+        "latency_p50_ms": 73.74772999992274
       },
       "id_typo": {
         "n": 6,
         "recall_at_5": 0.0,
         "ndcg_at_5": 0.0,
-        "latency_p50_ms": 72.27184199996373
+        "latency_p50_ms": 71.78119600030186
       },
       "id_variant": {
         "n": 6,
         "recall_at_5": 0.5,
         "ndcg_at_5": 0.5,
-        "latency_p50_ms": 68.70795399993312
+        "latency_p50_ms": 70.69434400000318
       },
       "paraphrase": {
         "n": 6,
         "recall_at_5": 0.0,
         "ndcg_at_5": 0.0,
-        "latency_p50_ms": 67.4061580000398
+        "latency_p50_ms": 67.61376699978427
       }
     },
     "claims_wrong_pay_gap": 0.1583,
@@ -93,9 +93,11 @@
       "decision_accuracy": 0.75,
       "wrong_pay_rate": 0.1583,
       "wrong_pay_count": 19,
+      "wrong_deny_count": 0,
+      "wrong_deny_rate": 0.0,
       "review_rate": 0.3083,
       "auto_rate": 0.8846,
-      "latency_ms_p50": 38.8,
+      "latency_ms_p50": 40.3,
       "by_scenario": {
         "clean": {
           "n": 36,
@@ -164,7 +166,8 @@
           "review": 7
         }
       },
-      "degraded": true
+      "degraded": true,
+      "scan": null
     },
     "trajectory_gap": 0.25,
     "trajectory_degraded_violations": 10
@@ -188,9 +191,11 @@
     "decision_accuracy": 0.925,
     "wrong_pay_rate": 0.0,
     "wrong_pay_count": 0,
+    "wrong_deny_count": 0,
+    "wrong_deny_rate": 0.0,
     "review_rate": 0.4,
     "auto_rate": 0.8846,
-    "latency_ms_p50": 38.8,
+    "latency_ms_p50": 39.5,
     "by_scenario": {
       "clean": {
         "n": 36,
@@ -259,7 +264,8 @@
         "review": 7
       }
     },
-    "degraded": false
+    "degraded": false,
+    "scan": null
   },
   "trajectory": {
     "compared": 167,
@@ -270,11 +276,108 @@
     "mismatches": [],
     "violations": []
   },
+  "claims_scan": {
+    "cases": 22,
+    "field_accuracy": 0.9521,
+    "field_accuracy_by_field": {
+      "admission_date": 0.9524,
+      "diagnosis_code": 0.7692,
+      "diagnosis_date": 1.0,
+      "diagnosis_name": 1.0,
+      "discharge_date": 1.0,
+      "hospital": 0.9091,
+      "insured_name": 1.0,
+      "surgery_date": 0.875,
+      "surgery_grade": 0.875,
+      "surgery_name": 1.0,
+      "total_amount": 1.0
+    },
+    "decision_accuracy": 0.6818,
+    "wrong_pay_rate": 0.0,
+    "wrong_pay_count": 0,
+    "wrong_deny_count": 0,
+    "wrong_deny_rate": 0.0,
+    "review_rate": 0.6364,
+    "auto_rate": 1.0,
+    "latency_ms_p50": 8902.1,
+    "by_scenario": {
+      "clean": {
+        "n": 2,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 0
+      },
+      "date_conflict": {
+        "n": 2,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 2
+      },
+      "duplicate": {
+        "n": 2,
+        "decision_accuracy": 0.0,
+        "wrong_pay": 0,
+        "review": 2
+      },
+      "exclusion": {
+        "n": 2,
+        "decision_accuracy": 0.5,
+        "wrong_pay": 0,
+        "review": 2
+      },
+      "format_variance": {
+        "n": 2,
+        "decision_accuracy": 0.5,
+        "wrong_pay": 0,
+        "review": 1
+      },
+      "grade_missing": {
+        "n": 2,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 0
+      },
+      "high_amount": {
+        "n": 2,
+        "decision_accuracy": 0.0,
+        "wrong_pay": 0,
+        "review": 2
+      },
+      "lapsed_policy": {
+        "n": 2,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 0
+      },
+      "missing_doc": {
+        "n": 2,
+        "decision_accuracy": 0.5,
+        "wrong_pay": 0,
+        "review": 2
+      },
+      "ocr_noise": {
+        "n": 2,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 1
+      },
+      "waiting_period": {
+        "n": 2,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 2
+      }
+    },
+    "degraded": false,
+    "scan": "medium",
+    "level": "medium"
+  },
   "limitations": [
     "합성 도면 150개·고정 test split 6 family 기준의 회귀 게이트입니다. 산업 데이터 성능이 아닙니다.",
     "모델·API 호출이 없습니다. 의미·이미지 채널과 LLM Agent 품질은 별도 실측 workflow가 측정합니다.",
     "control 항목은 도번 정규화를 끈 열화 실행과의 차이이며, 벤치마크가 열화를 감지하는지 확인하는 용도입니다.",
     "claims 항목은 합성 청구 서류와 가상의 지급 기준표 기준입니다. 실제 약관·실제 서류의 성능이 아니며, 모델 추출 경로는 포함하지 않습니다.",
+    "claims_scan 항목은 합성 서류를 스캔처럼 열화시켜(medium) OCR로 읽은 결과이며 시나리오마다 2건만 잰 표본입니다. Tesseract가 없으면 건너뜁니다. 실제 스캔 문서의 성능이 아닙니다.",
     "trajectory 항목은 규칙 엔진과 고정 대본의 planner/challenger가 지나는 경로입니다. 실제 모델이 고르는 경로의 품질은 측정하지 않습니다."
   ]
 }

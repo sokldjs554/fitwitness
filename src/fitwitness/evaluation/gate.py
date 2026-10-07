@@ -53,10 +53,17 @@ THRESHOLDS: dict[str, dict] = {
     "control.id_variant_gap": {"min": 0.3},
     "control.id_typo_gap": {"min": 0.3},
     "claims.wrong_pay_rate": {"equals": 0.0},
+    "claims.wrong_deny_rate": {"equals": 0.0},
     "claims.decision_accuracy": {"min": 0.85, "max_drop": 0.02},
     "claims.field_accuracy": {"min": 0.90, "max_drop": 0.02},
     "claims.auto_rate": {"min": 0.60, "max_drop": 0.05},
     "control.claims_wrong_pay_gap": {"min": 0.05},
+    # Scanned-page reading needs the tesseract binary; without it these are skipped, not failed.
+    "claims_scan.wrong_pay_rate": {"equals": 0.0, "optional": True},
+    "claims_scan.wrong_deny_rate": {"equals": 0.0, "optional": True},
+    "claims_scan.field_accuracy": {"min": 0.90, "max_drop": 0.03, "optional": True},
+    # Only about six of the 22 sampled claims are payable, so a drop is not read from this rate: one claim is 17 points.
+    "claims_scan.auto_rate": {"min": 0.50, "optional": True},
     "trajectory.match_rate": {"equals": 1.0},
     "trajectory.invariant_violations": {"equals": 0},
     "trajectory.graph_wrong_pay": {"equals": 0},
@@ -162,6 +169,27 @@ def run_claims(root: Path) -> dict:
     return {"normal": normal, "degraded": degraded}
 
 
+SCAN_LEVEL = "medium"
+SCAN_CASES_PER_SCENARIO = 2
+
+
+def run_claims_scan(root: Path) -> dict | None:
+    """The claim pipeline reading scanned pages (OCR), on a fixed sample, when Tesseract is installed."""
+    from fitwitness.claims import ocr
+    from fitwitness.claims.evaluate import evaluate
+
+    if not ocr.available():
+        return None
+    manifest = json.loads((root / "manifest.json").read_text())
+    seen: dict[str, int] = {}
+    sample = []
+    for case in manifest["cases"]:
+        seen[case["scenario"]] = seen.get(case["scenario"], 0) + 1
+        if seen[case["scenario"]] <= SCAN_CASES_PER_SCENARIO:
+            sample.append(case["case_id"])
+    return evaluate(root, scan=SCAN_LEVEL, workers=max(1, min(4, os.cpu_count() or 1)), cases=sample)
+
+
 def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajectories: Path | None = None,
              adopt_trajectories: bool = False) -> dict:
     from fitwitness.data.bootstrap import seed
@@ -182,6 +210,7 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajecto
     geometry = run_geometry(root, sorted(manifest["family_splits"]["test"]) + sorted(manifest["family_splits"]["dev"]))
     claims_root = claims_root or Path("var/claims")
     claims = run_claims(claims_root) if (claims_root / "manifest.json").exists() else None
+    claims_scan = run_claims_scan(claims_root) if claims else None
     trajectory = None
     if claims:
         from fitwitness.evaluation.trajectory import run_trajectories
@@ -209,11 +238,13 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajecto
         "control": control,
         "claims": claims["normal"]["summary"] if claims else None,
         "trajectory": trajectory["normal"] if trajectory else None,
+        "claims_scan": ({**claims_scan["summary"], "level": SCAN_LEVEL} if claims_scan else None),
         "limitations": [
             "합성 도면 150개·고정 test split 6 family 기준의 회귀 게이트입니다. 산업 데이터 성능이 아닙니다.",
             "모델·API 호출이 없습니다. 의미·이미지 채널과 LLM Agent 품질은 별도 실측 workflow가 측정합니다.",
             "control 항목은 도번 정규화를 끈 열화 실행과의 차이이며, 벤치마크가 열화를 감지하는지 확인하는 용도입니다.",
             "claims 항목은 합성 청구 서류와 가상의 지급 기준표 기준입니다. 실제 약관·실제 서류의 성능이 아니며, 모델 추출 경로는 포함하지 않습니다.",
+            "claims_scan 항목은 합성 서류를 스캔처럼 열화시켜(medium) OCR로 읽은 결과이며 시나리오마다 2건만 잰 표본입니다. Tesseract가 없으면 건너뜁니다. 실제 스캔 문서의 성능이 아닙니다.",
             "trajectory 항목은 규칙 엔진과 고정 대본의 planner/challenger가 지나는 경로입니다. 실제 모델이 고르는 경로의 품질은 측정하지 않습니다.",
         ],
     }
@@ -239,6 +270,9 @@ def compare(report: dict, baseline: dict | None, thresholds: dict[str, dict] = T
         value = _get(report, path)
         base = _get(baseline, path) if baseline else None
         why = []
+        if value is None and rule.get("optional"):
+            checks.append({"metric": path, "value": None, "baseline": base, "ok": True, "why": "skipped (not measured here)"})
+            continue
         if value is None:
             why.append("missing")
         else:

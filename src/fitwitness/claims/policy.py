@@ -116,6 +116,15 @@ def dedupe_keys(policy: Policy, ex: Extraction, decision: ClaimDecision) -> list
     return keys
 
 
+def _scanned_denial(reasons: list[Reason], total: int, items: list[LineItem] | None = None) -> ClaimDecision:
+    """A refusal that rests on values read from a picture goes to a person. The machine may pay what it
+    read with confidence, or hand the claim over; it does not turn a claimant away on a reading that
+    measurably goes wrong now and then (a "D" read as a zero made a payable cancer claim "not covered")."""
+    reasons = reasons + [Reason(rule_id="R-SCAN-01", code="denial_on_scanned_document", severity="review",
+                                message="스캔 서류에서 읽은 값에 근거한 부지급은 자동으로 확정하지 않고 담당자가 확인합니다.")]
+    return ClaimDecision(outcome="REVIEW", line_items=items or [], total_amount=total, reasons=reasons, needs_human=True)
+
+
 def adjudicate(policy: Policy, product: Product, requested: list[str], ex: Extraction,
                present_docs: set[str], prior_paid_keys: set[str], flags: list[str] | None = None) -> ClaimDecision:
     reasons: list[Reason] = []
@@ -131,6 +140,8 @@ def adjudicate(policy: Policy, product: Product, requested: list[str], ex: Extra
         reasons.append(Reason(rule_id="R-POL-01", code="outside_policy_period", severity="deny",
                               message=f"사고일({event_date})이 보험기간({eff_from}~{eff_to}) 밖입니다."))
     if reasons:
+        if ex.scanned and any(r.rule_id != "R-POL-02" for r in reasons):
+            return _scanned_denial(reasons, 0)
         return ClaimDecision(outcome="DENY", reasons=reasons, total_amount=0)
     if event_date is None:
         reasons.append(Reason(rule_id="R-REQ-02", code="no_event_date", severity="review",
@@ -230,6 +241,8 @@ def adjudicate(policy: Policy, product: Product, requested: list[str], ex: Extra
         outcome = "REVIEW" if not reasons else "DENY"
     else:
         outcome = "APPROVE"
+    if outcome == "DENY" and ex.scanned:
+        return _scanned_denial(reasons, total, items)
     return ClaimDecision(outcome=outcome, line_items=items, total_amount=total, reasons=reasons, needs_human=(outcome == "REVIEW"))
 
 

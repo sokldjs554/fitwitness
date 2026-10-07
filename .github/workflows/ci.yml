@@ -32,7 +32,7 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: web/package-lock.json
-      - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
+      - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0 tesseract-ocr tesseract-ocr-kor
       - run: uv sync --frozen --extra dev
       - run: uv run python scripts/setup.py
       - run: uv run python scripts/verify-research.py

@@ -59,3 +59,14 @@ def test_contradictions_and_low_confidence_route_to_review():
     assert run(ex(), flags=flags).outcome == "REVIEW"
     assert run(ex(confidence=0.5)).outcome == "REVIEW"
     assert "missing_evidence" in validate(ex(), ALL_DOCS)  # populated fields without a source position
+
+
+def test_a_refusal_resting_on_a_scan_goes_to_a_person_but_a_lapsed_policy_is_still_a_refusal():
+    excluded = run(ex(diagnosis_code="Z41.1", scanned=True), requested=("surgery",))
+    assert excluded.outcome == "REVIEW" and excluded.needs_human and "R-SCAN-01" in excluded.rule_ids()
+    assert run(ex(diagnosis_code="Z41.1"), requested=("surgery",)).outcome == "DENY"  # the same claim from a text layer
+    early = run(ex(diagnosis_code="C16.9", diagnosis_date="2025-02-01", scanned=True), requested=("diagnosis",), policy=POL.model_copy(update={"product_id": "CANCER-B"}))
+    assert early.outcome == "REVIEW" and {"R-WAIT-01", "R-SCAN-01"} <= set(early.rule_ids())
+    lapsed = run(ex(scanned=True), policy=POL.model_copy(update={"status": "lapsed"}))
+    assert lapsed.outcome == "DENY"  # the contract's status is not something the scan said
+    assert run(ex(scanned=True)).outcome == "APPROVE"  # paying what was read with confidence is still automatic
