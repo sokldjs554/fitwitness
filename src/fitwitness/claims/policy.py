@@ -125,6 +125,15 @@ def _scanned_denial(reasons: list[Reason], total: int, items: list[LineItem] | N
     return ClaimDecision(outcome="REVIEW", line_items=items or [], total_amount=total, reasons=reasons, needs_human=True)
 
 
+def _doubtful_denial(reasons: list[Reason], total: int, items: list[LineItem]) -> ClaimDecision:
+    """A refusal next to a reading the system itself doubts (extraction confidence under the floor) goes to a
+    person: it cannot tell which value is the wrong one, and a claimant is not turned away on a file that was
+    partly unreadable. Documents that disagree are a different case: the refusal may rest on fields that agree."""
+    reasons = reasons + [Reason(rule_id="R-DOUBT-01", code="denial_on_doubtful_reading", severity="review",
+                                message="서류 판독에 의심이 있는 상태의 부지급은 자동으로 확정하지 않고 담당자가 확인합니다.")]
+    return ClaimDecision(outcome="REVIEW", line_items=items, total_amount=total, reasons=reasons, needs_human=True)
+
+
 def adjudicate(policy: Policy, product: Product, requested: list[str], ex: Extraction,
                present_docs: set[str], prior_paid_keys: set[str], flags: list[str] | None = None) -> ClaimDecision:
     reasons: list[Reason] = []
@@ -243,6 +252,8 @@ def adjudicate(policy: Policy, product: Product, requested: list[str], ex: Extra
         outcome = "APPROVE"
     if outcome == "DENY" and ex.scanned:
         return _scanned_denial(reasons, total, items)
+    if outcome == "DENY" and any(r.rule_id == "R-CONF-01" for r in reasons):
+        return _doubtful_denial(reasons, total, items)
     return ClaimDecision(outcome=outcome, line_items=items, total_amount=total, reasons=reasons, needs_human=(outcome == "REVIEW"))
 
 

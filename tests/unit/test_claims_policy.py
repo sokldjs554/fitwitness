@@ -70,3 +70,12 @@ def test_a_refusal_resting_on_a_scan_goes_to_a_person_but_a_lapsed_policy_is_sti
     lapsed = run(ex(scanned=True), policy=POL.model_copy(update={"status": "lapsed"}))
     assert lapsed.outcome == "DENY"  # the contract's status is not something the scan said
     assert run(ex(scanned=True)).outcome == "APPROVE"  # paying what was read with confidence is still automatic
+
+
+def test_a_refusal_next_to_a_reading_the_system_doubts_goes_to_a_person_but_disagreeing_documents_alone_do_not():
+    sure = run(ex(diagnosis_code="Z41.1"), requested=("surgery",))
+    assert sure.outcome == "DENY"
+    doubtful = run(ex(diagnosis_code="Z41.1", confidence=0.6), requested=("surgery",))
+    assert doubtful.outcome == "REVIEW" and doubtful.needs_human and {"R-EXC-01", "R-CONF-01", "R-DOUBT-01"} <= set(doubtful.rule_ids())
+    disagreeing = run(ex(diagnosis_code="Z41.1"), requested=("surgery",), flags=["discharge_before_admission"])
+    assert disagreeing.outcome == "DENY"  # the refusal rests on a field the documents agree on

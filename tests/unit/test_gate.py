@@ -4,8 +4,9 @@ from fitwitness.evaluation.gate import THRESHOLDS, compare
 def _report(**over):
     base = {"rules_graph": {"accuracy": 1.0}, "lexical": {"exact": {"recall_at_5": 1.0}, "id_variant": {"recall_at_5": 1.0},
             "id_typo": {"recall_at_5": 1.0}, "paraphrase": {"recall_at_5": 0.2}}, "geometry": {"same_family_at_3": 0.9},
-            "control": {"id_variant_gap": 1.0, "id_typo_gap": 1.0, "claims_wrong_pay_gap": 0.15, "trajectory_gap": 0.25, "trajectory_degraded_violations": 10},
+            "control": {"id_variant_gap": 1.0, "id_typo_gap": 1.0, "claims_wrong_pay_gap": 0.15, "official_reader_gap": 0.4, "trajectory_gap": 0.25, "trajectory_degraded_violations": 10},
             "claims": {"wrong_pay_rate": 0.0, "wrong_deny_rate": 0.0, "decision_accuracy": 0.92, "field_accuracy": 0.97, "auto_rate": 0.88},
+            "claims_official": {"wrong_pay_rate": 0.0, "wrong_deny_rate": 0.0, "decision_accuracy": 0.92, "field_accuracy": 0.98},
             "trajectory": {"match_rate": 1.0, "invariant_violations": 0, "graph_wrong_pay": 0}}
     for path, value in over.items():
         cur = base
@@ -62,3 +63,11 @@ def test_the_scan_suite_is_skipped_without_tesseract_but_never_tolerates_a_wrong
     worse = _report()
     worse.update({"claims_scan": {**scan["claims_scan"], "field_accuracy": 0.85}})
     assert not compare(worse, healthy)["passed"]
+
+
+def test_the_official_form_suite_fails_on_a_wrong_payout_or_refusal_and_needs_its_control_to_see_a_gap():
+    for key in ("wrong_pay_rate", "wrong_deny_rate"):
+        assert not compare(_report(**{f"claims_official.{key}": 0.01}), None)["passed"], key
+    assert not compare(_report(**{"claims_official.field_accuracy": 0.90}), None)["passed"]
+    blind = compare(_report(**{"control.official_reader_gap": 0.0}), None)
+    assert not blind["passed"], "a reader that does no better than the text reader on the forms proves nothing"

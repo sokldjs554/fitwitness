@@ -58,6 +58,12 @@ THRESHOLDS: dict[str, dict] = {
     "claims.field_accuracy": {"min": 0.90, "max_drop": 0.02},
     "claims.auto_rate": {"min": 0.60, "max_drop": 0.05},
     "control.claims_wrong_pay_gap": {"min": 0.05},
+    # The statutory diagnosis certificate and fee statement, redrawn (no downloaded form is needed), read by their grid.
+    "claims_official.wrong_pay_rate": {"equals": 0.0},
+    "claims_official.wrong_deny_rate": {"equals": 0.0},
+    "claims_official.decision_accuracy": {"min": 0.85, "max_drop": 0.02},
+    "claims_official.field_accuracy": {"min": 0.95, "max_drop": 0.02},
+    "control.official_reader_gap": {"min": 0.05},
     # Scanned-page reading needs the tesseract binary; without it these are skipped, not failed.
     "claims_scan.wrong_pay_rate": {"equals": 0.0, "optional": True},
     "claims_scan.wrong_deny_rate": {"equals": 0.0, "optional": True},
@@ -169,6 +175,22 @@ def run_claims(root: Path) -> dict:
     return {"normal": normal, "degraded": degraded}
 
 
+def run_claims_official(root: Path) -> dict:
+    """The claims on the two statutory forms, read by their grid, and again by the "label: value" reader alone."""
+    from fitwitness.claims import official
+    from fitwitness.claims.evaluate import evaluate
+
+    forms = {"diagnosis": None, "receipt": None}
+    grid = evaluate(root, forms=forms)
+    read_page = official.read_page
+    official.read_page = lambda *args, **kwargs: None  # as if the forms were not recognised
+    try:
+        text_only = evaluate(root, forms=forms)
+    finally:
+        official.read_page = read_page
+    return {"normal": grid, "text_only": text_only}
+
+
 SCAN_LEVEL = "medium"
 SCAN_CASES_PER_SCENARIO = 2
 
@@ -211,6 +233,7 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajecto
     claims_root = claims_root or Path("var/claims")
     claims = run_claims(claims_root) if (claims_root / "manifest.json").exists() else None
     claims_scan = run_claims_scan(claims_root) if claims else None
+    claims_official = run_claims_official(claims_root) if claims else None
     trajectory = None
     if claims:
         from fitwitness.evaluation.trajectory import run_trajectories
@@ -225,6 +248,8 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajecto
     if claims:
         control["claims_wrong_pay_gap"] = claims["degraded"]["summary"]["wrong_pay_rate"] - claims["normal"]["summary"]["wrong_pay_rate"]
         control["claims_degraded"] = claims["degraded"]["summary"]
+        control["official_reader_gap"] = claims_official["normal"]["summary"]["field_accuracy"] - claims_official["text_only"]["summary"]["field_accuracy"]
+        control["official_text_only"] = claims_official["text_only"]["summary"]
     if trajectory:
         normal_rate, broken_rate = trajectory["normal"]["match_rate"], trajectory["degraded"]["match_rate"]
         control["trajectory_gap"] = (normal_rate - broken_rate) if normal_rate is not None and broken_rate is not None else None
@@ -239,12 +264,14 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajecto
         "claims": claims["normal"]["summary"] if claims else None,
         "trajectory": trajectory["normal"] if trajectory else None,
         "claims_scan": ({**claims_scan["summary"], "level": SCAN_LEVEL} if claims_scan else None),
+        "claims_official": claims_official["normal"]["summary"] if claims_official else None,
         "limitations": [
             "합성 도면 150개·고정 test split 6 family 기준의 회귀 게이트입니다. 산업 데이터 성능이 아닙니다.",
             "모델·API 호출이 없습니다. 의미·이미지 채널과 LLM Agent 품질은 별도 실측 workflow가 측정합니다.",
             "control 항목은 도번 정규화를 끈 열화 실행과의 차이이며, 벤치마크가 열화를 감지하는지 확인하는 용도입니다.",
             "claims 항목은 합성 청구 서류와 가상의 지급 기준표 기준입니다. 실제 약관·실제 서류의 성능이 아니며, 모델 추출 경로는 포함하지 않습니다.",
             "claims_scan 항목은 합성 서류를 스캔처럼 열화시켜(medium) OCR로 읽은 결과이며 시나리오마다 2건만 잰 표본입니다. Tesseract가 없으면 건너뜁니다. 실제 스캔 문서의 성능이 아닙니다.",
+            "claims_official 항목은 진단서와 진료비 계산서·영수증을 공식 서식의 라벨·선을 다시 그린 판에 생성기의 값으로 채워 읽은 결과입니다. 값의 위치는 서식에서 잰 것이고 병원 소프트웨어가 실제로 찍는 위치가 아닙니다. 두 서류 외에는 합성 문서 그대로입니다.",
             "trajectory 항목은 규칙 엔진과 고정 대본의 planner/challenger가 지나는 경로입니다. 실제 모델이 고르는 경로의 품질은 측정하지 않습니다.",
         ],
     }

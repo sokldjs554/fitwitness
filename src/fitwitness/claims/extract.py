@@ -93,14 +93,19 @@ def _text_pairs(page, n: int, doc_id: str) -> list[tuple[str, str, EvidenceRef]]
 def read_pairs_scored(data: bytes, doc_id: str) -> list[tuple[str, str, EvidenceRef, float, str]]:
     """(label, value text, evidence, confidence, source) for every ``label: value`` group.
 
-    A page with a text layer is read exactly (confidence 1.0, source "text"). A page without one
+    A page with a text layer is read exactly (confidence 1.0, source "text"): by its grid when it is
+    one of the official forms (``claims/official.py``), otherwise as ``label: value`` lines. A page without one
     is a scan: it is read by OCR (``claims/ocr.py``), source "ocr", with the reader's own
     confidence per value. Without an OCR engine a scanned page yields nothing."""
     out = []
     with pdfplumber.open(BytesIO(data)) as pdf:
         for n, page in enumerate(pdf.pages, 1):
             if page.extract_words():
-                out += [(label, text, ref, 1.0, "text") for label, text, ref in _text_pairs(page, n, doc_id)]
+                from fitwitness.claims import official
+
+                grid = official.read_page(page, n, doc_id)
+                pairs = _text_pairs(page, n, doc_id) if grid is None else grid
+                out += [(label, text, ref, 1.0, "text") for label, text, ref in pairs]
             else:
                 from fitwitness.claims import ocr
 

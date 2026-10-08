@@ -46,8 +46,21 @@ def challenge(ex: Extraction, decision: ClaimDecision) -> ClaimDecision:
 NAME_FIELDS = {"insured_name", "hospital", "diagnosis_name", "surgery_name"}
 
 
-def run_pipeline(root: Path, case: dict, *, degraded: bool = False, scan: str | None = None) -> tuple[Extraction, ClaimDecision, float]:
+def on_official_forms(docs: list[tuple[str, str, bytes]], truth: dict, forms: dict[str, bytes | None]) -> list[tuple[str, str, bytes]]:
+    """The diagnosis certificate and the fee statement written on the statutory forms (``claims/official_fill.py``).
+
+    ``forms`` maps a kind to the real blank form's bytes, or to None for the redrawn layout. The other
+    documents stay as the generator made them: no statutory form for them has been read yet."""
+    from fitwitness.claims.official_fill import fill
+
+    return [(i, k, fill(k, truth, blank=forms[k], seed=i) if k in forms else data) for i, k, data in docs]
+
+
+def run_pipeline(root: Path, case: dict, *, degraded: bool = False, scan: str | None = None, truth: dict | None = None,
+                 forms: dict[str, bytes | None] | None = None) -> tuple[Extraction, ClaimDecision, float]:
     docs = [(d["id"], d["kind"], (root / case["case_id"] / f"{d['id']}.pdf").read_bytes()) for d in case["documents"]]
+    if forms:
+        docs = on_official_forms(docs, truth or {}, forms)
     if scan:
         from fitwitness.claims.scan import scan_pdf
 
@@ -74,8 +87,8 @@ def _same(field: str, got, want, scan: str | None) -> bool:
 
 
 def _score_case(args: tuple) -> dict:
-    root, case, g, degraded, scan = args
-    ex, decision, ms = run_pipeline(root, case, degraded=degraded, scan=scan)
+    root, case, g, degraded, scan, forms = args
+    ex, decision, ms = run_pipeline(root, case, degraded=degraded, scan=scan, truth=g["truth"], forms=forms)
     hits = {f: _same(f, getattr(ex, f), g["truth"].get(f), scan) or (f == "discharge_date" and case["scenario"] == "date_conflict")
             for f in g["visible_fields"]}
     correct = decision.outcome == g["gold"]["outcome"] and decision.total_amount == g["gold"]["total_amount"]
@@ -86,11 +99,12 @@ def _score_case(args: tuple) -> dict:
             "confidence": ex.confidence, "rules": decision.rule_ids(), "ms": ms, "hits": hits}
 
 
-def evaluate(root: Path, *, degraded: bool = False, scan: str | None = None, workers: int = 1, cases: list[str] | None = None) -> dict:
+def evaluate(root: Path, *, degraded: bool = False, scan: str | None = None, workers: int = 1, cases: list[str] | None = None,
+             forms: dict[str, bytes | None] | None = None) -> dict:
     manifest = json.loads((root / "manifest.json").read_text())
     gold = json.loads((root / "gold.json").read_text())
     chosen = [c for c in manifest["cases"] if cases is None or c["case_id"] in cases]
-    jobs = [(root, c, gold[c["case_id"]], degraded, scan) for c in chosen]
+    jobs = [(root, c, gold[c["case_id"]], degraded, scan, forms) for c in chosen]
     if workers > 1:
         from concurrent.futures import ProcessPoolExecutor
 
@@ -132,6 +146,7 @@ def evaluate(root: Path, *, degraded: bool = False, scan: str | None = None, wor
                             "review": c["review"]} for s, c in sorted(per_scenario.items())},
         "degraded": degraded,
         "scan": scan,
+        "forms": None if forms is None else {k: "real" if v else "redrawn" for k, v in forms.items()},
     }
     return {"summary": summary, "rows": rows}
 
@@ -145,12 +160,20 @@ if __name__ == "__main__":
     ap.add_argument("--degraded", action="store_true")
     ap.add_argument("--scan", choices=["clean", "light", "medium", "heavy"], help="read every document as a scanned page picture through OCR")
     ap.add_argument("--workers", type=int, default=1)
+    ap.add_argument("--official", action="store_true",
+                    help="write the diagnosis and the fee statement on the statutory forms (redrawn unless --diagnosis-form/--receipt-form is given)")
+    ap.add_argument("--diagnosis-form", help="path of the real blank 별지 제5호의2 진단서 (a downloaded file; not in this repository)")
+    ap.add_argument("--receipt-form", help="path of the real blank 별지 제6호 진료비 계산서·영수증")
     ap.add_argument("--split", choices=["all", "dev", "test"], default="all",
                     help="dev = even-numbered cases, test = odd-numbered ones (the confidence floor is chosen on dev and checked on test)")
     a = ap.parse_args()
     ids = [c["case_id"] for c in json.loads((Path(a.root) / "manifest.json").read_text())["cases"]]
     chosen = None if a.split == "all" else [c for i, c in enumerate(ids) if (i % 2 == 0) == (a.split == "dev")]
-    result = evaluate(Path(a.root), degraded=a.degraded, scan=a.scan, workers=a.workers, cases=chosen)
+    forms = None
+    if a.official or a.diagnosis_form or a.receipt_form:
+        forms = {"diagnosis": Path(a.diagnosis_form).read_bytes() if a.diagnosis_form else None,
+                 "receipt": Path(a.receipt_form).read_bytes() if a.receipt_form else None}
+    result = evaluate(Path(a.root), degraded=a.degraded, scan=a.scan, workers=a.workers, cases=chosen, forms=forms)
     Path(a.output).parent.mkdir(parents=True, exist_ok=True)
     Path(a.output).write_text(json.dumps(result, ensure_ascii=False, indent=1))
     print(json.dumps(result["summary"], ensure_ascii=False, indent=1))
