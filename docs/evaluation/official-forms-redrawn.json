@@ -1,0 +1,198 @@
+{
+ "cases": 120,
+ "forms": {
+  "diagnosis": "redrawn",
+  "receipt": "redrawn"
+ },
+ "blank_form_reads": {
+  "diagnosis": [],
+  "receipt": []
+ },
+ "by_jitter": {
+  "0.0": {
+   "fields": {
+    "diagnosis.admission_date": {
+     "correct": 120
+    },
+    "diagnosis.diagnosis_code": {
+     "correct": 120
+    },
+    "diagnosis.diagnosis_date": {
+     "correct": 120
+    },
+    "diagnosis.diagnosis_name": {
+     "correct": 120
+    },
+    "diagnosis.discharge_date": {
+     "correct": 120
+    },
+    "diagnosis.hospital": {
+     "correct": 120
+    },
+    "diagnosis.insured_name": {
+     "correct": 120
+    },
+    "receipt.hospital": {
+     "correct": 120
+    },
+    "receipt.insured_name": {
+     "correct": 120
+    },
+    "receipt.total_amount": {
+     "correct": 120
+    }
+   },
+   "total": {
+    "correct": 1200
+   }
+  },
+  "1.5": {
+   "fields": {
+    "diagnosis.admission_date": {
+     "correct": 120
+    },
+    "diagnosis.diagnosis_code": {
+     "correct": 120
+    },
+    "diagnosis.diagnosis_date": {
+     "correct": 120
+    },
+    "diagnosis.diagnosis_name": {
+     "correct": 120
+    },
+    "diagnosis.discharge_date": {
+     "correct": 120
+    },
+    "diagnosis.hospital": {
+     "correct": 120
+    },
+    "diagnosis.insured_name": {
+     "correct": 120
+    },
+    "receipt.hospital": {
+     "correct": 120
+    },
+    "receipt.insured_name": {
+     "correct": 120
+    },
+    "receipt.total_amount": {
+     "correct": 120
+    }
+   },
+   "total": {
+    "correct": 1200
+   }
+  },
+  "3.0": {
+   "fields": {
+    "diagnosis.admission_date": {
+     "correct": 120
+    },
+    "diagnosis.diagnosis_code": {
+     "correct": 120
+    },
+    "diagnosis.diagnosis_date": {
+     "correct": 120
+    },
+    "diagnosis.diagnosis_name": {
+     "correct": 120
+    },
+    "diagnosis.discharge_date": {
+     "correct": 120
+    },
+    "diagnosis.hospital": {
+     "correct": 120
+    },
+    "diagnosis.insured_name": {
+     "correct": 120
+    },
+    "receipt.hospital": {
+     "correct": 120
+    },
+    "receipt.insured_name": {
+     "correct": 120
+    },
+    "receipt.total_amount": {
+     "correct": 120
+    }
+   },
+   "total": {
+    "correct": 1200
+   }
+  },
+  "4.5": {
+   "fields": {
+    "diagnosis.admission_date": {
+     "correct": 120
+    },
+    "diagnosis.diagnosis_code": {
+     "correct": 120
+    },
+    "diagnosis.diagnosis_date": {
+     "correct": 120
+    },
+    "diagnosis.diagnosis_name": {
+     "correct": 120
+    },
+    "diagnosis.discharge_date": {
+     "correct": 120
+    },
+    "diagnosis.hospital": {
+     "correct": 120
+    },
+    "diagnosis.insured_name": {
+     "correct": 120
+    },
+    "receipt.hospital": {
+     "correct": 120
+    },
+    "receipt.insured_name": {
+     "correct": 120
+    },
+    "receipt.total_amount": {
+     "correct": 120
+    }
+   },
+   "total": {
+    "correct": 1200
+   }
+  },
+  "6.0": {
+   "fields": {
+    "diagnosis.admission_date": {
+     "correct": 120
+    },
+    "diagnosis.diagnosis_code": {
+     "correct": 120
+    },
+    "diagnosis.diagnosis_date": {
+     "correct": 120
+    },
+    "diagnosis.diagnosis_name": {
+     "correct": 120
+    },
+    "diagnosis.discharge_date": {
+     "correct": 120
+    },
+    "diagnosis.hospital": {
+     "correct": 120
+    },
+    "diagnosis.insured_name": {
+     "correct": 120
+    },
+    "receipt.hospital": {
+     "correct": 120
+    },
+    "receipt.insured_name": {
+     "correct": 120
+    },
+    "receipt.total_amount": {
+     "correct": 120
+    }
+   },
+   "total": {
+    "correct": 1200
+   }
+  }
+ }
+}
