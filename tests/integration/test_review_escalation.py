@@ -86,13 +86,13 @@ def test_an_unanswered_review_is_escalated_not_decided(env, monkeypatch):
     with repo.connection(scope) as c:  # the deadline passes
         c.execute("UPDATE fw_runs SET review_due_at=now()-interval '1 second' WHERE id=%s", (run_id,))
         c.execute("UPDATE fw_review_due SET due_at=now()-interval '1 second' WHERE run_id=%s", (run_id,))
-    assert jobs.escalate_overdue() >= 1
+    assert jobs.escalate_overdue(limit=10_000) >= 1
     view = jobs.get(scope, run_id)
     assert view.state == "waiting_input" and view.escalated, "late is not the same as approved or denied"
     assert repo.payouts(scope) == []
     event = [e for e in jobs.events(scope, run_id) if e["kind"] == "review_escalated"]
     assert len(event) == 1 and event[0]["payload"]["level"] == "senior"
-    assert jobs.escalate_overdue() == 0, "an escalated run is escalated once"
+    assert jobs.escalate_overdue(limit=10_000) == 0, "an escalated run is escalated once"
     # an escalated claim follows the senior rules, whatever its amount
     with pytest.raises(ReviewRuleError):
         jobs.resume(scope, run_id, {"outcome": "APPROVE", "reviewer": "김심사", "note": ""})
