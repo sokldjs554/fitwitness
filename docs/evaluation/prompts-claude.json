@@ -1,0 +1,66 @@
+{
+ "source": "GitHub Actions run 37809745922 (workflow prompt-experiment, provider anthropic, repeats 1, ceiling 0.8 USD), commit b7a3da8, model claude-haiku-4-5-20251001, temperature 0.7. Values transcribed from the job's Summary step; the run's artifact holds the per-call rows.",
+ "protocol": "dev: 6 families, 36 cases x 4 prompts; winner rule: accuracy, then false acceptances, then output tokens, then name; test: 4 families, 24 cases, winner and baseline only (the winner was the baseline).",
+ "dev": {
+  "baseline": {
+   "attempts": 36,
+   "completed": 36,
+   "accuracy": 1.0,
+   "false_acceptances": 0,
+   "abstention_rate": 0.1667,
+   "input_tokens": 44839,
+   "output_tokens": 2058,
+   "cost_usd": 0.055129
+  },
+  "procedure": {
+   "attempts": 36,
+   "completed": 36,
+   "accuracy": 1.0,
+   "false_acceptances": 0,
+   "abstention_rate": 0.1667,
+   "input_tokens": 48907,
+   "output_tokens": 2058,
+   "cost_usd": 0.059197
+  },
+  "cot": {
+   "attempts": 36,
+   "completed": 36,
+   "accuracy": 1.0,
+   "false_acceptances": 0,
+   "abstention_rate": 0.1667,
+   "input_tokens": 51175,
+   "output_tokens": 4695,
+   "cost_usd": 0.07465
+  },
+  "fewshot": {
+   "attempts": 36,
+   "completed": 36,
+   "accuracy": 1.0,
+   "false_acceptances": 0,
+   "abstention_rate": 0.1667,
+   "input_tokens": 107479,
+   "output_tokens": 2058,
+   "cost_usd": 0.117769
+  }
+ },
+ "dev_winner": "baseline",
+ "versus_baseline": {
+  "procedure": 0.0,
+  "cot": 0.0,
+  "fewshot": 0.0
+ },
+ "test": {
+  "baseline": {
+   "attempts": 24,
+   "completed": 24,
+   "accuracy": 1.0,
+   "false_acceptances": 0,
+   "abstention_rate": 0.1667,
+   "input_tokens": 29965,
+   "output_tokens": 1368,
+   "cost_usd": 0.036805
+  }
+ },
+ "total_measured_cost_usd": 0.34355,
+ "reading": "Every prompt answered every case correctly, so accuracy cannot separate them; only cost differs (cot 1.35x and fewshot 2.14x the baseline on dev). The task is at the ceiling for this model."
+}
