@@ -21,7 +21,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: prompt-experiment
+  group: prompt-experiment-${{ inputs.provider }}
   cancel-in-progress: false
 jobs:
   local:
