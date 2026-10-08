@@ -1,0 +1,142 @@
+name: prompt-experiment
+# Compares four prompts for the evidence verdict on the dev families, then checks the winner and the baseline once
+# on the test families. Started by hand (workflow_dispatch); nothing else runs it. The Claude job makes paid calls
+# under a hard ceiling that the run itself enforces; the local job makes none.
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: local = Qwen3-1.7B on the runner (no cost, slow), anthropic = Claude Haiku 4.5 (paid)
+        type: choice
+        options: [local, anthropic]
+        default: local
+      repeats:
+        description: repeats per case (1 to 3)
+        type: choice
+        options: ['1', '2', '3']
+        default: '2'
+      max_usd:
+        description: hard ceiling for the whole anthropic run in USD (at most 1.5; ignored for local)
+        default: '0.8'
+permissions:
+  contents: read
+concurrency:
+  group: prompt-experiment
+  cancel-in-progress: false
+jobs:
+  local:
+    if: inputs.provider == 'local' && github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
+      - run: uv sync --frozen --extra dev --extra models
+      - run: uv run python scripts/setup.py
+      - name: Download the pinned model
+        run: |
+          uv run python - <<'PY'
+          from huggingface_hub import snapshot_download
+          from pathlib import Path
+          revision = '70d244cc86ccca08cf5af4e1e306ecf908b1ad5e'
+          folder = 'var/models/Qwen3-1.7B'
+          snapshot_download('Qwen/Qwen3-1.7B', revision=revision, local_dir=folder)
+          Path(folder, 'REVISION').write_text(revision)
+          PY
+      - name: Dev families, four prompts
+        env:
+          HF_HUB_OFFLINE: '1'
+          TRANSFORMERS_OFFLINE: '1'
+        run: uv run python -m fitwitness.evaluation.prompt_experiment --split dev --provider local --repeats ${{ inputs.repeats }} --output artifacts/prompts-dev-local
+      - name: Test families, the winner and the baseline, once
+        env:
+          HF_HUB_OFFLINE: '1'
+          TRANSFORMERS_OFFLINE: '1'
+        run: uv run python -m fitwitness.evaluation.prompt_experiment --split test --provider local --repeats ${{ inputs.repeats }} --dev-report artifacts/prompts-dev-local/report.json --output artifacts/prompts-test-local
+      - name: Summary
+        if: always()
+        run: |
+          uv run python - <<'PY'
+          import json
+          from pathlib import Path
+          for name in ('prompts-dev-local', 'prompts-test-local'):
+              f = Path('artifacts', name, 'report.json')
+              if not f.exists():
+                  print(name, 'no report'); continue
+              r = json.loads(f.read_text())
+              print('==', name, 'winner', r['winner'])
+              for v, m in r['variants'].items():
+                  print(v, {k: m[k] for k in ('attempts', 'completed', 'accuracy', 'accuracy_ci95', 'false_acceptances', 'abstention_rate', 'output_tokens', 'latency_p50_ms')})
+              print('by category', json.dumps(r['accuracy_by_category'], ensure_ascii=False))
+              print('versus baseline', json.dumps(r['versus_baseline']))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: prompts-local-${{ github.run_id }}
+          path: artifacts/
+          if-no-files-found: warn
+  claude:
+    if: inputs.provider == 'anthropic' && github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      PYTHONPATH: src
+      FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION: '1'
+      FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION: '5'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require a privately configured credential and a sane ceiling
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then echo 'ANTHROPIC_API_KEY repository secret is missing.'; exit 1; fi
+          python3 - <<'PY'
+          limit = float('${{ inputs.max_usd }}')
+          assert 0 < limit <= 1.5, limit
+          PY
+      - uses: astral-sh/setup-uv@v6
+      - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
+      - run: uv sync --frozen --no-dev
+      - run: uv run python scripts/setup.py
+      - name: Dev families, four prompts (70 percent of the ceiling)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          cap=$(python3 -c "print(round(float('${{ inputs.max_usd }}') * 0.7, 4))")
+          uv run python -m fitwitness.evaluation.prompt_experiment --split dev --provider anthropic --model claude-haiku-4-5-20251001 --max-cost-usd "$cap" --repeats ${{ inputs.repeats }} --output artifacts/prompts-dev-claude
+      - name: Test families, the winner and the baseline, once (30 percent of the ceiling)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          cap=$(python3 -c "print(round(float('${{ inputs.max_usd }}') * 0.3, 4))")
+          uv run python -m fitwitness.evaluation.prompt_experiment --split test --provider anthropic --model claude-haiku-4-5-20251001 --max-cost-usd "$cap" --repeats ${{ inputs.repeats }} --dev-report artifacts/prompts-dev-claude/report.json --output artifacts/prompts-test-claude
+      - name: Summary
+        if: always()
+        run: |
+          uv run python - <<'PY'
+          import json
+          from pathlib import Path
+          total = 0.0
+          for name in ('prompts-dev-claude', 'prompts-test-claude'):
+              f = Path('artifacts', name, 'report.json')
+              if not f.exists():
+                  print(name, 'no report'); continue
+              r = json.loads(f.read_text())
+              print('==', name, 'winner', r['winner'])
+              for v, m in r['variants'].items():
+                  total += m['cost_usd'] or 0
+                  print(v, {k: m[k] for k in ('attempts', 'completed', 'accuracy', 'accuracy_ci95', 'false_acceptances', 'abstention_rate', 'input_tokens', 'output_tokens', 'cost_usd', 'latency_p50_ms')})
+              print('by category', json.dumps(r['accuracy_by_category'], ensure_ascii=False))
+              print('versus baseline', json.dumps(r['versus_baseline']))
+          print('total measured cost USD', round(total, 6))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: prompts-claude-${{ github.run_id }}
+          path: artifacts/
+          if-no-files-found: warn

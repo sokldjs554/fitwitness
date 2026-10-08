@@ -9,12 +9,19 @@ FAMILIES = ['FW-F003', 'FW-F012', 'FW-F018', 'FW-F029']
 CATEGORIES = ['match', 'dimension', 'material', 'missing', 'unit', 'revision']
 
 
-def build_cases(root: Path):
+def split_families(root: Path, split: str):
+    """The design families of one split, in a fixed order. The published pilot uses ``FAMILIES`` of the test split."""
     manifest = json.loads((root/'manifest.json').read_text())
-    assert set(FAMILIES).issubset(manifest['family_splits']['test'])
+    return sorted(manifest['family_splits'][split])
+
+
+def build_cases(root: Path, families=None, split='test'):
+    manifest = json.loads((root/'manifest.json').read_text())
+    families = FAMILIES if families is None else families
+    assert set(families).issubset(manifest['family_splits'][split])
     gold = json.loads((root/'gold/labels.json').read_text())
     cases = []
-    for family in FAMILIES:
+    for family in families:
         entries = [d for d in manifest['document_entries'] if d['family_id']==family]
         base = entries[0]
         truth = gold[base['id']]
