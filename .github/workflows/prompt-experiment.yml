@@ -15,6 +15,11 @@ on:
         type: choice
         options: ['1', '2', '3']
         default: '2'
+      dtype:
+        description: weights type for the local model (float32 is much faster on a runner CPU; the published pilot used bfloat16)
+        type: choice
+        options: [float32, bfloat16]
+        default: float32
       max_usd:
         description: hard ceiling for the whole anthropic run in USD (at most 1.5; ignored for local)
         default: '0.8'
@@ -62,12 +67,12 @@ jobs:
         env:
           HF_HUB_OFFLINE: '1'
           TRANSFORMERS_OFFLINE: '1'
-        run: uv run python -m fitwitness.evaluation.prompt_experiment --split dev --provider local --repeats ${{ inputs.repeats }} --output artifacts/prompts-dev-local
+        run: uv run python -m fitwitness.evaluation.prompt_experiment --split dev --provider local --dtype ${{ inputs.dtype }} --repeats ${{ inputs.repeats }} --output artifacts/prompts-dev-local
       - name: Test families, the winner and the baseline, once
         env:
           HF_HUB_OFFLINE: '1'
           TRANSFORMERS_OFFLINE: '1'
-        run: uv run python -m fitwitness.evaluation.prompt_experiment --split test --provider local --repeats ${{ inputs.repeats }} --dev-report artifacts/prompts-dev-local/report.json --output artifacts/prompts-test-local
+        run: uv run python -m fitwitness.evaluation.prompt_experiment --split test --provider local --dtype ${{ inputs.dtype }} --repeats ${{ inputs.repeats }} --dev-report artifacts/prompts-dev-local/report.json --output artifacts/prompts-test-local
       - name: Summary
         if: always()
         run: |

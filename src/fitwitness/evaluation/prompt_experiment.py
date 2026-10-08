@@ -97,7 +97,7 @@ def prompt_hashes(texts: dict[str, str]) -> dict[str, str]:
 class LocalModel:
     """Qwen3-1.7B on CPU, as in the published pilot (same sampling settings)."""
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, dtype: str = "bfloat16"):
         import torch
         import transformers
         from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -105,10 +105,10 @@ class LocalModel:
         torch.set_num_threads(os.cpu_count() or 4)
         self.torch = torch
         self.tokenizer = AutoTokenizer.from_pretrained(path, local_files_only=True, trust_remote_code=False)
-        self.model = AutoModelForCausalLM.from_pretrained(path, local_files_only=True, trust_remote_code=False, dtype=torch.bfloat16)
+        self.model = AutoModelForCausalLM.from_pretrained(path, local_files_only=True, trust_remote_code=False, dtype=getattr(torch, dtype))
         self.model.eval()
         self.metadata = dict(model_id="Qwen/Qwen3-1.7B", model_revision=(Path(path) / "REVISION").read_text().strip(),
-                             dtype="bfloat16", device="cpu", torch=torch.__version__, transformers=transformers.__version__)
+                             dtype=dtype, device="cpu", torch=torch.__version__, transformers=transformers.__version__)
 
     def predict(self, system: str, schema, payload: dict, seed: int, max_tokens: int):
         self.torch.manual_seed(seed)
@@ -260,7 +260,7 @@ def run(args, model=None) -> dict:
     (out / "protocol.json").write_text(json.dumps(protocol, ensure_ascii=False, indent=2) + "\n")
     (out / "prompts.json").write_text(json.dumps({k: texts[k] for k in names}, ensure_ascii=False, indent=2) + "\n")
     if model is None:
-        model = LocalModel(args.model_path) if args.provider == "local" else ClaudeModel(args.model, args.max_cost_usd)
+        model = LocalModel(args.model_path, getattr(args, "dtype", "bfloat16")) if args.provider == "local" else ClaudeModel(args.model, args.max_cost_usd)
     rows: list[dict] = []
     for repeat in range(args.repeats):
         for case in cases:
@@ -292,6 +292,8 @@ def main(argv=None):
     p.add_argument("--split", choices=["dev", "test"], required=True)
     p.add_argument("--provider", choices=["local", "anthropic"], default="local")
     p.add_argument("--model-path", default="var/models/Qwen3-1.7B")
+    p.add_argument("--dtype", choices=["bfloat16", "float32"], default="bfloat16",
+                   help="the published pilot used bfloat16; float32 is several times faster on a CPU without native bfloat16")
     p.add_argument("--model", default="")
     p.add_argument("--max-cost-usd", type=float)
     p.add_argument("--corpus", default="var/corpus")
