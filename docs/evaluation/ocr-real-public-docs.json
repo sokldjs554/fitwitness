@@ -1,0 +1,612 @@
+{
+ "scope": "12 real Korean public-sector PDF pages (KDoc-OCRBench-V2 sample) rendered at 200 dpi, OCR via fitwitness.claims.ocr.recognise (kor+eng, MIN_CONF filter 25, OMP threads 1). General Korean public documents, NOT medical forms. n=11 pages with a reference, 1 page unusable for CER.",
+ "definitions": {
+  "cer": "Levenshtein(ref, ocr)/len(ref), NFKC, all whitespace and invisible chars removed; ref = embedded PDF text layer; OCR = recognise() tokens joined in Tesseract output order (stream order)",
+  "cer_geom_order": "same, but both text layer and OCR tokens first re-ordered by geometry (rows top-to-bottom, left-to-right); medium tokens de-rotated by the known degradation angle (geometry only)",
+  "digit_recall": "multiset recall of ASCII digits 0-9 (reference digits found in OCR output, order ignored)",
+  "number_exact_recall": "share of reference numeric strings (e.g. 1,659,061) that appear exactly in OCR output",
+  "medium": "scan.degrade(img, 'medium', scan._seed(filename,'medium','0')): rotate 0.9deg-ish, blur 0.9, noise 10, JPEG 70, contrast 0.85"
+ },
+ "caveats": [
+  "reference text layer is not perfect: p07 misses 2 visible lines, p11 misses logo/some lines (see text_layer_vs_verified_fragments)",
+  "text-layer order differs from reading order on some pages (p06) so stream-order CER overstates errors; geometric order has its own noise on tables",
+  "rendered digital-born PDFs are cleaner than camera/scanner images; only p08 is a genuine scan",
+  "timings measured with 3 OCR processes in parallel on 4 cores"
+ ],
+ "summary": {
+  "n_pages_total": 12,
+  "n_pages_with_reference": 11,
+  "pages_excluded": [
+   8
+  ],
+  "clean_psm6": {
+   "cer": {
+    "mean": 0.5343,
+    "median": 0.6224,
+    "min": 0.1084,
+    "max": 0.9878
+   },
+   "cer_geom_order": {
+    "mean": 0.4349,
+    "median": 0.5295,
+    "min": 0.0565,
+    "max": 0.9878
+   },
+   "digit_recall": {
+    "mean": 0.6609,
+    "median": 0.7305,
+    "min": 0.0025,
+    "max": 1.0
+   },
+   "number_exact_recall": {
+    "mean": 0.5487,
+    "median": 0.5823,
+    "min": 0.0,
+    "max": 1.0
+   },
+   "char_bag_recall": {
+    "mean": 0.6663,
+    "median": 0.6697,
+    "min": 0.0208,
+    "max": 0.9979
+   },
+   "wall_s_all12": {
+    "mean": 6.035,
+    "median": 2.64,
+    "min": 1.41,
+    "max": 25.7
+   }
+  },
+  "clean_psm11": {
+   "cer": {
+    "mean": 0.4051,
+    "median": 0.3716,
+    "min": 0.1808,
+    "max": 0.7441
+   },
+   "cer_geom_order": {
+    "mean": 0.2925,
+    "median": 0.3195,
+    "min": 0.0636,
+    "max": 0.5312
+   },
+   "digit_recall": {
+    "mean": 0.9021,
+    "median": 0.9608,
+    "min": 0.5174,
+    "max": 1.0
+   },
+   "number_exact_recall": {
+    "mean": 0.8086,
+    "median": 0.8649,
+    "min": 0.4,
+    "max": 1.0
+   },
+   "char_bag_recall": {
+    "mean": 0.8489,
+    "median": 0.8871,
+    "min": 0.6276,
+    "max": 0.9656
+   },
+   "wall_s_all12": {
+    "mean": 5.5933,
+    "median": 2.97,
+    "min": 1.2,
+    "max": 25.52
+   }
+  },
+  "medium_psm6": {
+   "cer": {
+    "mean": 0.6242,
+    "median": 0.7247,
+    "min": 0.1735,
+    "max": 0.9768
+   },
+   "cer_geom_order": {
+    "mean": 0.5242,
+    "median": 0.5941,
+    "min": 0.0601,
+    "max": 0.978
+   },
+   "digit_recall": {
+    "mean": 0.5522,
+    "median": 0.5461,
+    "min": 0.0296,
+    "max": 1.0
+   },
+   "number_exact_recall": {
+    "mean": 0.4394,
+    "median": 0.3478,
+    "min": 0.0,
+    "max": 1.0
+   },
+   "char_bag_recall": {
+    "mean": 0.5573,
+    "median": 0.5307,
+    "min": 0.0355,
+    "max": 0.9963
+   },
+   "wall_s_all12": {
+    "mean": 6.1433,
+    "median": 3.69,
+    "min": 1.57,
+    "max": 19.48
+   }
+  },
+  "medium_psm11": {
+   "cer": {
+    "mean": 0.5446,
+    "median": 0.5747,
+    "min": 0.1762,
+    "max": 0.7651
+   },
+   "cer_geom_order": {
+    "mean": 0.3807,
+    "median": 0.3165,
+    "min": 0.0836,
+    "max": 0.7427
+   },
+   "digit_recall": {
+    "mean": 0.7801,
+    "median": 0.8754,
+    "min": 0.3806,
+    "max": 0.9634
+   },
+   "number_exact_recall": {
+    "mean": 0.6293,
+    "median": 0.6154,
+    "min": 0.1327,
+    "max": 0.8667
+   },
+   "char_bag_recall": {
+    "mean": 0.7383,
+    "median": 0.8396,
+    "min": 0.3306,
+    "max": 0.9723
+   },
+   "wall_s_all12": {
+    "mean": 6.1858,
+    "median": 3.65,
+    "min": 1.82,
+    "max": 27.79
+   }
+  },
+  "best_of_psm6_psm11_per_page_clean": {
+   "cer": {
+    "mean": 0.3811,
+    "median": 0.3716,
+    "min": 0.1084,
+    "max": 0.6769
+   },
+   "digit_recall": {
+    "mean": 0.9306,
+    "median": 0.9802,
+    "min": 0.5756,
+    "max": 1.0
+   }
+  }
+ },
+ "pages": [
+  {
+   "page": 1,
+   "category": "Reports",
+   "type_note": "Report/evaluation table",
+   "reference_chars": 760,
+   "runs": {
+    "clean_psm6": {
+     "cer": 0.6223684210526316,
+     "cer_geom_order": 0.4868421052631579,
+     "digit_recall": 0.5755813953488372,
+     "number_exact_recall": 0.3652173913043478,
+     "wall_s": 8.86
+    },
+    "clean_psm11": {
+     "cer": 0.6171052631578947,
+     "cer_geom_order": 0.48947368421052634,
+     "digit_recall": 0.5174418604651163,
+     "number_exact_recall": 0.4,
+     "wall_s": 4.87
+    },
+    "medium_psm6": {
+     "cer": 0.7697368421052632,
+     "cer_geom_order": 0.7131578947368421,
+     "digit_recall": 0.622093023255814,
+     "number_exact_recall": 0.34782608695652173,
+     "wall_s": 9.32
+    },
+    "medium_psm11": {
+     "cer": 0.6736842105263158,
+     "cer_geom_order": 0.593421052631579,
+     "digit_recall": 0.5290697674418605,
+     "number_exact_recall": 0.3565217391304348,
+     "wall_s": 6.08
+    }
+   }
+  },
+  {
+   "page": 2,
+   "category": "Statistics",
+   "type_note": "Statistics (school stats)",
+   "reference_chars": 2151,
+   "runs": {
+    "clean_psm6": {
+     "cer": 0.2487215248721525,
+     "cer_geom_order": 0.10692701069270107,
+     "digit_recall": 1.0,
+     "number_exact_recall": 1.0,
+     "wall_s": 6.18
+    },
+    "clean_psm11": {
+     "cer": 0.304509530450953,
+     "cer_geom_order": 0.15946071594607159,
+     "digit_recall": 0.9607843137254902,
+     "number_exact_recall": 0.8913043478260869,
+     "wall_s": 5.99
+    },
+    "medium_psm6": {
+     "cer": 0.2891678289167829,
+     "cer_geom_order": 0.18363551836355183,
+     "digit_recall": 0.9005602240896359,
+     "number_exact_recall": 0.8869565217391304,
+     "wall_s": 7.22
+    },
+    "medium_psm11": {
+     "cer": 0.46815434681543466,
+     "cer_geom_order": 0.20734542073454207,
+     "digit_recall": 0.8753501400560224,
+     "number_exact_recall": 0.8391304347826087,
+     "wall_s": 6.9
+    }
+   }
+  },
+  {
+   "page": 3,
+   "category": "Notices",
+   "type_note": "Notice (bid form, EN+KO)",
+   "reference_chars": 1913,
+   "runs": {
+    "clean_psm6": {
+     "cer": 0.17250392054364871,
+     "cer_geom_order": 0.056455828541557763,
+     "digit_recall": 1.0,
+     "number_exact_recall": 1.0,
+     "wall_s": 3.2
+    },
+    "clean_psm11": {
+     "cer": 0.22216414009409305,
+     "cer_geom_order": 0.14845791949817042,
+     "digit_recall": 0.8461538461538461,
+     "number_exact_recall": 0.8666666666666667,
+     "wall_s": 2.91
+    },
+    "medium_psm6": {
+     "cer": 0.17354939884997386,
+     "cer_geom_order": 0.06011500261369577,
+     "digit_recall": 1.0,
+     "number_exact_recall": 1.0,
+     "wall_s": 3.88
+    },
+    "medium_psm11": {
+     "cer": 0.17616309461578672,
+     "cer_geom_order": 0.0836382645060115,
+     "digit_recall": 0.8974358974358975,
+     "number_exact_recall": 0.8666666666666667,
+     "wall_s": 3.45
+    }
+   }
+  },
+  {
+   "page": 4,
+   "category": "Statistics",
+   "type_note": "Statistics (HIRA table)",
+   "reference_chars": 1022,
+   "runs": {
+    "clean_psm6": {
+     "cer": 0.7426614481409002,
+     "cer_geom_order": 0.576320939334638,
+     "digit_recall": 0.3789868667917448,
+     "number_exact_recall": 0.24096385542168675,
+     "wall_s": 2.19
+    },
+    "clean_psm11": {
+     "cer": 0.37377690802348335,
+     "cer_geom_order": 0.06360078277886497,
+     "digit_recall": 0.9962476547842402,
+     "number_exact_recall": 0.9216867469879518,
+     "wall_s": 2.91
+    },
+    "medium_psm6": {
+     "cer": 0.6819960861056752,
+     "cer_geom_order": 0.5264187866927593,
+     "digit_recall": 0.42964352720450283,
+     "number_exact_recall": 0.21686746987951808,
+     "wall_s": 2.84
+    },
+    "medium_psm11": {
+     "cer": 0.5166340508806262,
+     "cer_geom_order": 0.2318982387475538,
+     "digit_recall": 0.924953095684803,
+     "number_exact_recall": 0.5963855421686747,
+     "wall_s": 3.85
+    }
+   }
+  },
+  {
+   "page": 5,
+   "category": "Statistics",
+   "type_note": "Statistics (yearbook, rotated header)",
+   "reference_chars": 793,
+   "runs": {
+    "clean_psm6": {
+     "cer": 0.10844892812105927,
+     "cer_geom_order": 0.13114754098360656,
+     "digit_recall": 1.0,
+     "number_exact_recall": 1.0,
+     "wall_s": 1.77
+    },
+    "clean_psm11": {
+     "cer": 0.19798234552332913,
+     "cer_geom_order": 0.21311475409836064,
+     "digit_recall": 0.9516908212560387,
+     "number_exact_recall": 0.8648648648648649,
+     "wall_s": 1.58
+    },
+    "medium_psm6": {
+     "cer": 0.2900378310214376,
+     "cer_geom_order": 0.29760403530895335,
+     "digit_recall": 0.9855072463768116,
+     "number_exact_recall": 0.9864864864864865,
+     "wall_s": 2.02
+    },
+    "medium_psm11": {
+     "cer": 0.2862547288776797,
+     "cer_geom_order": 0.308953341740227,
+     "digit_recall": 0.8647342995169082,
+     "number_exact_recall": 0.7702702702702703,
+     "wall_s": 2.26
+    }
+   }
+  },
+  {
+   "page": 6,
+   "category": "Notices",
+   "type_note": "Notice (decision/consent form)",
+   "reference_chars": 465,
+   "runs": {
+    "clean_psm6": {
+     "cer": 0.6752688172043011,
+     "cer_geom_order": 0.08817204301075268,
+     "digit_recall": 0.75,
+     "number_exact_recall": 0.7142857142857143,
+     "wall_s": 2.34
+    },
+    "clean_psm11": {
+     "cer": 0.7440860215053764,
+     "cer_geom_order": 0.18064516129032257,
+     "digit_recall": 1.0,
+     "number_exact_recall": 1.0,
+     "wall_s": 2.45
+    },
+    "medium_psm6": {
+     "cer": 0.7247311827956989,
+     "cer_geom_order": 0.13978494623655913,
+     "digit_recall": 0.6785714285714286,
+     "number_exact_recall": 0.5,
+     "wall_s": 3.68
+    },
+    "medium_psm11": {
+     "cer": 0.6924731182795699,
+     "cer_geom_order": 0.13118279569892474,
+     "digit_recall": 0.8928571428571429,
+     "number_exact_recall": 0.7857142857142857,
+     "wall_s": 3.23
+    }
+   }
+  },
+  {
+   "page": 7,
+   "category": "Statistics",
+   "type_note": "Statistics (5 side-by-side tables)",
+   "reference_chars": 818,
+   "runs": {
+    "clean_psm6": {
+     "cer": 0.9877750611246944,
+     "cer_geom_order": 0.9877750611246944,
+     "digit_recall": 0.0024691358024691358,
+     "number_exact_recall": 0.0,
+     "wall_s": 1.41
+    },
+    "clean_psm11": {
+     "cer": 0.37163814180929094,
+     "cer_geom_order": 0.4180929095354523,
+     "digit_recall": 0.980246913580247,
+     "number_exact_recall": 0.8796296296296297,
+     "wall_s": 3.03
+    },
+    "medium_psm6": {
+     "cer": 0.9767726161369193,
+     "cer_geom_order": 0.9779951100244498,
+     "digit_recall": 0.02962962962962963,
+     "number_exact_recall": 0.0,
+     "wall_s": 3.29
+    },
+    "medium_psm11": {
+     "cer": 0.6271393643031785,
+     "cer_geom_order": 0.6295843520782396,
+     "digit_recall": 0.6938271604938272,
+     "number_exact_recall": 0.5555555555555556,
+     "wall_s": 3.4
+    }
+   }
+  },
+  {
+   "page": 8,
+   "category": "Notices",
+   "type_note": "Notice (real scan: income statement)",
+   "reference_chars": 0,
+   "runs": {
+    "clean_psm6": {
+     "cer_geom_order": null,
+     "wall_s": 14.08
+    },
+    "clean_psm11": {
+     "cer_geom_order": null,
+     "wall_s": 10.2
+    },
+    "medium_psm6": {
+     "cer_geom_order": null,
+     "wall_s": 14.66
+    },
+    "medium_psm11": {
+     "cer_geom_order": null,
+     "wall_s": 8.44
+    }
+   }
+  },
+  {
+   "page": 9,
+   "category": "Manuals",
+   "type_note": "Manual (fee table)",
+   "reference_chars": 455,
+   "runs": {
+    "clean_psm6": {
+     "cer": 0.6989010989010989,
+     "cer_geom_order": 0.5692307692307692,
+     "digit_recall": 0.7304964539007093,
+     "number_exact_recall": 0.6153846153846154,
+     "wall_s": 1.41
+    },
+    "clean_psm11": {
+     "cer": 0.676923076923077,
+     "cer_geom_order": 0.36923076923076925,
+     "digit_recall": 0.9078014184397163,
+     "number_exact_recall": 0.6730769230769231,
+     "wall_s": 2.29
+    },
+    "medium_psm6": {
+     "cer": 0.7384615384615385,
+     "cer_geom_order": 0.643956043956044,
+     "digit_recall": 0.5460992907801419,
+     "number_exact_recall": 0.40384615384615385,
+     "wall_s": 2.06
+    },
+    "medium_psm11": {
+     "cer": 0.701098901098901,
+     "cer_geom_order": 0.31648351648351647,
+     "digit_recall": 0.900709219858156,
+     "number_exact_recall": 0.6153846153846154,
+     "wall_s": 2.78
+    }
+   }
+  },
+  {
+   "page": 10,
+   "category": "Statistics",
+   "type_note": "Statistics (senior population)",
+   "reference_chars": 576,
+   "runs": {
+    "clean_psm6": {
+     "cer": 0.3663194444444444,
+     "cer_geom_order": 0.5295138888888888,
+     "digit_recall": 0.8418079096045198,
+     "number_exact_recall": 0.5822784810126582,
+     "wall_s": 2.38
+    },
+    "clean_psm11": {
+     "cer": 0.3350694444444444,
+     "cer_geom_order": 0.53125,
+     "digit_recall": 0.827683615819209,
+     "number_exact_recall": 0.6835443037974683,
+     "wall_s": 1.2
+    },
+    "medium_psm6": {
+     "cer": 0.7881944444444444,
+     "cer_geom_order": 0.8038194444444444,
+     "digit_recall": 0.211864406779661,
+     "number_exact_recall": 0.08860759493670886,
+     "wall_s": 1.57
+    },
+    "medium_psm11": {
+     "cer": 0.5746527777777778,
+     "cer_geom_order": 0.6215277777777778,
+     "digit_recall": 0.6581920903954802,
+     "number_exact_recall": 0.5569620253164557,
+     "wall_s": 1.82
+    }
+   }
+  },
+  {
+   "page": 11,
+   "category": "Notices",
+   "type_note": "Notice (housing recruitment)",
+   "reference_chars": 1025,
+   "runs": {
+    "clean_psm6": {
+     "cer": 0.5990243902439024,
+     "cer_geom_order": 0.5921951219512195,
+     "digit_recall": 0.44715447154471544,
+     "number_exact_recall": 0.3263888888888889,
+     "wall_s": 2.9
+    },
+    "clean_psm11": {
+     "cer": 0.4321951219512195,
+     "cer_geom_order": 0.3248780487804878,
+     "digit_recall": 0.9634146341463414,
+     "number_exact_recall": 0.8541666666666666,
+     "wall_s": 4.17
+    },
+    "medium_psm6": {
+     "cer": 0.6,
+     "cer_geom_order": 0.5941463414634146,
+     "digit_recall": 0.4613821138211382,
+     "number_exact_recall": 0.3125,
+     "wall_s": 3.7
+    },
+    "medium_psm11": {
+     "cer": 0.5092682926829268,
+     "cer_geom_order": 0.32097560975609757,
+     "digit_recall": 0.9634146341463414,
+     "number_exact_recall": 0.8472222222222222,
+     "wall_s": 4.23
+    }
+   }
+  },
+  {
+   "page": 12,
+   "category": "Notices",
+   "type_note": "Notice (A3 rent table, 5.5k chars)",
+   "reference_chars": 5580,
+   "runs": {
+    "clean_psm6": {
+     "cer": 0.6548387096774193,
+     "cer_geom_order": 0.6593189964157706,
+     "digit_recall": 0.5438137588281454,
+     "number_exact_recall": 0.19148936170212766,
+     "wall_s": 25.7
+    },
+    "clean_psm11": {
+     "cer": 0.18082437275985663,
+     "cer_geom_order": 0.3195340501792115,
+     "digit_recall": 0.9717499346063301,
+     "number_exact_recall": 0.8598247809762203,
+     "wall_s": 25.52
+    },
+    "medium_psm6": {
+     "cer": 0.8331541218637993,
+     "cer_geom_order": 0.8258064516129032,
+     "digit_recall": 0.20847501961810097,
+     "number_exact_recall": 0.09011264080100125,
+     "wall_s": 19.48
+    },
+    "medium_psm11": {
+     "cer": 0.7650537634408602,
+     "cer_geom_order": 0.7426523297491039,
+     "digit_recall": 0.3805911587758305,
+     "number_exact_recall": 0.13266583229036297,
+     "wall_s": 27.79
+    }
+   }
+  }
+ ],
+ "note": "Measured with the engine call the claims pipeline makes by default per page (psm 6), plus psm 11 for comparison. This is not the end-to-end claims pipeline and not medical forms."
+}
