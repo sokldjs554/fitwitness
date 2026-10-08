@@ -28,8 +28,20 @@ jobs:
     if: inputs.provider == 'local' && github.run_attempt == 1
     runs-on: ubuntu-latest
     timeout-minutes: 340
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: fitwitness
+          POSTGRES_PASSWORD: test-only
+          POSTGRES_DB: fitwitness
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U fitwitness"
+          --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       PYTHONPATH: src
+      FITWITNESS_DATABASE_URL: postgresql://fitwitness:test-only@localhost:5432/fitwitness
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -83,8 +95,20 @@ jobs:
     if: inputs.provider == 'anthropic' && github.run_attempt == 1
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: fitwitness
+          POSTGRES_PASSWORD: test-only
+          POSTGRES_DB: fitwitness
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U fitwitness"
+          --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       PYTHONPATH: src
+      FITWITNESS_DATABASE_URL: postgresql://fitwitness:test-only@localhost:5432/fitwitness
       FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION: '1'
       FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION: '5'
     steps:
