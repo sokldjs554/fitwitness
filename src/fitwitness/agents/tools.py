@@ -5,6 +5,7 @@ from pydantic import Field, model_validator
 from langchain_core.tools import StructuredTool
 from fitwitness.contracts import Strict, SearchRequest
 from fitwitness.retrieval.pipeline import search
+from fitwitness.agents import shell_search
 
 
 class QueryArgs(Strict):
@@ -52,6 +53,13 @@ class ImageRegionArgs(RegionArgs):
     fields: list[Literal['width','height','thickness','hole_spacing','material']] = Field(min_length=1,max_length=5)
 
 
+class ShellArgs(Strict):
+    """A terminal-style search. Not a shell: see ``agents/shell_search.py`` for the closed set of commands."""
+
+    command: str = Field(min_length=1, max_length=shell_search.MAX_COMMAND, description=shell_search.HELP)
+    top_k: int = Field(default=10, ge=1, le=50)
+
+
 SavedChannel = Literal["exact", "bm25", "semantic"]
 TOOL_NAME = r"^[a-z][a-z0-9_]{2,40}$"
 
@@ -97,6 +105,7 @@ SCHEMAS = {
     "search_keyword": QueryArgs,
     "search_semantic": QueryArgs,
     "search_image": ImageArgs,
+    "search_shell": ShellArgs,
     "query_dimensions": DimensionArgs,
     "read_region": RegionArgs,
     "compare_revisions": CompareArgs,
@@ -113,6 +122,7 @@ class ToolRequest(Strict):
         "search_keyword",
         "search_semantic",
         "search_image",
+        "search_shell",
         "query_dimensions",
         "read_region",
         "compare_revisions",
@@ -146,10 +156,12 @@ class EvidenceTools:
         self.encoders = encoders
         self.vision = vision
         self.run_id = run_id
+        self._shell_workspace = None  # (snapshot id, Workspace)
 
     @property
     def available(self):
         names=set(SCHEMAS)
+        if not shell_search.enabled():names.discard('search_shell')
         if not self.encoders:names-={'search_semantic','search_image'}
         if self.vision is None:names.discard('read_image_region')
         if not hasattr(self.repo, "saved_tools"):names-={'define_search_tool','run_saved_search'}
@@ -166,6 +178,8 @@ class EvidenceTools:
         a = SCHEMAS[name].model_validate(request.arguments)
         if name not in self.available:
             raise ValueError('unavailable tool')
+        if name == "search_shell":
+            return self._shell(a)
         if name == "define_search_tool":
             missing = sorted(ch for ch in a.channels if SAVED_TOOL_CHANNEL[ch] not in self.available)
             if missing:
@@ -258,6 +272,31 @@ class EvidenceTools:
                 for f in self.repo.load_facts(self.scope, a.new_id)
             ],
         }
+
+    def _shell(self, a):
+        """Run a validated command line on a read-only copy of this snapshot's revision text; candidates come back.
+
+        The command is checked before anything is read. The snapshot is checked on every call, as the other
+        searches do, so a corpus that changed during the run is refused rather than searched."""
+        shell_search.parse(a.command)
+        if hasattr(self.repo, "corpus"):
+            current, revisions, facts = self.repo.corpus(self.scope)
+        else:
+            current = self.repo.snapshot(self.scope)
+            revisions = facts = None
+        if current.id != self.snapshot.id:
+            raise ValueError("stale search snapshot")
+        held = self._shell_workspace
+        if held is None or held[0] != current.id:
+            if revisions is None:
+                revisions = [r for r in self.repo.list_revisions(self.scope) if r.id in set(current.revision_ids)]
+                facts = self.repo.load_facts_many(self.scope, [r.id for r in revisions]) if revisions else {}
+            else:
+                revisions = [r for r in revisions if r.id in set(current.revision_ids)]
+            if held is not None:
+                held[1].close()
+            held = self._shell_workspace = (current.id, shell_search.Workspace(revisions, facts))
+        return held[1].search(a.command, a.top_k)
 
     def langchain_tools(self):
         def make(name, schema):

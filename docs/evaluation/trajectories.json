@@ -2143,6 +2143,20 @@
    "tool:query_dimensions",
    "verified",
    "completed"
+  ],
+  "shell_agent": [
+   "intent",
+   "retrieved",
+   "model:planner",
+   "agent_plan:planner",
+   "tool:search_shell",
+   "verified",
+   "model:challenger",
+   "agent_plan:challenger",
+   "tool:query_dimensions",
+   "tool:query_dimensions",
+   "verified",
+   "completed"
   ]
  }
 }

@@ -25,6 +25,7 @@ pipeline the same way the accuracy gate's control does and must be caught by thi
 from __future__ import annotations
 
 import json
+import os
 from contextlib import contextmanager
 from pathlib import Path
 from uuid import uuid4
@@ -266,6 +267,29 @@ class ScriptedPair:
         return SearchPlan(operations=[lookup(self.revision_ids[1])], stop=True), {"role": role}
 
 
+class ScriptedShell:
+    """A planner that searches by typing a command and a challenger that inspects what the command found.
+
+    The command is a negation no ranked channel can answer ("every revision with no material fact"). The
+    search returns names, never text, so the challenger looks up two candidates nobody has inspected yet,
+    which is the only way a fact reaches a verdict."""
+
+    def __init__(self, command: str = "grep -rL 'fact material' ."):
+        self.command = command
+        self.calls: list[str] = []
+        self.looked_up: list[str] = []
+
+    def plan(self, context, role="planner"):
+        from fitwitness.agents.tools import SearchPlan, ToolRequest
+
+        self.calls.append(role)
+        if role == "planner":
+            return SearchPlan(operations=[ToolRequest(name="search_shell", arguments={"command": self.command})], stop=False), {"role": role}
+        self.looked_up = [c["revision_id"] for c in context["candidates"] if not c["inspected"]][:2]
+        ops = [ToolRequest(name="query_dimensions", arguments={"revision_id": rid, "fields": ["hole_spacing", "material"]}) for rid in self.looked_up]
+        return SearchPlan(operations=ops, stop=True), {"role": role}
+
+
 def drawing_invariants(name: str, events: list[dict], state: str) -> list[str]:
     bad: list[str] = []
     sig = signature(events)
@@ -352,6 +376,36 @@ def run_drawing_trajectories(repo, jobs, root: Path) -> dict:
     if pair.calls[:2] != ["planner", "challenger"]:
         violations.append(f"multi_agent: roles ran as {pair.calls}")
     out["multi_agent"] = {"state": state, "signature": sig, "violations": violations}
+
+    # 4. a planner that searches by typing a command, a challenger that inspects what it found
+    scope = _seed_family(repo, root)
+    script = ScriptedShell()
+    real, previous = graph.create_model, os.environ.get("FITWITNESS_SHELL_SEARCH")
+    graph.create_model = lambda *a: script
+    os.environ["FITWITNESS_SHELL_SEARCH"] = "on"
+    try:
+        req = RunRequest(search=SearchRequest(text=text), provider="anthropic", model_id="scripted", budget=Budget(max_tokens=64000))
+        run = jobs.enqueue(scope, req, str(uuid4()))
+        execute_run(repo, scope, run.id)
+    finally:
+        graph.create_model = real
+        if previous is None:
+            os.environ.pop("FITWITNESS_SHELL_SEARCH", None)
+        else:
+            os.environ["FITWITNESS_SHELL_SEARCH"] = previous
+    events = jobs.events(scope, run.id)
+    state = jobs.get(scope, run.id).state
+    violations = drawing_invariants("shell_agent", events, state)
+    sig = signature(events)
+    searched_first = "tool:search_shell" in sig and "tool:query_dimensions" in sig and sig.index("tool:search_shell") < sig.index("tool:query_dimensions")
+    if not searched_first:
+        violations.append("shell_agent: the command search must come before the lookups")
+    searched = next((e["payload"] for e in events if e["kind"] == "tool" and (e["payload"] or {}).get("name") == "search_shell"), None)
+    if searched is None or not searched["items"]:
+        violations.append("shell_agent: the command found no revision")
+    if not script.looked_up or sig.count("tool:query_dimensions") != len(script.looked_up):
+        violations.append("shell_agent: the challenger must look up what the search left uninspected")
+    out["shell_agent"] = {"state": state, "signature": sig, "violations": violations}
     return out
 
 
@@ -368,7 +422,8 @@ def build_reference(claims: dict, drawing: dict) -> dict:
             entry["rerun"] = row["rerun"]["signature"]
         ref_claims[row["case_id"]] = entry
     ref_drawing = {"rules": drawing["rules"]["signature"], "review_before": drawing["review"]["before"]["signature"],
-                   "review_after": (drawing["review"]["after"] or {}).get("signature"), "multi_agent": drawing["multi_agent"]["signature"]}
+                   "review_after": (drawing["review"]["after"] or {}).get("signature"), "multi_agent": drawing["multi_agent"]["signature"],
+                   "shell_agent": drawing["shell_agent"]["signature"]}
     return {"version": VERSION, "claims": ref_claims, "drawing": ref_drawing}
 
 
@@ -404,7 +459,8 @@ def score(claims: dict, drawing: dict | None, reference: dict | None) -> dict:
             for label, expected, actual in [("rules", ref.get("rules"), drawing["rules"]["signature"]),
                                             ("review_before", ref.get("review_before"), drawing["review"]["before"]["signature"]),
                                             ("review_after", ref.get("review_after"), (drawing["review"]["after"] or {}).get("signature")),
-                                            ("multi_agent", ref.get("multi_agent"), drawing["multi_agent"]["signature"])]:
+                                            ("multi_agent", ref.get("multi_agent"), drawing["multi_agent"]["signature"]),
+                                            ("shell_agent", ref.get("shell_agent"), drawing["shell_agent"]["signature"])]:
                 compared += 1
                 matched += _compare(expected, actual, f"drawing/{label}", mismatches)
     graph_wrong_pay = sum(1 for v in violations if "paid" in v and "gold says" in v)

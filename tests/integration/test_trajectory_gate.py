@@ -50,5 +50,7 @@ def test_drawing_paths_are_clean_and_match_the_reference(env):
     assert drawing["rules"]["signature"] == ref["rules"]
     assert drawing["multi_agent"]["signature"] == ref["multi_agent"]
     assert "tool_skipped" in drawing["multi_agent"]["signature"]
+    assert drawing["shell_agent"]["signature"] == ref["shell_agent"]
+    assert drawing["shell_agent"]["signature"].index("tool:search_shell") < drawing["shell_agent"]["signature"].index("tool:query_dimensions")
     assert drawing["review"]["before"]["signature"] == ref["review_before"]
     assert drawing["review"]["after"]["signature"] == ref["review_after"]
