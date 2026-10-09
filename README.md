@@ -22,9 +22,10 @@
 | 같은 서류를 스캔처럼 열화시켜 OCR로 읽기 (4단계 × 2분할, 480건) | 잘못 지급 0건, 잘못 부지급 0건, 필드 정확도 90.6~95.8%, 자동 처리 67.9~91.7% | [CLAIMS.md](docs/CLAIMS.md#스캔-문서-읽기-ocr) |
 | 실제 한국어 공공문서 12쪽에 OCR 엔진 호출(의료 서식 아님) | 기본 설정에서 숫자 재현율 0.66, 표가 많은 쪽에서 무너지고 sparse 모드는 0.90 | [CLAIMS.md](docs/CLAIMS.md#실제-한국어-공공문서로-잰-ocr) |
 | 공식 서식 두 가지(진단서·진료비 계산서)를 칸 구조로 읽기, 생성기의 값을 채운 서식 1200필드 × 위치 흔들림 5단계 | 실제 빈 서식과 다시 그린 판 모두 전부 정답, 빈 서식에서 읽은 값 0개 (병원이 실제로 찍는 위치는 아님) | [CLAIMS.md](docs/CLAIMS.md#공식-서식-읽기) |
+| 판정 프롬프트 네 가지 비교 (dev 6개 family 36건에서 고르고 test 4개 family에서 한 번 확인) | Claude Haiku 4.5는 모두 36/36으로 천장, Qwen3-1.7B는 기준 27/36이 최고이고 나머지는 21, 21, 10/36. 정교한 프롬프트의 이득은 어느 쪽에서도 확인하지 못함 | [JOB_FIT_AUDIT.md](docs/JOB_FIT_AUDIT.md#프롬프트-비교-결과) |
 | 실제 기계 도면 12장(이미지)의 표제란 OCR | 도번 10/12, 재질 4/8, 보고한 15건 모두 정답, 읽은 값은 "확인 필요"로만 사용 | [TITLE-BLOCK.md](docs/TITLE-BLOCK.md) |
 | VLM 이미지 18회 | 15회 구조화 완료, 23/36 필드 정답 | [VISION.md](docs/VISION.md) |
-| 누적 API 비용 | $0.255248, 미확정 예약 0 | [EVIDENCE.md](docs/EVIDENCE.md) |
+| 누적 API 비용 | $0.255248, 미확정 예약 0. 프롬프트 비교 실험의 Claude 호출 $0.34355는 이 합계에 넣지 않았고 [실행 기록](docs/evaluation/prompts-claude.json)에 따로 있음 | [EVIDENCE.md](docs/EVIDENCE.md) |
 | 현재 브랜치 자동 검증 | Python 355개, Playwright 70개, API 없는 평가 게이트 통과 | [CI](.github/workflows/ci.yml) |
 
 ## 구현된 기능
