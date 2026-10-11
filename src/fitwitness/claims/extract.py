@@ -95,8 +95,9 @@ def read_pairs_scored(data: bytes, doc_id: str) -> list[tuple[str, str, Evidence
 
     A page with a text layer is read exactly (confidence 1.0, source "text"): by its grid when it is
     one of the official forms (``claims/official.py``), otherwise as ``label: value`` lines. A page without one
-    is a scan: it is read by OCR (``claims/ocr.py``), source "ocr", with the reader's own
-    confidence per value. Without an OCR engine a scanned page yields nothing."""
+    is a scan: an official form is read by registering its grid and reading its cells (``claims/official_scan.py``),
+    anything else by OCR of its lines (``claims/ocr.py``), source "ocr", with the reader's own confidence per
+    value. Without an OCR engine a scanned page yields nothing."""
     out = []
     with pdfplumber.open(BytesIO(data)) as pdf:
         for n, page in enumerate(pdf.pages, 1):
@@ -107,8 +108,13 @@ def read_pairs_scored(data: bytes, doc_id: str) -> list[tuple[str, str, Evidence
                 pairs = _text_pairs(page, n, doc_id) if grid is None else grid
                 out += [(label, text, ref, 1.0, "text") for label, text, ref in pairs]
             else:
-                from fitwitness.claims import ocr
+                from fitwitness.claims import ocr, official_scan
 
+                # a scanned official form is a grid of cells, not label: value lines: lay the form's grid over it and read its cells
+                form = official_scan.read_image(ocr.render(data, n - 1), n, doc_id) if ocr.available() else None
+                if form is not None:
+                    out += [(label, text, ref, conf, "ocr") for label, text, ref, conf in form]
+                    continue
                 out += [(label, text, ref, conf, "ocr") for label, text, ref, conf in ocr.read_pairs_ocr(
                     data, doc_id, n - 1, {**{label: _kind(field) for label, field in LABELS.items()}, **dict.fromkeys(ocr.PART_LABELS, "amount")})]
     return out

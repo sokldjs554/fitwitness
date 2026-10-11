@@ -68,7 +68,9 @@ def render(pdf: bytes, page_index: int, dpi: int = DPI):
     return page.render(scale=dpi / 72).to_pil().convert("L")
 
 
-def recognise(image, *, lang: str | None = None, timeout: float = 60.0, psm: int = 6) -> list[Token]:
+def recognise(image, *, lang: str | None = None, timeout: float = 60.0, psm: int = 6, whitelist: str | None = None) -> list[Token]:
+    """Tesseract's words with boxes and confidences. ``whitelist`` limits the characters it may answer with, for a
+    cell that can only hold digits or a code."""
     exe = binary()
     if exe is None:
         return []
@@ -78,8 +80,9 @@ def recognise(image, *, lang: str | None = None, timeout: float = 60.0, psm: int
         # One thread per Tesseract: it would otherwise use every core, and several readers at once (the
         # evaluation runs four) starve each other until they time out.
         env = {**os.environ, "OMP_THREAD_LIMIT": os.getenv("FITWITNESS_OCR_THREADS", "1")}
+        extra = ["-c", f"tessedit_char_whitelist={whitelist}"] if whitelist else []
         try:
-            out = subprocess.run([exe, str(path), "-", "-l", lang or os.getenv("FITWITNESS_OCR_LANG", "kor+eng"), "--psm", str(psm), "tsv"],
+            out = subprocess.run([exe, str(path), "-", "-l", lang or os.getenv("FITWITNESS_OCR_LANG", "kor+eng"), "--psm", str(psm), *extra, "tsv"],
                                  capture_output=True, text=True, timeout=timeout, env=env).stdout
         except subprocess.TimeoutExpired:
             return []  # a page that cannot be read is a page with nothing on it: the claim goes to a person

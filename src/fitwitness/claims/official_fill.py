@@ -16,16 +16,16 @@ offset, a font size within half a point). The reader (``official.py``) is never 
 
 from __future__ import annotations
 
-import json
 import random
 from dataclasses import dataclass
 from datetime import date, timedelta
 from io import BytesIO
 from pathlib import Path
 
+from fitwitness.claims.official import LAYOUTS
+
 FONT = Path(__file__).with_name("fonts") / "NotoSansKR-forms.ttf"
 FONT_NAME = "NotoSansKR-forms"
-LAYOUTS = json.loads(Path(__file__).with_name("official_layouts.json").read_text())
 PAGE = (595, 841)
 DESCENT = 0.11  # of the embedded font, so a word's top edge lands where the layout says
 
@@ -56,7 +56,7 @@ ONSET = ((229.8, 256.9, 283.9), 315.5)  # 발병 연월일, the cell beside the 
 RECEIPT_DECOYS = {"registration": Slot(62, 62.4, 9.0), "department": Slot(62, 87.5, 9.0)}
 RECEIPT = {
     "insured_name": Slot(160, 62.4, 9.0),
-    "total_amount": Slot(530, 118.0, 9.0, "right"),
+    "total_amount": Slot(524, 118.0, 9.0, "right"),  # the cell ends at 534; a hospital's number does not touch its border
     "hospital": Slot(318, 546.0, 9.0),
 }
 

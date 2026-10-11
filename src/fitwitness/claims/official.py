@@ -17,13 +17,18 @@ A page that does not carry the labels is not an official form and is left to the
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
+from pathlib import Path
 
 from fitwitness.claims.models import EvidenceRef
 
 # The forms spell the same middle dot in several ways; circled digits number the amounts and are not part of a label.
 _NORMALISE = str.maketrans({"·": "ㆍ", "・": "ㆍ", "･": "ㆍ", "•": "ㆍ", "∙": "ㆍ", **{chr(0x2460 + i): "" for i in range(20)}})
+# The forms' printed labels and ruling lines, measured from the two statutory forms (words, h lines, v lines in points).
+# ``official_fill`` draws them as a stand-in for the forms; ``official_scan`` lays them over a page picture to find the form on it.
+LAYOUTS = json.loads(Path(__file__).with_name("official_layouts.json").read_text())
 HINTS = {"년", "월", "일", "일부터", "부터", "까지", "(", ")", "[", "]"}
 
 
