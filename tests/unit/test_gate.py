@@ -71,3 +71,21 @@ def test_the_official_form_suite_fails_on_a_wrong_payout_or_refusal_and_needs_it
     assert not compare(_report(**{"claims_official.field_accuracy": 0.90}), None)["passed"]
     blind = compare(_report(**{"control.official_reader_gap": 0.0}), None)
     assert not blind["passed"], "a reader that does no better than the text reader on the forms proves nothing"
+
+
+def test_the_scanned_official_form_suite_is_skipped_without_tesseract_but_needs_its_control_when_it_runs():
+    skipped = compare(_report(), None)
+    assert skipped["passed"] and next(c for c in skipped["checks"] if c["metric"] == "claims_official_scan.field_accuracy")["why"].startswith("skipped")
+    healthy = _report()
+    healthy["claims_official_scan"] = {"wrong_pay_rate": 0.0, "wrong_deny_rate": 0.0, "field_accuracy": 0.94}
+    healthy["control"]["official_scan_gap"] = 0.40
+    assert compare(healthy, None)["passed"]
+    for key in ("wrong_pay_rate", "wrong_deny_rate"):
+        bad = _report()
+        bad["claims_official_scan"] = {**healthy["claims_official_scan"], key: 0.02}
+        bad["control"]["official_scan_gap"] = 0.40
+        assert not compare(bad, None)["passed"], key
+    blind = _report()
+    blind["claims_official_scan"] = healthy["claims_official_scan"]
+    blind["control"]["official_scan_gap"] = 0.0
+    assert not compare(blind, None)["passed"], "a grid reader that does no better than page OCR on the scanned forms proves nothing"

@@ -36,19 +36,21 @@ from fitwitness.claims.models import EvidenceRef
 from fitwitness.claims.official import HINTS, LAYOUTS, TEMPLATES, Grid, Zone, _box, _find, _make, _n, _region, _rows, _value
 
 PT = 72.0 / ocr.DPI  # points per pixel
-CONTRAST = 35  # how much darker than its surroundings a pixel is to count as ink for the rules
+CONTRAST = 35  # how much darker than its surroundings a pixel is to count as ink (for the page's tilt)
+DARKER, COVER, COVER_WINDOW = 8, 0.7, 31  # a line pixel is at least this much darker than the paper, in this share of a window
+FAINT, AVERAGE, BESIDE = 14, 15, 4  # for the rules: how much darker, averaged over this many pixels along the line, and standing out from rows this far off
 MIN_H, MIN_V = 60, 36  # shortest ruling lines, in pixels (22 and 13 points): a Hangul stroke is shorter than both
 HOLES = 0.9  # a rule may have this share of its length drawn; the scanner leaves gaps in thin lines
 MIN_RULES = 8  # a page with fewer long rules is not one of the forms
 ZOOM = 2  # a cell is read at this scale
 TOLERANCE = 2.0  # points: how far a ruling line may lie from where the registered form puts it
+NEAR, FAR_BETTER = 8.0, 0.15  # points a form may lie from its printed place before a fit must explain this much more of the grid
 FIT = 0.6  # the share of the form's lines that must be found for the page to be taken for it
 SCALES = np.arange(0.94, 1.0601, 0.002)  # a scanner or a copier changes the size of a page by a few percent
 LABELS_CHECKED, LABELS_READ = 3, 0.5  # the longest labels of a form are read in their cells; this share of them must read as printed
-INSETS = (3, 4)  # pixels cut off every side of a cell before it is read, to keep out what a rule leaves at its edge; a blurrier
+INSETS = (3, 4, 5)  # pixels cut off every side of a cell before it is read, to keep out what a rule leaves at its edge; a blurrier
 # scan leaves more, so a cell that gave nothing usable is read again with the next one
-GROW = 1  # the found rules are painted out this many pixels wider than they were found (1: as found)
-WIPE = 0  # and the form's own lines this many pixels wide (they would cut into text that sits close to its border)
+WIPE = 3  # the form's lines are painted out this many pixels wide (wider would cut into text that sits close to its border)
 BLANK = 0.001  # a cell with less ink than this (share of its pixels, well below the paper's grey) is empty
 
 
@@ -57,6 +59,33 @@ def _ink(image: Image.Image) -> np.ndarray:
     grey = image.convert("L")
     around = np.asarray(grey.filter(ImageFilter.BoxBlur(12)), dtype=np.int16)
     return (around - np.asarray(grey, dtype=np.int16)) > CONTRAST
+
+
+def _along(image: Image.Image, axis: int) -> np.ndarray:
+    """True where a pixel lies on a thin line running along ``axis`` (1: left to right).
+
+    How much darker than its surroundings a pixel is, averaged over AVERAGE pixels along the line: a hairline a blurred,
+    noisy scan has almost lost still stands out that way, and the noise does not. Two things keep text out of it. A
+    line must stand out from the rows beside it (BESIDE pixels to each side), and it must be drawn without gaps: at
+    least COVER of the pixels in a window of COVER_WINDOW are darker than the paper at all, which the tops of a row of
+    letters are not."""
+    grey = image.convert("L")
+    around = np.asarray(grey.filter(ImageFilter.BoxBlur(12)), dtype=np.int16)
+    diff = (around - np.asarray(grey, dtype=np.int16)).astype(np.float32)
+    if axis == 0:
+        diff = diff.T
+    width = diff.shape[1]
+
+    def along(values: np.ndarray, run: int) -> np.ndarray:
+        c = np.zeros((values.shape[0], width + 1), dtype=np.float32)
+        np.cumsum(values, axis=1, out=c[:, 1:])
+        lo, hi = np.clip(np.arange(width) - run // 2, 0, width), np.clip(np.arange(width) + run // 2 + 1, 0, width)
+        return (c[:, hi] - c[:, lo]) / np.maximum(hi - lo, 1)
+
+    mean = along(diff, AVERAGE)
+    beside = np.maximum(np.roll(mean, BESIDE, axis=0), np.roll(mean, -BESIDE, axis=0))
+    out = (mean > FAINT) & (mean - beside > FAINT / 2) & (along((diff > DARKER).astype(np.float32), COVER_WINDOW) >= COVER)
+    return out if axis == 1 else out.T
 
 
 def _tilt(ink: np.ndarray) -> float:
@@ -118,9 +147,10 @@ def _lines(covered: np.ndarray, minimum: int) -> list[tuple[float, float, float]
     return out
 
 
-def find_rules(ink: np.ndarray) -> Rules:
-    h, v = _long(ink, MIN_H), _long(ink.T, MIN_V).T
-    return Rules(_lines(h, MIN_H), _lines(v.T, MIN_V), h | v)
+def find_rules(image: Image.Image) -> Rules:
+    smear = AVERAGE - 1  # averaging along a line makes every stroke that much longer; a rule is that much longer than a letter's stroke
+    h, v = _long(_along(image, 1), MIN_H + smear), _long(_along(image, 0).T, MIN_V + smear).T
+    return Rules(_lines(h, MIN_H + smear), _lines(v.T, MIN_V + smear), h | v)
 
 
 # --- registration ------------------------------------------------------------------------------------------------
@@ -142,8 +172,10 @@ class Fit:
         return self.sy * v + self.ty
 
 
-def _axis(found: list[float], known: list[float], keep: int = 3) -> list[tuple[int, float, float]]:
-    """The best ``keep`` (matched lines, scale, shift) that lay the known lines onto the found ones."""
+def _axis(found: list[float], known: list[float], keep: int = 12) -> list[tuple[int, float, float]]:
+    """The best ``keep`` (matched lines, scale, shift) that lay the known lines onto the found ones. A scale gives
+    several candidate shifts, not only the best one: where the page has many rules, a shift of one table row also
+    matches nearly every line, and the right shift is then a lower peak, not the highest."""
     d, t = np.array(sorted(set(round(v, 1) for v in found))), np.array(sorted(set(round(v, 1) for v in known)))
     if len(d) < 2 or len(t) < 2:
         return []
@@ -151,12 +183,18 @@ def _axis(found: list[float], known: list[float], keep: int = 3) -> list[tuple[i
     for s in SCALES:
         diffs = np.sort((d[:, None] - s * t[None, :]).ravel())
         reach = np.searchsorted(diffs, diffs + 2 * TOLERANCE, side="right")
-        i = int((reach - np.arange(len(diffs))).argmax())
-        shift = float(diffs[i:reach[i]].mean())
-        moved = s * t + shift
-        matched = int(sum(np.abs(d - m).min() <= TOLERANCE for m in moved))
-        out.append((matched, float(s), shift))
-    out.sort(key=lambda c: (-c[0], abs(c[1] - 1.0)))
+        counts = reach - np.arange(len(diffs))
+        order = np.argsort(-counts, kind="stable")
+        taken: list[float] = []
+        for i in order[:400]:
+            if counts[i] < 0.5 * counts[order[0]] or len(taken) >= 5:
+                break
+            shift = float(diffs[i:reach[i]].mean())
+            if any(abs(shift - x) < 3 * TOLERANCE for x in taken):
+                continue
+            taken.append(shift)
+            out.append((int(sum(np.abs(d - m).min() <= TOLERANCE for m in s * t + shift)), float(s), shift))
+    out.sort(key=lambda c: (-c[0], abs(c[1] - 1.0), abs(c[2])))
     return out[:keep]
 
 
@@ -182,20 +220,26 @@ def _covered(fit: Fit, rules: Rules, layout: dict) -> float:
 
 
 def register(rules: Rules, kind: str) -> Fit | None:
-    """Where the form ``kind`` lies on the page, or None when its grid is not there."""
+    """Where the form ``kind`` lies on the page, or None when its grid is not there.
+
+    The fee statement's table repeats every 12.5 points, so a grid laid one row off explains almost as many lines as
+    the right one. A page is scanned with its content within a few points of where it was printed, so a fit that
+    keeps the form near its place wins unless a far one explains clearly more."""
     layout = LAYOUTS[kind]
     found_y, found_x = [y for y, _, _ in rules.horizontal], [x for x, _, _ in rules.vertical]
     known_y, known_x = [h[0] for h in layout["h"]], [v[0] for v in layout["v"]]
-    best = None
+    fits = []
     for _, sy, ty in _axis(found_y, known_y):
         for _, sx, tx in _axis(found_x, known_x):
             sy2, ty2 = _refine(found_y, known_y, sy, ty)
             sx2, tx2 = _refine(found_x, known_x, sx, tx)
-            fit = Fit(sx2, tx2, sy2, ty2, 0.0)
-            share = _covered(fit, rules, layout)
-            if best is None or share > best.share:
-                best = Fit(sx2, tx2, sy2, ty2, share)
-    return best if best and best.share >= FIT else None
+            fits.append(Fit(sx2, tx2, sy2, ty2, _covered(Fit(sx2, tx2, sy2, ty2, 0.0), rules, layout)))
+    if not fits:
+        return None
+    best = max(fits, key=lambda f: f.share)
+    near = max((f for f in fits if abs(f.tx) <= NEAR and abs(f.ty) <= NEAR), key=lambda f: f.share, default=None)
+    chosen = best if near is None or best.share - near.share >= FAR_BETTER else near
+    return chosen if chosen.share >= FIT else None
 
 
 class _Page:
@@ -362,12 +406,10 @@ def _cell_value(clean: Image.Image, zone: Zone, region: tuple[float, float, floa
     return (_name(words) if zone.kind == "text" and zone.label != "질병분류기호:" else _value(zone.kind, words, zone.ignore)), words
 
 
-def _wiped(image: Image.Image, rules: Rules, page: _Page) -> Image.Image:
-    """The page with its ruling lines painted out: the ones found, and the form's own where a scan broke a thin line."""
-    wipe = Image.fromarray((rules.mask * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(GROW)) if GROW > 1 else Image.fromarray((rules.mask * 255).astype(np.uint8))
-    clean = Image.composite(Image.new("L", image.size, 255), image, wipe)
-    if WIPE <= 0:
-        return clean
+def _wiped(image: Image.Image, page: _Page) -> Image.Image:
+    """The page with the form's own ruling lines painted out, where the registration puts them. (Painting out the lines
+    that were found would also paint out the stems and bars of letters that a faint-line detector takes for rules.)"""
+    clean = image.copy()
     pen = ImageDraw.Draw(clean)
     for e in page.horizontal_edges:
         pen.line([(e["x0"] / PT, e["top"] / PT), (e["x1"] / PT, e["top"] / PT)], fill=255, width=WIPE)
@@ -382,7 +424,7 @@ def read_image(image: Image.Image, page_no: int, doc_id: str) -> list[tuple[str,
     if not ocr.available():
         return None
     image = straighten(image.convert("L"))
-    rules = find_rules(_ink(image))
+    rules = find_rules(image)
     if len(rules.horizontal) < MIN_RULES:
         return None
     fits = {kind: register(rules, kind) for kind in TEMPLATES}
@@ -391,7 +433,7 @@ def read_image(image: Image.Image, page_no: int, doc_id: str) -> list[tuple[str,
         return None
     fit, layout = fits[kind], LAYOUTS[kind]
     page = _Page(fit, layout, image.width * PT, image.height * PT)
-    clean = _wiped(image, rules, page)
+    clean = _wiped(image, page)
     rows, grid, zones = _rows(_labels(fit, layout)), Grid(page), TEMPLATES[kind][1]
     present = [(zone, anchor) for zone in zones if (anchor := _find(rows, zone.anchor))]
     checked = sorted(present, key=lambda p: -len(p[0].anchor))[:LABELS_CHECKED]

@@ -11,6 +11,8 @@ block a regression before a paid experiment is ever scheduled. Four suites:
 * ``claims``          the insurance claim pipeline (extraction, rules, challenge) on the synthetic
                       claim corpus: decision accuracy, the wrong-pay rate (must be zero) and the
                       automation rate, plus a degraded control that must pay claims it should not
+* ``claims_official_scan`` the two official forms as page pictures, read by registering their grid
+                      (``claims/official_scan.py``), against the same pictures read by OCR alone
 * ``trajectory``      the road each run takes, not only where it ends: the real claim and drawing
                       graphs are run through the job runtime and their event paths are compared with
                       committed reference paths and checked against ordering, ledger and
@@ -70,6 +72,11 @@ THRESHOLDS: dict[str, dict] = {
     "claims_scan.field_accuracy": {"min": 0.90, "max_drop": 0.03, "optional": True},
     # Only about six of the 22 sampled claims are payable, so a drop is not read from this rate: one claim is 17 points.
     "claims_scan.auto_rate": {"min": 0.50, "optional": True},
+    # The same two forms as page pictures: registered on their grid and read by cell. Optional like the scan suite.
+    "claims_official_scan.wrong_pay_rate": {"equals": 0.0, "optional": True},
+    "claims_official_scan.wrong_deny_rate": {"equals": 0.0, "optional": True},
+    "claims_official_scan.field_accuracy": {"min": 0.85, "max_drop": 0.03, "optional": True},
+    "control.official_scan_gap": {"min": 0.20, "optional": True},
     "trajectory.match_rate": {"equals": 1.0},
     "trajectory.invariant_violations": {"equals": 0},
     "trajectory.graph_wrong_pay": {"equals": 0},
@@ -212,6 +219,33 @@ def run_claims_scan(root: Path) -> dict | None:
     return evaluate(root, scan=SCAN_LEVEL, workers=max(1, min(4, os.cpu_count() or 1)), cases=sample)
 
 
+def run_claims_official_scan(root: Path) -> dict | None:
+    """The two official forms as page pictures, on the scan suite's sample: read by registering their grid
+    (``claims/official_scan.py``), and again by the OCR path alone, as if the grid reader did not exist."""
+    from fitwitness.claims import official_scan, ocr
+    from fitwitness.claims.evaluate import evaluate
+
+    if not ocr.available():
+        return None
+    manifest = json.loads((root / "manifest.json").read_text())
+    seen: dict[str, int] = {}
+    sample = []
+    for case in manifest["cases"]:
+        seen[case["scenario"]] = seen.get(case["scenario"], 0) + 1
+        if seen[case["scenario"]] <= SCAN_CASES_PER_SCENARIO:
+            sample.append(case["case_id"])
+    forms = {"diagnosis": None, "receipt": None}
+    workers = max(1, min(4, os.cpu_count() or 1))
+    grid = evaluate(root, scan=SCAN_LEVEL, workers=workers, cases=sample, forms=forms)
+    read_image = official_scan.read_image
+    official_scan.read_image = lambda *args, **kwargs: None  # as if the forms were not recognised on the page
+    try:
+        ocr_only = evaluate(root, scan=SCAN_LEVEL, workers=workers, cases=sample, forms=forms)
+    finally:
+        official_scan.read_image = read_image
+    return {"normal": grid, "ocr_only": ocr_only}
+
+
 def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajectories: Path | None = None,
              adopt_trajectories: bool = False) -> dict:
     from fitwitness.data.bootstrap import seed
@@ -234,6 +268,7 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajecto
     claims = run_claims(claims_root) if (claims_root / "manifest.json").exists() else None
     claims_scan = run_claims_scan(claims_root) if claims else None
     claims_official = run_claims_official(claims_root) if claims else None
+    claims_official_scan = run_claims_official_scan(claims_root) if claims else None
     trajectory = None
     if claims:
         from fitwitness.evaluation.trajectory import run_trajectories
@@ -250,6 +285,9 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajecto
         control["claims_degraded"] = claims["degraded"]["summary"]
         control["official_reader_gap"] = claims_official["normal"]["summary"]["field_accuracy"] - claims_official["text_only"]["summary"]["field_accuracy"]
         control["official_text_only"] = claims_official["text_only"]["summary"]
+        if claims_official_scan:
+            control["official_scan_gap"] = claims_official_scan["normal"]["summary"]["field_accuracy"] - claims_official_scan["ocr_only"]["summary"]["field_accuracy"]
+            control["official_scan_ocr_only"] = claims_official_scan["ocr_only"]["summary"]
     if trajectory:
         normal_rate, broken_rate = trajectory["normal"]["match_rate"], trajectory["degraded"]["match_rate"]
         control["trajectory_gap"] = (normal_rate - broken_rate) if normal_rate is not None and broken_rate is not None else None
@@ -265,6 +303,7 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajecto
         "trajectory": trajectory["normal"] if trajectory else None,
         "claims_scan": ({**claims_scan["summary"], "level": SCAN_LEVEL} if claims_scan else None),
         "claims_official": claims_official["normal"]["summary"] if claims_official else None,
+        "claims_official_scan": ({**claims_official_scan["normal"]["summary"], "level": SCAN_LEVEL} if claims_official_scan else None),
         "limitations": [
             "합성 도면 150개·고정 test split 6 family 기준의 회귀 게이트입니다. 산업 데이터 성능이 아닙니다.",
             "모델·API 호출이 없습니다. 의미·이미지 채널과 LLM Agent 품질은 별도 실측 workflow가 측정합니다.",
@@ -272,6 +311,7 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajecto
             "claims 항목은 합성 청구 서류와 가상의 지급 기준표 기준입니다. 실제 약관·실제 서류의 성능이 아니며, 모델 추출 경로는 포함하지 않습니다.",
             "claims_scan 항목은 합성 서류를 스캔처럼 열화시켜(medium) OCR로 읽은 결과이며 시나리오마다 2건만 잰 표본입니다. Tesseract가 없으면 건너뜁니다. 실제 스캔 문서의 성능이 아닙니다.",
             "claims_official 항목은 진단서와 진료비 계산서·영수증을 공식 서식의 라벨·선을 다시 그린 판에 생성기의 값으로 채워 읽은 결과입니다. 값의 위치는 서식에서 잰 것이고 병원 소프트웨어가 실제로 찍는 위치가 아닙니다. 두 서류 외에는 합성 문서 그대로입니다.",
+            "claims_official_scan 항목은 같은 두 서식을 스캔처럼 열화시켜(medium) 서식의 격자를 맞춰 칸마다 읽은 결과이고, claims_scan과 같은 표본입니다. 서식의 선·라벨 좌표는 읽기와 서류 채우기가 같은 파일을 쓰므로, 실제 서식에 대한 확인은 이 게이트가 아니라 scripts/eval-official-forms.py로 합니다. Tesseract가 없으면 건너뜁니다.",
             "trajectory 항목은 규칙 엔진과 고정 대본의 planner/challenger가 지나는 경로입니다. 실제 모델이 고르는 경로의 품질은 측정하지 않습니다.",
         ],
     }
