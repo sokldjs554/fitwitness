@@ -1,0 +1,1330 @@
+{
+ "source": "scripts/eval-official-forms.py (field level) and python -m fitwitness.claims.evaluate --official --scan LEVEL (pipeline level), the 120 synthetic claims' diagnosis certificates and fee statements written onto the two statutory forms (placement jitter 1.5 pt, neighbouring cells filled) and turned into page pictures at four damage levels (claims/scan.py).",
+ "code_sha": "79fa57644a7790f4582f39998aa5c7d360c56894",
+ "split": "dev = even-numbered cases (60), test = odd-numbered cases (60). The reader was built and tuned on dev only; test was read once, after the code was frozen.",
+ "redrawn_layout": {
+  "dev": {
+   "clean": {
+    "field_level": {
+     "fields": 600,
+     "correct": 561,
+     "missing": 19,
+     "wrong": 20,
+     "accuracy": 0.935,
+     "blank_form_reads": {
+      "diagnosis": [],
+      "receipt": []
+     },
+     "by_field": {
+      "diagnosis.admission_date": {
+       "correct": 57,
+       "missing": 3,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_code": {
+       "correct": 58,
+       "missing": 1,
+       "wrong": 1
+      },
+      "diagnosis.diagnosis_date": {
+       "correct": 52,
+       "missing": 8,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_name": {
+       "correct": 60,
+       "missing": 0,
+       "wrong": 0
+      },
+      "diagnosis.discharge_date": {
+       "correct": 56,
+       "missing": 4,
+       "wrong": 0
+      },
+      "diagnosis.hospital": {
+       "correct": 60,
+       "missing": 0,
+       "wrong": 0
+      },
+      "diagnosis.insured_name": {
+       "correct": 57,
+       "missing": 1,
+       "wrong": 2
+      },
+      "receipt.hospital": {
+       "correct": 45,
+       "missing": 0,
+       "wrong": 15
+      },
+      "receipt.insured_name": {
+       "correct": 60,
+       "missing": 0,
+       "wrong": 0
+      },
+      "receipt.total_amount": {
+       "correct": 56,
+       "missing": 2,
+       "wrong": 2
+      }
+     }
+    },
+    "pipeline": {
+     "cases": 60,
+     "field_accuracy": 0.9543,
+     "decision_accuracy": 0.7333,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.55,
+     "auto_rate": 0.875,
+     "latency_ms_p50": 11526.2
+    }
+   },
+   "light": {
+    "field_level": {
+     "fields": 600,
+     "correct": 558,
+     "missing": 23,
+     "wrong": 19,
+     "accuracy": 0.93,
+     "blank_form_reads": {
+      "diagnosis": [],
+      "receipt": []
+     },
+     "by_field": {
+      "diagnosis.admission_date": {
+       "correct": 55,
+       "missing": 5,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_code": {
+       "correct": 60,
+       "missing": 0,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_date": {
+       "correct": 51,
+       "missing": 9,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_name": {
+       "correct": 59,
+       "missing": 0,
+       "wrong": 1
+      },
+      "diagnosis.discharge_date": {
+       "correct": 52,
+       "missing": 8,
+       "wrong": 0
+      },
+      "diagnosis.hospital": {
+       "correct": 58,
+       "missing": 0,
+       "wrong": 2
+      },
+      "diagnosis.insured_name": {
+       "correct": 58,
+       "missing": 0,
+       "wrong": 2
+      },
+      "receipt.hospital": {
+       "correct": 47,
+       "missing": 0,
+       "wrong": 13
+      },
+      "receipt.insured_name": {
+       "correct": 60,
+       "missing": 0,
+       "wrong": 0
+      },
+      "receipt.total_amount": {
+       "correct": 58,
+       "missing": 1,
+       "wrong": 1
+      }
+     }
+    },
+    "pipeline": {
+     "cases": 60,
+     "field_accuracy": 0.9709,
+     "decision_accuracy": 0.6833,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.6,
+     "auto_rate": 0.75,
+     "latency_ms_p50": 12958.8
+    }
+   },
+   "medium": {
+    "field_level": {
+     "fields": 600,
+     "correct": 575,
+     "missing": 9,
+     "wrong": 16,
+     "accuracy": 0.9583,
+     "blank_form_reads": {
+      "diagnosis": [],
+      "receipt": []
+     },
+     "by_field": {
+      "diagnosis.admission_date": {
+       "correct": 59,
+       "missing": 1,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_code": {
+       "correct": 60,
+       "missing": 0,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_date": {
+       "correct": 55,
+       "missing": 5,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_name": {
+       "correct": 60,
+       "missing": 0,
+       "wrong": 0
+      },
+      "diagnosis.discharge_date": {
+       "correct": 57,
+       "missing": 3,
+       "wrong": 0
+      },
+      "diagnosis.hospital": {
+       "correct": 54,
+       "missing": 0,
+       "wrong": 6
+      },
+      "diagnosis.insured_name": {
+       "correct": 60,
+       "missing": 0,
+       "wrong": 0
+      },
+      "receipt.hospital": {
+       "correct": 50,
+       "missing": 0,
+       "wrong": 10
+      },
+      "receipt.insured_name": {
+       "correct": 60,
+       "missing": 0,
+       "wrong": 0
+      },
+      "receipt.total_amount": {
+       "correct": 60,
+       "missing": 0,
+       "wrong": 0
+      }
+     }
+    },
+    "pipeline": {
+     "cases": 60,
+     "field_accuracy": 0.9626,
+     "decision_accuracy": 0.75,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.5333,
+     "auto_rate": 0.9167,
+     "latency_ms_p50": 14090.1
+    }
+   },
+   "heavy": {
+    "field_level": {
+     "fields": 600,
+     "correct": 531,
+     "missing": 21,
+     "wrong": 48,
+     "accuracy": 0.885,
+     "blank_form_reads": {
+      "diagnosis": [],
+      "receipt": []
+     },
+     "by_field": {
+      "diagnosis.admission_date": {
+       "correct": 58,
+       "missing": 2,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_code": {
+       "correct": 49,
+       "missing": 0,
+       "wrong": 11
+      },
+      "diagnosis.diagnosis_date": {
+       "correct": 51,
+       "missing": 9,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_name": {
+       "correct": 55,
+       "missing": 2,
+       "wrong": 3
+      },
+      "diagnosis.discharge_date": {
+       "correct": 60,
+       "missing": 0,
+       "wrong": 0
+      },
+      "diagnosis.hospital": {
+       "correct": 55,
+       "missing": 0,
+       "wrong": 5
+      },
+      "diagnosis.insured_name": {
+       "correct": 59,
+       "missing": 1,
+       "wrong": 0
+      },
+      "receipt.hospital": {
+       "correct": 38,
+       "missing": 1,
+       "wrong": 21
+      },
+      "receipt.insured_name": {
+       "correct": 48,
+       "missing": 4,
+       "wrong": 8
+      },
+      "receipt.total_amount": {
+       "correct": 58,
+       "missing": 2,
+       "wrong": 0
+      }
+     }
+    },
+    "pipeline": {
+     "cases": 60,
+     "field_accuracy": 0.9335,
+     "decision_accuracy": 0.6167,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.6333,
+     "auto_rate": 0.6667,
+     "latency_ms_p50": 13411.0
+    }
+   }
+  },
+  "test": {
+   "clean": {
+    "field_level": {
+     "fields": 600,
+     "correct": 551,
+     "missing": 31,
+     "wrong": 18,
+     "accuracy": 0.9183,
+     "blank_form_reads": {
+      "diagnosis": [],
+      "receipt": []
+     },
+     "by_field": {
+      "diagnosis.admission_date": {
+       "correct": 54,
+       "missing": 6,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_code": {
+       "correct": 55,
+       "missing": 2,
+       "wrong": 3
+      },
+      "diagnosis.diagnosis_date": {
+       "correct": 46,
+       "missing": 14,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_name": {
+       "correct": 58,
+       "missing": 0,
+       "wrong": 2
+      },
+      "diagnosis.discharge_date": {
+       "correct": 52,
+       "missing": 8,
+       "wrong": 0
+      },
+      "diagnosis.hospital": {
+       "correct": 57,
+       "missing": 0,
+       "wrong": 3
+      },
+      "diagnosis.insured_name": {
+       "correct": 58,
+       "missing": 0,
+       "wrong": 2
+      },
+      "receipt.hospital": {
+       "correct": 53,
+       "missing": 0,
+       "wrong": 7
+      },
+      "receipt.insured_name": {
+       "correct": 60,
+       "missing": 0,
+       "wrong": 0
+      },
+      "receipt.total_amount": {
+       "correct": 58,
+       "missing": 1,
+       "wrong": 1
+      }
+     }
+    },
+    "pipeline": {
+     "cases": 60,
+     "field_accuracy": 0.9592,
+     "decision_accuracy": 0.7667,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.5833,
+     "auto_rate": 0.7857,
+     "latency_ms_p50": 12202.1
+    }
+   },
+   "light": {
+    "field_level": {
+     "fields": 600,
+     "correct": 552,
+     "missing": 27,
+     "wrong": 21,
+     "accuracy": 0.92,
+     "blank_form_reads": {
+      "diagnosis": [],
+      "receipt": []
+     },
+     "by_field": {
+      "diagnosis.admission_date": {
+       "correct": 58,
+       "missing": 2,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_code": {
+       "correct": 54,
+       "missing": 2,
+       "wrong": 4
+      },
+      "diagnosis.diagnosis_date": {
+       "correct": 49,
+       "missing": 11,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_name": {
+       "correct": 60,
+       "missing": 0,
+       "wrong": 0
+      },
+      "diagnosis.discharge_date": {
+       "correct": 51,
+       "missing": 8,
+       "wrong": 1
+      },
+      "diagnosis.hospital": {
+       "correct": 56,
+       "missing": 0,
+       "wrong": 4
+      },
+      "diagnosis.insured_name": {
+       "correct": 59,
+       "missing": 0,
+       "wrong": 1
+      },
+      "receipt.hospital": {
+       "correct": 49,
+       "missing": 1,
+       "wrong": 10
+      },
+      "receipt.insured_name": {
+       "correct": 58,
+       "missing": 2,
+       "wrong": 0
+      },
+      "receipt.total_amount": {
+       "correct": 58,
+       "missing": 1,
+       "wrong": 1
+      }
+     }
+    },
+    "pipeline": {
+     "cases": 60,
+     "field_accuracy": 0.9442,
+     "decision_accuracy": 0.7333,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.6,
+     "auto_rate": 0.75,
+     "latency_ms_p50": 13593.7
+    }
+   },
+   "medium": {
+    "field_level": {
+     "fields": 600,
+     "correct": 560,
+     "missing": 16,
+     "wrong": 24,
+     "accuracy": 0.9333,
+     "blank_form_reads": {
+      "diagnosis": [],
+      "receipt": []
+     },
+     "by_field": {
+      "diagnosis.admission_date": {
+       "correct": 57,
+       "missing": 3,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_code": {
+       "correct": 53,
+       "missing": 0,
+       "wrong": 7
+      },
+      "diagnosis.diagnosis_date": {
+       "correct": 51,
+       "missing": 9,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_name": {
+       "correct": 60,
+       "missing": 0,
+       "wrong": 0
+      },
+      "diagnosis.discharge_date": {
+       "correct": 57,
+       "missing": 3,
+       "wrong": 0
+      },
+      "diagnosis.hospital": {
+       "correct": 55,
+       "missing": 0,
+       "wrong": 5
+      },
+      "diagnosis.insured_name": {
+       "correct": 59,
+       "missing": 1,
+       "wrong": 0
+      },
+      "receipt.hospital": {
+       "correct": 49,
+       "missing": 0,
+       "wrong": 11
+      },
+      "receipt.insured_name": {
+       "correct": 59,
+       "missing": 0,
+       "wrong": 1
+      },
+      "receipt.total_amount": {
+       "correct": 60,
+       "missing": 0,
+       "wrong": 0
+      }
+     }
+    },
+    "pipeline": {
+     "cases": 60,
+     "field_accuracy": 0.9657,
+     "decision_accuracy": 0.8167,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.5667,
+     "auto_rate": 0.8214,
+     "latency_ms_p50": 13751.9
+    }
+   },
+   "heavy": {
+    "field_level": {
+     "fields": 600,
+     "correct": 547,
+     "missing": 18,
+     "wrong": 35,
+     "accuracy": 0.9117,
+     "blank_form_reads": {
+      "diagnosis": [],
+      "receipt": []
+     },
+     "by_field": {
+      "diagnosis.admission_date": {
+       "correct": 59,
+       "missing": 1,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_code": {
+       "correct": 44,
+       "missing": 2,
+       "wrong": 14
+      },
+      "diagnosis.diagnosis_date": {
+       "correct": 54,
+       "missing": 6,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_name": {
+       "correct": 54,
+       "missing": 2,
+       "wrong": 4
+      },
+      "diagnosis.discharge_date": {
+       "correct": 57,
+       "missing": 3,
+       "wrong": 0
+      },
+      "diagnosis.hospital": {
+       "correct": 59,
+       "missing": 0,
+       "wrong": 1
+      },
+      "diagnosis.insured_name": {
+       "correct": 59,
+       "missing": 0,
+       "wrong": 1
+      },
+      "receipt.hospital": {
+       "correct": 47,
+       "missing": 2,
+       "wrong": 11
+      },
+      "receipt.insured_name": {
+       "correct": 55,
+       "missing": 1,
+       "wrong": 4
+      },
+      "receipt.total_amount": {
+       "correct": 59,
+       "missing": 1,
+       "wrong": 0
+      }
+     }
+    },
+    "pipeline": {
+     "cases": 60,
+     "field_accuracy": 0.912,
+     "decision_accuracy": 0.6833,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.6167,
+     "auto_rate": 0.7143,
+     "latency_ms_p50": 14295.9
+    }
+   }
+  }
+ },
+ "real_blank_forms": {
+  "dev": {
+   "medium": {
+    "fields": 600,
+    "correct": 569,
+    "missing": 13,
+    "wrong": 18,
+    "accuracy": 0.9483,
+    "blank_form_reads": {
+     "diagnosis": [],
+     "receipt": []
+    },
+    "by_field": {
+     "diagnosis.admission_date": {
+      "correct": 55,
+      "missing": 5,
+      "wrong": 0
+     },
+     "diagnosis.diagnosis_code": {
+      "correct": 60,
+      "missing": 0,
+      "wrong": 0
+     },
+     "diagnosis.diagnosis_date": {
+      "correct": 55,
+      "missing": 5,
+      "wrong": 0
+     },
+     "diagnosis.diagnosis_name": {
+      "correct": 60,
+      "missing": 0,
+      "wrong": 0
+     },
+     "diagnosis.discharge_date": {
+      "correct": 57,
+      "missing": 3,
+      "wrong": 0
+     },
+     "diagnosis.hospital": {
+      "correct": 54,
+      "missing": 0,
+      "wrong": 6
+     },
+     "diagnosis.insured_name": {
+      "correct": 60,
+      "missing": 0,
+      "wrong": 0
+     },
+     "receipt.hospital": {
+      "correct": 48,
+      "missing": 0,
+      "wrong": 12
+     },
+     "receipt.insured_name": {
+      "correct": 60,
+      "missing": 0,
+      "wrong": 0
+     },
+     "receipt.total_amount": {
+      "correct": 60,
+      "missing": 0,
+      "wrong": 0
+     }
+    }
+   },
+   "heavy": {
+    "fields": 600,
+    "correct": 514,
+    "missing": 47,
+    "wrong": 39,
+    "accuracy": 0.8567,
+    "blank_form_reads": {
+     "diagnosis": [],
+     "receipt": []
+    },
+    "by_field": {
+     "diagnosis.admission_date": {
+      "correct": 58,
+      "missing": 2,
+      "wrong": 0
+     },
+     "diagnosis.diagnosis_code": {
+      "correct": 56,
+      "missing": 3,
+      "wrong": 1
+     },
+     "diagnosis.diagnosis_date": {
+      "correct": 53,
+      "missing": 7,
+      "wrong": 0
+     },
+     "diagnosis.diagnosis_name": {
+      "correct": 55,
+      "missing": 1,
+      "wrong": 4
+     },
+     "diagnosis.discharge_date": {
+      "correct": 56,
+      "missing": 4,
+      "wrong": 0
+     },
+     "diagnosis.hospital": {
+      "correct": 56,
+      "missing": 0,
+      "wrong": 4
+     },
+     "diagnosis.insured_name": {
+      "correct": 59,
+      "missing": 1,
+      "wrong": 0
+     },
+     "receipt.hospital": {
+      "correct": 33,
+      "missing": 9,
+      "wrong": 18
+     },
+     "receipt.insured_name": {
+      "correct": 39,
+      "missing": 10,
+      "wrong": 11
+     },
+     "receipt.total_amount": {
+      "correct": 49,
+      "missing": 10,
+      "wrong": 1
+     }
+    }
+   }
+  },
+  "test": {
+   "medium": {
+    "fields": 600,
+    "correct": 562,
+    "missing": 21,
+    "wrong": 17,
+    "accuracy": 0.9367,
+    "blank_form_reads": {
+     "diagnosis": [],
+     "receipt": []
+    },
+    "by_field": {
+     "diagnosis.admission_date": {
+      "correct": 56,
+      "missing": 4,
+      "wrong": 0
+     },
+     "diagnosis.diagnosis_code": {
+      "correct": 53,
+      "missing": 0,
+      "wrong": 7
+     },
+     "diagnosis.diagnosis_date": {
+      "correct": 51,
+      "missing": 9,
+      "wrong": 0
+     },
+     "diagnosis.diagnosis_name": {
+      "correct": 59,
+      "missing": 0,
+      "wrong": 1
+     },
+     "diagnosis.discharge_date": {
+      "correct": 54,
+      "missing": 6,
+      "wrong": 0
+     },
+     "diagnosis.hospital": {
+      "correct": 57,
+      "missing": 0,
+      "wrong": 3
+     },
+     "diagnosis.insured_name": {
+      "correct": 58,
+      "missing": 2,
+      "wrong": 0
+     },
+     "receipt.hospital": {
+      "correct": 54,
+      "missing": 0,
+      "wrong": 6
+     },
+     "receipt.insured_name": {
+      "correct": 60,
+      "missing": 0,
+      "wrong": 0
+     },
+     "receipt.total_amount": {
+      "correct": 60,
+      "missing": 0,
+      "wrong": 0
+     }
+    }
+   },
+   "heavy": {
+    "fields": 600,
+    "correct": 505,
+    "missing": 55,
+    "wrong": 40,
+    "accuracy": 0.8417,
+    "blank_form_reads": {
+     "diagnosis": [],
+     "receipt": []
+    },
+    "by_field": {
+     "diagnosis.admission_date": {
+      "correct": 59,
+      "missing": 1,
+      "wrong": 0
+     },
+     "diagnosis.diagnosis_code": {
+      "correct": 49,
+      "missing": 5,
+      "wrong": 6
+     },
+     "diagnosis.diagnosis_date": {
+      "correct": 50,
+      "missing": 10,
+      "wrong": 0
+     },
+     "diagnosis.diagnosis_name": {
+      "correct": 51,
+      "missing": 2,
+      "wrong": 7
+     },
+     "diagnosis.discharge_date": {
+      "correct": 56,
+      "missing": 4,
+      "wrong": 0
+     },
+     "diagnosis.hospital": {
+      "correct": 59,
+      "missing": 0,
+      "wrong": 1
+     },
+     "diagnosis.insured_name": {
+      "correct": 58,
+      "missing": 1,
+      "wrong": 1
+     },
+     "receipt.hospital": {
+      "correct": 34,
+      "missing": 10,
+      "wrong": 16
+     },
+     "receipt.insured_name": {
+      "correct": 42,
+      "missing": 10,
+      "wrong": 8
+     },
+     "receipt.total_amount": {
+      "correct": 47,
+      "missing": 12,
+      "wrong": 1
+     }
+    }
+   }
+  }
+ },
+ "ocr_only_baseline": {
+  "test": {
+   "clean": {
+    "field_level": {
+     "fields": 600,
+     "correct": 7,
+     "missing": 504,
+     "wrong": 89,
+     "accuracy": 0.0117,
+     "blank_form_reads": {
+      "diagnosis": [
+       "admission_date",
+       "discharge_date",
+       "insured_name"
+      ],
+      "receipt": []
+     },
+     "by_field": {
+      "diagnosis.admission_date": {
+       "correct": 0,
+       "missing": 47,
+       "wrong": 13
+      },
+      "diagnosis.diagnosis_code": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_date": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_name": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.discharge_date": {
+       "correct": 7,
+       "missing": 37,
+       "wrong": 16
+      },
+      "diagnosis.hospital": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.insured_name": {
+       "correct": 0,
+       "missing": 0,
+       "wrong": 60
+      },
+      "receipt.hospital": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "receipt.insured_name": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "receipt.total_amount": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      }
+     }
+    },
+    "pipeline": {
+     "cases": 60,
+     "field_accuracy": 0.5408,
+     "decision_accuracy": 0.65,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.6,
+     "auto_rate": 0.75,
+     "latency_ms_p50": 9317.0
+    }
+   },
+   "light": {
+    "field_level": {
+     "fields": 600,
+     "correct": 5,
+     "missing": 512,
+     "wrong": 83,
+     "accuracy": 0.0083,
+     "blank_form_reads": {
+      "diagnosis": [
+       "admission_date",
+       "discharge_date",
+       "insured_name"
+      ],
+      "receipt": []
+     },
+     "by_field": {
+      "diagnosis.admission_date": {
+       "correct": 0,
+       "missing": 51,
+       "wrong": 9
+      },
+      "diagnosis.diagnosis_code": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_date": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_name": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.discharge_date": {
+       "correct": 5,
+       "missing": 39,
+       "wrong": 16
+      },
+      "diagnosis.hospital": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.insured_name": {
+       "correct": 0,
+       "missing": 2,
+       "wrong": 58
+      },
+      "receipt.hospital": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "receipt.insured_name": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "receipt.total_amount": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      }
+     }
+    },
+    "pipeline": {
+     "cases": 60,
+     "field_accuracy": 0.5472,
+     "decision_accuracy": 0.65,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.6,
+     "auto_rate": 0.75,
+     "latency_ms_p50": 15119.2
+    }
+   },
+   "medium": {
+    "field_level": {
+     "fields": 600,
+     "correct": 4,
+     "missing": 514,
+     "wrong": 82,
+     "accuracy": 0.0067,
+     "blank_form_reads": {
+      "diagnosis": [
+       "admission_date",
+       "discharge_date",
+       "insured_name"
+      ],
+      "receipt": []
+     },
+     "by_field": {
+      "diagnosis.admission_date": {
+       "correct": 0,
+       "missing": 47,
+       "wrong": 13
+      },
+      "diagnosis.diagnosis_code": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_date": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_name": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.discharge_date": {
+       "correct": 4,
+       "missing": 46,
+       "wrong": 10
+      },
+      "diagnosis.hospital": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.insured_name": {
+       "correct": 0,
+       "missing": 1,
+       "wrong": 59
+      },
+      "receipt.hospital": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "receipt.insured_name": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "receipt.total_amount": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      }
+     }
+    },
+    "pipeline": {
+     "cases": 60,
+     "field_accuracy": 0.5601,
+     "decision_accuracy": 0.6667,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.5833,
+     "auto_rate": 0.7857,
+     "latency_ms_p50": 8598.7
+    }
+   },
+   "heavy": {
+    "field_level": {
+     "fields": 600,
+     "correct": 6,
+     "missing": 516,
+     "wrong": 78,
+     "accuracy": 0.01,
+     "blank_form_reads": {
+      "diagnosis": [
+       "admission_date",
+       "discharge_date",
+       "insured_name"
+      ],
+      "receipt": []
+     },
+     "by_field": {
+      "diagnosis.admission_date": {
+       "correct": 0,
+       "missing": 48,
+       "wrong": 12
+      },
+      "diagnosis.diagnosis_code": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_date": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.diagnosis_name": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.discharge_date": {
+       "correct": 6,
+       "missing": 48,
+       "wrong": 6
+      },
+      "diagnosis.hospital": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "diagnosis.insured_name": {
+       "correct": 0,
+       "missing": 0,
+       "wrong": 60
+      },
+      "receipt.hospital": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "receipt.insured_name": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      },
+      "receipt.total_amount": {
+       "correct": 0,
+       "missing": 60,
+       "wrong": 0
+      }
+     }
+    },
+    "pipeline": {
+     "cases": 60,
+     "field_accuracy": 0.5558,
+     "decision_accuracy": 0.65,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.5833,
+     "auto_rate": 0.7857,
+     "latency_ms_p50": 6613.8
+    }
+   }
+  },
+  "test_real_blank_forms": {
+   "medium": {
+    "fields": 600,
+    "correct": 3,
+    "missing": 477,
+    "wrong": 120,
+    "accuracy": 0.005,
+    "blank_form_reads": {
+     "diagnosis": [
+      "discharge_date",
+      "insured_name"
+     ],
+     "receipt": []
+    },
+    "by_field": {
+     "diagnosis.admission_date": {
+      "correct": 0,
+      "missing": 32,
+      "wrong": 28
+     },
+     "diagnosis.diagnosis_code": {
+      "correct": 0,
+      "missing": 60,
+      "wrong": 0
+     },
+     "diagnosis.diagnosis_date": {
+      "correct": 0,
+      "missing": 60,
+      "wrong": 0
+     },
+     "diagnosis.diagnosis_name": {
+      "correct": 0,
+      "missing": 60,
+      "wrong": 0
+     },
+     "diagnosis.discharge_date": {
+      "correct": 3,
+      "missing": 25,
+      "wrong": 32
+     },
+     "diagnosis.hospital": {
+      "correct": 0,
+      "missing": 60,
+      "wrong": 0
+     },
+     "diagnosis.insured_name": {
+      "correct": 0,
+      "missing": 0,
+      "wrong": 60
+     },
+     "receipt.hospital": {
+      "correct": 0,
+      "missing": 60,
+      "wrong": 0
+     },
+     "receipt.insured_name": {
+      "correct": 0,
+      "missing": 60,
+      "wrong": 0
+     },
+     "receipt.total_amount": {
+      "correct": 0,
+      "missing": 60,
+      "wrong": 0
+     }
+    }
+   },
+   "heavy": {
+    "fields": 600,
+    "correct": 21,
+    "missing": 452,
+    "wrong": 127,
+    "accuracy": 0.035,
+    "blank_form_reads": {
+     "diagnosis": [
+      "admission_date",
+      "discharge_date",
+      "insured_name"
+     ],
+     "receipt": []
+    },
+    "by_field": {
+     "diagnosis.admission_date": {
+      "correct": 1,
+      "missing": 17,
+      "wrong": 42
+     },
+     "diagnosis.diagnosis_code": {
+      "correct": 0,
+      "missing": 60,
+      "wrong": 0
+     },
+     "diagnosis.diagnosis_date": {
+      "correct": 0,
+      "missing": 60,
+      "wrong": 0
+     },
+     "diagnosis.diagnosis_name": {
+      "correct": 0,
+      "missing": 58,
+      "wrong": 2
+     },
+     "diagnosis.discharge_date": {
+      "correct": 20,
+      "missing": 17,
+      "wrong": 23
+     },
+     "diagnosis.hospital": {
+      "correct": 0,
+      "missing": 60,
+      "wrong": 0
+     },
+     "diagnosis.insured_name": {
+      "correct": 0,
+      "missing": 3,
+      "wrong": 57
+     },
+     "receipt.hospital": {
+      "correct": 0,
+      "missing": 60,
+      "wrong": 0
+     },
+     "receipt.insured_name": {
+      "correct": 0,
+      "missing": 57,
+      "wrong": 3
+     },
+     "receipt.total_amount": {
+      "correct": 0,
+      "missing": 60,
+      "wrong": 0
+     }
+    }
+   }
+  }
+ },
+ "notes": [
+  "ocr_only_baseline is the same pictures read with official_scan.read_image switched off: the OCR path that existed before (label: value lines).",
+  "Real blank forms are the two statutory forms as published (not in the repository), filled with the same values by claims/official_fill.py; the reader registers the redrawn layout (official_layouts.json) onto them.",
+  "The dev split has no diagnosis code that starts with D or Q; the test split has seven (D05.1 six times, Q21.1 once), and their first letter is read as 0 every time at medium damage. Found on test, not fixed here.",
+  "Latency p50 is per claim (four documents, two of them the forms) on four worker processes sharing four cores."
+ ]
+}

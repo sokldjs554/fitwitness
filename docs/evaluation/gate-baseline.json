@@ -1,40 +1,40 @@
 {
   "version": "gate-v1",
-  "code_sha": "0e60d3ce0600cb1f6885a02b353d863a09b1e2bb",
-  "created_at": "2026-10-08T16:23:17.078791+00:00",
-  "wall_s": 178.83,
+  "code_sha": "79fa57644a7790f4582f39998aa5c7d360c56894",
+  "created_at": "2026-10-11T14:12:45.049723+00:00",
+  "wall_s": 250.05,
   "corpus_documents": 150,
   "rules_graph": {
     "state": "completed",
     "correct": 5,
     "total": 5,
     "accuracy": 1.0,
-    "latency_ms": 120.41873399994074
+    "latency_ms": 837.6014160003251
   },
   "lexical": {
     "exact": {
       "n": 6,
       "recall_at_5": 1.0,
       "ndcg_at_5": 1.0,
-      "latency_p50_ms": 93.92501499996797
+      "latency_p50_ms": 95.25956700053939
     },
     "id_typo": {
       "n": 6,
       "recall_at_5": 1.0,
       "ndcg_at_5": 0.7195882275513225,
-      "latency_p50_ms": 123.54913800004397
+      "latency_p50_ms": 78.43793200117943
     },
     "id_variant": {
       "n": 6,
       "recall_at_5": 1.0,
       "ndcg_at_5": 1.0,
-      "latency_p50_ms": 96.88575499990293
+      "latency_p50_ms": 81.88485499886156
     },
     "paraphrase": {
       "n": 6,
       "recall_at_5": 0.0,
       "ndcg_at_5": 0.0,
-      "latency_p50_ms": 95.16293999990921
+      "latency_p50_ms": 103.23231900110841
     }
   },
   "geometry": {
@@ -42,7 +42,7 @@
     "pool": 60,
     "same_family_at_1": 1,
     "same_family_at_3": 1,
-    "parse_latency_p50_ms": 17.43324200015195
+    "parse_latency_p50_ms": 12.973165999937919
   },
   "control": {
     "id_variant_gap": 0.5,
@@ -52,25 +52,25 @@
         "n": 6,
         "recall_at_5": 1.0,
         "ndcg_at_5": 1.0,
-        "latency_p50_ms": 92.67708699985633
+        "latency_p50_ms": 94.65645599993877
       },
       "id_typo": {
         "n": 6,
         "recall_at_5": 0.0,
         "ndcg_at_5": 0.0,
-        "latency_p50_ms": 99.34490299997378
+        "latency_p50_ms": 88.62798699919949
       },
       "id_variant": {
         "n": 6,
         "recall_at_5": 0.5,
         "ndcg_at_5": 0.5,
-        "latency_p50_ms": 90.50696299982519
+        "latency_p50_ms": 76.63237099950493
       },
       "paraphrase": {
         "n": 6,
         "recall_at_5": 0.0,
         "ndcg_at_5": 0.0,
-        "latency_p50_ms": 100.39476400015701
+        "latency_p50_ms": 95.57143900019582
       }
     },
     "claims_wrong_pay_gap": 0.1583,
@@ -97,7 +97,7 @@
       "wrong_deny_rate": 0.0,
       "review_rate": 0.3083,
       "auto_rate": 0.8846,
-      "latency_ms_p50": 60.4,
+      "latency_ms_p50": 47.5,
       "by_scenario": {
         "clean": {
           "n": 36,
@@ -194,7 +194,7 @@
       "wrong_deny_rate": 0.0,
       "review_rate": 0.475,
       "auto_rate": 0.8077,
-      "latency_ms_p50": 96.1,
+      "latency_ms_p50": 79.9,
       "by_scenario": {
         "clean": {
           "n": 36,
@@ -270,6 +270,106 @@
         "receipt": "redrawn"
       }
     },
+    "official_scan_gap": 0.395,
+    "official_scan_ocr_only": {
+      "cases": 11,
+      "field_accuracy": 0.5556,
+      "field_accuracy_by_field": {
+        "admission_date": 1.0,
+        "diagnosis_code": 0.2857,
+        "diagnosis_date": 0.0,
+        "diagnosis_name": 0.0,
+        "discharge_date": 1.0,
+        "hospital": 0.8182,
+        "insured_name": 0.5455,
+        "surgery_date": 1.0,
+        "surgery_grade": 0.6667,
+        "surgery_name": 1.0,
+        "total_amount": 0.0
+      },
+      "decision_accuracy": 0.7273,
+      "wrong_pay_rate": 0.0,
+      "wrong_pay_count": 0,
+      "wrong_deny_count": 0,
+      "wrong_deny_rate": 0.0,
+      "review_rate": 0.6364,
+      "auto_rate": 1.0,
+      "latency_ms_p50": 9636.0,
+      "by_scenario": {
+        "clean": {
+          "n": 1,
+          "decision_accuracy": 1.0,
+          "wrong_pay": 0,
+          "review": 0
+        },
+        "date_conflict": {
+          "n": 1,
+          "decision_accuracy": 1.0,
+          "wrong_pay": 0,
+          "review": 1
+        },
+        "duplicate": {
+          "n": 1,
+          "decision_accuracy": 0.0,
+          "wrong_pay": 0,
+          "review": 1
+        },
+        "exclusion": {
+          "n": 1,
+          "decision_accuracy": 0.0,
+          "wrong_pay": 0,
+          "review": 1
+        },
+        "format_variance": {
+          "n": 1,
+          "decision_accuracy": 1.0,
+          "wrong_pay": 0,
+          "review": 0
+        },
+        "grade_missing": {
+          "n": 1,
+          "decision_accuracy": 1.0,
+          "wrong_pay": 0,
+          "review": 0
+        },
+        "high_amount": {
+          "n": 1,
+          "decision_accuracy": 0.0,
+          "wrong_pay": 0,
+          "review": 1
+        },
+        "lapsed_policy": {
+          "n": 1,
+          "decision_accuracy": 1.0,
+          "wrong_pay": 0,
+          "review": 0
+        },
+        "missing_doc": {
+          "n": 1,
+          "decision_accuracy": 1.0,
+          "wrong_pay": 0,
+          "review": 1
+        },
+        "ocr_noise": {
+          "n": 1,
+          "decision_accuracy": 1.0,
+          "wrong_pay": 0,
+          "review": 1
+        },
+        "waiting_period": {
+          "n": 1,
+          "decision_accuracy": 1.0,
+          "wrong_pay": 0,
+          "review": 1
+        }
+      },
+      "degraded": false,
+      "scan": "medium",
+      "forms": {
+        "diagnosis": "redrawn",
+        "receipt": "redrawn"
+      }
+    },
     "trajectory_gap": 0.25,
     "trajectory_degraded_violations": 10
   },
@@ -296,7 +396,7 @@
     "wrong_deny_rate": 0.0,
     "review_rate": 0.4,
     "auto_rate": 0.8846,
-    "latency_ms_p50": 63.0,
+    "latency_ms_p50": 46.4,
     "by_scenario": {
       "clean": {
         "n": 36,
@@ -401,7 +501,7 @@
     "wrong_deny_rate": 0.0,
     "review_rate": 0.6364,
     "auto_rate": 1.0,
-    "latency_ms_p50": 12113.1,
+    "latency_ms_p50": 14365.8,
     "by_scenario": {
       "clean": {
         "n": 2,
@@ -498,7 +598,7 @@
     "wrong_deny_rate": 0.0,
     "review_rate": 0.4,
     "auto_rate": 0.8846,
-    "latency_ms_p50": 131.1,
+    "latency_ms_p50": 104.8,
     "by_scenario": {
       "clean": {
         "n": 36,
@@ -574,6 +674,106 @@
       "receipt": "redrawn"
     }
   },
+  "claims_official_scan": {
+    "cases": 11,
+    "field_accuracy": 0.9506,
+    "field_accuracy_by_field": {
+      "admission_date": 1.0,
+      "diagnosis_code": 0.8571,
+      "diagnosis_date": 1.0,
+      "diagnosis_name": 1.0,
+      "discharge_date": 1.0,
+      "hospital": 0.8182,
+      "insured_name": 1.0,
+      "surgery_date": 1.0,
+      "surgery_grade": 0.6667,
+      "surgery_name": 1.0,
+      "total_amount": 1.0
+    },
+    "decision_accuracy": 0.8182,
+    "wrong_pay_rate": 0.0,
+    "wrong_pay_count": 0,
+    "wrong_deny_count": 0,
+    "wrong_deny_rate": 0.0,
+    "review_rate": 0.6364,
+    "auto_rate": 1.0,
+    "latency_ms_p50": 13620.3,
+    "by_scenario": {
+      "clean": {
+        "n": 1,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 0
+      },
+      "date_conflict": {
+        "n": 1,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 1
+      },
+      "duplicate": {
+        "n": 1,
+        "decision_accuracy": 0.0,
+        "wrong_pay": 0,
+        "review": 1
+      },
+      "exclusion": {
+        "n": 1,
+        "decision_accuracy": 0.0,
+        "wrong_pay": 0,
+        "review": 1
+      },
+      "format_variance": {
+        "n": 1,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 0
+      },
+      "grade_missing": {
+        "n": 1,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 0
+      },
+      "high_amount": {
+        "n": 1,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 1
+      },
+      "lapsed_policy": {
+        "n": 1,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 0
+      },
+      "missing_doc": {
+        "n": 1,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 1
+      },
+      "ocr_noise": {
+        "n": 1,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 1
+      },
+      "waiting_period": {
+        "n": 1,
+        "decision_accuracy": 1.0,
+        "wrong_pay": 0,
+        "review": 1
+      }
+    },
+    "degraded": false,
+    "scan": "medium",
+    "forms": {
+      "diagnosis": "redrawn",
+      "receipt": "redrawn"
+    },
+    "level": "medium"
+  },
   "limitations": [
     "합성 도면 150개·고정 test split 6 family 기준의 회귀 게이트입니다. 산업 데이터 성능이 아닙니다.",
     "모델·API 호출이 없습니다. 의미·이미지 채널과 LLM Agent 품질은 별도 실측 workflow가 측정합니다.",
@@ -581,6 +781,7 @@
     "claims 항목은 합성 청구 서류와 가상의 지급 기준표 기준입니다. 실제 약관·실제 서류의 성능이 아니며, 모델 추출 경로는 포함하지 않습니다.",
     "claims_scan 항목은 합성 서류를 스캔처럼 열화시켜(medium) OCR로 읽은 결과이며 시나리오마다 2건만 잰 표본입니다. Tesseract가 없으면 건너뜁니다. 실제 스캔 문서의 성능이 아닙니다.",
     "claims_official 항목은 진단서와 진료비 계산서·영수증을 공식 서식의 라벨·선을 다시 그린 판에 생성기의 값으로 채워 읽은 결과입니다. 값의 위치는 서식에서 잰 것이고 병원 소프트웨어가 실제로 찍는 위치가 아닙니다. 두 서류 외에는 합성 문서 그대로입니다.",
+    "claims_official_scan 항목은 같은 두 서식을 스캔처럼 열화시켜(medium) 서식의 격자를 맞춰 칸마다 읽은 결과이고, 시나리오마다 1건만 잰 표본입니다. 서식의 선·라벨 좌표는 읽기와 서류 채우기가 같은 파일을 쓰므로, 실제 서식에 대한 확인은 이 게이트가 아니라 scripts/eval-official-forms.py로 합니다. Tesseract가 없으면 건너뜁니다.",
     "trajectory 항목은 규칙 엔진과 고정 대본의 planner/challenger가 지나는 경로입니다. 실제 모델이 고르는 경로의 품질은 측정하지 않습니다."
   ]
 }

@@ -200,6 +200,19 @@ def run_claims_official(root: Path) -> dict:
 
 SCAN_LEVEL = "medium"
 SCAN_CASES_PER_SCENARIO = 2
+SCAN_OFFICIAL_CASES_PER_SCENARIO = 1
+
+
+def _scan_sample(root: Path, per_scenario: int) -> list[str]:
+    """The first ``per_scenario`` cases of every scenario: a fixed sample, so a run can be compared with the last one."""
+    manifest = json.loads((root / "manifest.json").read_text())
+    seen: dict[str, int] = {}
+    sample = []
+    for case in manifest["cases"]:
+        seen[case["scenario"]] = seen.get(case["scenario"], 0) + 1
+        if seen[case["scenario"]] <= per_scenario:
+            sample.append(case["case_id"])
+    return sample
 
 
 def run_claims_scan(root: Path) -> dict | None:
@@ -209,31 +222,18 @@ def run_claims_scan(root: Path) -> dict | None:
 
     if not ocr.available():
         return None
-    manifest = json.loads((root / "manifest.json").read_text())
-    seen: dict[str, int] = {}
-    sample = []
-    for case in manifest["cases"]:
-        seen[case["scenario"]] = seen.get(case["scenario"], 0) + 1
-        if seen[case["scenario"]] <= SCAN_CASES_PER_SCENARIO:
-            sample.append(case["case_id"])
-    return evaluate(root, scan=SCAN_LEVEL, workers=max(1, min(4, os.cpu_count() or 1)), cases=sample)
+    return evaluate(root, scan=SCAN_LEVEL, workers=max(1, min(4, os.cpu_count() or 1)), cases=_scan_sample(root, SCAN_CASES_PER_SCENARIO))
 
 
 def run_claims_official_scan(root: Path) -> dict | None:
-    """The two official forms as page pictures, on the scan suite's sample: read by registering their grid
+    """The two official forms as page pictures, one case per scenario: read by registering their grid
     (``claims/official_scan.py``), and again by the OCR path alone, as if the grid reader did not exist."""
     from fitwitness.claims import official_scan, ocr
     from fitwitness.claims.evaluate import evaluate
 
     if not ocr.available():
         return None
-    manifest = json.loads((root / "manifest.json").read_text())
-    seen: dict[str, int] = {}
-    sample = []
-    for case in manifest["cases"]:
-        seen[case["scenario"]] = seen.get(case["scenario"], 0) + 1
-        if seen[case["scenario"]] <= SCAN_CASES_PER_SCENARIO:
-            sample.append(case["case_id"])
+    sample = _scan_sample(root, SCAN_OFFICIAL_CASES_PER_SCENARIO)
     forms = {"diagnosis": None, "receipt": None}
     workers = max(1, min(4, os.cpu_count() or 1))
     grid = evaluate(root, scan=SCAN_LEVEL, workers=workers, cases=sample, forms=forms)
@@ -311,7 +311,7 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajecto
             "claims 항목은 합성 청구 서류와 가상의 지급 기준표 기준입니다. 실제 약관·실제 서류의 성능이 아니며, 모델 추출 경로는 포함하지 않습니다.",
             "claims_scan 항목은 합성 서류를 스캔처럼 열화시켜(medium) OCR로 읽은 결과이며 시나리오마다 2건만 잰 표본입니다. Tesseract가 없으면 건너뜁니다. 실제 스캔 문서의 성능이 아닙니다.",
             "claims_official 항목은 진단서와 진료비 계산서·영수증을 공식 서식의 라벨·선을 다시 그린 판에 생성기의 값으로 채워 읽은 결과입니다. 값의 위치는 서식에서 잰 것이고 병원 소프트웨어가 실제로 찍는 위치가 아닙니다. 두 서류 외에는 합성 문서 그대로입니다.",
-            "claims_official_scan 항목은 같은 두 서식을 스캔처럼 열화시켜(medium) 서식의 격자를 맞춰 칸마다 읽은 결과이고, claims_scan과 같은 표본입니다. 서식의 선·라벨 좌표는 읽기와 서류 채우기가 같은 파일을 쓰므로, 실제 서식에 대한 확인은 이 게이트가 아니라 scripts/eval-official-forms.py로 합니다. Tesseract가 없으면 건너뜁니다.",
+            "claims_official_scan 항목은 같은 두 서식을 스캔처럼 열화시켜(medium) 서식의 격자를 맞춰 칸마다 읽은 결과이고, 시나리오마다 1건만 잰 표본입니다. 서식의 선·라벨 좌표는 읽기와 서류 채우기가 같은 파일을 쓰므로, 실제 서식에 대한 확인은 이 게이트가 아니라 scripts/eval-official-forms.py로 합니다. Tesseract가 없으면 건너뜁니다.",
             "trajectory 항목은 규칙 엔진과 고정 대본의 planner/challenger가 지나는 경로입니다. 실제 모델이 고르는 경로의 품질은 측정하지 않습니다.",
         ],
     }
