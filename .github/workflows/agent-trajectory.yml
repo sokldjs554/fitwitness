@@ -1,0 +1,92 @@
+name: agent-trajectory
+# The road a real model takes through the drawing graph on the test families, under a hard ceiling.
+# Manual only. Nothing here runs on push.
+on:
+  workflow_dispatch:
+    inputs:
+      max_usd:
+        description: hard ceiling for the whole run in USD (at most 1.0)
+        default: '0.8'
+        required: true
+      per_run_usd:
+        description: budget of one graph run, reserved before it starts (at most 0.1)
+        default: '0.04'
+        required: true
+      modes:
+        description: comma separated graph modes to run on every family
+        default: 'fixed,react,fitwitness'
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: agent-trajectory
+  cancel-in-progress: false
+jobs:
+  measure:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: fitwitness
+          POSTGRES_PASSWORD: test-only
+          POSTGRES_DB: fitwitness
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U fitwitness"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PYTHONPATH: src
+      FITWITNESS_DATABASE_URL: postgresql://fitwitness:test-only@localhost:5432/fitwitness
+      FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION: '1'
+      FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION: '5'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require a privately configured credential and a sane ceiling
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then echo 'ANTHROPIC_API_KEY repository secret is missing.'; exit 1; fi
+          python3 - <<'PY'
+          ceiling, cap = float('${{ inputs.max_usd }}'), float('${{ inputs.per_run_usd }}')
+          assert 0 < ceiling <= 1.0, ceiling
+          assert 0 < cap <= 0.1, cap
+          PY
+      - uses: astral-sh/setup-uv@v6
+      - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
+      - run: uv sync --frozen --no-dev
+      - run: uv run python scripts/setup.py
+      - name: Rules reference, then the model on every test family and mode
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: >-
+          uv run python -m fitwitness.evaluation.agent_trajectory
+          --provider anthropic --model claude-haiku-4-5-20251001
+          --modes "${{ inputs.modes }}"
+          --max-cost-usd "${{ inputs.max_usd }}" --per-run-usd "${{ inputs.per_run_usd }}"
+          --output artifacts/agent-trajectory
+      - name: Summary
+        if: always()
+        run: |
+          uv run python - <<'PY'
+          import json
+          from pathlib import Path
+          f = Path('artifacts/agent-trajectory/report.json')
+          if not f.exists():
+              print('no report'); raise SystemExit(0)
+          r = json.loads(f.read_text())
+          print('== protocol', json.dumps({k: r['protocol'][k] for k in ('code_sha', 'model', 'modes', 'ceiling_usd', 'per_run_cap_usd')}))
+          for mode, m in r['summary']['by_mode'].items():
+              print('== mode', mode, json.dumps(m, ensure_ascii=False))
+          print('== spent', r['summary']['spent_usd'], 'skipped', json.dumps(r['skipped']))
+          for row in r['rows']:
+              print('== row', json.dumps({k: row[k] for k in ('provider', 'mode', 'family_id', 'state', 'error', 'correct', 'total', 'coverage_before_verdict', 'uninspected', 'roles', 'challenger_tools', 'tools', 'skipped_repeats', 'stop', 'violations', 'failures', 'model_calls', 'tool_calls', 'input_tokens', 'output_tokens', 'cost_usd', 'latency_ms', 'actual')}, ensure_ascii=False, default=str))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agent-trajectory-${{ github.run_id }}
+          path: artifacts/agent-trajectory/
+          if-no-files-found: warn
