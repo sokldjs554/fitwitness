@@ -395,11 +395,64 @@ def _printed(clean: Image.Image, anchor: list[dict], zone: Zone) -> bool:
     return any(_distance(text[i:i + k], zone.anchor) <= allowed for k in {n - 1, n, n + 1} if k > 0 for i in range(max(1, len(text) - k + 1)))
 
 
+LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+CODE = re.compile(r"^[A-Z]\d{2}(\.\d{1,2})?$")  # a KCD code: one letter, two digits, a point and one or two more at most
+
+
+def _first_glyph(clean: Image.Image, word: dict) -> Image.Image | None:
+    """The leftmost glyph of a word, cut where the first gap in its ink columns is."""
+    left, top = max(0, int(word["x0"] / PT) - 2), max(0, int(word["top"] / PT) - 2)
+    right, bottom = min(clean.width, int(word["x1"] / PT) + 2), min(clean.height, int(word["bottom"] / PT) + 2)
+    if right - left < 4 or bottom - top < 4:
+        return None
+    crop = clean.crop((left, top, right, bottom))
+    columns = (np.asarray(crop) < 160).any(axis=0)
+    inked = np.flatnonzero(columns)
+    if inked.size == 0:
+        return None
+    end = start = int(inked[0])
+    while end + 2 < len(columns) and (columns[end + 1] or columns[end + 2]):  # a gap of one column is inside the glyph
+        end += 1
+    return crop.crop((max(0, start - 2), 0, min(crop.width, end + 3), crop.height))
+
+
+def _letter(clean: Image.Image, word: dict) -> str | None:
+    """The first glyph of ``word`` read as a letter, or None when Tesseract is not sure it is one. Read as a word of
+    one letter (psm 8): the single-character mode answers nothing for these glyphs, and Korean data makes it worse."""
+    glyph = _first_glyph(clean, word)
+    if glyph is None:
+        return None
+    big = glyph.resize((glyph.width * 2 * ZOOM, glyph.height * 2 * ZOOM), Image.LANCZOS)
+    pad = 24
+    page = Image.new("L", (big.width + 2 * pad, big.height + 2 * pad), 255)
+    page.paste(big, (pad, pad))
+    tokens = ocr.recognise(page, psm=8, whitelist=LETTERS, lang="eng")
+    text = "".join(t.text for t in tokens).strip()
+    return text if len(text) == 1 and text in LETTERS and max(t.conf for t in tokens) >= 50 else None
+
+
+def _code(clean: Image.Image, region: tuple[float, float, float, float], inset: int) -> tuple[str | None, list[dict]]:
+    """A diagnosis code. With digits allowed, Tesseract reads a D or a Q at the head of the code as a 0 (the dev split
+    had no such code; the test split had seven, read wrong every time). The first glyph is therefore read again on
+    its own with letters only, and the result must have a code's shape, or the cell is left for a person."""
+    words = _read_cell(clean, region, WHITELIST["code"], inset=inset)
+    if not words:
+        return None, []
+    text = _n("".join(w["text"] for w in sorted(words, key=lambda w: w["x0"]))).upper().replace(",", ".")
+    if text and not text[0].isalpha():
+        letter = _letter(clean, min(words, key=lambda w: w["x0"]))
+        # no confident letter: the shape-based repair of the OCR path (1 to I, 5 to S, 8 to B, 2 to Z; never a 0)
+        text = letter + text[1:] if letter else ocr.repair_code(text)
+    return (text if CODE.match(text) else None), words
+
+
 def _cell_value(clean: Image.Image, zone: Zone, region: tuple[float, float, float, float], labels: list[dict], inset: int) -> tuple[str | None, list[dict]]:
     """What one cell holds, as the kind of value the zone asks for, and the words it was read from."""
     if zone.kind == "date":
         read = _date(clean, region, labels, inset)
         return read if read else (None, [])
+    if zone.label == "질병분류기호:":
+        return _code(clean, region, inset)
     words = _read_cell(clean, region, _whitelist(zone), inset=inset)
     if not words:
         return None, []

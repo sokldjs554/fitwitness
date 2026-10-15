@@ -1326,5 +1326,62 @@
   "Real blank forms are the two statutory forms as published (not in the repository), filled with the same values by claims/official_fill.py; the reader registers the redrawn layout (official_layouts.json) onto them.",
   "The dev split has no diagnosis code that starts with D or Q; the test split has seven (D05.1 six times, Q21.1 once), and their first letter is read as 0 every time at medium damage. Found on test, not fixed here.",
   "Latency p50 is per claim (four documents, two of them the forms) on four worker processes sharing four cores."
- ]
+ ],
+ "code_letter_fix": {
+  "what": "After the test pass, the first glyph of the diagnosis-code cell is read again with letters only when the full read starts with a digit (claims/official_scan.py _code and _letter); a code must then have a code's shape or the cell is left empty.",
+  "measured_on": "a freshly generated corpus (claims.synth.generate_cases seed 11, 120 claims, 5 codes starting with D and 1 with Q), both forms as page pictures, jitter 1.5 pt; the test split was not reused.",
+  "diagnosis_code": {
+   "medium": {
+    "before": {
+     "correct": 115,
+     "missing": 0,
+     "wrong": 5
+    },
+    "after": {
+     "correct": 120,
+     "missing": 0,
+     "wrong": 0
+    }
+   },
+   "heavy": {
+    "before": {
+     "correct": 91,
+     "missing": 27,
+     "wrong": 2
+    },
+    "after": {
+     "correct": 114,
+     "missing": 4,
+     "wrong": 2
+    }
+   }
+  },
+  "all_1200_fields": {
+   "medium": {
+    "before": {
+     "correct": 1144,
+     "missing": 28,
+     "wrong": 28
+    },
+    "after": {
+     "correct": 1149,
+     "missing": 28,
+     "wrong": 23
+    }
+   },
+   "heavy": {
+    "before": {
+     "correct": 1060,
+     "missing": 79,
+     "wrong": 61
+    },
+    "after": {
+     "correct": 1083,
+     "missing": 56,
+     "wrong": 61
+    }
+   }
+  },
+  "note": "A first version read the glyph in single-character mode (psm 10) and dropped the shape repair; it found no D and emptied every code starting with I (medium 98/120). The one-letter-word mode (psm 8, English data) with the repair as fallback is what is measured here."
+ }
 }
