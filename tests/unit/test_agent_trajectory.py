@@ -90,3 +90,12 @@ def test_the_summary_counts_failure_classes_and_cost_per_mode():
     assert s["by_mode"]["rules"]["accuracy"] == 1.0 and s["by_mode"]["react"]["accuracy"] == 0.75
     assert s["by_mode"]["react"]["failure_classes"]["not_inspected"] == 1 and s["by_mode"]["react"]["cost_usd"] == 0.008
     assert s["by_mode"]["react"]["coverage_before_verdict"] == 0.9 and s["by_mode"]["react"]["agreement_with_rules"] == 0.75
+
+
+def test_a_provider_that_refuses_the_first_call_stops_the_batch_and_a_real_run_does_not():
+    refused = {"provider": "anthropic", "state": "failed", "model_calls": 1, "input_tokens": 0, "output_tokens": 0,
+               "error": "AnthropicInvalidRequestError: Error code: 400 - credit balance is too low"}
+    assert A.rejected(refused).startswith("provider rejected")
+    assert A.rejected({**refused, "provider": "rules"}) is None
+    assert A.rejected({**refused, "state": "completed"}) is None
+    assert A.rejected({**refused, "input_tokens": 2012, "output_tokens": 418, "error": "ValueError: model output failed schema validation"}) is None

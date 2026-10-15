@@ -178,6 +178,16 @@ def run_one(repo, jobs, root: Path, case: dict, request: RunRequest) -> dict:
     return _row(case, request.mode, request.provider, view, events, (time.perf_counter() - started) * 1000, error)
 
 
+def rejected(row: dict) -> str | None:
+    """Why the batch must stop after this run: the provider refused before any token was served (a bad key, an
+    empty balance, a wrong model id). The first such run is enough; the others would fail the same way."""
+    if row["provider"] == "rules" or row["state"] == "completed":
+        return None
+    if row["model_calls"] >= 1 and row["input_tokens"] == 0 and row["output_tokens"] == 0 and row["error"]:
+        return f"provider rejected the first call: {row['error'][:160]}"
+    return None
+
+
 def summarise(rows: list[dict], ledger: Ledger | None) -> dict:
     by_mode: dict[str, dict] = {}
     rules = {r["family_id"]: r for r in rows if r["provider"] == "rules"}
@@ -235,6 +245,7 @@ def run(args) -> dict:
     (out / "protocol.json").write_text(json.dumps(protocol, ensure_ascii=False, indent=2))
     rows, skipped = [], []
     ledger = Ledger(ceiling)
+    stop_reason = None
 
     def record(row):
         rows.append(row)
@@ -247,6 +258,9 @@ def run(args) -> dict:
         record(run_one(repo, jobs, root, case, RunRequest(search=SearchRequest(text=case["query"]), provider="rules", budget=Budget(max_tokens=64000))))
     for mode in modes:
         for case in cases:
+            if stop_reason:
+                skipped.append({"family_id": case["family_id"], "mode": mode, "reason": stop_reason})
+                continue
             if not ledger.fits(cap):
                 skipped.append({"family_id": case["family_id"], "mode": mode, "reason": f"ceiling: spent {ledger.spent} + cap {cap} > {ceiling}"})
                 continue
@@ -256,7 +270,9 @@ def run(args) -> dict:
             row = run_one(repo, jobs, root, case, request)
             row["charged_usd"] = float(ledger.settle(cap, Charged(Decimal(str(row["cost_usd"])), Decimal(str(row["reserved_left_usd"])))))
             record(row)
-    report = {"status": "measured", "protocol": protocol, "summary": summarise(rows, ledger), "skipped": skipped,
+            stop_reason = rejected(row)
+    report = {"status": "measured" if any(r["provider"] != "rules" and r["state"] == "completed" for r in rows) else "not measured",
+              "stopped": stop_reason, "protocol": protocol, "summary": summarise(rows, ledger), "skipped": skipped,
               "rows": [{k: v for k, v in r.items() if k != "events"} for r in rows],
               "limitations": [
                   "합성 도면 test split 6개 family, family마다 질의 하나, 모드마다 한 번 실행입니다. 반복이 없어 모델의 변동은 보지 못합니다.",
