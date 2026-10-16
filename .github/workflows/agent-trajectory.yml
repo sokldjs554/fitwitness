@@ -4,6 +4,12 @@ name: agent-trajectory
 on:
   workflow_dispatch:
     inputs:
+      provider:
+        description: anthropic (Claude Haiku 4.5, pricing fixed below) or openai (model and pricing from the repository variables FITWITNESS_OPENAI_MODEL, FITWITNESS_OPENAI_INPUT_USD_PER_MILLION, FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION)
+        default: 'anthropic'
+        required: true
+        type: choice
+        options: [anthropic, openai]
       max_usd:
         description: hard ceiling for the whole run in USD (at most 1.0)
         default: '0.8'
@@ -42,17 +48,28 @@ jobs:
       FITWITNESS_DATABASE_URL: postgresql://fitwitness:test-only@localhost:5432/fitwitness
       FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION: '1'
       FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION: '5'
+      FITWITNESS_OPENAI_MODEL: ${{ vars.FITWITNESS_OPENAI_MODEL }}
+      FITWITNESS_OPENAI_INPUT_USD_PER_MILLION: ${{ vars.FITWITNESS_OPENAI_INPUT_USD_PER_MILLION }}
+      FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION: ${{ vars.FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION }}
+      PROVIDER: ${{ inputs.provider }}
     steps:
       - uses: actions/checkout@v4
-      - name: Require a privately configured credential and a sane ceiling
+      - name: Require a privately configured credential, a model with a price, and a sane ceiling
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          if [ -z "$ANTHROPIC_API_KEY" ]; then echo 'ANTHROPIC_API_KEY repository secret is missing.'; exit 1; fi
           python3 - <<'PY'
+          import os
+          provider = os.environ['PROVIDER']
+          need = ['ANTHROPIC_API_KEY'] if provider == 'anthropic' else ['OPENAI_API_KEY', 'FITWITNESS_OPENAI_MODEL', 'FITWITNESS_OPENAI_INPUT_USD_PER_MILLION', 'FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION']
+          missing = [k for k in need if not os.getenv(k)]
+          if missing:
+              raise SystemExit(f'missing for provider {provider}: {", ".join(missing)} (a repository secret for the key, repository variables for the model and its price). Nothing was called.')
           ceiling, cap = float('${{ inputs.max_usd }}'), float('${{ inputs.per_run_usd }}')
           assert 0 < ceiling <= 1.0, ceiling
           assert 0 < cap <= 0.1, cap
+          print('configuration present for', provider, '(values not printed)')
           PY
       - uses: astral-sh/setup-uv@v6
       - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
@@ -61,9 +78,10 @@ jobs:
       - name: Rules reference, then the model on every test family and mode
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: >-
           uv run python -m fitwitness.evaluation.agent_trajectory
-          --provider anthropic --model claude-haiku-4-5-20251001
+          --provider "${{ inputs.provider }}"
           --modes "${{ inputs.modes }}"
           --max-cost-usd "${{ inputs.max_usd }}" --per-run-usd "${{ inputs.per_run_usd }}"
           --output artifacts/agent-trajectory
@@ -77,7 +95,7 @@ jobs:
           if not f.exists():
               print('no report'); raise SystemExit(0)
           r = json.loads(f.read_text())
-          print('== protocol', json.dumps({k: r['protocol'][k] for k in ('code_sha', 'model', 'modes', 'ceiling_usd', 'per_run_cap_usd')}))
+          print('== protocol', json.dumps({k: r['protocol'][k] for k in ('code_sha', 'provider', 'model', 'modes', 'ceiling_usd', 'per_run_cap_usd', 'pricing_usd_per_million')}))
           for mode, m in r['summary']['by_mode'].items():
               print('== mode', mode, json.dumps(m, ensure_ascii=False))
           print('== spent', r['summary']['spent_usd'], 'skipped', json.dumps(r['skipped']))
@@ -87,6 +105,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: agent-trajectory-${{ github.run_id }}
+          name: agent-trajectory-${{ inputs.provider }}-${{ github.run_id }}
           path: artifacts/agent-trajectory/
           if-no-files-found: warn

@@ -237,7 +237,8 @@ def run(args) -> dict:
         "split": args.split, "families": [c["family_id"] for c in cases], "queries": {c["family_id"]: c["query"] for c in cases},
         "provider": args.provider, "model": args.model, "modes": modes, "ceiling_usd": str(ceiling), "per_run_cap_usd": str(cap),
         "budget": {"max_model_calls": 4, "max_tool_calls": 16, "max_tokens": 64000, "deadline_seconds": 240},
-        "pricing_usd_per_million": {"input": os.getenv("FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION"), "output": os.getenv("FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION")},
+        "pricing_usd_per_million": {"input": os.getenv(f"FITWITNESS_{args.provider.upper()}_INPUT_USD_PER_MILLION"),
+                                    "output": os.getenv(f"FITWITNESS_{args.provider.upper()}_OUTPUT_USD_PER_MILLION")},
         "code_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
         "module_hash": sha256(Path(__file__).read_bytes()).hexdigest(),
         "started_at": datetime.now(timezone.utc).isoformat(),
@@ -286,7 +287,7 @@ def run(args) -> dict:
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
-    p.add_argument("--model", default="claude-haiku-4-5-20251001")
+    p.add_argument("--model", default=None, help="the provider's model id (default: Claude Haiku 4.5 for anthropic, FITWITNESS_OPENAI_MODEL for openai)")
     p.add_argument("--modes", default=",".join(MODES))
     p.add_argument("--max-cost-usd", type=float, required=True, help="hard ceiling for the whole run")
     p.add_argument("--per-run-usd", type=float, default=0.04, help="budget of one graph run; reserved before it starts")
@@ -295,6 +296,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--families", nargs="*")
     p.add_argument("--output", required=True)
     args = p.parse_args(argv)
+    args.model = args.model or ("claude-haiku-4-5-20251001" if args.provider == "anthropic" else os.environ.get("FITWITNESS_OPENAI_MODEL", ""))
+    assert args.model, "no model id: pass --model or set FITWITNESS_OPENAI_MODEL"
     assert 0 < args.max_cost_usd <= 1.0, "the ceiling is at most 1 USD"
     assert 0 < args.per_run_usd <= 0.1
     report = run(args)
