@@ -71,3 +71,13 @@ def test_query_arguments_are_canonical_for_repeat_detection():
     a=ToolRequest(name='query_dimensions',arguments={'revision_id':'r','fields':['material','width']})
     b=ToolRequest(name='query_dimensions',arguments={'fields':['width','material'],'revision_id':'r'})
     assert cls.tool_key(a)==cls.tool_key(b)
+
+
+def test_context_lists_what_is_still_unexamined_and_how_many_plans_remain():
+    s=session()([candidate()],available={'query_dimensions','define_search_tool','run_saved_search','search_keyword','search_exact'})
+    op={'name':'query_dimensions','arguments':{'revision_id':'r','fields':['material']}}
+    context=s.context('SUS304 width 40',[{'field':'material'},{'field':'width'}],[{'tool':op,'result':[]}],turns_left=0)
+    assert context['candidates'][0]['unexamined_fields']==['width'] and context['planning_turns_left']==0
+    # a definition may only name channels this workspace can run: no semantic search is connected here
+    assert context['tools']['define_search_tool']['properties']['channels']['items']['enum']==['exact','bm25']
+    assert 'planning_turns_left' not in s.context('x',[],[])

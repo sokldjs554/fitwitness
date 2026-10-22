@@ -1,7 +1,7 @@
 """Keep retrieved candidates separate from evidence actually inspected by an agent."""
 import json
 from fitwitness.contracts import Candidate, Fact
-from fitwitness.agents.tools import SCHEMAS
+from fitwitness.agents.tools import SCHEMAS, SAVED_TOOL_CHANNEL
 
 
 class EvidenceSession:
@@ -82,19 +82,26 @@ class EvidenceSession:
                     return False
         return True
 
-    def context(self, query, requirements, observations, decisions=(), saved_tools=()):
+    def context(self, query, requirements, observations, decisions=(), saved_tools=(), turns_left=None):
+        required = {r['field'] for r in requirements}
+        tools = {k: SCHEMAS[k].model_json_schema() for k in sorted(self.available)}
+        if 'define_search_tool' in tools:
+            # only the channels this workspace can run; a definition is narrowed to them when it runs
+            tools['define_search_tool']['properties']['channels']['items']['enum'] = [c for c, t in SAVED_TOOL_CHANNEL.items() if t in self.available]
         return {
             'query': query,
             'requirements': [{k: r[k] for k in ('field', 'operator', 'value', 'unit', 'required') if k in r} for r in requirements],
             'candidates': [{'revision_id': c.revision_id, 'scores': c.scores,
                             'examined_fields': sorted(self.examined(c.revision_id, requirements, observations)),
                             'missing_fields': sorted(self.examined(c.revision_id, requirements, observations) - {f.field for f in c.facts}),
+                            'unexamined_fields': sorted(required - self.examined(c.revision_id, requirements, observations)),
                             'inspected': [{'id': f.id, 'field': f.field, 'value': f.model_dump(mode='json')['value'], 'unit': f.unit, 'certainty': f.certainty} for f in c.facts]} for c in self.candidates],
             'observations': [{'tool': x['tool'], 'items': len(x['result']), **({'error': x['error']} if x.get('error') else {})} for x in observations[-8:]],
             'decisions': [{'revision_id': d['revision_id'], 'verdict': d['verdict']} for d in decisions],
-            'tools': {k: SCHEMAS[k].model_json_schema() for k in sorted(self.available)},
+            'tools': tools,
             'saved_tools': [{k: t[k] for k in ('name', 'description', 'channels', 'query_template', 'fields', 'top_k') if k in t}
                             for t in saved_tools],
+            **({'planning_turns_left': turns_left} if turns_left is not None else {}),
         }
 
     @staticmethod

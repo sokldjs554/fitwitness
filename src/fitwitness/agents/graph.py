@@ -218,9 +218,12 @@ def _execute_run(
             plan = None
             if model:
                 session = EvidenceSession(candidates, tools.available, restored=True)
+                # How many more plans this run may ask for after this one: none in the fixed structure, otherwise what
+                # the iteration cap and the model call budget leave. A saved tool defined in the last plan never runs.
+                turns_left = 0 if request.mode == "fixed" else max(0, min(2 - state.get("iterations", 0), budget.budget.max_model_calls - budget.usage.model_calls - 1))
                 context = session.context(request.search.text, state["requirements"], observations,
                                           state.get("decisions", []) if role == "challenger" else [],
-                                          saved_tools=tools.saved_tools())
+                                          saved_tools=tools.saved_tools(), turns_left=turns_left)
                 try:
                     plan, metadata = model.plan(context, role=role)
                     emit("model", metadata)

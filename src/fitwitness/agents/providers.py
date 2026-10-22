@@ -55,6 +55,8 @@ class ModelClient:
             "If read_image_region is available, missing vector-PDF fields may be visually inspected once; its uncertain observations never prove a match. "
             "define_search_tool saves a reusable search (channels, fixed query template with {query}, dimension fields) for this workspace; "
             "run_saved_search runs one by name and returns candidates with those fields already read. Reuse saved_tools before defining a new one. "
+            "planning_turns_left is how many more plans you may return after this one: when it is 0, inspect every candidate in this plan, "
+            "since a saved tool defined now can only run in a later plan. unexamined_fields are the required fields not yet queried for that candidate. "
             + (
                 "Look for a fact that would disprove the proposed candidate."
                 if role == "challenger"

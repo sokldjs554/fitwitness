@@ -116,3 +116,10 @@ def test_graph_run_can_define_and_reuse_a_tool(env, monkeypatch):
     assert names[:2] == ["define_search_tool", "run_saved_search"]
     assert seen[0] == ("planner", []) and all(tools == ["bracket_lookup"] for _, tools in seen[1:])
     assert r.saved_tools(s)[0]["created_by_run"] == run.id
+
+
+def test_a_definition_naming_a_channel_this_workspace_lacks_keeps_the_rest_and_says_so(env):
+    r, j, s = env
+    out = tools_for(r, s).execute(ToolRequest(name="define_search_tool", arguments={**DEFINITION, "channels": ["bm25", "semantic"]}))
+    assert out["channels"] == ["bm25"] and out["channels_unavailable"] == ["semantic"]
+    assert r.saved_tool(s, DEFINITION["name"])["channels"] == ["bm25"]

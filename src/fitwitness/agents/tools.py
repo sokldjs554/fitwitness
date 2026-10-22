@@ -189,13 +189,15 @@ class EvidenceTools:
         if name == "search_shell":
             return self._shell(a)
         if name == "define_search_tool":
-            missing = sorted(ch for ch in a.channels if SAVED_TOOL_CHANNEL[ch] not in self.available)
-            if missing:
-                raise ValueError(f"channels not available in this workspace: {missing}")
-            definition = a.model_dump(mode="json")
+            # The definition keeps the channels this workspace can run and says which it could not.
+            unavailable = sorted(ch for ch in a.channels if SAVED_TOOL_CHANNEL[ch] not in self.available)
+            channels = [ch for ch in a.channels if ch not in unavailable]
+            if not channels:
+                raise ValueError(f"channels not available in this workspace: {unavailable}")
+            definition = {**a.model_dump(mode="json"), "channels": channels}
             definition.pop("name")
             self.repo.save_tool(self.scope, a.name, definition, self.run_id)
-            return {"defined": a.name, **definition}
+            return {"defined": a.name, **definition, **({"channels_unavailable": unavailable} if unavailable else {})}
         if name == "run_saved_search":
             stored = self.repo.saved_tool(self.scope, a.name)
             if stored is None:
