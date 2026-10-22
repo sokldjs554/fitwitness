@@ -28,7 +28,7 @@
 | 실제 기계 도면 12장(이미지)의 표제란 OCR | 도번 10/12, 재질 4/8, 보고한 15건 모두 정답, 읽은 값은 "확인 필요"로만 사용 | [TITLE-BLOCK.md](docs/TITLE-BLOCK.md) |
 | VLM 이미지 18회 | 15회 구조화 완료, 23/36 필드 정답 | [VISION.md](docs/VISION.md) |
 | 누적 API 비용 | $0.255248, 미확정 예약 0. 프롬프트 비교 실험의 Claude 호출 $0.34355와 실제 모델 경로 측정 네 번의 $0.402162는 이 합계에 넣지 않았고 [prompts-claude.json](docs/evaluation/prompts-claude.json)·[agent-trajectory.json](docs/evaluation/agent-trajectory.json)에 따로 있음 | [EVIDENCE.md](docs/EVIDENCE.md) |
-| 현재 브랜치 자동 검증 | Python 375개, Playwright 70개, API 없는 평가 게이트 통과 | [CI](.github/workflows/ci.yml) |
+| 현재 브랜치 자동 검증 | Python 388개, Playwright 70개, API 없는 평가 게이트 통과 | [CI](.github/workflows/ci.yml) |
 
 ## 구현된 기능
 
