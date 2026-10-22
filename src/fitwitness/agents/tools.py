@@ -1,7 +1,7 @@
 """Tools can query evidence; they cannot choose their own tenant or execute code."""
 
 from typing import Literal
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 from langchain_core.tools import StructuredTool
 from fitwitness.contracts import Strict, SearchRequest
 from fitwitness.retrieval.pipeline import search
@@ -75,14 +75,22 @@ class DefineToolArgs(Strict):
 
     name: str = Field(pattern=TOOL_NAME)
     description: str = Field(min_length=1, max_length=300)
-    channels: list[SavedChannel] = Field(min_length=1, max_length=3)
+    channels: list[SavedChannel] = Field(
+        min_length=1, max_length=3, description="exact (drawing number), bm25 (keyword text, the search_keyword tool), semantic (embedding)."
+    )
     query_template: str = Field(
         min_length=7, max_length=500, description="Fixed search text with {query} where the caller's text goes."
     )
     top_k: int = Field(default=6, ge=1, le=20)
     fields: list[Literal["width", "height", "thickness", "hole_spacing", "material"]] = Field(
-        default_factory=list, max_length=5, description="Dimension fields attached to every hit."
+        default_factory=list, max_length=5, description="Dimension fields attached to every hit; the part kind is not a field."
     )
+
+    @field_validator("channels", mode="before")
+    @classmethod
+    def keyword_is_bm25(cls, channels):
+        # The text channel is the tool search_keyword, and a definition may call it by that name.
+        return [("bm25" if c == "keyword" else c) for c in channels] if isinstance(channels, list) else channels
 
     @model_validator(mode="after")
     def well_formed(self):

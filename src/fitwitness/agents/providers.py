@@ -72,7 +72,9 @@ class ModelClient:
         messages = [SystemMessage(content=prompt), HumanMessage(content=payload)]
         return self._structured(schema, messages, prompt, payload, role, bound)
 
-    def _structured(self,schema,messages,prompt,serialized,role,bound):
+    REPAIRS = 1  # an output that does not fit the schema goes back to the model this many times
+
+    def _invoke(self, schema, messages, role, bound):
         started = time.monotonic()
         # SDK retries are disabled. Every explicit attempt reserves cost durably.
         for attempt in range(1, 3):
@@ -80,7 +82,7 @@ class ModelClient:
             self.budget.reserve(bound, 1500, self.input_rate, self.output_rate)
             try:
                 response = self.client.with_structured_output(schema, include_raw=True).invoke(messages)
-                break
+                return response, attempt, (time.monotonic() - started) * 1000
             except Exception as exc:
                 code = getattr(exc, "status_code", None)
                 transient = code in (408, 429, 500, 502, 503, 504, 529) or type(exc).__name__ in ("APITimeoutError", "APIConnectionError")
@@ -91,29 +93,41 @@ class ModelClient:
                     raise TransientProviderError(f"{type(exc).__name__}: {exc}") from exc
                 self.emit("retry_wait", {"role": role, "attempt": attempt, "delay_seconds": 1})
                 self.wait(1)
-        latency_ms = (time.monotonic() - started) * 1000
-        raw = response["raw"]
-        usage = getattr(raw, "usage_metadata", None) or {}
-        if not usage:
-            raise RuntimeError("provider usage missing; budget cannot be verified")
-        self.budget.account(usage, self.input_rate, self.output_rate)
-        provider_metadata = getattr(raw, "response_metadata", None) or {}
-        metadata = {
-            "role": role, "attempt": attempt, "latency_ms": latency_ms,
-            "prompt_hash": sha256(prompt.encode()).hexdigest(),
-            "context_hash": sha256(serialized.encode()).hexdigest(),
-            "provider": self.provider, "model_id": self.model_id,
-            "request_id": provider_metadata.get("id"),
-            "provider_response_id": provider_metadata.get("id"),
-            "langchain_run_id": raw.id, "usage": usage,
-        }
-        if response.get("parsing_error") or response.get("parsed") is None:
+
+    def _structured(self,schema,messages,prompt,serialized,role,bound):
+        # An output that fails the schema goes back to the model once, with the validation errors and what it sent.
+        # The failed turn stays in the trace (model_schema_error) and is paid for like any other call.
+        for repair in range(self.REPAIRS + 1):
+            response, attempt, latency_ms = self._invoke(schema, messages, role, bound)
+            raw = response["raw"]
+            usage = getattr(raw, "usage_metadata", None) or {}
+            if not usage:
+                raise RuntimeError("provider usage missing; budget cannot be verified")
+            self.budget.account(usage, self.input_rate, self.output_rate)
+            provider_metadata = getattr(raw, "response_metadata", None) or {}
+            metadata = {
+                "role": role, "attempt": attempt, "repair": repair, "latency_ms": latency_ms,
+                "prompt_hash": sha256(prompt.encode()).hexdigest(),
+                "context_hash": sha256(serialized.encode()).hexdigest(),
+                "provider": self.provider, "model_id": self.model_id,
+                "request_id": provider_metadata.get("id"),
+                "provider_response_id": provider_metadata.get("id"),
+                "langchain_run_id": raw.id, "usage": usage,
+            }
+            if not (response.get("parsing_error") or response.get("parsed") is None):
+                return response["parsed"], metadata
+            error = str(response.get("parsing_error"))[:2000]
             self.emit("model_schema_error", {**metadata,
-                "parse_error": str(response.get("parsing_error"))[:2000],
+                "parse_error": error,
                 "raw_output": json.dumps(getattr(raw, "content", None), ensure_ascii=False, default=str)[:12000],
-                "stop_reason": provider_metadata.get("stop_reason")})
-            raise ValueError("model output failed schema validation")
-        return response["parsed"], metadata
+                "stop_reason": provider_metadata.get("stop_reason"), "repaired_next": repair < self.REPAIRS})
+            calls = getattr(raw, "tool_calls", None) or []
+            sent = json.dumps(calls[0].get("args") if calls else getattr(raw, "content", None), ensure_ascii=False, default=str)[:6000]
+            note = ("The previous output failed validation and was not used.\nErrors:\n" + error + "\nThe output was:\n" + sent
+                    + "\nReturn it corrected: use only the tool names, channels and fields the schema lists, and add nothing else.")
+            messages = [*messages, HumanMessage(content=note)]
+            bound += len(note.encode())
+        raise ValueError("model output failed schema validation")
 
     def read_image(self, image: bytes, prompt: str):
         from fitwitness.ingest.vision import ImageReading, validated_png

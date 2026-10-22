@@ -90,7 +90,7 @@ class EvidenceSession:
                             'examined_fields': sorted(self.examined(c.revision_id, requirements, observations)),
                             'missing_fields': sorted(self.examined(c.revision_id, requirements, observations) - {f.field for f in c.facts}),
                             'inspected': [{'id': f.id, 'field': f.field, 'value': f.model_dump(mode='json')['value'], 'unit': f.unit, 'certainty': f.certainty} for f in c.facts]} for c in self.candidates],
-            'observations': [{'tool': x['tool'], 'items': len(x['result'])} for x in observations[-8:]],
+            'observations': [{'tool': x['tool'], 'items': len(x['result']), **({'error': x['error']} if x.get('error') else {})} for x in observations[-8:]],
             'decisions': [{'revision_id': d['revision_id'], 'verdict': d['verdict']} for d in decisions],
             'tools': {k: SCHEMAS[k].model_json_schema() for k in sorted(self.available)},
             'saved_tools': [{k: t[k] for k in ('name', 'description', 'channels', 'query_template', 'fields', 'top_k') if k in t}

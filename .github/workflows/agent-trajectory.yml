@@ -100,7 +100,7 @@ jobs:
               print('== mode', mode, json.dumps(m, ensure_ascii=False))
           print('== spent', r['summary']['spent_usd'], 'skipped', json.dumps(r['skipped']))
           for row in r['rows']:
-              print('== row', json.dumps({k: row[k] for k in ('provider', 'mode', 'family_id', 'state', 'error', 'correct', 'total', 'coverage_before_verdict', 'uninspected', 'roles', 'challenger_tools', 'tools', 'skipped_repeats', 'stop', 'violations', 'failures', 'model_calls', 'tool_calls', 'input_tokens', 'output_tokens', 'cost_usd', 'latency_ms', 'actual')}, ensure_ascii=False, default=str))
+              print('== row', json.dumps({k: row[k] for k in ('provider', 'mode', 'family_id', 'state', 'error', 'correct', 'total', 'coverage_before_verdict', 'uninspected', 'roles', 'challenger_tools', 'tools', 'skipped_repeats', 'stop', 'violations', 'failures', 'tool_errors', 'repairs', 'model_calls', 'tool_calls', 'input_tokens', 'output_tokens', 'cost_usd', 'latency_ms', 'actual')}, ensure_ascii=False, default=str))
           # The artifact cannot always be fetched from where the log is read, so a model's refused or malformed
           # output is printed here too: the parse error and the raw output are the only way to say why a run failed.
           for row in r['rows']:

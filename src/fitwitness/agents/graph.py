@@ -237,15 +237,22 @@ def _execute_run(
                     if key in visited:
                         emit("tool_skipped", {"name": op.name, "reason": "identical query already observed"})
                         continue
-                    if op.name not in tools.available:
-                        raise ValueError("model selected unavailable tool")
                     started = time.monotonic()
                     try:
+                        if op.name not in tools.available:
+                            raise ValueError("model selected unavailable tool")
                         result = tools.execute(op)
                     except BudgetExhausted as exc:
                         emit("budget_stop", {"role": role, "reason": str(exc)})
                         plan.stop = True
                         break
+                    except ValueError as exc:
+                        # A tool the model asked for that cannot run here (a saved search that does not exist, a tool this
+                        # workspace lacks): the error is an observation for the next turn, not the end of the run.
+                        visited.add(key)
+                        observations.append({"tool": op.model_dump(mode="json"), "result": [], "error": str(exc)[:300]})
+                        emit("tool_error", {"role": role, "name": op.name, "arguments": op.arguments, "error": str(exc)[:300]})
+                        continue
                     session.observe(op, result)
                     visited.add(key)
                     executed += 1
