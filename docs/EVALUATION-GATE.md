@@ -47,5 +47,5 @@ uv run python -m fitwitness.evaluation.gate --output artifacts/gate --write-traj
 
 **열화 대조군.** 정확도 게이트의 대조군과 같은 방식(서류 요건 무시, 원장 조회 실패, 자동승인 한도 해제)으로 청구 그래프의 판정 함수를 실제로 망가뜨려 실행합니다. 이때 경로 불일치와 잘못 지급(그래프 수준)이 잡혀야 합니다. 현재 40건 중 10건에서 잘못 지급이 잡히고 경로 일치율이 0.25 떨어집니다. 이 게이트가 아무것도 못 잡게 되면 `control.trajectory_degraded_violations`가 실패합니다.
 
-**범위.** 규칙 엔진과 대본의 planner/challenger가 지나는 경로입니다. 실제 모델이 고르는 경로의 품질은 이 게이트 밖이며 유료 실측 workflow가 다룹니다. 실행 시간은 CI에서 약 1분입니다.
+**범위.** 규칙 엔진과 대본의 planner/challenger가 지나는 경로입니다. 실제 모델이 고르는 경로는 이 게이트 밖이며, 상한을 둔 수동 workflow `agent-trajectory.yml`이 test family마다 세 구조를 돌려 같은 불변식과 조회율로 잽니다([측정 기록](evaluation/README.md#실제-모델이-고르는-경로--2026-10-22)). 실행 시간은 CI에서 약 1분입니다.
 

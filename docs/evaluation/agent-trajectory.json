@@ -1,0 +1,3463 @@
+{
+ "status": "measured",
+ "created_at": "2026-10-22T20:21:16.995421+00:00",
+ "provider": "anthropic",
+ "model": "claude-haiku-4-5-20251001",
+ "workflow": ".github/workflows/agent-trajectory.yml",
+ "module": "src/fitwitness/evaluation/agent_trajectory.py",
+ "protocol": {
+  "split": "test",
+  "families": [
+   "FW-F003",
+   "FW-F012",
+   "FW-F014",
+   "FW-F015",
+   "FW-F018",
+   "FW-F029"
+  ],
+  "queries": "family마다 기준 도면에서 만든 질의 하나 (report.json의 protocol.queries)",
+  "modes": {
+   "rules": "규칙 provider, 모델 호출 없음, 기준 경로",
+   "fixed": "단일 계획",
+   "react": "반복 계획, 최대 3회",
+   "fitwitness": "planner + 별도 challenger"
+  },
+  "budget_per_run": {
+   "max_cost_usd": "0.04",
+   "max_tokens": 64000,
+   "max_model_calls": 4,
+   "max_tool_calls": 16,
+   "deadline_seconds": 240
+  },
+  "ledger": "실행 전에 per_run_cap을 예약하고 끝나면 실제 비용으로 정산, 전체 상한을 넘기면 남은 실행은 건너뜀",
+  "pricing_usd_per_million": {
+   "input": "1",
+   "output": "5"
+  },
+  "labels": "검증기의 규칙 판정(match/mismatch/unknown)을 정답으로 두고, 모델은 어떤 도구를 언제 부를지와 멈출 때만 고름",
+  "failure_classes": {
+   "not_inspected": "조회하지 않은 도면의 틀린 판정",
+   "inspected_wrong": "조회는 했지만 판정이 틀림(필요한 필드를 다 묻지 않은 경우 포함)",
+   "run_incomplete": "실행이 끝나지 않아 판정이 없음"
+  }
+ },
+ "runs": [
+  {
+   "run_id": 39808318655,
+   "url": "https://github.com/sokldjs554/fitwitness/actions/runs/39808318655",
+   "started_at": "2026-10-22T15:48:45Z",
+   "code_sha": "c159e1818a1f0adb680c04f308818bbb48716e57",
+   "purpose": "첫 측정. 세 구조 모두, 코드 c159e18",
+   "modes": [
+    "fixed",
+    "react",
+    "fitwitness"
+   ],
+   "ceiling_usd": "0.8",
+   "spent_usd": 0.101935,
+   "by_mode": {
+    "rules": {
+     "runs": 6,
+     "completed": 6,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 0,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "stops": {
+      "null": 6
+     },
+     "model_calls_mean": 0,
+     "tool_calls_mean": 6,
+     "model_errors": 0,
+     "cost_usd": 0.0,
+     "latency_ms_p50": 42.2
+    },
+    "fixed": {
+     "runs": 6,
+     "completed": 6,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 0,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "stops": {
+      "evidence_exhausted": 6
+     },
+     "model_calls_mean": 1,
+     "tool_calls_mean": 6,
+     "model_errors": 0,
+     "cost_usd": 0.028794,
+     "latency_ms_p50": 5095.4
+    },
+    "react": {
+     "runs": 6,
+     "completed": 6,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 0,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "stops": {
+      "evidence_exhausted": 6
+     },
+     "model_calls_mean": 1,
+     "tool_calls_mean": 6,
+     "model_errors": 0,
+     "cost_usd": 0.028464,
+     "latency_ms_p50": 4869.2
+    },
+    "fitwitness": {
+     "runs": 6,
+     "completed": 4,
+     "accuracy": 0.6667,
+     "agreement_with_rules": 0.6667,
+     "coverage_before_verdict": 0.667,
+     "challenger_turns": 4,
+     "invariant_violations": 4,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 10
+     },
+     "stops": {
+      "null": 2,
+      "evidence_exhausted": 4
+     },
+     "model_calls_mean": 1.67,
+     "tool_calls_mean": 5,
+     "model_errors": 2,
+     "cost_usd": 0.044677,
+     "latency_ms_p50": 6299.0
+    }
+   },
+   "rows": [
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F003",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 86.4,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F012",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 47.8,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F014",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 41.8,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F015",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 42.0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F018",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 40.2,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F029",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 42.4,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F003",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2618,
+     "output_tokens": 413,
+     "cost_usd": 0.004683,
+     "latency_ms": 6746.0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F012",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2623,
+     "output_tokens": 459,
+     "cost_usd": 0.004918,
+     "latency_ms": 6438.2,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F014",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2613,
+     "output_tokens": 443,
+     "cost_usd": 0.004828,
+     "latency_ms": 5099.7,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F015",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2615,
+     "output_tokens": 436,
+     "cost_usd": 0.004795,
+     "latency_ms": 5091.0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F018",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2620,
+     "output_tokens": 414,
+     "cost_usd": 0.00469,
+     "latency_ms": 4770.5,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F029",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2630,
+     "output_tokens": 450,
+     "cost_usd": 0.00488,
+     "latency_ms": 5074.8,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F003",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2618,
+     "output_tokens": 413,
+     "cost_usd": 0.004683,
+     "latency_ms": 4824.1,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F012",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2623,
+     "output_tokens": 421,
+     "cost_usd": 0.004728,
+     "latency_ms": 4677.9,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F014",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2613,
+     "output_tokens": 372,
+     "cost_usd": 0.004473,
+     "latency_ms": 4413.9,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F015",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2615,
+     "output_tokens": 450,
+     "cost_usd": 0.004865,
+     "latency_ms": 5250.1,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F018",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2620,
+     "output_tokens": 425,
+     "cost_usd": 0.004745,
+     "latency_ms": 4914.4,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F029",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2630,
+     "output_tokens": 468,
+     "cost_usd": 0.00497,
+     "latency_ms": 5207.0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F003",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6639,
+     "output_tokens": 509,
+     "cost_usd": 0.009184,
+     "latency_ms": 6331.2,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F012",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6681,
+     "output_tokens": 602,
+     "cost_usd": 0.009691,
+     "latency_ms": 7046.5,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F014",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6619,
+     "output_tokens": 537,
+     "cost_usd": 0.009304,
+     "latency_ms": 6266.8,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F015",
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 5,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [
+      "fitwitness: unexpected events ['failed']",
+      "fitwitness: ended in failed"
+     ],
+     "model_calls": 1,
+     "tool_calls": 1,
+     "input_tokens": 2615,
+     "output_tokens": 131,
+     "cost_usd": 0.00327,
+     "latency_ms": 1506.8,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 5
+     },
+     "uninspected": 5
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F018",
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 5,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [
+      "fitwitness: unexpected events ['failed']",
+      "fitwitness: ended in failed"
+     ],
+     "model_calls": 1,
+     "tool_calls": 1,
+     "input_tokens": 2620,
+     "output_tokens": 151,
+     "cost_usd": 0.003375,
+     "latency_ms": 1691.1,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 5
+     },
+     "uninspected": 5
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F029",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6703,
+     "output_tokens": 630,
+     "cost_usd": 0.009853,
+     "latency_ms": 7353.3,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    }
+   ],
+   "model_errors": []
+  },
+  {
+   "run_id": 39810119357,
+   "url": "https://github.com/sokldjs554/fitwitness/actions/runs/39810119357",
+   "started_at": "2026-10-22T16:00:21Z",
+   "code_sha": "fe66d2483587ca0020c83392924cf1dfd5eed096",
+   "purpose": "실패 2건의 원문을 보려고 planner+challenger 구조만 다시 실행, 코드 fe66d24 (Summary 단계가 모델 오류 원문을 찍도록만 바꾼 뒤)",
+   "modes": [
+    "fitwitness"
+   ],
+   "ceiling_usd": "0.3",
+   "spent_usd": 0.050848,
+   "by_mode": {
+    "rules": {
+     "runs": 6,
+     "completed": 6,
+     "accuracy": 1.0,
+     "coverage_before_verdict": 1.0,
+     "invariant_violations": 0,
+     "cost_usd": 0.0
+    },
+    "fitwitness": {
+     "runs": 6,
+     "completed": 4,
+     "accuracy": 0.6667,
+     "agreement_with_rules": 0.6667,
+     "coverage_before_verdict": 0.833,
+     "challenger_turns": 5,
+     "invariant_violations": 4,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 10
+     },
+     "stops": {
+      "null": 2,
+      "evidence_exhausted": 4
+     },
+     "model_calls_mean": 1.83,
+     "tool_calls_mean": 6,
+     "model_errors": 1,
+     "cost_usd": 0.050848,
+     "latency_ms_p50": 7027.3
+    }
+   },
+   "rows": [
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F003",
+     "state": "completed",
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "model_calls": 0,
+     "tool_calls": 6,
+     "cost_usd": 0.0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F012",
+     "state": "completed",
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "model_calls": 0,
+     "tool_calls": 6,
+     "cost_usd": 0.0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F014",
+     "state": "completed",
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "model_calls": 0,
+     "tool_calls": 6,
+     "cost_usd": 0.0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F015",
+     "state": "completed",
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "model_calls": 0,
+     "tool_calls": 6,
+     "cost_usd": 0.0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F018",
+     "state": "completed",
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "model_calls": 0,
+     "tool_calls": 6,
+     "cost_usd": 0.0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F029",
+     "state": "completed",
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "model_calls": 0,
+     "tool_calls": 6,
+     "cost_usd": 0.0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F003",
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 5,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [
+      "fitwitness: unexpected events ['failed']",
+      "fitwitness: ended in failed"
+     ],
+     "model_calls": 1,
+     "tool_calls": 1,
+     "input_tokens": 2618,
+     "output_tokens": 173,
+     "cost_usd": 0.003483,
+     "latency_ms": 3989.2
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F012",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6681,
+     "output_tokens": 572,
+     "cost_usd": 0.009541,
+     "latency_ms": 7171.3
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F014",
+     "state": "failed",
+     "error": "ValueError: unknown saved tool",
+     "correct": 0,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [
+      "fitwitness: unexpected events ['failed']",
+      "fitwitness: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6619,
+     "output_tokens": 524,
+     "cost_usd": 0.009239,
+     "latency_ms": 7064.5
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F015",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "read_region"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6641,
+     "output_tokens": 577,
+     "cost_usd": 0.009526,
+     "latency_ms": 6990.1
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F018",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6656,
+     "output_tokens": 549,
+     "cost_usd": 0.009401,
+     "latency_ms": 6597.4
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F029",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6703,
+     "output_tokens": 591,
+     "cost_usd": 0.009658,
+     "latency_ms": 7124.6
+    }
+   ],
+   "model_errors": [
+    {
+     "mode": "fitwitness",
+     "family_id": "FW-F003",
+     "role": "planner",
+     "attempt": 1,
+     "stop_reason": "tool_use",
+     "parse_error": "2 validation errors for SearchPlan\noperations.0.channels.0\n  Input should be 'exact', 'bm25' or 'semantic' [type=literal_error, input_value='keyword', input_type=str]\noperations.0.fields.2\n  Input should be 'width', 'height', 'thickness', 'hole_spacing' or 'material' [type=literal_error, input_value='kind', input_type=str]",
+     "raw_output": {
+      "operations": [
+       {
+        "name": "define_search_tool",
+        "arguments": {
+         "name": "housing_search",
+         "description": "Search for housing components with specified dimensions and material",
+         "channels": [
+          "keyword",
+          "semantic"
+         ],
+         "query_template": "{query}",
+         "top_k": 10,
+         "fields": [
+          "width",
+          "material",
+          "kind"
+         ]
+        }
+       }
+      ],
+      "stop_condition": "Need to search and inspect candidates for width=71mm, kind=housing, material=SUS304"
+     }
+    }
+   ],
+   "note": "rows transcribed from the job log's Summary step (artifact downloads are blocked where this record was written); the artifact agent-trajectory-anthropic-39810119357 (id 12440410868) holds report.json and runs.jsonl"
+  },
+  {
+   "run_id": 39812082502,
+   "url": "https://github.com/sokldjs554/fitwitness/actions/runs/39812082502",
+   "started_at": "2026-10-22T16:13:02Z",
+   "code_sha": "2eeb5c7b9dbdd476c10ed6665b240d2e4744f782",
+   "purpose": "1차 수정(2eeb5c7: 스키마 불합격 출력의 1회 재요청, 실행 불가 도구를 관측으로 기록) 뒤 세 구조 검증",
+   "modes": [
+    "fixed",
+    "react",
+    "fitwitness"
+   ],
+   "ceiling_usd": "0.8",
+   "spent_usd": 0.130971,
+   "by_mode": {
+    "rules": {
+     "runs": 6,
+     "completed": 6,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 0,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "stops": {
+      "null": 6
+     },
+     "model_calls_mean": 0,
+     "tool_calls_mean": 6,
+     "model_errors": 0,
+     "tool_errors": 0,
+     "schema_repairs": 0,
+     "cost_usd": 0.0,
+     "latency_ms_p50": 47.5
+    },
+    "fixed": {
+     "runs": 6,
+     "completed": 6,
+     "accuracy": 0.8,
+     "agreement_with_rules": 0.8,
+     "coverage_before_verdict": 0.833,
+     "challenger_turns": 0,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 4,
+      "inspected_wrong": 2,
+      "run_incomplete": 0
+     },
+     "stops": {
+      "null": 2,
+      "evidence_exhausted": 4
+     },
+     "model_calls_mean": 1,
+     "tool_calls_mean": 5.5,
+     "model_errors": 0,
+     "tool_errors": 2,
+     "schema_repairs": 0,
+     "cost_usd": 0.028105,
+     "latency_ms_p50": 5182.2
+    },
+    "react": {
+     "runs": 6,
+     "completed": 6,
+     "accuracy": 0.8667,
+     "agreement_with_rules": 0.8667,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 0,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 4,
+      "run_incomplete": 0
+     },
+     "stops": {
+      "null": 1,
+      "evidence_exhausted": 4,
+      "plan_stop": 1
+     },
+     "model_calls_mean": 1.67,
+     "tool_calls_mean": 6.5,
+     "model_errors": 0,
+     "tool_errors": 0,
+     "schema_repairs": 0,
+     "cost_usd": 0.045705,
+     "latency_ms_p50": 4849.8
+    },
+    "fitwitness": {
+     "runs": 6,
+     "completed": 6,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 6,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "stops": {
+      "evidence_exhausted": 6
+     },
+     "model_calls_mean": 2,
+     "tool_calls_mean": 7,
+     "model_errors": 0,
+     "tool_errors": 0,
+     "schema_repairs": 0,
+     "cost_usd": 0.057161,
+     "latency_ms_p50": 6627.0
+    }
+   },
+   "rows": [
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F003",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 93.0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F012",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 49.3,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F014",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 45.6,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F015",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 47.8,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F018",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 46.8,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F029",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 47.1,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F003",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2654,
+     "output_tokens": 450,
+     "cost_usd": 0.004904,
+     "latency_ms": 7527.5,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F012",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2659,
+     "output_tokens": 462,
+     "cost_usd": 0.004969,
+     "latency_ms": 5240.5,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F014",
+     "state": "completed",
+     "error": null,
+     "correct": 3,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 7,
+     "input_tokens": 2649,
+     "output_tokens": 491,
+     "cost_usd": 0.005104,
+     "latency_ms": 5448.7,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 2,
+      "run_incomplete": 0
+     },
+     "tool_errors": [
+      {
+       "role": "planner",
+       "name": "define_search_tool",
+       "error": "channels not available in this workspace: ['semantic']",
+       "arguments": {
+        "name": "shaft_sus304_width",
+        "fields": [
+         "width",
+         "material"
+        ],
+        "channels": [
+         "bm25",
+         "semantic"
+        ],
+        "description": "Search for SUS304 shafts with specific width dimensions",
+        "query_template": "shaft width {query} SUS304"
+       }
+      }
+     ],
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F015",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2651,
+     "output_tokens": 447,
+     "cost_usd": 0.004886,
+     "latency_ms": 5123.9,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F018",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2656,
+     "output_tokens": 414,
+     "cost_usd": 0.004726,
+     "latency_ms": 4657.7,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F029",
+     "state": "completed",
+     "error": null,
+     "correct": 1,
+     "total": 5,
+     "coverage_before_verdict": 0.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 2,
+     "input_tokens": 2666,
+     "output_tokens": 170,
+     "cost_usd": 0.003516,
+     "latency_ms": 1935.6,
+     "failure_classes": {
+      "not_inspected": 4,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "tool_errors": [
+      {
+       "role": "planner",
+       "name": "define_search_tool",
+       "error": "channels not available in this workspace: ['semantic']",
+       "arguments": {
+        "name": "flange_sus304_spacing",
+        "fields": [
+         "hole_spacing",
+         "material"
+        ],
+        "channels": [
+         "bm25",
+         "semantic"
+        ],
+        "description": "Search for SUS304 flanges with specific hole spacing dimensions in millimeters",
+        "query_template": "íëì§ êµ¬ë© ê°ê²© {query} SUS304"
+       }
+      }
+     ],
+     "uninspected": 5
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F003",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2654,
+     "output_tokens": 413,
+     "cost_usd": 0.004719,
+     "latency_ms": 4718.8,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F012",
+     "state": "completed",
+     "error": null,
+     "correct": 3,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 1,
+     "stop": "plan_stop",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 3,
+     "tool_calls": 7,
+     "input_tokens": 9958,
+     "output_tokens": 703,
+     "cost_usd": 0.013473,
+     "latency_ms": 8706.2,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 2,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F014",
+     "state": "completed",
+     "error": null,
+     "correct": 3,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 3,
+     "tool_calls": 8,
+     "input_tokens": 9865,
+     "output_tokens": 700,
+     "cost_usd": 0.013365,
+     "latency_ms": 8761.5,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 2,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F015",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2651,
+     "output_tokens": 393,
+     "cost_usd": 0.004616,
+     "latency_ms": 4543.5,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F018",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2656,
+     "output_tokens": 414,
+     "cost_usd": 0.004726,
+     "latency_ms": 4732.2,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F029",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2666,
+     "output_tokens": 428,
+     "cost_usd": 0.004806,
+     "latency_ms": 4967.3,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F003",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6711,
+     "output_tokens": 575,
+     "cost_usd": 0.009586,
+     "latency_ms": 6957.1,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F012",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6753,
+     "output_tokens": 552,
+     "cost_usd": 0.009513,
+     "latency_ms": 6537.3,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F014",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6691,
+     "output_tokens": 539,
+     "cost_usd": 0.009386,
+     "latency_ms": 6265.9,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F015",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6713,
+     "output_tokens": 553,
+     "cost_usd": 0.009478,
+     "latency_ms": 6716.6,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F018",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6728,
+     "output_tokens": 543,
+     "cost_usd": 0.009443,
+     "latency_ms": 6479.0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F029",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6775,
+     "output_tokens": 596,
+     "cost_usd": 0.009755,
+     "latency_ms": 7136.5,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    }
+   ],
+   "model_errors": []
+  },
+  {
+   "run_id": 39847555708,
+   "url": "https://github.com/sokldjs554/fitwitness/actions/runs/39847555708",
+   "started_at": "2026-10-22T20:17:30Z",
+   "code_sha": "71c3adf1147eff1c72c6514f05c9361b67aa4af3",
+   "purpose": "2차 수정(71c3adf: 남은 계획 횟수·미조회 필드·돌릴 수 있는 채널을 컨텍스트에 넣음) 뒤 세 구조 검증",
+   "modes": [
+    "fixed",
+    "react",
+    "fitwitness"
+   ],
+   "ceiling_usd": "0.8",
+   "spent_usd": 0.118408,
+   "by_mode": {
+    "rules": {
+     "runs": 6,
+     "completed": 6,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 0,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "stops": {
+      "null": 6
+     },
+     "model_calls_mean": 0,
+     "tool_calls_mean": 6,
+     "model_errors": 0,
+     "tool_errors": 0,
+     "schema_repairs": 0,
+     "cost_usd": 0.0,
+     "latency_ms_p50": 49.3
+    },
+    "fixed": {
+     "runs": 6,
+     "completed": 6,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 0,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "stops": {
+      "evidence_exhausted": 6
+     },
+     "model_calls_mean": 1,
+     "tool_calls_mean": 6,
+     "model_errors": 0,
+     "tool_errors": 0,
+     "schema_repairs": 0,
+     "cost_usd": 0.030258,
+     "latency_ms_p50": 5147.6
+    },
+    "react": {
+     "runs": 6,
+     "completed": 6,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 0,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "stops": {
+      "evidence_exhausted": 6
+     },
+     "model_calls_mean": 1,
+     "tool_calls_mean": 6,
+     "model_errors": 0,
+     "tool_errors": 0,
+     "schema_repairs": 0,
+     "cost_usd": 0.029823,
+     "latency_ms_p50": 4916.0
+    },
+    "fitwitness": {
+     "runs": 6,
+     "completed": 6,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 6,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "stops": {
+      "evidence_exhausted": 6
+     },
+     "model_calls_mean": 2,
+     "tool_calls_mean": 6.83,
+     "model_errors": 0,
+     "tool_errors": 0,
+     "schema_repairs": 0,
+     "cost_usd": 0.058327,
+     "latency_ms_p50": 6446.4
+    }
+   },
+   "rows": [
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F003",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 100.6,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F012",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 51.2,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F014",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 47.8,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F015",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 49.7,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F018",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 47.4,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "rules",
+     "mode": "fitwitness",
+     "family_id": "FW-F029",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": null,
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 48.9,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F003",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2807,
+     "output_tokens": 423,
+     "cost_usd": 0.004922,
+     "latency_ms": 7451.2,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F012",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2822,
+     "output_tokens": 446,
+     "cost_usd": 0.005052,
+     "latency_ms": 4865.1,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F014",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2802,
+     "output_tokens": 439,
+     "cost_usd": 0.004997,
+     "latency_ms": 4935.3,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F015",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2804,
+     "output_tokens": 450,
+     "cost_usd": 0.005054,
+     "latency_ms": 5133.4,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F018",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2809,
+     "output_tokens": 445,
+     "cost_usd": 0.005034,
+     "latency_ms": 5161.9,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "family_id": "FW-F029",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2829,
+     "output_tokens": 474,
+     "cost_usd": 0.005199,
+     "latency_ms": 5375.9,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F003",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2807,
+     "output_tokens": 413,
+     "cost_usd": 0.004872,
+     "latency_ms": 4683.3,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F012",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2822,
+     "output_tokens": 450,
+     "cost_usd": 0.005072,
+     "latency_ms": 5052.3,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F014",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2802,
+     "output_tokens": 445,
+     "cost_usd": 0.005027,
+     "latency_ms": 5213.5,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F015",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2804,
+     "output_tokens": 410,
+     "cost_usd": 0.004854,
+     "latency_ms": 4720.7,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F018",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2809,
+     "output_tokens": 444,
+     "cost_usd": 0.005029,
+     "latency_ms": 5146.4,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "family_id": "FW-F029",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2829,
+     "output_tokens": 428,
+     "cost_usd": 0.004969,
+     "latency_ms": 4779.6,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F003",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6977,
+     "output_tokens": 496,
+     "cost_usd": 0.009457,
+     "latency_ms": 6107.3,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F012",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 7029,
+     "output_tokens": 594,
+     "cost_usd": 0.009999,
+     "latency_ms": 6866.0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F014",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6957,
+     "output_tokens": 579,
+     "cost_usd": 0.009852,
+     "latency_ms": 6889.2,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F015",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 6979,
+     "output_tokens": 530,
+     "cost_usd": 0.009629,
+     "latency_ms": 6427.6,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F018",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 0,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 2,
+     "tool_calls": 6,
+     "input_tokens": 6994,
+     "output_tokens": 521,
+     "cost_usd": 0.009599,
+     "latency_ms": 6315.0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "family_id": "FW-F029",
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "skipped_repeats": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "repairs": 0,
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 7051,
+     "output_tokens": 548,
+     "cost_usd": 0.009791,
+     "latency_ms": 6465.2,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0
+     },
+     "uninspected": 0
+    }
+   ],
+   "model_errors": []
+  }
+ ],
+ "total_spent_usd": 0.402162,
+ "fixes": [
+  {
+   "after_run": 39810119357,
+   "commit": "2eeb5c7",
+   "what": [
+    "planner가 저장 검색 도구를 정의하며 채널을 'keyword', 필드에 'kind'를 써서 출력이 스키마 검증에 실패하면 실행이 그 자리에서 끝났음 → 검증 오류와 보낸 계획을 붙여 한 번 다시 요청(실패한 턴은 model_schema_error로 trace에 남고 비용도 셈)",
+    "'keyword'는 bm25 채널의 별칭으로 받음(도구 이름이 search_keyword)",
+    "challenger가 정의된 적 없는 저장 검색을 호출하면 'unknown saved tool'로 실행 전체가 실패해 planner가 이미 조회한 판정까지 잃었음 → 실행 불가 도구는 tool_error 이벤트와 관측으로 기록하고 실행은 이어감"
+   ]
+  },
+  {
+   "after_run": 39812082502,
+   "commit": "71c3adf",
+   "what": [
+    "planner가 semantic 채널(이 작업 공간에는 임베딩이 없음)로 저장 검색을 정의해 tool_error가 났고, 단일 계획 구조에서는 그 한 번의 계획을 정의에 써서 도면 4장을 조회하지 못했음 → 컨텍스트에 planning_turns_left(단일 계획은 0)와 후보별 unexamined_fields를 넣고, define_search_tool 스키마의 채널은 작업 공간에서 돌릴 수 있는 것만 보여 줌",
+    "정의가 돌릴 수 없는 채널을 포함하면 돌릴 수 있는 채널만 남기고 그 사실을 결과에 적음(남는 채널이 없을 때만 거부)",
+    "반복 계획이 같은 조회를 반복하고 필요한 필드 하나를 묻지 않은 채 멈춘 2건은 unexamined_fields로 드러나게 함"
+   ]
+  }
+ ],
+ "limitations": [
+  "합성 도면 test split 6개 family, family마다 질의 하나, 모드마다 실행 한 번입니다. 같은 코드로도 실행마다 모델의 선택이 달라졌으므로(1차는 fixed·react 6/6, 3차는 4/6·5/6) 한 번의 실행으로 구조의 우위를 말할 수 없습니다.",
+  "판정은 결정적 검증기가 내리고 모델은 도구 선택과 종료만 고릅니다. 정확도는 모델의 판단력이 아니라 경로의 충분함을 잽니다.",
+  "검색은 도번·BM25 채널만 쓰고, family 하나의 도면 다섯 장만 색인된 작업 공간입니다. semantic·image 채널과 VLM은 이 측정에 없습니다.",
+  "수정 뒤 같은 family를 다시 실행한 것은 오류 수정의 검증이지 독립 held-out 평가가 아닙니다.",
+  "행은 각 실행의 Summary 단계가 찍은 로그에서 옮겼고(이 기록을 쓴 곳에서는 artifact를 내려받을 수 없었음), 원본 report.json·runs.jsonl은 각 실행의 artifact에 있습니다."
+ ]
+}

@@ -16,6 +16,7 @@
 |---|---|---|
 | PDF 근거 판정, Claude Haiku 4.5 72회 | 72/72 정답, 잘못된 일치 0/42, $0.110455 | [evaluation/README](docs/evaluation/README.md) |
 | 전체 Agent 세 구조, 최종 코드 Claude gate | 3/3 완료, 각 5/5 판정, $0.016586 | [claude-final-gate.json](docs/evaluation/claude-final-gate.json) |
+| 실제 모델이 고르는 경로, test 6개 family × 세 구조, 네 번 실행 (판정은 결정적 검증기, 모델은 도구 선택과 종료만) | 1차 planner+challenger 4/6 완료 → 스키마 실패·없는 저장 검색 호출을 고침 → 3차 단일·반복 계획 24/30·26/30 → 남은 계획 횟수·미조회 필드·돌릴 수 있는 채널을 컨텍스트에 넣음 → 4차 18/18 완료, 90/90, 조회율 1.0. 합계 $0.402162 | [evaluation/README](docs/evaluation/README.md#실제-모델이-고르는-경로--2026-10-22) · [agent-trajectory.json](docs/evaluation/agent-trajectory.json) |
 | 복합 검색 288회 + 재정렬 216회 | Recall@5 복합 33.3%, 조건 정렬 64.2% | [RETRIEVAL.md](docs/RETRIEVAL.md) |
 | 외부 NIST STEP 11쌍 CAD 거리 검색 | Top-1 11/11, MRR 1.000 | [CAD.md](docs/CAD.md) |
 | 보험 청구 자동 심사, 합성 120건 (API 없음) | 잘못 지급 0건, 결정 정확도 92.5%, 자동 처리 88.5% | [CLAIMS.md](docs/CLAIMS.md) |
@@ -26,7 +27,7 @@
 | 판정 프롬프트 네 가지 비교 (dev 6개 family 36건에서 고르고 test 4개 family에서 한 번 확인) | Claude Haiku 4.5는 모두 36/36으로 천장, Qwen3-1.7B는 기준 27/36이 최고이고 나머지는 21, 21, 10/36. 정교한 프롬프트의 이득은 어느 쪽에서도 확인하지 못함 | [JOB_FIT_AUDIT.md](docs/JOB_FIT_AUDIT.md#프롬프트-비교-결과) |
 | 실제 기계 도면 12장(이미지)의 표제란 OCR | 도번 10/12, 재질 4/8, 보고한 15건 모두 정답, 읽은 값은 "확인 필요"로만 사용 | [TITLE-BLOCK.md](docs/TITLE-BLOCK.md) |
 | VLM 이미지 18회 | 15회 구조화 완료, 23/36 필드 정답 | [VISION.md](docs/VISION.md) |
-| 누적 API 비용 | $0.255248, 미확정 예약 0. 프롬프트 비교 실험의 Claude 호출 $0.34355는 이 합계에 넣지 않았고 [실행 기록](docs/evaluation/prompts-claude.json)에 따로 있음 | [EVIDENCE.md](docs/EVIDENCE.md) |
+| 누적 API 비용 | $0.255248, 미확정 예약 0. 프롬프트 비교 실험의 Claude 호출 $0.34355와 실제 모델 경로 측정 네 번의 $0.402162는 이 합계에 넣지 않았고 [prompts-claude.json](docs/evaluation/prompts-claude.json)·[agent-trajectory.json](docs/evaluation/agent-trajectory.json)에 따로 있음 | [EVIDENCE.md](docs/EVIDENCE.md) |
 | 현재 브랜치 자동 검증 | Python 375개, Playwright 70개, API 없는 평가 게이트 통과 | [CI](.github/workflows/ci.yml) |
 
 ## 구현된 기능
@@ -46,7 +47,7 @@
 - React·Three.js 도면 검토대: 후보 필터, 근거 위치, 실제 CAD 3D, 개정판·실행 기록 검사, 담당자 확인 입력
 - LLM 실험실: Qwen/Claude 모델 선택, 오류 사례·반복 실행별 원시 출력, 실제 Agent 호출 기록, 평가 프로토콜
 - 도구로 조회한 사실만 판정에 반영하는 Agent, 별도 탐색/반례 검토 단계, 가용 도구·호출·토큰·비용 제한과 bounded retry
-- [재현 가능한 LLM 평가](docs/evaluation/README.md)와 API 없이 매 커밋 베이스라인과 비교하는 [평가 게이트](docs/EVALUATION-GATE.md). 결과뿐 아니라 실행이 지난 경로(노드 순서, 지급 전 반례 검토, 담당자 응답 한 번 적용, 재실행 시 원장 불변)도 커밋된 기준 경로와 대조합니다
+- [재현 가능한 LLM 평가](docs/evaluation/README.md)와 API 없이 매 커밋 베이스라인과 비교하는 [평가 게이트](docs/EVALUATION-GATE.md). 결과뿐 아니라 실행이 지난 경로(노드 순서, 지급 전 반례 검토, 담당자 응답 한 번 적용, 재실행 시 원장 불변)도 커밋된 기준 경로와 대조합니다. 실제 모델이 고르는 경로는 상한을 둔 수동 workflow로 재고, 틀린 판정을 조회 안 함·필드 누락·미완료로 나눠 고친 기록을 남깁니다
 
 기본 체험은 명시적인 규칙 기반 엔진이며 API 호출을 흉내 내지 않습니다. 공개 익명 API는 키가 설정되어 있어도 유료 모델 실행을 거부합니다.
 

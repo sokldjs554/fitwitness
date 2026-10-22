@@ -51,7 +51,7 @@ CI artifact에는 프로토콜·입력·호출별 출력·실사용 토큰·실�
 
 2026-10-04 승인된 실행 한도는 합계 1 USD입니다. 전용 workflow는 동일 PDF 72회에 0.60 USD, 실제 PostgreSQL LangGraph 6개 실행에 각각 0.066 USD(합계 0.396 USD)를 따로 예약합니다. SDK 자동 재시도는 끄며, Agent transient retry도 동일 실행 한도에 포함합니다. 실패한 호출의 불명확한 비용은 예약 장부에 남습니다. 공개 서버에는 키를 전달하지 않습니다.
 
-Agent pilot은 FW-F000 합성 도면 5개의 단일 질의를 fixed/ReAct/별도 planner+challenger에 두 번씩 실행합니다. gold는 평가기만 읽으며 실제 판정·도구 인자·request ID·토큰·지연·오류·최종 근거를 원시 기록으로 보관합니다. 작은 연결 검증이며 일반 성능 우위를 뜻하지 않습니다. `stop`은 명시적 종료 플래그, `stop_condition`은 종료 설명입니다. 누락 근거는 unknown으로 남습니다. 429·일부 5xx·연결/시간 오류만 최대 두 번 시도하고, schema/권한 오류는 재시도하지 않습니다. 프로세스 내 시도가 모두 실패하면 실행은 `retry_wait`로 백오프한 뒤 checkpoint에서 다시 이어지고, 3회 소진 시 보류함으로 갑니다([WORKFLOW.md](WORKFLOW.md)).
+Agent pilot은 FW-F000 합성 도면 5개의 단일 질의를 fixed/ReAct/별도 planner+challenger에 두 번씩 실행합니다. gold는 평가기만 읽으며 실제 판정·도구 인자·request ID·토큰·지연·오류·최종 근거를 원시 기록으로 보관합니다. 작은 연결 검증이며 일반 성능 우위를 뜻하지 않습니다. `stop`은 명시적 종료 플래그, `stop_condition`은 종료 설명입니다. 누락 근거는 unknown으로 남습니다. 429·일부 5xx·연결/시간 오류만 최대 두 번 시도하고, 권한 오류는 재시도하지 않습니다. 출력이 schema 검증에 실패하면 검증 오류를 붙여 한 번만 다시 요청하고(실패한 턴도 trace와 비용에 남음), 두 번째도 실패하면 실행이 실패합니다. 프로세스 내 시도가 모두 실패하면 실행은 `retry_wait`로 백오프한 뒤 checkpoint에서 다시 이어지고, 3회 소진 시 보류함으로 갑니다([WORKFLOW.md](WORKFLOW.md)).
 
 ## 유료 API 없는 의미·이미지 검색
 
