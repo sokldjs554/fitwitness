@@ -5,6 +5,8 @@
 - 배포 브랜치: `feat/fitwitness-foundation` (자동 배포 꺼짐)
 - 초안 PR: https://github.com/sokldjs554/fitwitness/pull/1
 
+
+바깥 연결 없이 돌리는 범위와 켜는 순서는 [ONPREM.md](ONPREM.md)에 따로 적었습니다.
 ## 실제 구성
 
 2026-10-04 사용자가 승인한 무료 구성입니다. Render `My workspace`의 Singapore 무료 Python 웹 서비스와 Neon Free의 Singapore PostgreSQL 16 전용 `fitwitness` 프로젝트를 연결했습니다. 기존 프로젝트와 데이터베이스는 변경하지 않았습니다. 유료 리소스와 유료 모델 호출은 활성화하지 않았습니다.

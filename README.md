@@ -31,12 +31,12 @@
 | VLM 이미지 18회 | 15회 구조화 완료, 23/36 필드 정답 | [VISION.md](docs/VISION.md) |
 | 누적 API 비용 | $0.255248, 미확정 예약 0. 프롬프트 비교 실험의 Claude 호출 $0.34355와 실제 모델 경로 측정 네 번의 $0.402162는 이 합계에 넣지 않았고 [prompts-claude.json](docs/evaluation/prompts-claude.json)·[agent-trajectory.json](docs/evaluation/agent-trajectory.json)에 따로 있음 | [EVIDENCE.md](docs/EVIDENCE.md) |
 | 위 수치들의 95% 구간과 pass^k | 72/72는 94.9%부터, 0/120 잘못 지급은 3.1% 아래, 복합 검색 Recall@5 33.3%는 17~49%, 18/18 실행은 61%부터. 측정을 다시 하지 않고 커밋된 기록에서 계산 | [evaluation/README](docs/evaluation/README.md#표본-크기와-95-구간--2026-10-23) · [statistics.json](docs/evaluation/statistics.json) |
-| 현재 브랜치 자동 검증 | Python 398개, Playwright 70개, API 없는 평가 게이트 통과 | [CI](.github/workflows/ci.yml) |
+| 현재 브랜치 자동 검증 | Python 404개, Playwright 70개, API 없는 평가 게이트 통과 | [CI](.github/workflows/ci.yml) |
 
 ## 구현된 기능
 
 - CadQuery 기반 30개 family / 180개 합성 PDF·STEP·PNG·3D mesh
-- **보험금 청구 자동 심사**(두 번째 워크플로): 합성 진단서·입퇴원확인서·수술확인서·영수증에서 값과 위치를 읽고, 가상의 지급 기준표를 규칙 ID와 함께 적용해 지급·부지급·담당자 확인으로 나누며, 멱등 원장으로 한 번만 지급합니다. 120건 평가에서 잘못 지급 0건, 자동 처리율 88.5%. 텍스트 층이 없는 스캔은 Tesseract로 읽고, 읽기가 불확실하면 지급하지 않고 담당자에게 넘기며 스캔에 근거한 부지급은 자동 확정하지 않습니다(시뮬레이션 스캔이며 실제 문서가 아닙니다). 비고란의 지시문은 어느 필드에도 닿지 않고, 비고 안의 가짜 라벨은 값이 되지 못하며, 한 서류가 한 필드에 두 값을 말하면 담당자에게 갑니다 ([docs/CLAIMS.md](docs/CLAIMS.md))
+- **보험금 청구 자동 심사**(두 번째 워크플로): 합성 진단서·입퇴원확인서·수술확인서·영수증에서 값과 위치를 읽고, 가상의 지급 기준표를 규칙 ID와 함께 적용해 지급·부지급·담당자 확인으로 나누며, 멱등 원장으로 한 번만 지급합니다. 120건 평가에서 잘못 지급 0건, 자동 처리율 88.5%. 텍스트 층이 없는 스캔은 Tesseract로 읽고, 읽기가 불확실하면 지급하지 않고 담당자에게 넘기며 스캔에 근거한 부지급은 자동 확정하지 않습니다(시뮬레이션 스캔이며 실제 문서가 아닙니다). 비고란의 지시문은 어느 필드에도 닿지 않고, 비고 안의 가짜 라벨은 값이 되지 못하며, 한 서류가 한 필드에 두 값을 말하면 담당자에게 갑니다 ([docs/CLAIMS.md](docs/CLAIMS.md)). 상용 문서 AI(Upstage Information Extraction)와 같은 기준으로 채점하는 수동 워크플로를 두었고 아직 돌리지 않았습니다
 - 체험 작업 공간은 브래킷·플랜지·샤프트·하우징 4종 20개 도면을 불러옵니다. 검색이 돌려준 후보만 판정하고 나머지는 "검색 제외"로 접어 보여 주며, 아무것도 맞지 않으면 그 사실을 알립니다
 - 도번·BM25와 해시 고정 E5·OpenCLIP/pgvector 색인·검색·worker 연결. 도번은 공백·밑줄·O/0·시리즈 변형과 한 글자 오타까지 정규화해 찾습니다. 두 번째 이미지 인코더(DINOv2)를 같은 색인에 선택 채널로 둘 수 있고, 모델은 해시로 고정합니다
 - PDF 실제 위치를 근거로 조건 일치·불일치·확인 필요 판정
@@ -46,7 +46,8 @@
 - 도면 40 → 42mm 개정 시 기존 결과 무효화 및 재검증
 - 방문자별 세션·RLS, typed tools, OpenAI·Claude 어댑터, 실행 예산
 - 에이전트가 스스로 정의해 재사용하는 저장 검색 도구(`define_search_tool` / `run_saved_search`), 테넌트별 격리·개수 제한
-- 실행·이벤트 테이블에서 계산하는 Prometheus 지표, 실행별 span tree(`/api/runs/{id}/trace`), 환경 변수 하나로 켜는 OpenTelemetry(OTLP) 전송. Jaeger에서 중단 후 복구된 실행까지 한 trace로 확인했습니다 ([docs/OBSERVABILITY.md](docs/OBSERVABILITY.md))
+- 실행·이벤트 테이블에서 계산하는 Prometheus 지표, 실행별 span tree(`/api/runs/{id}/trace`), 환경 변수 하나로 켜는 OpenTelemetry(OTLP) 전송. Jaeger에서 중단 후 복구된 실행까지 한 trace로 확인했습니다 ([docs/OBSERVABILITY.md](docs/OBSERVABILITY.md)). 내보내는 span은 OTel GenAI 의미 규약의 이름(`gen_ai.operation.name`, `gen_ai.agent.name`, `gen_ai.tool.name`, `gen_ai.usage.*`)을 달고 schema URL을 고정합니다
+- 바깥 연결 없이 도는 범위(규칙 경로, 로컬 Tesseract, 미리 옮긴 인코더 가중치, 같은 망의 Jaeger)와 켜는 순서는 [docs/ONPREM.md](docs/ONPREM.md)에 적었습니다. 실제 폐쇄망에서 돌려 본 기록은 없습니다
 - React·Three.js 도면 검토대: 후보 필터, 근거 위치, 실제 CAD 3D, 개정판·실행 기록 검사, 담당자 확인 입력
 - LLM 실험실: Qwen/Claude 모델 선택, 오류 사례·반복 실행별 원시 출력, 실제 Agent 호출 기록, 평가 프로토콜
 - 도구로 조회한 사실만 판정에 반영하는 Agent, 별도 탐색/반례 검토 단계, 가용 도구·호출·토큰·비용 제한과 bounded retry

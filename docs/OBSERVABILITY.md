@@ -25,8 +25,25 @@ FITWITNESS_ENV=production                                  # deployment.environm
 - **강제 종료된 실행도 보입니다.** 지급 기록 직후 worker가 죽는 체험(`중단 체험`)은 `interrupted → retry_scheduled → (백오프 5초) → started → resumed → payout → completed`가 한 trace에 이어집니다. 아래 화면이 그 예입니다.
 - **ID는 결정적입니다.** trace ID는 실행 ID, span ID는 실행 ID와 이벤트 순번에서 만듭니다. 운영자가 `python -m fitwitness.runtime.otlp --tenant T --run R`로 같은 실행을 다시 보내도 같은 span이 됩니다. 아직 끝나지 않은 실행을 보려면 `--include-open`을 붙입니다.
 - **span 속성**은 스칼라만 담습니다(`fw.latency_ms`, `fw.items`, `fw.role` 등). 중첩된 payload는 이벤트 로그에만 있습니다. 루트 span에는 실행 종류(drawing/claim)와 상태, 모델·도구 시간 합계가 붙습니다.
+- **GenAI 의미 규약의 이름**을 함께 답니다. 역할 span은 `gen_ai.operation.name=invoke_agent`와 `gen_ai.agent.name`(planner/challenger/extractor), 모델 호출 span은 `chat`과 `gen_ai.provider.name`, `gen_ai.request.model`, `gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`, 도구 호출 span은 `execute_tool`과 `gen_ai.tool.name`입니다. 모델 호출 span의 kind는 CLIENT(프로세스 밖으로 나가는 호출), 나머지는 INTERNAL입니다. 아래 절에 자세히 적습니다.
 
 ![Jaeger에서 본 중단 후 복구된 청구 실행](media/otel-claim-crash-trace.png)
+
+## span 이름과 속성: GenAI 의미 규약
+
+OpenTelemetry의 GenAI 의미 규약(semantic conventions)은 에이전트 한 턴, 모델 호출 한 번, 도구 호출 한 번을 어떤 이름으로 부를지 정해 둔 목록입니다. 이 이름을 쓰면 규약을 아는 백엔드(Jaeger·Tempo의 검색, 상용 LLM 관측 도구의 "agent"·"model" 화면)가 fitwitness의 span을 다른 서비스의 것과 같은 방식으로 찾습니다. 이름은 코드에 적지 않고 고정된 `opentelemetry-semantic-conventions` 패키지(0.66b0)의 상수에서 가져오며, 요청의 `resourceSpans`·`scopeSpans`에 그 판의 schema URL(`https://opentelemetry.io/schemas/1.44.0`)을 붙여 백엔드가 어느 판의 이름인지 알게 합니다.
+
+| span | `gen_ai.operation.name` | 그 밖의 `gen_ai.*` | kind |
+|---|---|---|---|
+| 역할 묶음 `role:planner` 등 | `invoke_agent` | `gen_ai.agent.name` = 역할 이름 | INTERNAL |
+| 모델 호출 `model:<model_id>` | `chat` | `gen_ai.provider.name`(anthropic/openai), `gen_ai.request.model`, `gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`, `gen_ai.agent.name` = 호출한 역할 | CLIENT |
+| 도구 호출 `tool:<name>` | `execute_tool` | `gen_ai.tool.name`, `gen_ai.agent.name` | INTERNAL |
+| 그 밖의 이벤트(queued, verified, payout 등) | 없음 | 없음 | INTERNAL |
+
+- 이름이 바뀌어도 기존 대시보드가 깨지지 않도록 `fw.*` 속성(`fw.role`, `fw.model_id`, `fw.usage_input_tokens` 등)은 그대로 둡니다. 같은 값이 두 이름으로 실립니다.
+- 토큰 수는 모델 이벤트의 `usage`(provider가 돌려준 값)에서 옵니다. 규칙 provider의 실행에는 모델 호출 span이 없으므로 이 속성도 없습니다.
+- GenAI 규약은 아직 incubating(확정 전) 단계라 이름이 바뀔 수 있습니다. 패키지 판을 고정하고 schema URL을 실어 두는 것이 그에 대한 대비이고, 바뀌면 패키지를 올리고 단위 테스트가 잡는 이름을 바꾸면 됩니다.
+- 확인한 것은 단위 테스트까지입니다. 공식 protobuf 정의로 파싱되는 요청에 위 이름과 값, schema URL이 실리는지를 테스트가 봅니다. GenAI 규약을 아는 백엔드의 화면에서 실제로 에이전트·모델 호출로 분류되는 것은 보지 못했습니다. 앞서 Jaeger에 보낸 기록은 이 이름을 붙이기 전의 것입니다.
 
 ## 확인한 것과 하지 않은 것
 

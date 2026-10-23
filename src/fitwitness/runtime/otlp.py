@@ -31,6 +31,12 @@ import os
 import sys
 from typing import Any
 
+# The GenAI semantic conventions' names for what a span is: an agent turn, a model call, a tool call. They are
+# the incubating part of the conventions as shipped in the pinned opentelemetry-semantic-conventions package;
+# the schema URL below says which edition, so a backend can tell when they move.
+from opentelemetry.semconv._incubating.attributes import gen_ai_attributes as GA
+from opentelemetry.semconv.schemas import Schemas
+
 log = logging.getLogger(__name__)
 
 SERVICE = "fitwitness"
@@ -56,6 +62,31 @@ def _value(v: Any) -> dict | None:
     if isinstance(v, str):
         return {"stringValue": v[:ATTR_LIMIT]}
     return None  # nested structures stay in the event log; spans carry scalars
+
+
+SCHEMA_URL = list(Schemas)[-1].value
+SPAN_KIND_INTERNAL, SPAN_KIND_CLIENT = 1, 3
+
+
+def gen_ai_attributes(node: dict) -> list[dict]:
+    """gen_ai.* attributes for a role, model or tool span; nothing for the others."""
+    attrs = node.get("attrs") or {}
+    out: dict[str, object] = {}
+    if node["kind"] == "role":
+        out[GA.GEN_AI_OPERATION_NAME] = GA.GenAiOperationNameValues.INVOKE_AGENT.value
+        out[GA.GEN_AI_AGENT_NAME] = node["name"].removeprefix("role:")
+    elif node["kind"] == "model":
+        out[GA.GEN_AI_OPERATION_NAME] = GA.GenAiOperationNameValues.CHAT.value
+        out[GA.GEN_AI_PROVIDER_NAME] = attrs.get("provider")
+        out[GA.GEN_AI_REQUEST_MODEL] = attrs.get("model_id")
+        out[GA.GEN_AI_USAGE_INPUT_TOKENS] = attrs.get("usage_input_tokens")
+        out[GA.GEN_AI_USAGE_OUTPUT_TOKENS] = attrs.get("usage_output_tokens")
+        out[GA.GEN_AI_AGENT_NAME] = attrs.get("role")
+    elif node["kind"] == "tool":
+        out[GA.GEN_AI_OPERATION_NAME] = GA.GenAiOperationNameValues.EXECUTE_TOOL.value
+        out[GA.GEN_AI_TOOL_NAME] = attrs.get("name")
+        out[GA.GEN_AI_AGENT_NAME] = attrs.get("role")
+    return [{"key": k, "value": val} for k in out if (val := _value(out[k])) is not None]
 
 
 def _attrs(d: dict, prefix: str = "fw.") -> list[dict]:
@@ -85,11 +116,12 @@ def trace_to_otlp(trace: dict, *, kind: str | None = None, state: str | None = N
         sid = ids(node, path)
         begin_us = base_us + round(node["start_ms"] * 1000)
         end_us = begin_us + max(1, round(node["duration_ms"] * 1000))  # a point event lasts one microsecond
-        attrs = _attrs(node.get("attrs") or {})
+        attrs = gen_ai_attributes(node) + _attrs(node.get("attrs") or {})
         attrs.append({"key": "fw.event.kind", "value": {"stringValue": node["kind"]}})
         if node.get("seq") is not None:
             attrs.append({"key": "fw.event.seq", "value": {"intValue": str(node["seq"])}})
-        span = {"traceId": tid, "spanId": sid, "name": node["name"], "kind": 1,  # SPAN_KIND_INTERNAL
+        span = {"traceId": tid, "spanId": sid, "name": node["name"],
+                "kind": SPAN_KIND_CLIENT if node["kind"] == "model" else SPAN_KIND_INTERNAL,  # a model call leaves the process
                 "attributes": attrs}
         if parent:
             span["parentSpanId"] = parent
@@ -126,8 +158,8 @@ def trace_to_otlp(trace: dict, *, kind: str | None = None, state: str | None = N
                 {"key": "deployment.environment", "value": {"stringValue": environment or os.getenv("FITWITNESS_ENV", "local")}}]
     if version:
         resource.append({"key": "service.version", "value": {"stringValue": version}})
-    return {"resourceSpans": [{"resource": {"attributes": resource},
-                               "scopeSpans": [{"scope": {"name": "fitwitness.runtime.trace"}, "spans": spans}]}]}
+    return {"resourceSpans": [{"resource": {"attributes": resource}, "schemaUrl": SCHEMA_URL,
+                               "scopeSpans": [{"scope": {"name": "fitwitness.runtime.trace"}, "spans": spans, "schemaUrl": SCHEMA_URL}]}]}
 
 
 def endpoint_from_env() -> str | None:

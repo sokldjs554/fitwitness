@@ -1,0 +1,57 @@
+name: vendor-ocr-evaluation
+# The scanned official forms through Upstage's information extraction, scored beside the grid reader.
+# Manual only. Paid per page: the run stops at max_pages and refuses to start without the key and the agreed price.
+on:
+  workflow_dispatch:
+    inputs:
+      level:
+        description: damage level of the page pictures
+        default: 'medium'
+        required: true
+        type: choice
+        options: [clean, light, medium, heavy]
+      max_pages:
+        description: hard cap on pages sent to the API (the test split has 120)
+        default: '120'
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: vendor-ocr-evaluation
+  cancel-in-progress: false
+jobs:
+  measure:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PYTHONPATH: src
+      FITWITNESS_UPSTAGE_USD_PER_PAGE: ${{ vars.FITWITNESS_UPSTAGE_USD_PER_PAGE }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require the key and the agreed price
+        env:
+          UPSTAGE_API_KEY: ${{ secrets.UPSTAGE_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os
+          missing = [k for k in ('UPSTAGE_API_KEY', 'FITWITNESS_UPSTAGE_USD_PER_PAGE') if not os.getenv(k)]
+          if missing:
+              raise SystemExit(f'missing: {", ".join(missing)} (a repository secret for the key, a repository variable for the price per page). Nothing was sent.')
+          assert 0 < int('${{ inputs.max_pages }}') <= 240
+          print('configuration present (values not printed)')
+          PY
+      - uses: astral-sh/setup-uv@v6
+      - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0 tesseract-ocr tesseract-ocr-kor
+      - run: uv sync --frozen --no-dev
+      - run: uv run python scripts/setup.py
+      - name: Send the pages and score both readers
+        env:
+          UPSTAGE_API_KEY: ${{ secrets.UPSTAGE_API_KEY }}
+        run: uv run python scripts/eval-vendor-ocr.py --level "${{ inputs.level }}" --max-pages "${{ inputs.max_pages }}" --output artifacts/vendor-ocr
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vendor-ocr-${{ inputs.level }}-${{ github.run_id }}
+          path: artifacts/vendor-ocr/
+          if-no-files-found: warn

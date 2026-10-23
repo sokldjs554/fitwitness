@@ -114,3 +114,34 @@ def test_configuration_follows_the_standard_variables(monkeypatch):
     monkeypatch.setenv("OTEL_EXPORTER_OTLP_HEADERS", "authorization=Bearer t, x-team=fw")
     assert headers_from_env() == {"Content-Type": "application/json", "authorization": "Bearer t", "x-team": "fw"}
     assert END_STATES == {"completed", "failed", "cancelled", "stale"}
+
+
+def test_model_tool_and_role_spans_carry_gen_ai_attributes():
+    """A backend that knows the GenAI conventions can find the agent, the model call and the tool call by name."""
+    from fitwitness.runtime.otlp import SCHEMA_URL
+    events = [ev(1, "queued", 0), ev(2, "started", 5),
+              ev(3, "model", 1500, {"role": "planner", "provider": "anthropic", "model_id": "claude-x", "latency_ms": 1400.0,
+                                    "usage": {"input_tokens": 120, "output_tokens": 30, "total_tokens": 150}}),
+              ev(4, "tool", 1600, {"role": "planner", "name": "query_dimensions", "latency_ms": 50.0}),
+              ev(5, "completed", 1900, {"candidates": 1})]
+    payload = trace_to_otlp(build_trace("run-3", events), kind="drawing", state="completed")
+    request = parsed(payload)
+    rs = request.resource_spans[0]
+    assert rs.schema_url == SCHEMA_URL == "https://opentelemetry.io/schemas/1.44.0"
+    assert rs.scope_spans[0].schema_url == SCHEMA_URL
+    spans = {s.name: s for s in rs.scope_spans[0].spans}
+    model = {a.key: a.value for a in spans["model:claude-x"].attributes}
+    assert model["gen_ai.operation.name"].string_value == "chat"
+    assert model["gen_ai.provider.name"].string_value == "anthropic"
+    assert model["gen_ai.request.model"].string_value == "claude-x"
+    assert model["gen_ai.usage.input_tokens"].int_value == 120 and model["gen_ai.usage.output_tokens"].int_value == 30
+    assert model["gen_ai.agent.name"].string_value == "planner"
+    assert spans["model:claude-x"].kind == 3, "a model call is a CLIENT span: it leaves the process"
+    tool = {a.key: a.value for a in spans["tool:query_dimensions"].attributes}
+    assert tool["gen_ai.operation.name"].string_value == "execute_tool" and tool["gen_ai.tool.name"].string_value == "query_dimensions"
+    role = {a.key: a.value for a in spans["role:planner"].attributes}
+    assert role["gen_ai.operation.name"].string_value == "invoke_agent" and role["gen_ai.agent.name"].string_value == "planner"
+    assert spans["role:planner"].kind == 1
+    plain = {a.key for a in spans["completed"].attributes}
+    assert not any(k.startswith("gen_ai.") for k in plain), "plain events carry no gen_ai attributes"
+    assert "fw.usage_input_tokens" in model, "the fw.* mirror stays for dashboards built before the names were added"
