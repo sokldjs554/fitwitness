@@ -20,6 +20,7 @@
 | 복합 검색 288회 + 재정렬 216회 | Recall@5 복합 33.3%, 조건 정렬 64.2% | [RETRIEVAL.md](docs/RETRIEVAL.md) |
 | 외부 NIST STEP 11쌍 CAD 거리 검색 | Top-1 11/11, MRR 1.000 | [CAD.md](docs/CAD.md) |
 | 이미지 채널 비교, 같은 질의 그림 36개 × 3회 | DINOv2(CLS)가 OpenCLIP보다 이미지 질의 Recall@5 11.1% → 37.5%, 복합 검색에 넣으면 설명+이미지 9.7% → 26.4%. 두 채널을 함께 넣으면 오히려 하락. 기본 채널은 아직 바꾸지 않음 | [RETRIEVAL.md](docs/RETRIEVAL.md#이미지-채널-비교--dinov2-vs-openclip-2026-10-23) |
+| 검색 질의를 모델(Claude Haiku 4.5)이 읽어 조건으로 (family마다 쓰기 방식 10가지, dev 60문장 뒤 test 60문장 한 번, 두 묶음 $0.25) | 패턴 읽기는 12/60, 모델 읽기는 두 분할 모두 60/60이고 질의에 없는 조건은 인용이 없어 버려짐 0·불일치 0. 복합 검색 Recall@5 test 42.9% → 패턴 조건 정렬 59.3% → 모델 조건 정렬 76.5% (RRF 상위 20 풀의 상한 79.2%). 문장은 같은 gold에서 만든 틀 10개 × 6벌이라 독립 60문장이 아님 | [RETRIEVAL.md](docs/RETRIEVAL.md#질의를-모델이-읽어-조건으로-2026-10-23) · [query-understanding.json](docs/evaluation/query-understanding.json) |
 | 보험 청구 자동 심사, 합성 120건 (API 없음) | 잘못 지급 0건, 결정 정확도 92.5%, 자동 처리 88.5% | [CLAIMS.md](docs/CLAIMS.md) |
 | 같은 서류를 스캔처럼 열화시켜 OCR로 읽기 (4단계 × 2분할, 480건) | 잘못 지급 0건, 잘못 부지급 0건, 필드 정확도 90.6~95.8%, 자동 처리 67.9~91.7% | [CLAIMS.md](docs/CLAIMS.md#스캔-문서-읽기-ocr) |
 | 실제 한국어 공공문서 12쪽에 OCR 엔진 호출(의료 서식 아님) | 기본 설정에서 숫자 재현율 0.66, 표가 많은 쪽에서 무너지고 sparse 모드는 0.90 | [CLAIMS.md](docs/CLAIMS.md#실제-한국어-공공문서로-잰-ocr) |
@@ -33,7 +34,7 @@
 | 판정 프롬프트 네 가지 비교 (dev 6개 family 36건에서 고르고 test 4개 family에서 한 번 확인) | Claude Haiku 4.5는 모두 36/36으로 천장, Qwen3-1.7B는 기준 27/36이 최고이고 나머지는 21, 21, 10/36. 정교한 프롬프트의 이득은 어느 쪽에서도 확인하지 못함 | [JOB_FIT_AUDIT.md](docs/JOB_FIT_AUDIT.md#프롬프트-비교-결과) |
 | 실제 기계 도면 12장(이미지)의 표제란 OCR | 도번 10/12, 재질 4/8, 보고한 15건 모두 정답, 읽은 값은 "확인 필요"로만 사용 | [TITLE-BLOCK.md](docs/TITLE-BLOCK.md) |
 | VLM 이미지 18회 | 15회 구조화 완료, 23/36 필드 정답 | [VISION.md](docs/VISION.md) |
-| 누적 API 비용 | $0.255248, 미확정 예약 0. 프롬프트 비교 실험의 Claude 호출 $0.34355와 실제 모델 경로 측정 네 번의 $0.402162, 청구 주입 판의 모델 경로 세 묶음 $0.169556, 지급 직전 모델 감사 네 묶음 $0.351538, test 60건 모델 추출 두 묶음 $0.499047, Upstage 정보 추출 102쪽의 어림 $4.08(벤더 콘솔 청구액 미확인)은 이 합계에 넣지 않았고 [prompts-claude.json](docs/evaluation/prompts-claude.json)·[agent-trajectory.json](docs/evaluation/agent-trajectory.json)·[claims-injection-model.json](docs/evaluation/claims-injection-model.json)·[claims-audit.json](docs/evaluation/claims-audit.json)·[claims-model.json](docs/evaluation/claims-model.json)에 따로 있음 | [EVIDENCE.md](docs/EVIDENCE.md) |
+| 누적 API 비용 | $0.255248, 미확정 예약 0. 프롬프트 비교 실험의 Claude 호출 $0.34355와 실제 모델 경로 측정 네 번의 $0.402162, 청구 주입 판의 모델 경로 세 묶음 $0.169556, 지급 직전 모델 감사 네 묶음 $0.351538, test 60건 모델 추출 두 묶음 $0.499047, 검색 질의 모델 읽기 두 묶음 $0.24565, Upstage 정보 추출 102쪽의 어림 $4.08(벤더 콘솔 청구액 미확인)은 이 합계에 넣지 않았고 [prompts-claude.json](docs/evaluation/prompts-claude.json)·[agent-trajectory.json](docs/evaluation/agent-trajectory.json)·[claims-injection-model.json](docs/evaluation/claims-injection-model.json)·[claims-audit.json](docs/evaluation/claims-audit.json)·[claims-model.json](docs/evaluation/claims-model.json)·[query-understanding.json](docs/evaluation/query-understanding.json)에 따로 있음 | [EVIDENCE.md](docs/EVIDENCE.md) |
 | 위 수치들의 95% 구간과 pass^k | 72/72는 94.9%부터, 0/120 잘못 지급은 3.1% 아래, 복합 검색 Recall@5 33.3%는 17~49%, 18/18 실행은 61%부터. 측정을 다시 하지 않고 커밋된 기록에서 계산 | [evaluation/README](docs/evaluation/README.md#표본-크기와-95-구간--2026-10-23) · [statistics.json](docs/evaluation/statistics.json) |
 | 현재 브랜치 자동 검증 | Python 428개, Playwright 70개, API 없는 평가 게이트 통과 | [CI](.github/workflows/ci.yml) |
 
@@ -42,7 +43,7 @@
 - CadQuery 기반 30개 family / 180개 합성 PDF·STEP·PNG·3D mesh
 - **보험금 청구 자동 심사**(두 번째 워크플로): 합성 진단서·입퇴원확인서·수술확인서·영수증에서 값과 위치를 읽고, 가상의 지급 기준표를 규칙 ID와 함께 적용해 지급·부지급·담당자 확인으로 나누며, 멱등 원장으로 한 번만 지급합니다. 120건 평가에서 잘못 지급 0건, 자동 처리율 88.5%. 텍스트 층이 없는 스캔은 Tesseract로 읽고, 읽기가 불확실하면 지급하지 않고 담당자에게 넘기며 스캔에 근거한 부지급은 자동 확정하지 않습니다(시뮬레이션 스캔이며 실제 문서가 아닙니다). 비고란의 지시문은 어느 필드에도 닿지 않고, 비고 안의 가짜 라벨은 값이 되지 못하며, 한 서류가 한 필드에 두 값을 말하면 담당자에게 갑니다. 같은 판을 실제 모델의 추출 경로로 돌리니 가짜 라벨이 모델의 제안은 바꿨지만 grounding이 그 값을 버렸고, 그런 경우도 담당자에게 가도록 했습니다. test 60건을 실제 모델의 추출 경로로 돌리니 텍스트 층에서는 규칙 판독기보다 3건 더 맞혔고 스캔에서는 1건 덜 맞히며 잘못 부지급 1건이 나와 규칙 경로의 보호를 옮겨 넣었습니다. 지급 직전에 모델이 결정을 한 번 더 읽고 담당자에게 보내는 감사를 선택 사항으로 두었고, 약해진 규칙이 통과시킨 잘못된 지급 19건을 모두 세우고 옳은 지급 46건은 그대로 두었습니다 ([docs/CLAIMS.md](docs/CLAIMS.md)). 같은 스캔 서식 98쪽을 상용 문서 AI(Upstage Information Extraction)에 보내 같은 기준으로 채점하니 필드 446개를 모두 맞혔고, 격자 판독기는 431개였습니다
 - 체험 작업 공간은 브래킷·플랜지·샤프트·하우징 4종 20개 도면을 불러옵니다. 검색이 돌려준 후보만 판정하고 나머지는 "검색 제외"로 접어 보여 주며, 아무것도 맞지 않으면 그 사실을 알립니다
-- 도번·BM25와 해시 고정 E5·OpenCLIP/pgvector 색인·검색·worker 연결. 도번은 공백·밑줄·O/0·시리즈 변형과 한 글자 오타까지 정규화해 찾습니다. 두 번째 이미지 인코더(DINOv2)를 같은 색인에 선택 채널로 둘 수 있고, 모델은 해시로 고정합니다
+- 도번·BM25와 해시 고정 E5·OpenCLIP/pgvector 색인·검색·worker 연결. 도번은 공백·밑줄·O/0·시리즈 변형과 한 글자 오타까지 정규화해 찾습니다. 두 번째 이미지 인코더(DINOv2)를 같은 색인에 선택 채널로 둘 수 있고, 모델은 해시로 고정합니다 질의의 치수 조건은 패턴이 읽고, 선택하면 모델이 질의를 읽어 종류·치수 구간·재질·제외 재질을 제안하되 질의에서 따온 인용이 없는 제안은 버립니다(test 60문장에서 패턴 12, 모델 60; 복합 검색 Recall@5 59.3% → 76.5%)
 - PDF 실제 위치를 근거로 조건 일치·불일치·확인 필요 판정
 - LangGraph + PostgreSQL checkpoint, 실제 worker 종료 후 복구, 일시 오류의 지수 백오프 재시도와 보류함(dead-letter)
 - 미리 데워 둔 worker 프로세스 풀: 실행마다 인터프리터와 LangGraph import를 다시 치르지 않아 큐 등록 → worker 시작이 로컬 1.65초 → 0.16초
