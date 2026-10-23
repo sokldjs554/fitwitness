@@ -187,3 +187,7 @@ NIST PMI STEP 원본 SHA를 고정한 Actions `37313290927`에서 AP203/AP242 11
 ## 후속 — 2026-10-23: 표본 크기와 구간
 
 유사 프로젝트 조사에서 fitwitness의 약점으로 꼽힌 통계(단일 trial, 36문항, 구간 없음)에 대해, 측정을 다시 하지 않고 커밋된 기록에서 모든 대표 수치의 Wilson 95% 구간과 pass^k, 사례 단위 bootstrap 구간을 계산해 [statistics.json](evaluation/statistics.json)과 [evaluation/README](evaluation/README.md#표본-크기와-95-구간--2026-10-23)에 적었습니다. 72/72는 94.9%부터, 잘못 지급 0/120은 3.1% 아래, 복합 검색 Recall@5 33.3%는 17~49%, 실제 모델 경로의 18/18은 구조마다 6회라 61%부터입니다. 이 구간들이 수치 옆에 붙어 있어야 "다 맞혔다"가 아니라 "이 크기에서 틀린 것을 못 봤다"로 읽힙니다.
+
+## 후속 — 2026-10-23: 형상으로 검색
+
+공고의 "이미지의 형상으로 검색"에 대응하는 채널이 OpenCLIP 하나였고 이미지 질의 Recall@5가 11.1%였던 것을, 자기지도 인코더 DINOv2(CLS 토큰)를 두 번째 이미지 채널로 색인해 같은 질의 그림에서 비교했습니다. 이미지 질의 11.1% → 37.5%, 복합 검색 안에서 설명+이미지 9.7% → 26.4%였고 도번·설명 질의는 그대로였습니다. 두 이미지 채널을 같은 가중치 RRF에 함께 넣으면 DINOv2만 쓸 때보다 나빴습니다. 6개 질의 × 3회의 합성 변형이므로 기본 채널은 바꾸지 않았고, 모델 고정(encoder-pin)과 비교 workflow를 남겼습니다. [RETRIEVAL.md](RETRIEVAL.md#이미지-채널-비교--dinov2-vs-openclip-2026-10-23) · [image-channel.json](evaluation/image-channel.json)
