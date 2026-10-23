@@ -20,10 +20,25 @@ def test_the_terms_tell_the_auditor_what_the_rules_know():
 
 def test_the_payload_carries_terms_rows_values_and_the_decision_in_named_sections():
     ex = Extraction(admission_date="2025-12-07", discharge_date="2025-12-17", confidence=0.9)
-    body = payload(POLICY, PRODUCTS["HLTH-A"], ["hospitalization_daily"], "[admission] D1\n입원일: 2025-12-07", ex, DECISION, [])
-    for section in ("### 약관", "### 서류의 줄", "### 읽은 값과 위치", "### 자동 결정"):
+    body = payload(POLICY, PRODUCTS["HLTH-A"], ["hospitalization_daily"], "[admission] D1\n입원일: 2025-12-07", ex, DECISION, [], {"admission", "receipt"})
+    for section in ("### 약관", "### 계산된 사실", "### 서류의 줄", "### 읽은 값과 위치", "### 자동 결정"):
         assert section in body
     assert '"admission_date": "2025-12-07"' in body and '"total_amount": 210000' in body and "R-HOSP-01" in body
+    assert "입원일수(퇴원일 - 입원일, 박 수): 10일" in body, "the auditor is handed the count the rules use, not left to count inclusive days"
+    assert "입원일 2025-12-07: 보장 시작 2025-06-16으로부터 174일 뒤" in body
+    assert "입원일당 필요 서류 ['admission']: 모두 있음" in body and "한도 이내" in body and "이미 지급된 것: 없음" in body
+
+
+def test_the_facts_name_a_missing_document_an_earlier_payment_and_a_total_above_the_limit():
+    from fitwitness.claims.audit import facts
+    from fitwitness.claims.models import LineItem
+    ex = Extraction(admission_date="2025-12-07", discharge_date="2025-12-17", diagnosis_code="C50.9", diagnosis_date="2025-07-01")
+    big = ClaimDecision(outcome="APPROVE", total_amount=31_600_000, line_items=[LineItem(coverage="diagnosis", rule_id="R-DIAG-01", amount=30_000_000, basis="x"),
+                                                                                LineItem(coverage="hospitalization_daily", rule_id="R-HOSP-01", amount=1_600_000, basis="y")])
+    text = facts(POLICY, PRODUCTS["CANCER-B"], ["diagnosis", "hospitalization_daily"], {"admission"}, ex, big, ["POL-1|diag|C50"])
+    assert "진단비 필요 서류 ['diagnosis']: 없음 ['diagnosis']" in text
+    assert "한도 초과" in text and "이미 지급된 것: POL-1|diag|C50" in text
+    assert "진단일 2025-07-01: 보장 시작 2025-06-16으로부터 15일 뒤" in text and "면책기간 안" in text
 
 
 def test_a_non_pay_verdict_becomes_one_review_reason_and_pay_becomes_nothing():
