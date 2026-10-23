@@ -1,0 +1,138 @@
+name: claims-model-evaluation
+# The claim graph with a real model reading the documents, on a split of the synthetic claims, beside the rules reader.
+# Manual only. Nothing here runs on push.
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: anthropic (Claude Haiku 4.5, pricing fixed below) or openai (model and pricing from the repository variables FITWITNESS_OPENAI_MODEL, FITWITNESS_OPENAI_INPUT_USD_PER_MILLION, FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION)
+        default: 'anthropic'
+        required: true
+        type: choice
+        options: [anthropic, openai]
+      split:
+        description: which claims (test = odd case numbers, 60 claims)
+        default: 'test'
+        required: true
+        type: choice
+        options: [test, dev, all]
+      scan:
+        description: none reads the text layer; a level turns every document into a page picture first (OCR for both readers)
+        default: 'none'
+        required: true
+        type: choice
+        options: [none, clean, light, medium, heavy]
+      max_cases:
+        description: at most this many claims of the split (blank = all)
+        default: ''
+        required: false
+      max_usd:
+        description: hard ceiling for the whole batch in USD (at most 1.0)
+        default: '0.6'
+        required: true
+      per_run_usd:
+        description: budget of one claim run, reserved before it starts (at most 0.1)
+        default: '0.04'
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: claims-model-evaluation
+  cancel-in-progress: false
+jobs:
+  measure:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: fitwitness
+          POSTGRES_PASSWORD: test-only
+          POSTGRES_DB: fitwitness
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U fitwitness"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PYTHONPATH: src
+      FITWITNESS_DATABASE_URL: postgresql://fitwitness:test-only@localhost:5432/fitwitness
+      FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION: '1'
+      FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION: '5'
+      FITWITNESS_OPENAI_MODEL: ${{ vars.FITWITNESS_OPENAI_MODEL }}
+      FITWITNESS_OPENAI_INPUT_USD_PER_MILLION: ${{ vars.FITWITNESS_OPENAI_INPUT_USD_PER_MILLION }}
+      FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION: ${{ vars.FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION }}
+      PROVIDER: ${{ inputs.provider }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require a privately configured credential, a model with a price, and a sane ceiling
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os
+          provider = os.environ['PROVIDER']
+          need = ['ANTHROPIC_API_KEY'] if provider == 'anthropic' else ['OPENAI_API_KEY', 'FITWITNESS_OPENAI_MODEL', 'FITWITNESS_OPENAI_INPUT_USD_PER_MILLION', 'FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION']
+          missing = [k for k in need if not os.getenv(k)]
+          if missing:
+              raise SystemExit(f'missing for provider {provider}: {", ".join(missing)} (a repository secret for the key, repository variables for the model and its price). Nothing was called.')
+          ceiling, cap = float('${{ inputs.max_usd }}'), float('${{ inputs.per_run_usd }}')
+          assert 0 < ceiling <= 1.0, ceiling
+          assert 0 < cap <= 0.1, cap
+          print('configuration present for', provider, '(values not printed)')
+          PY
+      - uses: astral-sh/setup-uv@v6
+      - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0 tesseract-ocr tesseract-ocr-kor
+      - run: uv sync --frozen --no-dev
+      - run: uv run python scripts/setup.py
+      - name: Every claim of the split through the claim graph with the model, the rules reader on the same bytes
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          MAX_CASES: ${{ inputs.max_cases }}
+        run: >-
+          uv run python -m fitwitness.evaluation.claims_model
+          --provider "${{ inputs.provider }}" --split "${{ inputs.split }}" --scan "${{ inputs.scan }}"
+          ${MAX_CASES:+--max-cases "$MAX_CASES"}
+          --max-cost-usd "${{ inputs.max_usd }}" --per-run-usd "${{ inputs.per_run_usd }}"
+          --output artifacts/claims-model
+      - name: Summary
+        if: always()
+        run: |
+          uv run python - <<'PY'
+          import json
+          from pathlib import Path
+          f = Path('artifacts/claims-model/report.json')
+          if not f.exists():
+              print('no report'); raise SystemExit(0)
+          r = json.loads(f.read_text())
+          print('== protocol', json.dumps(r['protocol'], ensure_ascii=False))
+          s = r['summary']
+          print('== spent', s['spent_usd'], 'ceiling', s['ceiling_usd'], 'skipped', s['skipped'], 'stopped', r['stopped'], 'agreement', s['agreement'])
+          for path in ('model', 'rules'):
+              print('== summary', path, json.dumps(s[path], ensure_ascii=False))
+          for d in r['disagreements']:
+              print('== disagreement', json.dumps(d, ensure_ascii=False, default=str)[:3000])
+          for row in r['rows']:
+              u = row['run']
+              print('== row', json.dumps({'case_id': row['case_id'], 'scenario': row['scenario'], 'gold': [row['gold'], row['gold_amount']],
+                                           'rules': [row['rules']['predicted'], row['rules']['amount'], row['rules']['rules']],
+                                           'model': [row['model']['predicted'], row['model']['amount'], row['model']['rules']],
+                                           'model_hits': row['model']['hits'], 'rules_hits': row['rules']['hits'],
+                                           'state': u['state'], 'error': u['error'], 'proposed': u['proposed'], 'dropped': u['dropped'],
+                                           'cost_usd': u['cost_usd'], 'latency_ms': u['latency_ms'], 'input_tokens': u['input_tokens'], 'output_tokens': u['output_tokens'], 'run_id': u['run_id']},
+                                          ensure_ascii=False, default=str)[:4000])
+          # The artifact cannot always be fetched from where the log is read, so a model's refused or malformed
+          # output is printed here too: the parse error and the raw output are the only way to say why a run failed.
+          for row in r['rows']:
+              for e in row['run'].get('model_errors', []):
+                  print('== model_error', row['case_id'], json.dumps({k: e.get(k) for k in ('role', 'attempt', 'repair', 'error_type', 'status_code', 'stop_reason', 'parse_error', 'raw_output')}, ensure_ascii=False, default=str)[:6000])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: claims-model-${{ inputs.provider }}-${{ inputs.split }}-${{ inputs.scan }}-${{ github.run_id }}
+          path: artifacts/claims-model/
+          if-no-files-found: warn
