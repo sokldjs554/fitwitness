@@ -89,3 +89,37 @@ def test_pipeline_reranks_before_cutoff_and_rechecks_snapshot():
             return [1.]*len(passages)
     with pytest.raises(ValueError,match='snapshot'):
         search(scope,req.model_copy(update={'ranking':'cross_encoder'}),repo.snapshot(),repo,channels={'bm25'},reranker=ChangingScorer())
+
+
+def test_a_stated_kind_counts_as_a_condition_and_widens_the_pool():
+    from fitwitness.retrieval.reranking import order_constraints, widen_pool
+    req=[Requirement(field='kind',value='bracket'),Requirement(field='width',value=Interval(low=40,high=40),unit='mm')]
+    kinds={'flange40':'flange','bracket42':'bracket','bracket40':'bracket'}
+    found=order_constraints([candidate('flange40',40),candidate('bracket42',42),candidate('bracket40',40)],req,'s',kinds=kinds)
+    assert [c.revision_id for c in found]==['bracket40','flange40','bracket42'], 'a wrong kind is one mismatch, like a wrong width'
+    assert found[0].scores['kind_match']==1. and found[0].scores['condition_match']==2 and found[0].scores['condition_unknown']==0
+    assert 'kind_match' not in order_constraints([candidate('x',40)],req,'s')[0].scores, 'without the kinds the verifier leaves it unknown as before'
+    ranked=[(f'r{i}',1/(i+1)) for i in range(30)]
+    kinds={f'r{i}':('bracket' if i in (3,25,28) else 'flange') for i in range(30)}
+    pool=widen_pool(ranked,kinds,{'bracket'},20)
+    assert [k for k,_ in pool]==[f'r{i}' for i in range(20)]+['r25','r28'], 'the top 20 stay; brackets below join'
+    assert widen_pool(ranked,kinds,set(),20)==ranked[:20]
+
+
+def test_pipeline_pulls_the_stated_kind_from_below_the_cutoff():
+    from fitwitness.retrieval.pipeline import search
+    from test_indexing import Repo,scope
+    class Many(Repo):
+        def __init__(self):
+            super().__init__()
+            self.revisions=[self.rev.model_copy(update={'id':f'{i:02d}','drawing_number':f'D-{i}','kind':'flange'}) for i in range(24)]
+            self.revisions.append(self.rev.model_copy(update={'id':'99','drawing_number':'D-99','kind':'bracket'}))
+        def list_revisions(self,*args):return self.revisions
+        def snapshot(self,*args):
+            return super().snapshot().model_copy(update={'revision_ids':[r.id for r in self.revisions]})
+        def load_facts_many(self,scope,ids):return {rid:candidate(rid,40).facts for rid in ids}
+    repo=Many()
+    plain=search(scope,SearchRequest(text='plate 폭 40mm',top_k=25),repo.snapshot(),repo,channels={'bm25'})
+    assert [c.revision_id for c in plain][-1]=='99', 'the one bracket sits last in the fused ranking'
+    found=search(scope,SearchRequest(text='plate 브래킷 폭 40mm',top_k=3,ranking='constraints'),repo.snapshot(),repo,channels={'bm25'})
+    assert found[0].revision_id=='99' and found[0].scores['kind_match']==1.

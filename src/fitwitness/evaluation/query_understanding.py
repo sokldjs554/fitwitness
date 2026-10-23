@@ -170,7 +170,7 @@ class StubModel:
 def _client(provider: str, model: str, cap: Decimal):
     if provider == "stub":
         return StubModel(), None
-    if provider == "oracle":
+    if provider in ("oracle", "replay"):
         return None, None
     from fitwitness.agents.budget import BudgetTracker
     from fitwitness.agents.providers import create_model
@@ -185,12 +185,20 @@ class _Zero:
     reserved_cost_usd = Decimal(0)
 
 
+def replayable(record: Path, split: str) -> dict[str, dict]:
+    """The model readings a committed record holds for a split, by query id: the same reading, measured again
+    through a changed ranking, without a call."""
+    rec = json.loads(record.read_text())
+    return {r["id"]: {**r, "workflow_run": b["workflow_run"]} for b in rec["batches"] if b["split"] == split and b.get("replay_of") is None for r in b["rows"]}
+
+
 def evaluate(root: Path, *, provider: str, model: str, ceiling: Decimal, cap: Decimal, split: str = "dev", retrieval: bool = False,
-             encoders: str = "pinned", max_queries: int | None = None) -> dict:
+             encoders: str = "pinned", max_queries: int | None = None, replay: Path | None = None) -> dict:
     manifest = json.loads((root / "manifest.json").read_text())
     gold = json.loads((root / "gold" / "labels.json").read_text())
     active = [d for d in manifest["document_entries"] if not d["is_revision_update"]]
     queries = make_queries(manifest, gold, split)[: max_queries or None]
+    readings = replayable(replay, split) if provider == "replay" else None
     ledger = Ledger(ceiling)
     rows, skipped = [], []
     failures_in_a_row, stopped = 0, None
@@ -210,13 +218,23 @@ def evaluate(root: Path, *, provider: str, model: str, ceiling: Decimal, cap: De
         ledger.reserve(cap)
         started, error, merged, changes, dropped, meta = time.perf_counter(), None, rules, {"added": [], "replaced": [], "disagreements": []}, [], {}
         try:
-            if provider == "oracle":
-                from fitwitness.retrieval.understanding import to_requirements
-                proposed, dropped = to_requirements(oracle(q), q["text"])
-                meta = {"proposed": oracle(q).model_dump(mode="json")}
+            if provider == "replay":
+                # The stored proposal is the model's part; grounding and the merge are deterministic and run again here.
+                from fitwitness.retrieval.understanding import UnderstoodQuery, to_requirements
+                prior = (readings or {}).get(q["id"])
+                if not prior or not (prior.get("model") or {}).get("proposed") or prior["text"] != q["text"]:
+                    raise LookupError(f"no stored reading for {q['id']} with this text")
+                proposed, dropped = to_requirements(UnderstoodQuery.model_validate(prior["model"]["proposed"]), q["text"])
+                merged, changes = merge(rules, proposed)
+                meta = {"proposed": prior["model"]["proposed"], "replayed_from": prior.get("workflow_run")}
             else:
-                proposed, dropped, meta = understand(client, q["text"])
-            merged, changes = merge(rules, proposed)
+                if provider == "oracle":
+                    from fitwitness.retrieval.understanding import to_requirements
+                    proposed, dropped = to_requirements(oracle(q), q["text"])
+                    meta = {"proposed": oracle(q).model_dump(mode="json")}
+                else:
+                    proposed, dropped, meta = understand(client, q["text"])
+                merged, changes = merge(rules, proposed)
         except Exception as exc:  # noqa: BLE001 - the failure is the finding
             error = f"{type(exc).__name__}: {str(exc)[:300]}"
         usage = budget.usage if budget is not None else _Zero()
@@ -225,6 +243,7 @@ def evaluate(root: Path, *, provider: str, model: str, ceiling: Decimal, cap: De
         if failures_in_a_row >= 3:
             stopped = f"three failures in a row; last: {error}"
         row.update({"model": {"requirements": [r.model_dump(mode="json") for r in merged], "proposed": meta.get("proposed"), "dropped": dropped, **changes,
+                              **({"replayed_from": meta["replayed_from"]} if "replayed_from" in meta else {}),
                               **score(q["expected"], merged)}, "error": error,
                     "latency_ms": round((time.perf_counter() - started) * 1000, 1), "cost_usd": float(getattr(usage, "cost_usd", 0) or 0), "charged_usd": charged,
                     "input_tokens": getattr(usage, "input_tokens", 0), "output_tokens": getattr(usage, "output_tokens", 0),
@@ -315,6 +334,7 @@ def retrieve(root: Path, manifest: dict, gold: dict, active: list[dict], rows: l
         results = {}
         pool = search(scope, SearchRequest(text=r["text"], top_k=20), snapshot, repo, enc, channels)
         pool_ids = [c.revision_id for c in pool]
+        pools = {}
         for method in methods:
             reqs = [] if method != "model" or not r["model"] else [Requirement.model_validate(x) for x in r["model"]["requirements"]]
             request = SearchRequest(text=r["text"], top_k=10, ranking="rrf" if method == "rrf" else "constraints", requirements=reqs)
@@ -322,8 +342,12 @@ def retrieve(root: Path, manifest: dict, gold: dict, active: list[dict], rows: l
             ranked = [c.revision_id for c in search(scope, request, snapshot, repo, enc, channels)]
             results[method] = {"recall_at_5": score_ranking(ranked, rel, 5)["recall"], "ndcg_at_10": score_ranking(ranked, rel, 10)["ndcg"],
                                "latency_ms": round((time.perf_counter() - started) * 1000, 1), "ranked": ranked}
+            if method != "rrf":
+                # the whole pool this ordering worked on (the RRF top-20 plus candidates of the stated kind): its recall is the bound
+                whole = [c.revision_id for c in search(scope, request, snapshot, repo, enc, channels, return_pool=True)]
+                pools[method] = score_ranking(whole, rel, len(whole) or 1)["recall"]
         out_rows.append({"id": r["id"], "phrasing": r["phrasing"], "relevant": len(rel), "methods": results,
-                         "pool_recall": score_ranking(pool_ids, rel, 20)["recall"]})
+                         "pool_recall": score_ranking(pool_ids, rel, 20)["recall"], "pool_recall_widened": pools})
     scored = [x for x in out_rows if x["methods"]]
     summary = {}
     for method, label in methods.items():
@@ -338,6 +362,7 @@ def retrieve(root: Path, manifest: dict, gold: dict, active: list[dict], rows: l
     return {"channels": sorted(channels), "corpus_size": len(snapshot.revision_ids), "model_load_ms": round(load_ms), "index_ms": round(index_ms),
             "queries_with_relevant": len(scored), "queries_without_relevant": len(out_rows) - len(scored),
             "pool_recall_at_20": round(statistics.mean(x["pool_recall"] for x in scored), 4) if scored else None,
+            "pool_recall_widened": {m: round(statistics.mean(x["pool_recall_widened"][m] for x in scored), 4) for m in ("rules", "model")} if scored else None,
             "summary": summary, "rows": out_rows, "snapshot_id": snapshot.id,
             "encoder_fingerprint": getattr(enc, "fingerprint", None), "models": getattr(enc, "manifest", None)}
 
@@ -353,8 +378,10 @@ def main(argv: list[str] | None = None) -> int:
     import argparse
 
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--provider", choices=["anthropic", "openai", "stub", "oracle"], default="anthropic",
-                   help="stub proposes nothing and oracle proposes the expected answer (both free): they check the harness, not a model")
+    p.add_argument("--provider", choices=["anthropic", "openai", "stub", "oracle", "replay"], default="anthropic",
+                   help="stub proposes nothing and oracle proposes the expected answer (both free): they check the harness, not a model; "
+                        "replay takes the model's stored readings from --replay and measures them again through the current ranking")
+    p.add_argument("--replay", default="docs/evaluation/query-understanding.json", help="the committed record whose readings --provider replay reuses")
     p.add_argument("--model", default=None)
     p.add_argument("--root", default="var/corpus")
     p.add_argument("--split", choices=["dev", "test"], default="dev")
@@ -367,16 +394,19 @@ def main(argv: list[str] | None = None) -> int:
     args = p.parse_args(argv)
     assert 0 < args.max_cost_usd <= 0.3, "the ceiling is at most 0.3 USD"
     assert 0 < args.per_call_usd <= 0.05
-    if args.provider in ("stub", "oracle"):
+    if args.provider in ("stub", "oracle", "replay"):
         args.model = args.model or ""
     else:
         args.model = args.model or ("claude-haiku-4-5-20251001" if args.provider == "anthropic" else os.environ.get("FITWITNESS_OPENAI_MODEL", ""))
         assert args.model, "no model id: pass --model or set FITWITNESS_OPENAI_MODEL"
     started = datetime.now(timezone.utc)
     report = evaluate(Path(args.root), provider=args.provider, model=args.model, ceiling=Decimal(str(args.max_cost_usd)), cap=Decimal(str(args.per_call_usd)),
-                      split=args.split, retrieval=args.retrieval, encoders=args.encoders, max_queries=args.max_queries)
+                      split=args.split, retrieval=args.retrieval, encoders=args.encoders, max_queries=args.max_queries,
+                      replay=Path(args.replay) if args.provider == "replay" else None)
     prefix = f"FITWITNESS_{args.provider.upper()}"
-    report["protocol"] = {"version": "query-understanding-v1", "code_sha": _sha(), "started_at": started.isoformat(), "provider": args.provider, "model": args.model,
+    report["protocol"] = {"version": "query-understanding-v2", "ordering": "RRF top-20 pool widened with candidates of the stated kind; conditions and kind order it",
+                          "replay": args.replay if args.provider == "replay" else None,
+                          "code_sha": _sha(), "started_at": started.isoformat(), "provider": args.provider, "model": args.model,
                           "split": args.split, "phrasings": PHRASINGS, "max_queries": args.max_queries, "ceiling_usd": str(args.max_cost_usd),
                           "per_call_cap_usd": str(args.per_call_usd), "retrieval": args.retrieval, "encoders": args.encoders,
                           "pricing_usd_per_million": {"input": os.getenv(f"{prefix}_INPUT_USD_PER_MILLION"), "output": os.getenv(f"{prefix}_OUTPUT_USD_PER_MILLION")},
