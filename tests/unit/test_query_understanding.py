@@ -107,3 +107,20 @@ def test_make_queries_takes_the_base_drawing_of_each_family_of_the_split():
     queries = make_queries(manifest, {"d1": TRUTH, "d2": TRUTH}, "dev")
     assert len(queries) == 9 and all(q["source_id"] == "d1" for q in queries)
     assert "exclude" not in {q["phrasing"] for q in queries}, "one material in the corpus: nothing to exclude"
+
+
+def test_the_free_form_queries_are_grounded_scored_by_the_oracle_and_split_into_positives_and_negatives():
+    from fitwitness.evaluation.query_understanding import freeform_queries
+    queries = freeform_queries()
+    assert len(queries) == 30 and sum(q["negative"] for q in queries) == 10
+    for q in queries:
+        reqs, dropped = to_requirements(oracle(q), q["text"])
+        assert not dropped, (q["id"], dropped)
+        assert score(q["expected"], reqs)["all_correct"], q["id"]
+        if q["negative"]:
+            assert not q["expected"]["conditions"] and not q["expected"]["material"]
+    bound = next(q for q in queries if q["id"] == "FREE-06")
+    assert score(bound["expected"], extract_requirements(bound["text"]))["all_correct"] is False, "두께 8 이하 has an open lower end the patterns do not read"
+    assert score(bound["expected"], to_requirements(oracle(bound), bound["text"])[0])["correct"] == 1
+    count = next(q for q in queries if q["id"] == "FREE-21")
+    assert score(count["expected"], extract_requirements(count["text"]))["all_correct"], "the patterns do not turn a count into a condition"

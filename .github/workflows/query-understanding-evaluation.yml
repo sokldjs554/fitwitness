@@ -17,6 +17,12 @@ on:
         required: true
         type: choice
         options: [dev, test]
+      queries:
+        description: templates = ten phrasings per family of the split; freeform = the thirty hand-written queries (split ignored)
+        default: 'templates'
+        required: true
+        type: choice
+        options: [templates, freeform]
       retrieval:
         description: also run the queries through the search with the encoders
         default: 'yes'
@@ -97,7 +103,7 @@ jobs:
           RETRIEVAL: ${{ inputs.retrieval }}
         run: >-
           uv run python -m fitwitness.evaluation.query_understanding
-          --provider "${{ inputs.provider }}" --split "${{ inputs.split }}"
+          --provider "${{ inputs.provider }}" --split "${{ inputs.split }}" --queries "${{ inputs.queries }}"
           $([ "$RETRIEVAL" = yes ] && echo --retrieval)
           --max-cost-usd "${{ inputs.max_usd }}" --per-call-usd "${{ inputs.per_call_usd }}"
           --output artifacts/query-understanding
@@ -135,6 +141,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: query-understanding-${{ inputs.provider }}-${{ inputs.split }}-${{ github.run_id }}
+          name: query-understanding-${{ inputs.provider }}-${{ inputs.queries }}-${{ inputs.split }}-${{ github.run_id }}
           path: artifacts/query-understanding/
           if-no-files-found: warn

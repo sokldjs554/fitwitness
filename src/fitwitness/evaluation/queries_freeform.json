@@ -1,0 +1,615 @@
+{
+ "what": "Thirty search queries written by hand on 2026-10-23, before any call, with structures the ten templates do not have: qualifiers between the word and the number, workshop notation (4t), open ends in other words (넘는, 최소, 이하), materials in Korean, a tilde range, 피치 and 홀 for spacing, 가로 for width, English without units; and ten with numbers or dimension words that are not conditions (a count, a year, a revision, a page, a month, a superlative, a hole count, 넓은 and 얇은 without a number). Values are taken from the corpus gold so that a positive query has relevant drawings. Written by the author, not by a workshop.",
+ "queries": [
+  {
+   "id": "FREE-01",
+   "phrasing": "positive",
+   "text": "두께 6미리짜리 브래킷 중에 구멍 간격 64 나오는 거",
+   "negative": false,
+   "note": "two conditions, one with 미리 and one without a unit, around the kind word",
+   "expected": {
+    "kind": "bracket",
+    "kind_quote": "브래킷",
+    "conditions": {
+     "thickness": {
+      "low": "6",
+      "high": "6",
+      "quote": "두께 6미리"
+     },
+     "hole_spacing": {
+      "low": "64",
+      "high": "64",
+      "quote": "구멍 간격 64"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-02",
+   "phrasing": "positive",
+   "text": "플랜지인데 폭 기준으로 75",
+   "negative": false,
+   "note": "a qualifier between the word and the number",
+   "expected": {
+    "kind": "flange",
+    "kind_quote": "플랜지",
+    "conditions": {
+     "width": {
+      "low": "75",
+      "high": "75",
+      "quote": "폭 기준으로 75"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-03",
+   "phrasing": "positive",
+   "text": "4t 하우징 있나요",
+   "negative": false,
+   "note": "workshop notation: t is thickness in mm",
+   "expected": {
+    "kind": "housing",
+    "kind_quote": "하우징",
+    "conditions": {
+     "thickness": {
+      "low": "4",
+      "high": "4",
+      "quote": "4t"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-04",
+   "phrasing": "positive",
+   "text": "shaft, width between 85 and 95 mm",
+   "negative": false,
+   "note": "English range",
+   "expected": {
+    "kind": "shaft",
+    "kind_quote": "shaft",
+    "conditions": {
+     "width": {
+      "low": "85",
+      "high": "95",
+      "quote": "width between 85 and 95 mm"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-05",
+   "phrasing": "positive",
+   "text": "폭이 100 넘는 샤프트",
+   "negative": false,
+   "note": "an open upper end without 이상",
+   "expected": {
+    "kind": "shaft",
+    "kind_quote": "샤프트",
+    "conditions": {
+     "width": {
+      "low": "100",
+      "high": null,
+      "quote": "폭이 100 넘는"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-06",
+   "phrasing": "positive",
+   "text": "두께 8 이하 플랜지",
+   "negative": false,
+   "note": "an open lower end",
+   "expected": {
+    "kind": "flange",
+    "kind_quote": "플랜지",
+    "conditions": {
+     "thickness": {
+      "low": null,
+      "high": "8",
+      "quote": "두께 8 이하"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-07",
+   "phrasing": "positive",
+   "text": "하우징 폭 111 두께 7",
+   "negative": false,
+   "note": "two numbers, no units at all",
+   "expected": {
+    "kind": "housing",
+    "kind_quote": "하우징",
+    "conditions": {
+     "width": {
+      "low": "111",
+      "high": "111",
+      "quote": "폭 111"
+     },
+     "thickness": {
+      "low": "7",
+      "high": "7",
+      "quote": "두께 7"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-08",
+   "phrasing": "positive",
+   "text": "스테인리스 304 재질 브래킷 폭 65",
+   "negative": false,
+   "note": "the material written in Korean",
+   "expected": {
+    "kind": "bracket",
+    "kind_quote": "브래킷",
+    "conditions": {
+     "width": {
+      "low": "65",
+      "high": "65",
+      "quote": "폭 65"
+     }
+    },
+    "material": "SUS304",
+    "material_quote": "스테인리스 304",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-09",
+   "phrasing": "positive",
+   "text": "알루미늄 6061로 된 플랜지, 두께 5mm",
+   "negative": false,
+   "note": "the material written in Korean",
+   "expected": {
+    "kind": "flange",
+    "kind_quote": "플랜지",
+    "conditions": {
+     "thickness": {
+      "low": "5",
+      "high": "5",
+      "quote": "두께 5mm"
+     }
+    },
+    "material": "AL6061",
+    "material_quote": "알루미늄 6061",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-10",
+   "phrasing": "positive",
+   "text": "폭 65에서 73 사이 브래킷, 스테인리스는 빼고",
+   "negative": false,
+   "note": "a range and an exclusion written in Korean",
+   "expected": {
+    "kind": "bracket",
+    "kind_quote": "브래킷",
+    "conditions": {
+     "width": {
+      "low": "65",
+      "high": "73",
+      "quote": "폭 65에서 73 사이"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": [
+     {
+      "material": "SUS304",
+      "quote": "스테인리스는 빼고"
+     }
+    ]
+   }
+  },
+  {
+   "id": "FREE-11",
+   "phrasing": "positive",
+   "text": "housing 95 wide, 4 thick",
+   "negative": false,
+   "note": "English, no units",
+   "expected": {
+    "kind": "housing",
+    "kind_quote": "housing",
+    "conditions": {
+     "width": {
+      "low": "95",
+      "high": "95",
+      "quote": "95 wide"
+     },
+     "thickness": {
+      "low": "4",
+      "high": "4",
+      "quote": "4 thick"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-12",
+   "phrasing": "positive",
+   "text": "너비 9.7cm 브래킷",
+   "negative": false,
+   "note": "cm with the kind after",
+   "expected": {
+    "kind": "bracket",
+    "kind_quote": "브래킷",
+    "conditions": {
+     "width": {
+      "low": "97",
+      "high": "97",
+      "quote": "너비 9.7cm"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-13",
+   "phrasing": "positive",
+   "text": "두께는 7, 폭은 101인 샤프트",
+   "negative": false,
+   "note": "particles on both words, reversed order",
+   "expected": {
+    "kind": "shaft",
+    "kind_quote": "샤프트",
+    "conditions": {
+     "thickness": {
+      "low": "7",
+      "high": "7",
+      "quote": "두께는 7"
+     },
+     "width": {
+      "low": "101",
+      "high": "101",
+      "quote": "폭은 101"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-14",
+   "phrasing": "positive",
+   "text": "구멍 피치 50의 플랜지",
+   "negative": false,
+   "note": "피치 for spacing",
+   "expected": {
+    "kind": "flange",
+    "kind_quote": "플랜지",
+    "conditions": {
+     "hole_spacing": {
+      "low": "50",
+      "high": "50",
+      "quote": "구멍 피치 50"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-15",
+   "phrasing": "positive",
+   "text": "플랜지 두께 4~5mm",
+   "negative": false,
+   "note": "a tilde range",
+   "expected": {
+    "kind": "flange",
+    "kind_quote": "플랜지",
+    "conditions": {
+     "thickness": {
+      "low": "4",
+      "high": "5",
+      "quote": "두께 4~5mm"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-16",
+   "phrasing": "positive",
+   "text": "폭 최소 110 샤프트",
+   "negative": false,
+   "note": "최소 as a lower bound",
+   "expected": {
+    "kind": "shaft",
+    "kind_quote": "샤프트",
+    "conditions": {
+     "width": {
+      "low": "110",
+      "high": null,
+      "quote": "폭 최소 110"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-17",
+   "phrasing": "positive",
+   "text": "브래킷 폭 97mm, 두께 5mm, 홀 간격 72mm",
+   "negative": false,
+   "note": "three conditions, 홀 for hole",
+   "expected": {
+    "kind": "bracket",
+    "kind_quote": "브래킷",
+    "conditions": {
+     "width": {
+      "low": "97",
+      "high": "97",
+      "quote": "폭 97mm"
+     },
+     "thickness": {
+      "low": "5",
+      "high": "5",
+      "quote": "두께 5mm"
+     },
+     "hole_spacing": {
+      "low": "72",
+      "high": "72",
+      "quote": "홀 간격 72mm"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-18",
+   "phrasing": "positive",
+   "text": "0.5센치 두께 플랜지",
+   "negative": false,
+   "note": "센치 for cm, number before the word",
+   "expected": {
+    "kind": "flange",
+    "kind_quote": "플랜지",
+    "conditions": {
+     "thickness": {
+      "low": "5",
+      "high": "5",
+      "quote": "0.5센치 두께"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-19",
+   "phrasing": "positive",
+   "text": "하우징 가로 79",
+   "negative": false,
+   "note": "가로 for width",
+   "expected": {
+    "kind": "housing",
+    "kind_quote": "하우징",
+    "conditions": {
+     "width": {
+      "low": "79",
+      "high": "79",
+      "quote": "가로 79"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-20",
+   "phrasing": "positive",
+   "text": "브래킷 홀간격 40, 두께 4mm 넘는 건 빼고",
+   "negative": false,
+   "note": "an exclusion phrased as a bound",
+   "expected": {
+    "kind": "bracket",
+    "kind_quote": "브래킷",
+    "conditions": {
+     "hole_spacing": {
+      "low": "40",
+      "high": "40",
+      "quote": "홀간격 40"
+     },
+     "thickness": {
+      "low": null,
+      "high": "4",
+      "quote": "두께 4mm 넘는 건 빼고"
+     }
+    },
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-21",
+   "phrasing": "negative",
+   "text": "브래킷 3개 필요해요",
+   "negative": true,
+   "note": "a count",
+   "expected": {
+    "kind": "bracket",
+    "kind_quote": "브래킷",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-22",
+   "phrasing": "negative",
+   "text": "2024년에 개정된 플랜지 도면",
+   "negative": true,
+   "note": "a year",
+   "expected": {
+    "kind": "flange",
+    "kind_quote": "플랜지",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-23",
+   "phrasing": "negative",
+   "text": "FW-005 계열 플랜지 2차 개정판",
+   "negative": true,
+   "note": "a drawing number and a revision ordinal",
+   "expected": {
+    "kind": "flange",
+    "kind_quote": "플랜지",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-24",
+   "phrasing": "negative",
+   "text": "지난주에 본 샤프트 도면 다시",
+   "negative": true,
+   "note": "no number",
+   "expected": {
+    "kind": "shaft",
+    "kind_quote": "샤프트",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-25",
+   "phrasing": "negative",
+   "text": "하우징 중에 제일 두꺼운 거",
+   "negative": true,
+   "note": "a superlative, not a bound",
+   "expected": {
+    "kind": "housing",
+    "kind_quote": "하우징",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-26",
+   "phrasing": "negative",
+   "text": "폭 넓은 하우징",
+   "negative": true,
+   "note": "a dimension word without a number",
+   "expected": {
+    "kind": "housing",
+    "kind_quote": "하우징",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-27",
+   "phrasing": "negative",
+   "text": "구멍 두 개짜리 플랜지",
+   "negative": true,
+   "note": "a hole count, not a spacing",
+   "expected": {
+    "kind": "flange",
+    "kind_quote": "플랜지",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-28",
+   "phrasing": "negative",
+   "text": "샤프트 도면 3번째 페이지",
+   "negative": true,
+   "note": "a page number",
+   "expected": {
+    "kind": "shaft",
+    "kind_quote": "샤프트",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-29",
+   "phrasing": "negative",
+   "text": "7월에 만든 하우징",
+   "negative": true,
+   "note": "a month",
+   "expected": {
+    "kind": "housing",
+    "kind_quote": "하우징",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "FREE-30",
+   "phrasing": "negative",
+   "text": "두께가 얇은 샤프트",
+   "negative": true,
+   "note": "a dimension word without a number",
+   "expected": {
+    "kind": "shaft",
+    "kind_quote": "샤프트",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  }
+ ]
+}

@@ -83,6 +83,15 @@ def phrasings(source: dict, truth: dict, materials: list[str]) -> list[dict]:
     return out
 
 
+FREEFORM = Path(__file__).with_name("queries_freeform.json")
+
+
+def freeform_queries() -> list[dict]:
+    """Thirty hand-written queries (``queries_freeform.json``): structures the templates do not have, and ten
+    whose numbers are not conditions."""
+    return [dict(q, family_id=None, source_id=None) for q in json.loads(FREEFORM.read_text())["queries"]]
+
+
 def make_queries(manifest: dict, gold: dict, split: str) -> list[dict]:
     active = [d for d in manifest["document_entries"] if not d["is_revision_update"]]
     materials = sorted({m for d in active if (m := gold[d["id"]].get("material"))})
@@ -111,7 +120,7 @@ def bounds_mm(r: Requirement) -> tuple[Decimal, Decimal | None] | None:
 
 def score(expected: dict, reqs: list[Requirement]) -> dict:
     """Field by field against the expected conditions; everything in mm."""
-    want = {f: (Decimal(c["low"]), None if c["high"] is None else Decimal(c["high"])) for f, c in expected["conditions"].items()}
+    want = {f: (Decimal(c["low"]) if c["low"] is not None else Decimal(0), None if c["high"] is None else Decimal(c["high"])) for f, c in expected["conditions"].items()}
     got: dict[str, list] = defaultdict(list)
     for r in reqs:
         if r.field in DIMENSIONS and (b := bounds_mm(r)) is not None:
@@ -147,7 +156,7 @@ def relevant(query: dict, active: list[dict], gold: dict) -> dict[str, int]:
         ok = True
         for f, c in e["conditions"].items():
             v = g.get(f)
-            if v is None or Decimal(v) < Decimal(c["low"]) or (c["high"] is not None and Decimal(v) > Decimal(c["high"])):
+            if v is None or (c["low"] is not None and Decimal(v) < Decimal(c["low"])) or (c["high"] is not None and Decimal(v) > Decimal(c["high"])):
                 ok = False
         if ok:
             out[d["id"]] = 1
@@ -193,18 +202,19 @@ def replayable(record: Path, split: str) -> dict[str, dict]:
 
 
 def evaluate(root: Path, *, provider: str, model: str, ceiling: Decimal, cap: Decimal, split: str = "dev", retrieval: bool = False,
-             encoders: str = "pinned", max_queries: int | None = None, replay: Path | None = None) -> dict:
+             encoders: str = "pinned", max_queries: int | None = None, replay: Path | None = None, queries: str = "templates") -> dict:
     manifest = json.loads((root / "manifest.json").read_text())
     gold = json.loads((root / "gold" / "labels.json").read_text())
     active = [d for d in manifest["document_entries"] if not d["is_revision_update"]]
-    queries = make_queries(manifest, gold, split)[: max_queries or None]
+    queries = (freeform_queries() if queries == "freeform" else make_queries(manifest, gold, split))[: max_queries or None]
     readings = replayable(replay, split) if provider == "replay" else None
     ledger = Ledger(ceiling)
     rows, skipped = [], []
     failures_in_a_row, stopped = 0, None
     for q in queries:
         rules = extract_requirements(q["text"])
-        row = {"id": q["id"], "family_id": q["family_id"], "phrasing": q["phrasing"], "text": q["text"], "expected": q["expected"],
+        row = {"id": q["id"], "family_id": q["family_id"], "phrasing": q["phrasing"], "text": q["text"], "expected": q["expected"], "negative": bool(q.get("negative")),
+               "note": q.get("note"),
                "rules": {"requirements": [r.model_dump(mode="json") for r in rules], **score(q["expected"], rules)}, "model": None, "error": None,
                "latency_ms": None, "cost_usd": 0.0, "charged_usd": 0.0, "input_tokens": 0, "output_tokens": 0, "model_errors": [], "repairs": 0}
         if stopped or not ledger.fits(cap):
@@ -327,7 +337,7 @@ def retrieve(root: Path, manifest: dict, gold: dict, active: list[dict], rows: l
     out_rows = []
     for r in rows:
         q = {"expected": r["expected"]}
-        rel = relevant(q, active, gold)
+        rel = {} if r.get("negative") else relevant(q, active, gold)  # a query that states no condition has no retrieval answer to score
         if not rel:
             out_rows.append({"id": r["id"], "phrasing": r["phrasing"], "relevant": 0, "methods": {}, "pool_recall": None})
             continue
@@ -385,6 +395,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--model", default=None)
     p.add_argument("--root", default="var/corpus")
     p.add_argument("--split", choices=["dev", "test"], default="dev")
+    p.add_argument("--queries", choices=["templates", "freeform"], default="templates",
+                   help="templates = ten phrasings per family of the split; freeform = the thirty hand-written queries (the split is ignored)")
     p.add_argument("--max-queries", type=int, default=None)
     p.add_argument("--retrieval", action="store_true", help="also run the queries through the search (needs FITWITNESS_DATABASE_URL)")
     p.add_argument("--encoders", choices=["pinned", "none"], default="pinned", help="none = exact + BM25 only, for a check without the encoder files")
@@ -402,12 +414,13 @@ def main(argv: list[str] | None = None) -> int:
     started = datetime.now(timezone.utc)
     report = evaluate(Path(args.root), provider=args.provider, model=args.model, ceiling=Decimal(str(args.max_cost_usd)), cap=Decimal(str(args.per_call_usd)),
                       split=args.split, retrieval=args.retrieval, encoders=args.encoders, max_queries=args.max_queries,
-                      replay=Path(args.replay) if args.provider == "replay" else None)
+                      replay=Path(args.replay) if args.provider == "replay" else None, queries=args.queries)
     prefix = f"FITWITNESS_{args.provider.upper()}"
     report["protocol"] = {"version": "query-understanding-v2", "ordering": "RRF top-20 pool widened with candidates of the stated kind; conditions and kind order it",
                           "replay": args.replay if args.provider == "replay" else None,
                           "code_sha": _sha(), "started_at": started.isoformat(), "provider": args.provider, "model": args.model,
-                          "split": args.split, "phrasings": PHRASINGS, "max_queries": args.max_queries, "ceiling_usd": str(args.max_cost_usd),
+                          "split": args.split if args.queries == "templates" else "freeform", "queries": args.queries,
+                          "phrasings": PHRASINGS if args.queries == "templates" else ["positive", "negative"], "max_queries": args.max_queries, "ceiling_usd": str(args.max_cost_usd),
                           "per_call_cap_usd": str(args.per_call_usd), "retrieval": args.retrieval, "encoders": args.encoders,
                           "pricing_usd_per_million": {"input": os.getenv(f"{prefix}_INPUT_USD_PER_MILLION"), "output": os.getenv(f"{prefix}_OUTPUT_USD_PER_MILLION")},
                           "tuning": "phrasings and prompt written before any call; dev split first, test once; no change after a test score",
