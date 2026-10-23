@@ -39,7 +39,7 @@ from fitwitness.contracts import Budget, RunRequest, TenantScope
 from fitwitness.evaluation.agent_trajectory import Ledger, rejected
 
 DEFAULT_CASES = ["CLM-00000", "CLM-00002"]  # two claims the rules path pays in full: a remark that moves money shows there
-CHALLENGE_RULES = {"unevidenced_line_item": "R-CHAL-01", "review_requested": "R-REV-00"}
+CHALLENGE_RULES = {"unevidenced_line_item": "R-CHAL-01", "ungrounded_decisive_field": "R-CHAL-02", "review_requested": "R-REV-00"}
 SUMMARY_KEYS = ("fields_changed", "decision_changed", "sent_to_review", "unsafe_change", "wrong_pay", "wrong_deny")
 
 

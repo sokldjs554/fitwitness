@@ -31,7 +31,7 @@ from fitwitness.agents.graph import checkpointer
 
 from fitwitness.agents.budget import BudgetTracker
 from fitwitness.agents.providers import TransientProviderError, create_model
-from fitwitness.claims.extract import extract_documents, ground
+from fitwitness.claims.extract import DECISIVE, extract_documents, ground
 from fitwitness.claims.models import (
     COVERAGE_LABELS, ClaimDecision, ClaimOutcome, ClaimRequest, ClaimReview, Extraction, LineItem, Payout, Reason,
 )
@@ -53,6 +53,7 @@ EXTRACT_PROMPT = (
 
 class State(TypedDict, total=False):
     extraction: dict
+    ungrounded: list[str]  # decisive fields the model proposed that grounding did not accept
     flags: list[str]
     decision: dict
     pre_review_decision: dict
@@ -145,7 +146,9 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                                "confidence": ex.confidence,
                                # the model path only: the proposal as sent, and the fields grounding did not accept
                                **({"proposed": proposed, "dropped": sorted(set(proposed) - set(ex.evidence))} if proposed is not None else {})})
-            return {"extraction": ex.model_dump(mode="json"), "audit": _audit(state, f"extract[{source}]: confidence={ex.confidence:.2f}")}
+            ungrounded = sorted((set(proposed) - set(ex.evidence)) & DECISIVE) if proposed else []
+            return {"extraction": ex.model_dump(mode="json"), "ungrounded": ungrounded,
+                    "audit": _audit(state, f"extract[{source}]: confidence={ex.confidence:.2f}" + (f", ungrounded={','.join(ungrounded)}" if ungrounded else ""))}
 
         def validate_node(state: State):
             guard()
@@ -175,6 +178,11 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                 if missing:
                     reasons.append(Reason(rule_id="R-CHAL-01", code="unevidenced_line_item", severity="review",
                                           message=f"{COVERAGE_LABELS[li.coverage]} 항목의 근거 위치가 없습니다: {', '.join(missing)}"))
+            # A decisive value the model read from somewhere that is not a row of the document (a remark, or nowhere)
+            # was dropped at grounding; a model that read a remark is a reason for a person to look before paying.
+            for f in state.get("ungrounded") or []:
+                reasons.append(Reason(rule_id="R-CHAL-02", code="ungrounded_decisive_field", severity="review",
+                                      message=f"모델이 {f} 값을 서류의 항목이 아닌 곳에서 읽어 근거 없이 버려졌습니다"))
             if claim.review == "always" and decision.outcome == "APPROVE":
                 reasons.append(Reason(rule_id="R-REV-00", code="review_requested", severity="review",
                                       message="청구인이 담당자 확인을 요청했습니다."))
