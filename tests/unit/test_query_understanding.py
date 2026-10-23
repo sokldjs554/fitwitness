@@ -124,3 +124,16 @@ def test_the_free_form_queries_are_grounded_scored_by_the_oracle_and_split_into_
     assert score(bound["expected"], to_requirements(oracle(bound), bound["text"])[0])["correct"] == 1
     count = next(q for q in queries if q["id"] == "FREE-21")
     assert score(count["expected"], extract_requirements(count["text"]))["all_correct"], "the patterns do not turn a count into a condition"
+
+
+def test_the_practitioner_queries_are_grounded_and_state_no_dimension():
+    from fitwitness.evaluation.query_understanding import freeform_queries
+    queries = freeform_queries("practitioner")
+    assert len(queries) == 10 and all(not q["expected"]["conditions"] for q in queries)
+    for q in queries:
+        reqs, dropped = to_requirements(oracle(q), q["text"])
+        assert not dropped and score(q["expected"], reqs)["all_correct"], q["id"]
+    bracket = next(q for q in queries if q["id"] == "PRAC-02")
+    assert score(bracket["expected"], extract_requirements(bracket["text"]))["kind_ok"], "브라켓 is read as a bracket now"
+    roller = next(q for q in queries if q["id"] == "PRAC-03")
+    assert score(roller["expected"], extract_requirements(roller["text"]))["all_correct"], "a part the corpus lacks gets no kind"

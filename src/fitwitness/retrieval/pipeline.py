@@ -7,6 +7,7 @@ from fitwitness.contracts import Candidate, Interval, Requirement, SearchRequest
 
 KINDS = {
     "브래킷": "bracket",
+    "브라켓": "bracket",  # the workshop spelling: a production engineer's first search phrase used it (docs/user-test)
     "지지대": "bracket",
     "bracket": "bracket",
     "플랜지": "flange",

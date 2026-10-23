@@ -2751,3 +2751,16 @@ footer button {
 @media (max-width: 900px) {
   .claims-layout, .claims-board, .claims-decision { grid-template-columns: 1fr; }
 }
+
+/* conditions applied to the current search, shown above the candidates (user test 2026-10) */
+.condition-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 12px 4px; }
+.condition-chips > small { color: var(--muted, #6b7280); font-size: 11px; margin-right: 2px; }
+.condition-chips .chip { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.25); }
+.condition-chips .chip.muted { background: transparent; border-color: rgba(107, 114, 128, 0.35); color: var(--muted, #6b7280); }
+.condition-chips .chip-clear { font-size: 12px; background: none; border: none; color: #2563eb; text-decoration: underline; cursor: pointer; padding: 0 4px; }
+.condition-chips .chip-note { flex-basis: 100%; margin: 2px 0 0; font-size: 11px; line-height: 1.4; color: var(--muted, #6b7280); }
+.candidate-info .title { display: block; font-size: 11px; color: var(--muted, #6b7280); margin-top: 1px; }
+.candidate-info .approval { font-size: 10px; margin-left: 6px; padding: 1px 6px; border-radius: 4px; background: rgba(22, 163, 74, 0.12); color: #15803d; vertical-align: middle; }
+.candidate-info .approval.draft { background: rgba(217, 119, 6, 0.12); color: #b45309; }
+.candidate-info .approval.withdrawn { background: rgba(220, 38, 38, 0.12); color: #b91c1c; }
+.sheet-caption { margin: 0 0 6px; font-size: 12px; line-height: 1.45; color: var(--muted, #6b7280); }

@@ -15,6 +15,7 @@ export type Doc = {
   supersedes?: string;
   source_hash: string;
   kind?: string;
+  approval?: string;
 };
 export type Evidence = {
   field: string;
@@ -126,6 +127,11 @@ export const labels: Record<string, string> = {
   match: "조건 일치",
   mismatch: "조건 불일치",
   unknown: "확인 필요",
+};
+export const approvalLabels: Record<string, string> = {
+  approved: "승인본",
+  draft: "초안",
+  withdrawn: "회수",
 };
 export const kindLabels: Record<string, string> = {
   bracket: "브래킷",

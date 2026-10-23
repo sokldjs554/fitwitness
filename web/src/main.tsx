@@ -40,8 +40,7 @@ import {
   type Doc,
   type Run,
   type RunEvent,
-  type ReviewPending,
-} from "./types";
+  type ReviewPending, approvalLabels } from "./types";
 const Model = lazy(() =>
   import("./components/Model").then((m) => ({ default: m.Model })),
 );
@@ -181,8 +180,11 @@ function App() {
     setEventSelection(null);
     try {
       if (!query.trim()) throw Error("찾는 부품이나 도번을 입력해 주세요.");
-      const value = Number(spacing);
-      if (!Number.isFinite(value) || value <= 0)
+      // Both conditions are optional: a drawing-number lookup needs neither, and a user test showed that
+      // conditions left over from an earlier search put verdict labels on a lookup and confused the reader.
+      const spacingText = spacing.trim();
+      const value = Number(spacingText);
+      if (spacingText && (!Number.isFinite(value) || value <= 0))
         throw Error("간격은 0보다 큰 숫자로 입력해 주세요.");
       const r = await api<Run>("/runs", {
         method: "POST",
@@ -194,12 +196,10 @@ function App() {
           search: {
             text: query.trim(),
             requirements: [
-              {
-                field: "hole_spacing",
-                value: { low: String(value), high: String(value) },
-                unit: "mm",
-              },
-              { field: "material", value: material },
+              ...(spacingText
+                ? [{ field: "hole_spacing", value: { low: String(value), high: String(value) }, unit: "mm" }]
+                : []),
+              ...(material.trim() ? [{ field: "material", value: material.trim() }] : []),
             ],
           },
           provider: "rules",
@@ -651,6 +651,9 @@ function App() {
               )}
               <div className="review-board">
                 <section className="drawing-panel">
+                  <p className="sheet-caption">
+                    원본 도면입니다. 판정에 쓴 치수를 읽은 자리에 상자를 그렸고, 상자를 누르면 그 값과 판정을 오른쪽 도면 근거에서 봅니다.
+                  </p>
                   <div className="sheet-toolbar">
                     <div>
                       <FileText size={15} />
@@ -838,8 +841,22 @@ function App() {
                         </button>
                       </div>
                     </div>
+                    <div className="condition-chips" data-testid="condition-chips">
+                      <small>적용된 조건</small>
+                      {spacing.trim() && <span className="chip">구멍 간격 {spacing.trim()} mm</span>}
+                      {material.trim() && <span className="chip">소재 {material.trim()}</span>}
+                      {!spacing.trim() && !material.trim() && <span className="chip muted">없음 · 검색 결과만 봅니다</span>}
+                      {(spacing.trim() || material.trim()) && (
+                        <button type="button" className="chip-clear" onClick={() => { setSpacing(""); setMaterial(""); }}>
+                          조건 비우기
+                        </button>
+                      )}
+                      <p className="chip-note">
+                        조건 일치는 여기 적은 조건만 본 판정입니다. 공차·표면처리·조립 간섭은 보지 않으므로 제작 가능 여부가 아닙니다.
+                      </p>
+                    </div>
                     <div className="candidate-columns">
-                      <span>도번 / 개정</span>
+                      <span>도번 / 개정 / 품명</span>
                       <span>간격 · 판정</span>
                     </div>
                     <div className="candidates">
@@ -863,7 +880,13 @@ function App() {
                               <span className="revision">
                                 {d!.revision_label}
                               </span>
+                              {d!.approval && (
+                                <span className={`approval ${d!.approval}`}>
+                                  {approvalLabels[d!.approval] || d!.approval}
+                                </span>
+                              )}
                             </strong>
+                            <small className="title">{d!.title.split(" ").slice(0, 4).join(" ")}</small>
                             <small>
                               {fmt(
                                 d!.facts.find((f) => f.field === "material"),
@@ -910,6 +933,11 @@ function App() {
                         >
                           검색 제외 {excluded.length}개 {showExcluded ? "숨기기" : "보기"}
                         </button>
+                        {showExcluded && (
+                          <p className="empty-note" data-testid="excluded-note">
+                            검색이 돌려주지 않은 도면입니다. 조건을 검사하지 않았으므로 조건 불일치가 아니라 검색에 걸리지 않은 것입니다.
+                          </p>
+                        )}
                         {showExcluded &&
                           excluded.map((d) => (
                             <button

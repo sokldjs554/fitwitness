@@ -18,11 +18,11 @@ on:
         type: choice
         options: [dev, test]
       queries:
-        description: templates = ten phrasings per family of the split; freeform = the thirty hand-written queries (split ignored)
+        description: templates = ten phrasings per family of the split; freeform = thirty hand-written queries; practitioner = ten phrases a production engineer types (split ignored for both)
         default: 'templates'
         required: true
         type: choice
-        options: [templates, freeform]
+        options: [templates, freeform, practitioner]
       retrieval:
         description: also run the queries through the search with the encoders
         default: 'yes'

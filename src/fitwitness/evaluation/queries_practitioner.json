@@ -1,0 +1,155 @@
+{
+ "what": "Ten search phrases a production engineer with five years in the field said they actually type, written down on 2026-10-24 with their consent and with company numbers and names replaced by look-alikes (see docs/user-test/2026-10-24-D.md). Not adapted to this tool: part names, a material, a drawing number, an assembly drawing, a revision request. None states a dimension. The expected reading is the kind when one of the corpus's four kinds is named (including the workshop spelling 브라켓), the material when one is named, and nothing else; a part the corpus does not have (롤러, 플레이트, 가이드, 서포트, 지그) must not be forced into a kind.",
+ "queries": [
+  {
+   "id": "PRAC-01",
+   "phrasing": "practitioner",
+   "text": "XX-0000-04",
+   "negative": true,
+   "note": "a drawing number: no kind, no condition",
+   "expected": {
+    "kind": null,
+    "kind_quote": "",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "PRAC-02",
+   "phrasing": "practitioner",
+   "text": "실린더 고정 브라켓",
+   "negative": false,
+   "note": "the workshop spelling 브라켓, which the patterns did not know",
+   "expected": {
+    "kind": "bracket",
+    "kind_quote": "브라켓",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "PRAC-03",
+   "phrasing": "practitioner",
+   "text": "컨베이어 텐션 롤러",
+   "negative": true,
+   "note": "a part this corpus does not have: no kind to force",
+   "expected": {
+    "kind": null,
+    "kind_quote": "",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "PRAC-04",
+   "phrasing": "practitioner",
+   "text": "SUS304 샤프트",
+   "negative": false,
+   "note": "material and kind, no dimension",
+   "expected": {
+    "kind": "shaft",
+    "kind_quote": "샤프트",
+    "conditions": {},
+    "material": "SUS304",
+    "material_quote": "SUS304",
+    "excluded": []
+   }
+  },
+  {
+   "id": "PRAC-05",
+   "phrasing": "practitioner",
+   "text": "베이스 플레이트 M8 탭",
+   "negative": true,
+   "note": "M8 is a thread, not a width or thickness",
+   "expected": {
+    "kind": null,
+    "kind_quote": "",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "PRAC-06",
+   "phrasing": "practitioner",
+   "text": "LM가이드 고정판",
+   "negative": true,
+   "note": "a part this corpus does not have",
+   "expected": {
+    "kind": null,
+    "kind_quote": "",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "PRAC-07",
+   "phrasing": "practitioner",
+   "text": "이송 유닛 조립도",
+   "negative": true,
+   "note": "an assembly drawing: no kind, no condition",
+   "expected": {
+    "kind": null,
+    "kind_quote": "",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "PRAC-08",
+   "phrasing": "practitioner",
+   "text": "베어링 하우징",
+   "negative": false,
+   "note": "kind only",
+   "expected": {
+    "kind": "housing",
+    "kind_quote": "하우징",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  },
+  {
+   "id": "PRAC-09",
+   "phrasing": "practitioner",
+   "text": "AL6061 서포트",
+   "negative": false,
+   "note": "material only; 서포트 is not one of the four kinds",
+   "expected": {
+    "kind": null,
+    "kind_quote": "",
+    "conditions": {},
+    "material": "AL6061",
+    "material_quote": "AL6061",
+    "excluded": []
+   }
+  },
+  {
+   "id": "PRAC-10",
+   "phrasing": "practitioner",
+   "text": "지그 수정 도면",
+   "negative": true,
+   "note": "a revision request: no kind, no condition",
+   "expected": {
+    "kind": null,
+    "kind_quote": "",
+    "conditions": {},
+    "material": null,
+    "material_quote": "",
+    "excluded": []
+   }
+  }
+ ]
+}

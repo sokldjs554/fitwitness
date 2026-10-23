@@ -83,13 +83,13 @@ def phrasings(source: dict, truth: dict, materials: list[str]) -> list[dict]:
     return out
 
 
-FREEFORM = Path(__file__).with_name("queries_freeform.json")
+QUERY_FILES = {"freeform": Path(__file__).with_name("queries_freeform.json"), "practitioner": Path(__file__).with_name("queries_practitioner.json")}
 
 
-def freeform_queries() -> list[dict]:
-    """Thirty hand-written queries (``queries_freeform.json``): structures the templates do not have, and ten
-    whose numbers are not conditions."""
-    return [dict(q, family_id=None, source_id=None) for q in json.loads(FREEFORM.read_text())["queries"]]
+def freeform_queries(which: str = "freeform") -> list[dict]:
+    """Hand-written query sets: ``freeform`` (thirty with structures the templates do not have, ten whose numbers
+    are not conditions) and ``practitioner`` (ten phrases a production engineer said they type, docs/user-test)."""
+    return [dict(q, family_id=None, source_id=None) for q in json.loads(QUERY_FILES[which].read_text())["queries"]]
 
 
 def make_queries(manifest: dict, gold: dict, split: str) -> list[dict]:
@@ -133,7 +133,7 @@ def score(expected: dict, reqs: list[Requirement]) -> dict:
     materials = {str(r.value) for r in reqs if r.field == "material"}
     excluded = {str(r.value) for r in reqs if r.field == "excluded_material"}
     want_excluded = {x["material"] for x in expected["excluded"]}
-    kind_ok = kinds == {expected["kind"]}
+    kind_ok = kinds == ({expected["kind"]} if expected["kind"] else set())
     material_ok = materials == ({expected["material"]} if expected["material"] else set())
     excluded_ok = excluded == want_excluded
     return {"expected": len(want), "correct": correct, "wrong": wrong, "missing": missing, "extra": extra, "kind_ok": kind_ok,
@@ -206,7 +206,7 @@ def evaluate(root: Path, *, provider: str, model: str, ceiling: Decimal, cap: De
     manifest = json.loads((root / "manifest.json").read_text())
     gold = json.loads((root / "gold" / "labels.json").read_text())
     active = [d for d in manifest["document_entries"] if not d["is_revision_update"]]
-    queries = (freeform_queries() if queries == "freeform" else make_queries(manifest, gold, split))[: max_queries or None]
+    queries = (freeform_queries(queries) if queries in QUERY_FILES else make_queries(manifest, gold, split))[: max_queries or None]
     readings = replayable(replay, split) if provider == "replay" else None
     ledger = Ledger(ceiling)
     rows, skipped = [], []
@@ -395,8 +395,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--model", default=None)
     p.add_argument("--root", default="var/corpus")
     p.add_argument("--split", choices=["dev", "test"], default="dev")
-    p.add_argument("--queries", choices=["templates", "freeform"], default="templates",
-                   help="templates = ten phrasings per family of the split; freeform = the thirty hand-written queries (the split is ignored)")
+    p.add_argument("--queries", choices=["templates", "freeform", "practitioner"], default="templates",
+                   help="templates = ten phrasings per family of the split; freeform = thirty hand-written queries; practitioner = ten phrases a production engineer types (the split is ignored for both)")
     p.add_argument("--max-queries", type=int, default=None)
     p.add_argument("--retrieval", action="store_true", help="also run the queries through the search (needs FITWITNESS_DATABASE_URL)")
     p.add_argument("--encoders", choices=["pinned", "none"], default="pinned", help="none = exact + BM25 only, for a check without the encoder files")
@@ -420,7 +420,8 @@ def main(argv: list[str] | None = None) -> int:
                           "replay": args.replay if args.provider == "replay" else None,
                           "code_sha": _sha(), "started_at": started.isoformat(), "provider": args.provider, "model": args.model,
                           "split": args.split if args.queries == "templates" else "freeform", "queries": args.queries,
-                          "phrasings": PHRASINGS if args.queries == "templates" else ["positive", "negative"], "max_queries": args.max_queries, "ceiling_usd": str(args.max_cost_usd),
+                          "phrasings": PHRASINGS if args.queries == "templates" else ["positive", "negative"] if args.queries == "freeform" else ["practitioner"],
+                          "max_queries": args.max_queries, "ceiling_usd": str(args.max_cost_usd),
                           "per_call_cap_usd": str(args.per_call_usd), "retrieval": args.retrieval, "encoders": args.encoders,
                           "pricing_usd_per_million": {"input": os.getenv(f"{prefix}_INPUT_USD_PER_MILLION"), "output": os.getenv(f"{prefix}_OUTPUT_USD_PER_MILLION")},
                           "tuning": "phrasings and prompt written before any call; dev split first, test once; no change after a test score",
