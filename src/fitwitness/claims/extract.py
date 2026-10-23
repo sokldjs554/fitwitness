@@ -216,7 +216,8 @@ def ground(candidate: dict, documents: list[tuple[str, str, bytes]]) -> Extracti
     ``candidate`` is {field: {"value": ..., "snippet": "..."}} as a model would return it.
     A field whose snippet cannot be found is dropped, not trusted, and lowers confidence."""
     # a model may quote a remark, but a remark is not a place a value is read from
-    pairs = [(doc_id, label, text, ref) for doc_id, _, data in documents for label, text, ref in read_pairs(data, doc_id) if not ref.nested]
+    scored = [(doc_id, label, text, ref, source) for doc_id, _, data in documents for label, text, ref, _, source in read_pairs_scored(data, doc_id) if not ref.nested]
+    pairs = [(doc_id, label, text, ref) for doc_id, label, text, ref, _ in scored]
     out: dict = {}
     evidence: dict[str, EvidenceRef] = {}
     dropped = 0
@@ -234,7 +235,9 @@ def ground(candidate: dict, documents: list[tuple[str, str, bytes]]) -> Extracti
             continue
         out[field] = value
         evidence[field] = hit
-    return Extraction(**out, evidence=evidence, confidence=max(0.0, 1.0 - 0.2 * dropped))
+    # What the model read came through OCR when any document had no text layer: a denial resting on it is a
+    # person's call (policy R-SCAN-01), on this path as on the rules reader's.
+    return Extraction(**out, evidence=evidence, confidence=max(0.0, 1.0 - 0.2 * dropped), scanned=any(source == "ocr" for *_, source in scored))
 
 
 def coerce(field: str, value):

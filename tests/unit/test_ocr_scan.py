@@ -71,3 +71,27 @@ def test_without_tesseract_a_scan_yields_nothing_and_the_claim_goes_to_a_person(
     assert not ocr.available()
     ex, decision, _ = run_pipeline(root, case, scan="clean")
     assert decision.outcome == "REVIEW" and not ex.evidence
+
+
+@needs_ocr
+def test_a_model_extraction_grounded_on_a_scan_carries_the_scanned_flag_so_a_denial_goes_to_a_person(corpus):
+    """The scan run of the model path denied a payable claim on a code OCR read as 005.1: on the rules reader a
+    denial resting on a scan goes to a person (R-SCAN-01); grounding did not mark the extraction as scanned."""
+    from fitwitness.claims.extract import extract_documents, ground
+    from fitwitness.claims.models import Policy
+    from fitwitness.claims.policy import PRODUCTS, adjudicate
+    root, manifest = corpus
+    case = next(c for c in manifest["cases"] if c["policy"]["product_id"] == "HLTH-A" and "surgery" in c["requested"] and c["scenario"] == "clean")
+    text = [(d["id"], d["kind"], (root / case["case_id"] / f"{d['id']}.pdf").read_bytes()) for d in case["documents"]]
+    scans = [(i, k, scan_pdf(data, "clean", i)) for i, k, data in text]
+    policy, product = Policy.model_validate(case["policy"]), PRODUCTS["HLTH-A"]
+    outcomes = {}
+    for label, docs in (("text", text), ("scan", scans)):
+        read = extract_documents(docs)  # the rules reader's values and quotes, as a model would quote them
+        draft = {f: {"value": "Z41.1" if f == "diagnosis_code" else getattr(read, f), "snippet": read.evidence[f].snippet} for f in read.evidence}
+        ex = ground(draft, docs)
+        assert ex.diagnosis_code == "Z41.1", "a wrong value behind a real quote is accepted by grounding"
+        assert ex.scanned is (label == "scan")
+        outcomes[label] = adjudicate(policy, product, ["surgery"], ex, {k for _, k, _ in docs}, set(), [])
+    assert outcomes["text"].outcome == "DENY", "an excluded code on a text layer is a denial the rules make on their own"
+    assert outcomes["scan"].outcome == "REVIEW" and any(r.rule_id == "R-SCAN-01" for r in outcomes["scan"].reasons)
