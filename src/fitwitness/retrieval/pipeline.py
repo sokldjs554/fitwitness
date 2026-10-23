@@ -95,6 +95,26 @@ def extract_requirements(text: str) -> list[Requirement]:
     return reqs
 
 
+def requirements_for(request: SearchRequest) -> list[Requirement]:
+    """What the request states plus what its text says. A stated condition that quotes a span of the text
+    stands in for the pattern reading of that span (the intent node's model reading, which may have read a
+    longer span: "두께 4mm 이상" over "두께 4mm"), so a condition is never counted twice."""
+    out = list(request.requirements)
+    seen = {(r.field, r.operator, str(r.value), r.unit, r.required) for r in out}
+    spans = [_squash(r.source_text) for r in out if r.source_text]
+    for r in extract_requirements(request.text):
+        key = (r.field, r.operator, str(r.value), r.unit, r.required)
+        if key in seen or (r.source_text and any(_squash(r.source_text) in span for span in spans)):
+            continue
+        seen.add(key)
+        out.append(r)
+    return out
+
+
+def _squash(text: str) -> str:
+    return re.sub(r"\s+", " ", text).strip().casefold()
+
+
 def reciprocal_rank_fusion(rankings: dict[str, list[str]], k: int = 60):
     scores = defaultdict(float)
     for ranking in rankings.values():
@@ -209,7 +229,7 @@ def search(
     ]
     if request.ranking == 'constraints':
         from fitwitness.retrieval.reranking import order_constraints
-        candidates=order_constraints(candidates,request.requirements + extract_requirements(request.text),snapshot.id)
+        candidates=order_constraints(candidates,requirements_for(request),snapshot.id)
     elif request.ranking == 'cross_encoder' and request.text.strip() and candidates:
         from fitwitness.retrieval.reranking import order_cross_encoder, configured_reranker
         from fitwitness.retrieval.indexing import document_text

@@ -17,7 +17,7 @@ from fitwitness.contracts import (
     RunRequest,
     Usage,
 )
-from fitwitness.retrieval.pipeline import extract_requirements, search
+from fitwitness.retrieval.pipeline import requirements_for, search
 from fitwitness.verification.conditions import verify
 from fitwitness.agents.tools import EvidenceTools, ToolRequest, SearchPlan
 from fitwitness.agents.budget import BudgetTracker, BudgetExhausted
@@ -165,9 +165,16 @@ def _execute_run(
 
         def intent(state):
             guard()
-            reqs = request.search.requirements + extract_requirements(
-                request.search.text
-            )
+            reqs = requirements_for(request.search)
+            if model and request.search.understanding == "model" and request.search.text.strip():
+                # The model reads the query; only what it quotes from the query is kept, and the rules' reading
+                # stays unless the model read a longer span of the same condition.
+                from fitwitness.retrieval.understanding import merge, understand
+
+                proposed, dropped, meta = understand(model, request.search.text)
+                reqs, changes = merge(reqs, proposed)
+                emit("understood", {**changes, "dropped": dropped, "proposed": meta.get("proposed"),
+                                    "usage": meta.get("usage"), "latency_ms": meta.get("latency_ms")})
             emit("intent", {"requirements": [r.model_dump(mode="json") for r in reqs]})
             return {
                 "requirements": [r.model_dump(mode="json") for r in reqs],
@@ -181,8 +188,10 @@ def _execute_run(
             channels = {"exact", "bm25"} | (
                 {"semantic", "image"} if encoders else set()
             )
+            # The conditions the intent node settled (the model's grounded additions included) order the candidates.
+            stated = [Requirement.model_validate(r) for r in state.get("requirements", [])]
             candidates = search(
-                scope, request.search, snapshot, repo, encoders, channels
+                scope, request.search.model_copy(update={"requirements": stated}), snapshot, repo, encoders, channels
             )
             if model:
                 candidates = EvidenceSession(candidates, tools.available).candidates

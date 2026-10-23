@@ -1,0 +1,140 @@
+name: query-understanding-evaluation
+# A model reads the search query and proposes conditions; only what it quotes from the query is kept. Measured on
+# ten workshop phrasings per family against the pattern reading, and through the hybrid search (pinned encoders,
+# real PostgreSQL) ordered by each reading's conditions. Manual only.
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: anthropic (Claude Haiku 4.5, pricing fixed below) or openai (model and pricing from repository variables)
+        default: 'anthropic'
+        required: true
+        type: choice
+        options: [anthropic, openai]
+      split:
+        description: dev (6 families, 60 queries) first; test once
+        default: 'dev'
+        required: true
+        type: choice
+        options: [dev, test]
+      retrieval:
+        description: also run the queries through the search with the encoders
+        default: 'yes'
+        required: true
+        type: choice
+        options: ['yes', 'no']
+      max_usd:
+        description: hard ceiling for the whole batch in USD (at most 0.3)
+        default: '0.15'
+        required: true
+      per_call_usd:
+        description: budget of one call, reserved before it starts (at most 0.05)
+        default: '0.02'
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: query-understanding-evaluation
+  cancel-in-progress: false
+jobs:
+  measure:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: fitwitness
+          POSTGRES_PASSWORD: test-only
+          POSTGRES_DB: fitwitness
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U fitwitness"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      FITWITNESS_DATABASE_URL: postgresql://fitwitness:test-only@localhost:5432/fitwitness
+      PYTHONPATH: src
+      HF_HUB_OFFLINE: '1'
+      TRANSFORMERS_OFFLINE: '1'
+      FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION: '1'
+      FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION: '5'
+      FITWITNESS_OPENAI_MODEL: ${{ vars.FITWITNESS_OPENAI_MODEL }}
+      FITWITNESS_OPENAI_INPUT_USD_PER_MILLION: ${{ vars.FITWITNESS_OPENAI_INPUT_USD_PER_MILLION }}
+      FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION: ${{ vars.FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION }}
+      PROVIDER: ${{ inputs.provider }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require a privately configured credential, a model with a price, and a sane ceiling
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os
+          provider = os.environ['PROVIDER']
+          need = ['ANTHROPIC_API_KEY'] if provider == 'anthropic' else ['OPENAI_API_KEY', 'FITWITNESS_OPENAI_MODEL', 'FITWITNESS_OPENAI_INPUT_USD_PER_MILLION', 'FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION']
+          missing = [k for k in need if not os.getenv(k)]
+          if missing:
+              raise SystemExit(f'missing for provider {provider}: {", ".join(missing)}. Nothing was called.')
+          ceiling, cap = float('${{ inputs.max_usd }}'), float('${{ inputs.per_call_usd }}')
+          assert 0 < ceiling <= 0.3, ceiling
+          assert 0 < cap <= 0.05, cap
+          print('configuration present for', provider, '(values not printed)')
+          PY
+      - uses: astral-sh/setup-uv@v6
+      - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
+      - run: uv sync --frozen --extra dev --extra models
+      - run: uv run python scripts/setup.py
+      - run: uv run pytest tests/unit/test_query_understanding.py -q
+      - if: inputs.retrieval == 'yes'
+        run: |
+          HF_HUB_OFFLINE=0 TRANSFORMERS_OFFLINE=0 uv run python scripts/download_encoders.py
+      - name: Read every query with the model, score both readings, and search
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          RETRIEVAL: ${{ inputs.retrieval }}
+        run: >-
+          uv run python -m fitwitness.evaluation.query_understanding
+          --provider "${{ inputs.provider }}" --split "${{ inputs.split }}"
+          $([ "$RETRIEVAL" = yes ] && echo --retrieval)
+          --max-cost-usd "${{ inputs.max_usd }}" --per-call-usd "${{ inputs.per_call_usd }}"
+          --output artifacts/query-understanding
+      - name: Summary
+        if: always()
+        run: |
+          uv run python - <<'PY'
+          import json
+          from pathlib import Path
+          f = Path('artifacts/query-understanding/report.json')
+          if not f.exists():
+              print('no report'); raise SystemExit(0)
+          r = json.loads(f.read_text())
+          print('== protocol', json.dumps(r['protocol'], ensure_ascii=False))
+          for path in ('rules', 'model'):
+              print('== summary', path, json.dumps(r['summary'][path], ensure_ascii=False))
+          print('== skipped', json.dumps(r['skipped']), 'stopped', r['stopped'])
+          for row in r['rows']:
+              m = row.get('model') or {}
+              print('== row', json.dumps({'id': row['id'], 'phrasing': row['phrasing'], 'text': row['text'],
+                                          'rules': {k: row['rules'][k] for k in ('correct', 'wrong', 'missing', 'extra', 'kind_ok', 'material_wrong', 'all_correct')},
+                                          'model': {k: m.get(k) for k in ('correct', 'wrong', 'missing', 'extra', 'kind_ok', 'material_wrong', 'all_correct', 'dropped', 'replaced', 'disagreements', 'proposed')},
+                                          'error': row['error'], 'cost_usd': row['cost_usd'], 'latency_ms': row['latency_ms'], 'input_tokens': row['input_tokens'],
+                                          'output_tokens': row['output_tokens'], 'repairs': row['repairs']}, ensure_ascii=False, default=str)[:4000])
+          for row in r['rows']:
+              for e in row.get('model_errors', []):
+                  print('== model_error', row['id'], json.dumps({k: e.get(k) for k in ('role', 'attempt', 'repair', 'error_type', 'status_code', 'stop_reason', 'parse_error', 'raw_output')}, ensure_ascii=False, default=str)[:6000])
+          if 'retrieval' in r:
+              ret = r['retrieval']
+              print('== summary retrieval', json.dumps({k: ret[k] for k in ('channels', 'corpus_size', 'model_load_ms', 'index_ms', 'queries_with_relevant', 'queries_without_relevant', 'pool_recall_at_20', 'summary', 'encoder_fingerprint')}, ensure_ascii=False))
+              for row in ret['rows']:
+                  print('== retrieval_row', json.dumps({'id': row['id'], 'phrasing': row['phrasing'], 'relevant': row['relevant'], 'pool_recall': row['pool_recall'],
+                                                        'methods': {m: {k: v[k] for k in ('recall_at_5', 'ndcg_at_10', 'latency_ms')} for m, v in row['methods'].items()}}, ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: query-understanding-${{ inputs.provider }}-${{ inputs.split }}-${{ github.run_id }}
+          path: artifacts/query-understanding/
+          if-no-files-found: warn
