@@ -1,0 +1,58 @@
+"""The model auditor's inputs and the measurement around it, without a model."""
+from fitwitness.claims.audit import AuditVerdict, Concern, as_reason, payload, terms
+from fitwitness.claims.models import ClaimDecision, Extraction, LineItem, Policy, Reason
+from fitwitness.claims.policy import PRODUCTS
+from fitwitness.evaluation.claims_audit import StubModel, judge, summarise
+
+POLICY = Policy(policy_id="POL-1", insured_id="INS-1", product_id="HLTH-A", effective_from="2025-06-16", effective_to="2030-06-15")
+DECISION = ClaimDecision(outcome="APPROVE", total_amount=210000,
+                         line_items=[LineItem(coverage="hospitalization_daily", rule_id="R-HOSP-01", amount=210000, basis="7일 × 30,000원")])
+
+
+def test_the_terms_tell_the_auditor_what_the_rules_know():
+    text = terms(POLICY, PRODUCTS["HLTH-A"], ["hospitalization_daily", "surgery"], ["POL-1|hosp|2025-12-01"])
+    assert "자동 승인 한도: 5,000,000원" in text
+    assert "입원일당(hospitalization_daily): 필요 서류 admission; 1일 30,000원, 면책 3일" in text
+    assert "수술비(surgery): 필요 서류 diagnosis, surgery" in text
+    assert "이미 지급된 항목 키: POL-1|hosp|2025-12-01" in text
+    assert "보장 기간 2025-06-16 ~ 2030-06-15" in text
+
+
+def test_the_payload_carries_terms_rows_values_and_the_decision_in_named_sections():
+    ex = Extraction(admission_date="2025-12-07", discharge_date="2025-12-17", confidence=0.9)
+    body = payload(POLICY, PRODUCTS["HLTH-A"], ["hospitalization_daily"], "[admission] D1\n입원일: 2025-12-07", ex, DECISION, [])
+    for section in ("### 약관", "### 서류의 줄", "### 읽은 값과 위치", "### 자동 결정"):
+        assert section in body
+    assert '"admission_date": "2025-12-07"' in body and '"total_amount": 210000' in body and "R-HOSP-01" in body
+
+
+def test_a_non_pay_verdict_becomes_one_review_reason_and_pay_becomes_nothing():
+    assert as_reason(AuditVerdict(agree=True, recommendation="pay")) is None
+    reason = as_reason(AuditVerdict(agree=False, recommendation="review", concerns=[Concern(code="missing_document", message="진단서가 없습니다", evidence="필요 서류 diagnosis")]))
+    assert isinstance(reason, Reason) and reason.rule_id == "R-AUD-01" and reason.severity == "review" and "missing_document" in reason.message
+    deny = as_reason(AuditVerdict(agree=False, recommendation="deny"))
+    assert deny.severity == "review", "the auditor can park a claim, never deny it"
+
+
+def test_judging_a_verdict_against_the_gold_and_summing_up():
+    gold = {"outcome": "REVIEW", "total_amount": 0}
+    flagged = AuditVerdict(agree=False, recommendation="review", concerns=[Concern(code="missing_document", message="m", evidence="e")])
+    assert judge(gold, DECISION, flagged) == {"should_flag": True, "flagged": True, "caught": True, "false_flag": False, "missed": False}
+    assert judge(gold, DECISION, None)["missed"] is True
+    right = {"outcome": "APPROVE", "total_amount": 210000}
+    assert judge(right, DECISION, flagged)["false_flag"] is True and judge(right, DECISION, AuditVerdict(agree=True, recommendation="pay"))["flagged"] is False
+    rows = [{"scenario": "missing_doc", **judge(gold, DECISION, flagged), "verdict": flagged.model_dump(), "error": None, "latency_ms": 1000.0, "cost_usd": 0.004,
+             "input_tokens": 3000, "output_tokens": 100, "model_errors": [], "repairs": 0},
+            {"scenario": "clean", **judge(right, DECISION, flagged), "verdict": flagged.model_dump(), "error": None, "latency_ms": 900.0, "cost_usd": 0.004,
+             "input_tokens": 3000, "output_tokens": 100, "model_errors": [], "repairs": 0},
+            {"scenario": "clean", **judge(right, DECISION, None), "verdict": None, "error": "boom", "latency_ms": 10.0, "cost_usd": 0.0,
+             "input_tokens": 0, "output_tokens": 0, "model_errors": [], "repairs": 0}]
+    s = summarise(rows, "degraded")
+    assert (s["audited"], s["wrong_payments"], s["caught"], s["catch_rate"]) == (3, 1, 1, 1.0)
+    assert (s["correct_payments"], s["false_flags"], s["false_flag_rate"], s["failed_calls"]) == (2, 1, 0.5, 1)
+    assert s["concern_codes_on_caught"] == {"missing_document": 1} and s["by_scenario"]["clean"]["false_flag"] == 1
+
+
+def test_the_stub_agrees_and_reports_usage():
+    verdict, meta = StubModel().structured(AuditVerdict, "p", "x" * 400)
+    assert verdict.recommendation == "pay" and meta["usage"]["input_tokens"] == 100

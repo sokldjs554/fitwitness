@@ -119,6 +119,7 @@ class ClaimRequest(Strict):
     document_ids: list[str] = Field(min_length=1, max_length=8)
     submitted_at: str
     review: Literal["rules", "always"] = "rules"  # "always": every claim stops for a reviewer
+    audit: Literal["none", "model"] = "none"  # "model": a model reads the decision about to pay and can only send it to a person
 
 
 class ClaimReview(Strict):

@@ -183,6 +183,19 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
             for f in state.get("ungrounded") or []:
                 reasons.append(Reason(rule_id="R-CHAL-02", code="ungrounded_decisive_field", severity="review",
                                       message=f"모델이 {f} 값을 서류의 항목이 아닌 곳에서 읽어 근거 없이 버려졌습니다"))
+            # Opt-in: a model reads what is about to be paid and looks for a reason not to. Its answer can only add a
+            # review reason; it never pays more or denies (claims/audit.py). Skipped when a reason already parks the claim.
+            if claim.audit == "model" and model is not None and decision.outcome == "APPROVE" and not any(r.severity == "review" for r in reasons):
+                from fitwitness.claims.audit import as_reason, audit
+
+                verdict, meta = audit(model, claim.policy, product, list(claim.requested), documents, ex, decision,
+                                      sorted(repo.paid_keys(scope, claim.policy.policy_id)))
+                emit("model", meta)
+                emit("audited", {"agree": verdict.agree, "recommendation": verdict.recommendation,
+                                 "concerns": [c.model_dump() for c in verdict.concerns]})
+                extra = as_reason(verdict)
+                if extra is not None:
+                    reasons.append(extra)
             if claim.review == "always" and decision.outcome == "APPROVE":
                 reasons.append(Reason(rule_id="R-REV-00", code="review_requested", severity="review",
                                       message="청구인이 담당자 확인을 요청했습니다."))
