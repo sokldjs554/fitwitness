@@ -31,7 +31,7 @@
 | VLM 이미지 18회 | 15회 구조화 완료, 23/36 필드 정답 | [VISION.md](docs/VISION.md) |
 | 누적 API 비용 | $0.255248, 미확정 예약 0. 프롬프트 비교 실험의 Claude 호출 $0.34355와 실제 모델 경로 측정 네 번의 $0.402162는 이 합계에 넣지 않았고 [prompts-claude.json](docs/evaluation/prompts-claude.json)·[agent-trajectory.json](docs/evaluation/agent-trajectory.json)에 따로 있음 | [EVIDENCE.md](docs/EVIDENCE.md) |
 | 위 수치들의 95% 구간과 pass^k | 72/72는 94.9%부터, 0/120 잘못 지급은 3.1% 아래, 복합 검색 Recall@5 33.3%는 17~49%, 18/18 실행은 61%부터. 측정을 다시 하지 않고 커밋된 기록에서 계산 | [evaluation/README](docs/evaluation/README.md#표본-크기와-95-구간--2026-10-23) · [statistics.json](docs/evaluation/statistics.json) |
-| 현재 브랜치 자동 검증 | Python 395개, Playwright 70개, API 없는 평가 게이트 통과 | [CI](.github/workflows/ci.yml) |
+| 현재 브랜치 자동 검증 | Python 398개, Playwright 70개, API 없는 평가 게이트 통과 | [CI](.github/workflows/ci.yml) |
 
 ## 구현된 기능
 
