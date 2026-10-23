@@ -72,7 +72,8 @@ def ask_upstage(png: bytes, kind: str, key: str) -> tuple[dict, dict]:
     started = time.perf_counter()
     r = httpx.post(ENDPOINT, headers={"Authorization": f"Bearer {key}"}, json=body, timeout=120)
     latency = (time.perf_counter() - started) * 1000
-    r.raise_for_status()
+    if r.status_code >= 400:  # the body says why (a wrong field, a model name, a quota); raise_for_status drops it
+        raise RuntimeError(f"HTTP {r.status_code}: {r.text[:600]}")
     data = r.json()
     content = data["choices"][0]["message"]["content"]
     try:
@@ -130,7 +131,10 @@ def main() -> int:
         score(FIELDS[kind], got_ours, truth, ours)
         rows.append({"case_id": case["case_id"], "kind": kind, "vendor": answer, "vendor_meta": meta, "grid_reader": got_ours,
                      "truth": {f: truth.get(f) for f in FIELDS[kind]}})
-        print(f"page {len(rows)}/{len(pages)} {doc_id} vendor_ok={'error' not in meta}", flush=True)
+        # The artifact cannot always be fetched from where the log is read, so each page's answer or error is printed.
+        print(f"== page {len(rows)}/{len(pages)} {doc_id} " + json.dumps({"error": meta.get("error"), "vendor": answer, "grid_reader": got_ours,
+              "truth": rows[-1]["truth"], "latency_ms": meta.get("latency_ms"), "usage": meta.get("usage"),
+              "raw": None if answer else meta.get("raw")}, ensure_ascii=False, default=str)[:3000], flush=True)
     report = {"status": "measured" if rows else "not measured", "vendor": "upstage information-extract", "endpoint": ENDPOINT,
               "level": a.level, "split": a.split, "pages": len(rows), "vendor_errors": errors,
               "estimated_usd": round(estimate, 4), "usd_per_page": price,
