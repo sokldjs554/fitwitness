@@ -110,6 +110,22 @@ def ablation_cases(manifest, gold):
     return make_cases(copied,gold)
 
 
+IMAGE_METHODS = {'image': ('OpenCLIP 이미지', {'image'}),
+                 'image_dino': ('DINOv2 이미지', {'image_dino'}),
+                 'hybrid': ('복합 검색 · RRF (OpenCLIP)', {'exact','bm25','semantic','image'}),
+                 'hybrid_dino': ('복합 검색 · RRF (DINOv2)', {'exact','bm25','semantic','image_dino'}),
+                 'hybrid_both': ('복합 검색 · RRF (두 이미지 채널)', {'exact','bm25','semantic','image','image_dino'})}
+
+
+def image_protocol(cases):
+    p=protocol(cases)
+    p.update(version='image-channel-v1', methods=list(IMAGE_METHODS),
+        tuning='No fitting. The retrieval-v2 test families and queries, unchanged; the only new thing is a second image encoder.',
+        ranking='RRF over the listed channels. Explicit drawing numbers stay first.',
+        question='Does a self-supervised image encoder (DINOv2 CLS token) find the drawing behind a cropped, rotated, resized picture of it better than OpenCLIP, alone and inside the hybrid?')
+    return p
+
+
 def ablation_protocol(cases):
     p=protocol(cases)
     p.update(version='reranking-v1',candidate_pool=20,
@@ -119,7 +135,7 @@ def ablation_protocol(cases):
     return p
 
 
-def run(root, output, ablation=False):
+def run(root, output, ablation=False, image=False):
     from fitwitness.contracts import TenantScope,SearchRequest,DrawingRevision,RunRequest
     from fitwitness.data.bootstrap import seed
     from fitwitness.storage.repository import Repository
@@ -131,8 +147,8 @@ def run(root, output, ablation=False):
     output.mkdir(parents=True,exist_ok=False)
     manifest=json.loads((root/'manifest.json').read_text())
     cases=(ablation_cases if ablation else make_cases)(manifest,json.loads((root/'gold/labels.json').read_text()))
-    frozen=(ablation_protocol if ablation else protocol)(cases)
-    methods_spec=METHODS if not ablation else {
+    frozen=(ablation_protocol if ablation else image_protocol if image else protocol)(cases)
+    methods_spec=IMAGE_METHODS if image else METHODS if not ablation else {
         'hybrid':METHODS['hybrid'],
         'cross_encoder':('복합 + BGE 재정렬',METHODS['hybrid'][1]),
         'constraints':('복합 + 조건 근거 정렬',METHODS['hybrid'][1])}
@@ -149,6 +165,7 @@ def run(root, output, ablation=False):
     scope=TenantScope(tenant_id='retrieval-'+str(uuid4()),user_id='evaluation',role='operator')
     seed(repo,scope,root)
     began=time.perf_counter();encoders=Encoders();load_ms=(time.perf_counter()-began)*1000
+    if image and not hasattr(encoders,'encode_image_dino'):raise RuntimeError('image comparison needs the image_dino entry in retrieval/models.json')
     if ablation:
         from fitwitness.retrieval.reranking import CrossEncoder
         began=time.perf_counter();reranker=CrossEncoder();reranker_load_ms=(time.perf_counter()-began)*1000
@@ -219,6 +236,8 @@ def run(root, output, ablation=False):
                  '동일24개 질문을3회 반복했습니다. 독립72개 질문이나 유의한 모델 우위로 해석하지 않습니다.',
                  '모달리티가 없는 비교군은 빈 결과를 반환합니다. 전체 평균과 질문 유형별 표를 함께 봐야 합니다.',
                  '모델 로딩·색인은 지연 통계에서 분리했습니다. 무료 공개 체험은 기존 도번·키워드 엔진입니다.'])
+    if image:
+        report['limitations'].append('이미지 질문 12개(image 6, mixed 6)는 색인된 도면을 자르고 기울이고 줄인 그림입니다. 두 인코더의 차이는 이 변형에 대한 것이지 촬영 사진이나 손그림에 대한 것이 아닙니다.')
     if ablation:
         report.update(reranker_models=reranker.manifest,reranker_load_ms=reranker_load_ms)
         report['limitations'][0]='기존 test/dev와 겹치지 않는 6개 family의 신규 질문입니다. 동일 합성 corpus이며 외부 독립 산업 데이터가 아닙니다.'
@@ -233,4 +252,5 @@ def run(root, output, ablation=False):
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--root',type=Path,default=Path('var/corpus'));p.add_argument('--output',type=Path,required=True)
     p.add_argument('--ablation',action='store_true')
-    a=p.parse_args();run(a.root,a.output,a.ablation)
+    p.add_argument('--image',action='store_true',help='compare the OpenCLIP and DINOv2 image channels on the retrieval-v2 queries')
+    a=p.parse_args();run(a.root,a.output,a.ablation,image=a.image)

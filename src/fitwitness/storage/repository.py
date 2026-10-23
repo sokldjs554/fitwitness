@@ -616,7 +616,7 @@ class Repository:
         import math
         if scope.role == 'viewer':
             raise PermissionError('read only')
-        if set(vectors) != {'text', 'image'} or any(
+        if not {'text', 'image'} <= set(vectors) <= {'text', 'image', 'image_dino'} or any(
             not v or not all(math.isfinite(x) for x in v) or sum(x*x for x in v) == 0
             for v in vectors.values()
         ):

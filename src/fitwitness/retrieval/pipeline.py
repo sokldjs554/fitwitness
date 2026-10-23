@@ -124,7 +124,7 @@ def search(
         if repo.snapshot(scope).id != snapshot.id:
             raise ValueError("stale search snapshot")
         revisions = facts = None
-    if channels & {"semantic", "image"}:
+    if channels & {"semantic", "image", "image_dino"}:
         if encoders is None:
             raise ValueError("dense index encoders are not configured")
         from fitwitness.retrieval.indexing import require_index
@@ -184,15 +184,19 @@ def search(
         rankings["semantic"] = [r["revision_id"] for r in rows]
         for r in rows:
             scores[r["revision_id"]]["semantic"] = 1 - float(r["distance"])
-    if encoders and request.image_id and "image" in channels:
+    if encoders and request.image_id and channels & {"image", "image_dino"}:
         data = repo.asset(scope, request.image_id, "png")
         if not data:
             raise ValueError("query image not found")
-        vec = encoders.encode_image([data])[0].tolist()
-        rows = repo.vector_search(scope, "image", vec, snapshot.revision_ids, 50)
-        rankings["image"] = [r["revision_id"] for r in rows]
-        for r in rows:
-            scores[r["revision_id"]]["image"] = 1 - float(r["distance"])
+        # Two image channels over the same picture: OpenCLIP, and DINOv2 when the encoders carry it.
+        for channel, encode in (("image", encoders.encode_image), ("image_dino", getattr(encoders, "encode_image_dino", None))):
+            if channel not in channels or encode is None:
+                continue
+            vec = encode([data])[0].tolist()
+            rows = repo.vector_search(scope, channel, vec, snapshot.revision_ids, 50)
+            rankings[channel] = [r["revision_id"] for r in rows]
+            for r in rows:
+                scores[r["revision_id"]][channel] = 1 - float(r["distance"])
     ranked = reciprocal_rank_fusion(rankings)
     # Explicit IDs remain the first results, not arbitrary prefix matches.
     exact = set(rankings.get("exact", []))

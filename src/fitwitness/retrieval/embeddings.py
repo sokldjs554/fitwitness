@@ -54,6 +54,13 @@ class Encoders:
         self.image, _, self.preprocess = open_clip.create_model_and_transforms(
             'ViT-B-32', pretrained=str(root / lock['image']['folder'] / 'open_clip_model.safetensors'), device='cpu')
         self.image.eval()
+        if 'image_dino' in lock:
+            # A second image model for the shape-search comparison; the index then carries an image_dino channel.
+            from transformers import AutoImageProcessor, AutoModel
+            folder = str(root / lock['image_dino']['folder'])
+            self.dino_processor = AutoImageProcessor.from_pretrained(folder, local_files_only=True)
+            self.dino = AutoModel.from_pretrained(folder, local_files_only=True).eval()
+            self.encode_image_dino = self._encode_image_dino
 
     def encode_text(self, texts, query=False):
         prefix = 'query: ' if query else 'passage: '
@@ -64,4 +71,11 @@ class Encoders:
         with torch.inference_mode():
             batch = torch.stack([self.preprocess(Image.open(BytesIO(im)).convert('RGB')) for im in images])
             features = self.image.encode_image(batch)
+            return (features / features.norm(dim=-1, keepdim=True)).cpu().numpy()
+
+    def _encode_image_dino(self, images):
+        import torch
+        with torch.inference_mode():
+            batch = self.dino_processor(images=[Image.open(BytesIO(im)).convert('RGB') for im in images], return_tensors='pt')
+            features = self.dino(**batch).last_hidden_state[:, 0]  # the CLS token, as DINOv2 uses for retrieval
             return (features / features.norm(dim=-1, keepdim=True)).cpu().numpy()

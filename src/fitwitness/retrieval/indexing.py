@@ -24,17 +24,25 @@ def index_revision(scope, revision_id, repo, encoders):
     metadata = source_metadata(revision, text, image, encoders.fingerprint)
     vectors = {"text": encoders.encode_text([text])[0].tolist(),
                "image": encoders.encode_image([image])[0].tolist()}
+    if "image_dino" in dense_channels(encoders):
+        vectors["image_dino"] = encoders.encode_image_dino([image])[0].tolist()
     # No write happens until every encoder succeeded. Repository checks source
     # consistency again under the tenant lock, before atomically replacing both.
     repo.save_index(scope, revision_id, vectors, metadata)
     return metadata
 
 
+def dense_channels(encoders) -> set[str]:
+    """The channels an index built with these encoders holds: text and image always, image_dino when the
+    encoders carry a second image model (the DINOv2 comparison)."""
+    return {"text", "image"} | ({"image_dino"} if hasattr(encoders, "encode_image_dino") else set())
+
+
 def require_index(scope, snapshot, repo, encoders):
     metadata = repo.vector_metadata(scope, snapshot.revision_ids)
     for rid in snapshot.revision_ids:
         records = metadata.get(rid, {})
-        if set(records) != {"text", "image"} or any(
+        if set(records) != dense_channels(encoders) or any(
             m.get("encoder_fingerprint") != encoders.fingerprint for m in records.values()
         ):
             raise ValueError("dense index missing or encoder mismatch; rebuild index")

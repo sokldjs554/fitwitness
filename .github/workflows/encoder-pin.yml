@@ -1,0 +1,35 @@
+name: encoder-pin
+# Print the hash-locked models.json entry for a Hugging Face model from a runner that can reach the hub.
+# Manual only; nothing is verified or committed here. A person copies the printed entry into retrieval/models.json.
+on:
+  workflow_dispatch:
+    inputs:
+      model_id:
+        description: Hugging Face model id
+        default: facebook/dinov2-small
+        required: true
+      revision:
+        description: branch, tag or commit to resolve
+        default: main
+        required: true
+      files:
+        description: space separated files to lock
+        default: config.json model.safetensors preprocessor_config.json
+        required: true
+      folder:
+        description: folder name under the model cache
+        default: dino
+        required: true
+      license:
+        description: licence note for the entry
+        default: Apache-2.0 (upstream weights; FitWitness code Apache-2.0)
+        required: true
+permissions:
+  contents: read
+jobs:
+  pin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/pin_encoder.py "${{ inputs.model_id }}" --revision "${{ inputs.revision }}" --files ${{ inputs.files }} --folder "${{ inputs.folder }}" --license "${{ inputs.license }}"
