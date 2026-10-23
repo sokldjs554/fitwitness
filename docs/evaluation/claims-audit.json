@@ -486,20 +486,1675 @@
    "repairs": 0
   }
  ],
- "spent_usd_total": 0.351538,
+ "spent_usd_total": 0.92333,
  "findings": [
   "With the computed facts in the payload, the auditor stopped all 19 wrong payments the weakened rules let through (12 above the approval limit, 7 already paid, 2 with a required document missing; one claim raised two) and 1 of 46 right ones.",
   "Without the facts (first check) it stopped the one wrong payment and all four right ones: the model's own date arithmetic and its reading of the receipt were wrong, not its reading of the terms.",
   "The facts section names a missing document, an earlier payment and a total above the limit outright, so most catches are the model reading a fact and quoting the term; the one catch the facts did not spell out was the surgery without a diagnosis certificate (surgery_diagnosis_mismatch).",
   "The one false flag judged an in-situ carcinoma code (D05.1) against the C-prefix exclusion and the admission ward against the diagnosis: a person's look, not money.",
   "On the sound run it agreed with every correct payment: 0 of 46.",
-  "About 0.003 USD and 0.8 s per decision at Haiku 4.5 prices."
+  "About 0.003 USD and 0.8 s per decision at Haiku 4.5 prices.",
+  "Repeated twice more, the degraded run caught 19 of 19 wrong payments each time; the one false flag of the first run did not recur (1, 0, 0), and 64 of 65 decisions were judged the same in all three runs.",
+  "On a control whose breakages the facts section does not name (a grade and a date off by one, no deductible), the auditor stopped 48 of 49 wrong payments by reading the documents' rows and the terms against the decision; so 'it only reads the facts' is half true: when the facts are silent it reads the documents, at 2.4 s instead of 0.8 s."
  ],
  "limitations": [
   "Synthetic claims and a synthetic policy table; the weakened mode is the three breakages the gate's control uses, not a catalogue of real failures.",
   "The facts are computed by the same code base as the rules; they are independent of the decision (documents, terms, ledger) but a bug shared by both would be invisible to the auditor.",
-  "One run per decision; a model's output varies between runs.",
   "The auditor can only add a review reason; whether a person agrees with it was not measured.",
-  "Four batches cost 0.3515 USD, kept apart from the cumulative API cost in EVIDENCE.md."
- ]
+  "The subtle control has no correct payment, so its false-flag rate is unmeasured; its three breakages are the author's, not a catalogue.",
+  "Seven batches cost 0.92333 USD, kept apart from the cumulative API cost in EVIDENCE.md."
+ ],
+ "repeats": {
+  "what": "the degraded run twice more on the same 120 claims; agreement is per audited decision (flagged or not)",
+  "runs": [
+   {
+    "mode": "degraded",
+    "label": "degraded, repeat 2",
+    "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/39962929315",
+    "code_sha": "d423686",
+    "split": "all",
+    "ceiling_usd": 0.5,
+    "audited": 65,
+    "failed_calls": 0,
+    "wrong_payments": 19,
+    "caught": 19,
+    "catch_rate": 1.0,
+    "correct_payments": 46,
+    "false_flags": 0,
+    "false_flag_rate": 0.0,
+    "by_scenario": {
+     "clean": {
+      "audited": 34,
+      "should_flag": 0,
+      "caught": 0,
+      "false_flag": 0
+     },
+     "duplicate": {
+      "audited": 7,
+      "should_flag": 7,
+      "caught": 7,
+      "false_flag": 0
+     },
+     "format_variance": {
+      "audited": 12,
+      "should_flag": 4,
+      "caught": 4,
+      "false_flag": 0
+     },
+     "grade_missing": {
+      "audited": 5,
+      "should_flag": 1,
+      "caught": 1,
+      "false_flag": 0
+     },
+     "high_amount": {
+      "audited": 5,
+      "should_flag": 5,
+      "caught": 5,
+      "false_flag": 0
+     },
+     "missing_doc": {
+      "audited": 2,
+      "should_flag": 2,
+      "caught": 2,
+      "false_flag": 0
+     }
+    },
+    "concern_codes_on_caught": {
+     "above_auto_limit": 11,
+     "already_paid": 11,
+     "missing_document": 2,
+     "unsupported_line_item": 1
+    },
+    "concern_codes_on_false_flags": {},
+    "cost_usd": 0.193248,
+    "latency_ms_median": 802.4,
+    "input_tokens": 164323,
+    "output_tokens": 5785,
+    "model_errors": 0,
+    "repairs": 0,
+    "caught_rows": [
+     {
+      "case_id": "CLM-00009",
+      "scenario": "high_amount",
+      "decision": [
+       "APPROVE",
+       31600000
+      ],
+      "gold": [
+       "REVIEW",
+       31600000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00014",
+      "scenario": "missing_doc",
+      "decision": [
+       "APPROVE",
+       590000
+      ],
+      "gold": [
+       "REVIEW",
+       90000
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "missing_document",
+       "unsupported_line_item"
+      ]
+     },
+     {
+      "case_id": "CLM-00018",
+      "scenario": "duplicate",
+      "decision": [
+       "APPROVE",
+       30000
+      ],
+      "gold": [
+       "DENY",
+       0
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "already_paid"
+      ]
+     },
+     {
+      "case_id": "CLM-00020",
+      "scenario": "high_amount",
+      "decision": [
+       "APPROVE",
+       12230000
+      ],
+      "gold": [
+       "REVIEW",
+       12230000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00029",
+      "scenario": "duplicate",
+      "decision": [
+       "APPROVE",
+       6180000
+      ],
+      "gold": [
+       "DENY",
+       0
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "already_paid",
+       "already_paid",
+       "already_paid"
+      ]
+     },
+     {
+      "case_id": "CLM-00031",
+      "scenario": "high_amount",
+      "decision": [
+       "APPROVE",
+       32650000
+      ],
+      "gold": [
+       "REVIEW",
+       32650000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00032",
+      "scenario": "grade_missing",
+      "decision": [
+       "APPROVE",
+       5210000
+      ],
+      "gold": [
+       "REVIEW",
+       5210000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00035",
+      "scenario": "high_amount",
+      "decision": [
+       "APPROVE",
+       12290000
+      ],
+      "gold": [
+       "REVIEW",
+       12290000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00053",
+      "scenario": "duplicate",
+      "decision": [
+       "APPROVE",
+       1030000
+      ],
+      "gold": [
+       "DENY",
+       0
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "already_paid",
+       "already_paid"
+      ]
+     },
+     {
+      "case_id": "CLM-00054",
+      "scenario": "duplicate",
+      "decision": [
+       "APPROVE",
+       150000
+      ],
+      "gold": [
+       "DENY",
+       0
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "already_paid"
+      ]
+     },
+     {
+      "case_id": "CLM-00056",
+      "scenario": "duplicate",
+      "decision": [
+       "APPROVE",
+       6090000
+      ],
+      "gold": [
+       "DENY",
+       0
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "already_paid",
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00059",
+      "scenario": "missing_doc",
+      "decision": [
+       "APPROVE",
+       570000
+      ],
+      "gold": [
+       "REVIEW",
+       270000
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "missing_document"
+      ]
+     },
+     {
+      "case_id": "CLM-00075",
+      "scenario": "format_variance",
+      "decision": [
+       "APPROVE",
+       30200000
+      ],
+      "gold": [
+       "REVIEW",
+       30200000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00081",
+      "scenario": "format_variance",
+      "decision": [
+       "APPROVE",
+       30150000
+      ],
+      "gold": [
+       "REVIEW",
+       30150000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00082",
+      "scenario": "format_variance",
+      "decision": [
+       "APPROVE",
+       10000000
+      ],
+      "gold": [
+       "REVIEW",
+       10000000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00094",
+      "scenario": "format_variance",
+      "decision": [
+       "APPROVE",
+       6030000
+      ],
+      "gold": [
+       "REVIEW",
+       6030000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00102",
+      "scenario": "high_amount",
+      "decision": [
+       "APPROVE",
+       12410000
+      ],
+      "gold": [
+       "REVIEW",
+       12410000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00107",
+      "scenario": "duplicate",
+      "decision": [
+       "APPROVE",
+       90000
+      ],
+      "gold": [
+       "DENY",
+       0
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "already_paid"
+      ]
+     },
+     {
+      "case_id": "CLM-00118",
+      "scenario": "duplicate",
+      "decision": [
+       "APPROVE",
+       540000
+      ],
+      "gold": [
+       "DENY",
+       0
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "already_paid",
+       "already_paid"
+      ]
+     }
+    ],
+    "missed_rows": [],
+    "false_flag_rows": []
+   },
+   {
+    "mode": "degraded",
+    "label": "degraded, repeat 3",
+    "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/39963627663",
+    "code_sha": "b272111",
+    "split": "all",
+    "ceiling_usd": 0.5,
+    "audited": 65,
+    "failed_calls": 0,
+    "wrong_payments": 19,
+    "caught": 19,
+    "catch_rate": 1.0,
+    "correct_payments": 46,
+    "false_flags": 0,
+    "false_flag_rate": 0.0,
+    "by_scenario": {
+     "clean": {
+      "audited": 34,
+      "should_flag": 0,
+      "caught": 0,
+      "false_flag": 0
+     },
+     "duplicate": {
+      "audited": 7,
+      "should_flag": 7,
+      "caught": 7,
+      "false_flag": 0
+     },
+     "format_variance": {
+      "audited": 12,
+      "should_flag": 4,
+      "caught": 4,
+      "false_flag": 0
+     },
+     "grade_missing": {
+      "audited": 5,
+      "should_flag": 1,
+      "caught": 1,
+      "false_flag": 0
+     },
+     "high_amount": {
+      "audited": 5,
+      "should_flag": 5,
+      "caught": 5,
+      "false_flag": 0
+     },
+     "missing_doc": {
+      "audited": 2,
+      "should_flag": 2,
+      "caught": 2,
+      "false_flag": 0
+     }
+    },
+    "concern_codes_on_caught": {
+     "above_auto_limit": 12,
+     "already_paid": 10,
+     "missing_document": 2
+    },
+    "concern_codes_on_false_flags": {},
+    "cost_usd": 0.192858,
+    "latency_ms_median": 782.3,
+    "input_tokens": 164323,
+    "output_tokens": 5707,
+    "model_errors": 0,
+    "repairs": 0,
+    "caught_rows": [
+     {
+      "case_id": "CLM-00009",
+      "scenario": "high_amount",
+      "decision": [
+       "APPROVE",
+       31600000
+      ],
+      "gold": [
+       "REVIEW",
+       31600000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00014",
+      "scenario": "missing_doc",
+      "decision": [
+       "APPROVE",
+       590000
+      ],
+      "gold": [
+       "REVIEW",
+       90000
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "missing_document"
+      ]
+     },
+     {
+      "case_id": "CLM-00018",
+      "scenario": "duplicate",
+      "decision": [
+       "APPROVE",
+       30000
+      ],
+      "gold": [
+       "DENY",
+       0
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "already_paid"
+      ]
+     },
+     {
+      "case_id": "CLM-00020",
+      "scenario": "high_amount",
+      "decision": [
+       "APPROVE",
+       12230000
+      ],
+      "gold": [
+       "REVIEW",
+       12230000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00029",
+      "scenario": "duplicate",
+      "decision": [
+       "APPROVE",
+       6180000
+      ],
+      "gold": [
+       "DENY",
+       0
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "already_paid",
+       "already_paid",
+       "already_paid",
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00031",
+      "scenario": "high_amount",
+      "decision": [
+       "APPROVE",
+       32650000
+      ],
+      "gold": [
+       "REVIEW",
+       32650000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00032",
+      "scenario": "grade_missing",
+      "decision": [
+       "APPROVE",
+       5210000
+      ],
+      "gold": [
+       "REVIEW",
+       5210000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00035",
+      "scenario": "high_amount",
+      "decision": [
+       "APPROVE",
+       12290000
+      ],
+      "gold": [
+       "REVIEW",
+       12290000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00053",
+      "scenario": "duplicate",
+      "decision": [
+       "APPROVE",
+       1030000
+      ],
+      "gold": [
+       "DENY",
+       0
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "already_paid"
+      ]
+     },
+     {
+      "case_id": "CLM-00054",
+      "scenario": "duplicate",
+      "decision": [
+       "APPROVE",
+       150000
+      ],
+      "gold": [
+       "DENY",
+       0
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "already_paid"
+      ]
+     },
+     {
+      "case_id": "CLM-00056",
+      "scenario": "duplicate",
+      "decision": [
+       "APPROVE",
+       6090000
+      ],
+      "gold": [
+       "DENY",
+       0
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "already_paid",
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00059",
+      "scenario": "missing_doc",
+      "decision": [
+       "APPROVE",
+       570000
+      ],
+      "gold": [
+       "REVIEW",
+       270000
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "missing_document"
+      ]
+     },
+     {
+      "case_id": "CLM-00075",
+      "scenario": "format_variance",
+      "decision": [
+       "APPROVE",
+       30200000
+      ],
+      "gold": [
+       "REVIEW",
+       30200000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00081",
+      "scenario": "format_variance",
+      "decision": [
+       "APPROVE",
+       30150000
+      ],
+      "gold": [
+       "REVIEW",
+       30150000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00082",
+      "scenario": "format_variance",
+      "decision": [
+       "APPROVE",
+       10000000
+      ],
+      "gold": [
+       "REVIEW",
+       10000000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00094",
+      "scenario": "format_variance",
+      "decision": [
+       "APPROVE",
+       6030000
+      ],
+      "gold": [
+       "REVIEW",
+       6030000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00102",
+      "scenario": "high_amount",
+      "decision": [
+       "APPROVE",
+       12410000
+      ],
+      "gold": [
+       "REVIEW",
+       12410000
+      ],
+      "recommendation": "review",
+      "concern_codes": [
+       "above_auto_limit"
+      ]
+     },
+     {
+      "case_id": "CLM-00107",
+      "scenario": "duplicate",
+      "decision": [
+       "APPROVE",
+       90000
+      ],
+      "gold": [
+       "DENY",
+       0
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "already_paid"
+      ]
+     },
+     {
+      "case_id": "CLM-00118",
+      "scenario": "duplicate",
+      "decision": [
+       "APPROVE",
+       540000
+      ],
+      "gold": [
+       "DENY",
+       0
+      ],
+      "recommendation": "deny",
+      "concern_codes": [
+       "already_paid",
+       "already_paid"
+      ]
+     }
+    ],
+    "missed_rows": [],
+    "false_flag_rows": []
+   }
+  ],
+  "across_three_runs": {
+   "audited": 65,
+   "identical_decisions": 64,
+   "wrong_payments_caught_in_every_run": 19,
+   "of": 19,
+   "correct_payments_flagged_in_any_run": 1,
+   "which": [
+    "CLM-00051 (run 1 only)"
+   ],
+   "false_flags_per_run": [
+    1,
+    0,
+    0
+   ]
+  }
+ },
+ "subtle_control": {
+  "what": "decide(degraded='subtle'): the surgery grade read one higher and the discharge date one day later than printed, the deductible not taken off; every document present, nothing paid before, the limit holds, the amount wrong. The computed facts section names none of it.",
+  "run": {
+   "mode": "subtle",
+   "label": "subtle control",
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/39963257398",
+   "code_sha": "b272111",
+   "split": "all",
+   "ceiling_usd": 0.5,
+   "audited": 49,
+   "failed_calls": 0,
+   "wrong_payments": 49,
+   "caught": 48,
+   "catch_rate": 0.9796,
+   "correct_payments": 0,
+   "false_flags": 0,
+   "false_flag_rate": null,
+   "by_scenario": {
+    "clean": {
+     "audited": 36,
+     "should_flag": 36,
+     "caught": 35,
+     "false_flag": 0
+    },
+    "format_variance": {
+     "audited": 9,
+     "should_flag": 9,
+     "caught": 9,
+     "false_flag": 0
+    },
+    "grade_missing": {
+     "audited": 4,
+     "should_flag": 4,
+     "caught": 4,
+     "false_flag": 0
+    }
+   },
+   "concern_codes_on_caught": {
+    "documents_disagree": 60,
+    "unsupported_line_item": 10,
+    "surgery_grade_mismatch": 1,
+    "hospitalization_days_error": 1,
+    "excluded_diagnosis": 1,
+    "above_auto_limit": 1,
+    "waiting_period": 1
+   },
+   "concern_codes_on_false_flags": {},
+   "cost_usd": 0.185686,
+   "latency_ms_median": 2436.9,
+   "input_tokens": 119091,
+   "output_tokens": 13319,
+   "model_errors": 0,
+   "repairs": 0,
+   "caught_rows": [
+    {
+     "case_id": "CLM-00000",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      330000
+     ],
+     "gold": [
+      "APPROVE",
+      210000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00002",
+     "scenario": "format_variance",
+     "decision": [
+      "APPROVE",
+      270000
+     ],
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00010",
+     "scenario": "grade_missing",
+     "decision": [
+      "APPROVE",
+      250000
+     ],
+     "gold": [
+      "APPROVE",
+      200000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00011",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      860000
+     ],
+     "gold": [
+      "APPROVE",
+      540000
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "documents_disagree",
+      "surgery_grade_mismatch",
+      "hospitalization_days_error"
+     ]
+    },
+    {
+     "case_id": "CLM-00013",
+     "scenario": "format_variance",
+     "decision": [
+      "APPROVE",
+      60000
+     ],
+     "gold": [
+      "DENY",
+      0
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00021",
+     "scenario": "grade_missing",
+     "decision": [
+      "APPROVE",
+      400000
+     ],
+     "gold": [
+      "APPROVE",
+      350000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00022",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      740000
+     ],
+     "gold": [
+      "APPROVE",
+      420000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00024",
+     "scenario": "format_variance",
+     "decision": [
+      "APPROVE",
+      330000
+     ],
+     "gold": [
+      "APPROVE",
+      210000
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00033",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      650000
+     ],
+     "gold": [
+      "APPROVE",
+      330000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree",
+      "unsupported_line_item"
+     ]
+    },
+    {
+     "case_id": "CLM-00036",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      500000
+     ],
+     "gold": [
+      "APPROVE",
+      300000
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00037",
+     "scenario": "format_variance",
+     "decision": [
+      "APPROVE",
+      600000
+     ],
+     "gold": [
+      "APPROVE",
+      550000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00040",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      400000
+     ],
+     "gold": [
+      "APPROVE",
+      350000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00041",
+     "scenario": "format_variance",
+     "decision": [
+      "APPROVE",
+      200000
+     ],
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00045",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      1150000
+     ],
+     "gold": [
+      "APPROVE",
+      530000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree",
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00046",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      1270000
+     ],
+     "gold": [
+      "APPROVE",
+      650000
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "documents_disagree",
+      "unsupported_line_item"
+     ]
+    },
+    {
+     "case_id": "CLM-00051",
+     "scenario": "format_variance",
+     "decision": [
+      "APPROVE",
+      2120000
+     ],
+     "gold": [
+      "APPROVE",
+      2000000
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "excluded_diagnosis",
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00052",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      300000
+     ],
+     "gold": [
+      "APPROVE",
+      180000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree",
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00055",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      200000
+     ],
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00057",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      500000
+     ],
+     "gold": [
+      "APPROVE",
+      450000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00058",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      180000
+     ],
+     "gold": [
+      "APPROVE",
+      60000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree",
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00060",
+     "scenario": "grade_missing",
+     "decision": [
+      "APPROVE",
+      300000
+     ],
+     "gold": [
+      "APPROVE",
+      250000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00061",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      1300000
+     ],
+     "gold": [
+      "APPROVE",
+      680000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree",
+      "above_auto_limit"
+     ]
+    },
+    {
+     "case_id": "CLM-00069",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      650000
+     ],
+     "gold": [
+      "APPROVE",
+      330000
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "documents_disagree",
+      "unsupported_line_item"
+     ]
+    },
+    {
+     "case_id": "CLM-00072",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      200000
+     ],
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00077",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      390000
+     ],
+     "gold": [
+      "APPROVE",
+      270000
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "documents_disagree",
+      "unsupported_line_item"
+     ]
+    },
+    {
+     "case_id": "CLM-00078",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      1300000
+     ],
+     "gold": [
+      "APPROVE",
+      680000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree",
+      "documents_disagree",
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00080",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      1300000
+     ],
+     "gold": [
+      "APPROVE",
+      680000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree",
+      "unsupported_line_item"
+     ]
+    },
+    {
+     "case_id": "CLM-00083",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      1180000
+     ],
+     "gold": [
+      "APPROVE",
+      560000
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "documents_disagree",
+      "unsupported_line_item",
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00084",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      540000
+     ],
+     "gold": [
+      "APPROVE",
+      220000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree",
+      "unsupported_line_item"
+     ]
+    },
+    {
+     "case_id": "CLM-00085",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      300000
+     ],
+     "gold": [
+      "APPROVE",
+      180000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00086",
+     "scenario": "grade_missing",
+     "decision": [
+      "APPROVE",
+      600000
+     ],
+     "gold": [
+      "APPROVE",
+      550000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00087",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      360000
+     ],
+     "gold": [
+      "APPROVE",
+      240000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00088",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      90000
+     ],
+     "gold": [
+      "DENY",
+      0
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00091",
+     "scenario": "format_variance",
+     "decision": [
+      "APPROVE",
+      1300000
+     ],
+     "gold": [
+      "APPROVE",
+      680000
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "documents_disagree",
+      "documents_disagree",
+      "unsupported_line_item"
+     ]
+    },
+    {
+     "case_id": "CLM-00092",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      1300000
+     ],
+     "gold": [
+      "APPROVE",
+      680000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree",
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00093",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      200000
+     ],
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00096",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      690000
+     ],
+     "gold": [
+      "APPROVE",
+      370000
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "documents_disagree",
+      "unsupported_line_item"
+     ]
+    },
+    {
+     "case_id": "CLM-00097",
+     "scenario": "format_variance",
+     "decision": [
+      "APPROVE",
+      250000
+     ],
+     "gold": [
+      "APPROVE",
+      200000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00100",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      1210000
+     ],
+     "gold": [
+      "APPROVE",
+      590000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree",
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00101",
+     "scenario": "format_variance",
+     "decision": [
+      "APPROVE",
+      1360000
+     ],
+     "gold": [
+      "APPROVE",
+      740000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree",
+      "unsupported_line_item"
+     ]
+    },
+    {
+     "case_id": "CLM-00104",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      510000
+     ],
+     "gold": [
+      "APPROVE",
+      190000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree",
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00106",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      800000
+     ],
+     "gold": [
+      "APPROVE",
+      480000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree",
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00109",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      1000000
+     ],
+     "gold": [
+      "APPROVE",
+      500000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00111",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      1390000
+     ],
+     "gold": [
+      "APPROVE",
+      770000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree",
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00112",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      60000
+     ],
+     "gold": [
+      "DENY",
+      0
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00113",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      450000
+     ],
+     "gold": [
+      "APPROVE",
+      400000
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    },
+    {
+     "case_id": "CLM-00115",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      300000
+     ],
+     "gold": [
+      "APPROVE",
+      180000
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "documents_disagree",
+      "waiting_period"
+     ]
+    },
+    {
+     "case_id": "CLM-00117",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      450000
+     ],
+     "gold": [
+      "APPROVE",
+      400000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "documents_disagree"
+     ]
+    }
+   ],
+   "missed_rows": [
+    {
+     "case_id": "CLM-00062",
+     "scenario": "clean",
+     "decision": [
+      "APPROVE",
+      500000
+     ],
+     "gold": [
+      "APPROVE",
+      300000
+     ],
+     "verdict": {
+      "agree": true,
+      "recommendation": "pay",
+      "concerns": []
+     }
+    }
+   ],
+   "false_flag_rows": []
+  },
+  "reading": "48 of 49 wrong payments stopped (Wilson 95% from 89.3%); the auditor compared the documents' printed discharge date and grade with the values read and the deductible in the basis with the terms; the one miss was a claim where only the surgery grade was wrong. No correct payment exists in this mode, so no false-flag rate."
+ }
 }

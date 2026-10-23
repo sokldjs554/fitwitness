@@ -8690,7 +8690,8593 @@
     },
     "agreement": "0.243585 ceiling 0.6 skipped 0 stopped None agreement 0.7667"
    }
+  },
+  {
+   "input": "text layer, repeat 2",
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/39962924821",
+   "protocol": {
+    "code_sha": "d42368626b8ca15c748847ed64c82d4fbaf6653a",
+    "started_at": "2026-10-23T13:40:05.107554+00:00",
+    "provider": "anthropic",
+    "model": "claude-haiku-4-5-20251001",
+    "split": "test",
+    "scan": null,
+    "max_cases": null,
+    "ceiling_usd": "0.6",
+    "per_run_cap_usd": "0.04",
+    "pricing_usd_per_million": {
+     "input": "1",
+     "output": "5"
+    },
+    "scoring": "claims/evaluate.py rules against the generator's gold; the rules reader reads the same bytes as the model run"
+   },
+   "spent_line": "0.260392 ceiling 0.6 skipped 0 stopped None agreement 0.85",
+   "summary_model": {
+    "cases": 60,
+    "decision_accuracy": 0.9,
+    "wrong_pay_count": 0,
+    "wrong_deny_count": 0,
+    "review_rate": 0.4333,
+    "auto_rate": 0.8929,
+    "field_accuracy": 0.9206,
+    "field_accuracy_by_field": {
+     "admission_date": 0.9636,
+     "diagnosis_code": 0.825,
+     "diagnosis_date": 0.8947,
+     "diagnosis_name": 0.9474,
+     "discharge_date": 0.9636,
+     "hospital": 0.9667,
+     "insured_name": 0.8,
+     "surgery_date": 0.9048,
+     "surgery_grade": 0.9444,
+     "surgery_name": 0.9524,
+     "total_amount": 0.9667
+    },
+    "by_scenario": {
+     "clean": {
+      "cases": 17,
+      "correct": 16,
+      "wrong_pay": 0,
+      "review": 1
+     },
+     "date_conflict": {
+      "cases": 1,
+      "correct": 1,
+      "wrong_pay": 0,
+      "review": 1
+     },
+     "duplicate": {
+      "cases": 4,
+      "correct": 4,
+      "wrong_pay": 0,
+      "review": 0
+     },
+     "exclusion": {
+      "cases": 3,
+      "correct": 3,
+      "wrong_pay": 0,
+      "review": 3
+     },
+     "format_variance": {
+      "cases": 9,
+      "correct": 8,
+      "wrong_pay": 0,
+      "review": 2
+     },
+     "grade_missing": {
+      "cases": 4,
+      "correct": 4,
+      "wrong_pay": 0,
+      "review": 3
+     },
+     "high_amount": {
+      "cases": 3,
+      "correct": 2,
+      "wrong_pay": 0,
+      "review": 3
+     },
+     "lapsed_policy": {
+      "cases": 3,
+      "correct": 3,
+      "wrong_pay": 0,
+      "review": 0
+     },
+     "missing_doc": {
+      "cases": 4,
+      "correct": 4,
+      "wrong_pay": 0,
+      "review": 4
+     },
+     "ocr_noise": {
+      "cases": 7,
+      "correct": 4,
+      "wrong_pay": 0,
+      "review": 5
+     },
+     "waiting_period": {
+      "cases": 5,
+      "correct": 5,
+      "wrong_pay": 0,
+      "review": 4
+     }
+    },
+    "completed_or_waiting": 60,
+    "failed": 0,
+    "ungrounded_reviews": 6,
+    "fields_dropped_by_grounding": 38,
+    "model_errors": 0,
+    "repairs": 0,
+    "cost_usd": 0.260392,
+    "latency_ms_median": 3346.1,
+    "input_tokens": 140602,
+    "output_tokens": 23958
+   },
+   "summary_rules": {
+    "cases": 60,
+    "decision_accuracy": 0.8833,
+    "wrong_pay_count": 0,
+    "wrong_deny_count": 0,
+    "review_rate": 0.45,
+    "auto_rate": 0.8571,
+    "field_accuracy": 0.9614,
+    "field_accuracy_by_field": {
+     "admission_date": 0.9273,
+     "diagnosis_code": 0.9,
+     "diagnosis_date": 0.8684,
+     "diagnosis_name": 1.0,
+     "discharge_date": 0.9273,
+     "hospital": 1.0,
+     "insured_name": 1.0,
+     "surgery_date": 0.9524,
+     "surgery_grade": 1.0,
+     "surgery_name": 1.0,
+     "total_amount": 1.0
+    },
+    "by_scenario": {
+     "clean": {
+      "cases": 17,
+      "correct": 17,
+      "wrong_pay": 0,
+      "review": 0
+     },
+     "date_conflict": {
+      "cases": 1,
+      "correct": 1,
+      "wrong_pay": 0,
+      "review": 1
+     },
+     "duplicate": {
+      "cases": 4,
+      "correct": 4,
+      "wrong_pay": 0,
+      "review": 0
+     },
+     "exclusion": {
+      "cases": 3,
+      "correct": 3,
+      "wrong_pay": 0,
+      "review": 3
+     },
+     "format_variance": {
+      "cases": 9,
+      "correct": 9,
+      "wrong_pay": 0,
+      "review": 2
+     },
+     "grade_missing": {
+      "cases": 4,
+      "correct": 4,
+      "wrong_pay": 0,
+      "review": 3
+     },
+     "high_amount": {
+      "cases": 3,
+      "correct": 3,
+      "wrong_pay": 0,
+      "review": 3
+     },
+     "lapsed_policy": {
+      "cases": 3,
+      "correct": 3,
+      "wrong_pay": 0,
+      "review": 0
+     },
+     "missing_doc": {
+      "cases": 4,
+      "correct": 4,
+      "wrong_pay": 0,
+      "review": 4
+     },
+     "ocr_noise": {
+      "cases": 7,
+      "correct": 0,
+      "wrong_pay": 0,
+      "review": 7
+     },
+     "waiting_period": {
+      "cases": 5,
+      "correct": 5,
+      "wrong_pay": 0,
+      "review": 4
+     }
+    }
+   },
+   "headline": {
+    "model": {
+     "cases": 60,
+     "decision_accuracy": 0.9,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.4333,
+     "auto_rate": 0.8929,
+     "field_accuracy": 0.9206,
+     "ungrounded_reviews": 6,
+     "fields_dropped_by_grounding": 38,
+     "failed": 0,
+     "model_errors": 0,
+     "repairs": 0,
+     "cost_usd": 0.260392,
+     "latency_ms_median": 3346.1,
+     "input_tokens": 140602,
+     "output_tokens": 23958
+    },
+    "rules": {
+     "cases": 60,
+     "decision_accuracy": 0.8833,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.45,
+     "auto_rate": 0.8571,
+     "field_accuracy": 0.9614
+    },
+    "agreement": "0.260392 ceiling 0.6 skipped 0 stopped None agreement 0.85"
+   },
+   "disagreements": [
+    {
+     "case_id": "CLM-00001",
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      100000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      100000
+     ],
+     "model_rules_added": [
+      "R-DIAG-01",
+      "R-HOSP-01"
+     ],
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "이수아",
+      "total_amount": "595890",
+      "admission_date": "2025-12-30",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2025-12-30",
+      "diagnosis_name": "급성 심근경색",
+      "discharge_date": "2026-01-01"
+     },
+     "dropped": [],
+     "error": null
+    },
+    {
+     "case_id": "CLM-00023",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      60000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "APPROVE",
+      60000
+     ],
+     "model_rules_added": [
+      "R-HOSP-01"
+     ],
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "이도윤",
+      "total_amount": "1,011,080",
+      "admission_date": "2027-01-25",
+      "discharge_date": "2027-01-30"
+     },
+     "dropped": [],
+     "error": null
+    },
+    {
+     "case_id": "CLM-00035",
+     "scenario": "high_amount",
+     "gold": [
+      "REVIEW",
+      12290000
+     ],
+     "rules": [
+      "REVIEW",
+      12290000
+     ],
+     "model": [
+      "REVIEW",
+      2290000
+     ],
+     "model_rules_added": [
+      "R-CHAL-02",
+      "R-CONF-01",
+      "R-DIAG-02"
+     ],
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "이지우",
+      "surgery_date": "2026/10/09",
+      "surgery_name": "위아전절제술",
+      "total_amount": "19,059,534",
+      "surgery_grade": "4종",
+      "admission_date": "2026/10/08",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026/10/08",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2026/11/23"
+     },
+     "dropped": [
+      "diagnosis_code",
+      "insured_name"
+     ],
+     "error": null
+    },
+    {
+     "case_id": "CLM-00039",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2270000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      270000
+     ],
+     "model_rules_added": [
+      "R-DIAG-01",
+      "R-HOSP-01"
+     ],
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "장지호",
+      "total_amount": "3,962,532",
+      "admission_date": "2026/10/24",
+      "diagnosis_code": "DO5,l",
+      "diagnosis_date": "2026/10/25",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026/11/05"
+     },
+     "dropped": [],
+     "error": null
+    },
+    {
+     "case_id": "CLM-00061",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      680000
+     ],
+     "rules": [
+      "APPROVE",
+      680000
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "model_rules_added": [
+      "R-CHAL-02",
+      "R-CONF-01",
+      "R-CONS-01",
+      "R-HOSP-02",
+      "R-REQ-02",
+      "R-SURG-02"
+     ],
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "정현우",
+      "surgery_date": "2027-04-30",
+      "surgery_name": "관혈적 정복술 및 내고정술",
+      "total_amount": "3,945,291",
+      "surgery_grade": "3종",
+      "admission_date": "2027-04-29",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2027-04-30",
+      "diagnosis_name": "경골 원위부 골절",
+      "discharge_date": "2027-05-08"
+     },
+     "dropped": [
+      "admission_date",
+      "diagnosis_code",
+      "diagnosis_date",
+      "diagnosis_name",
+      "discharge_date",
+      "hospital",
+      "insured_name",
+      "surgery_date",
+      "surgery_grade",
+      "surgery_name",
+      "total_amount"
+     ],
+     "error": null
+    },
+    {
+     "case_id": "CLM-00065",
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      30150000
+     ],
+     "rules": [
+      "REVIEW",
+      30000000
+     ],
+     "model": [
+      "REVIEW",
+      30150000
+     ],
+     "model_rules_added": [
+      "R-HOSP-01"
+     ],
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "최예은",
+      "total_amount": "1,005,117",
+      "admission_date": "2026-02-19",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-02-19",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2026-02-22"
+     },
+     "dropped": [],
+     "error": null
+    },
+    {
+     "case_id": "CLM-00075",
+     "scenario": "format_variance",
+     "gold": [
+      "REVIEW",
+      30200000
+     ],
+     "rules": [
+      "REVIEW",
+      30200000
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "model_rules_added": [
+      "R-CHAL-02",
+      "R-CONF-01",
+      "R-CONS-01",
+      "R-DIAG-02",
+      "R-HOSP-02",
+      "R-REQ-02"
+     ],
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "강수아",
+      "surgery_date": null,
+      "surgery_name": null,
+      "total_amount": "914496",
+      "surgery_grade": null,
+      "admission_date": "2025.12.22",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025.12.23",
+      "diagnosis_name": "유방의 악성신생물",
+      "discharge_date": "2025.12.26"
+     },
+     "dropped": [
+      "admission_date",
+      "diagnosis_code",
+      "diagnosis_date",
+      "diagnosis_name",
+      "discharge_date",
+      "hospital",
+      "insured_name",
+      "surgery_date",
+      "surgery_grade",
+      "surgery_name",
+      "total_amount"
+     ],
+     "error": null
+    },
+    {
+     "case_id": "CLM-00099",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2060000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      60000
+     ],
+     "model_rules_added": [
+      "R-CHAL-02",
+      "R-HOSP-01"
+     ],
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "강수아",
+      "total_amount": "1726435",
+      "admission_date": "2026.10.12",
+      "diagnosis_code": "D05.l",
+      "diagnosis_date": "2026.10.12",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026.10.17"
+     },
+     "dropped": [
+      "diagnosis_date"
+     ],
+     "error": null
+    },
+    {
+     "case_id": "CLM-00103",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2120000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "APPROVE",
+      2120000
+     ],
+     "model_rules_added": [
+      "R-DIAG-01",
+      "R-HOSP-01"
+     ],
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "최수아",
+      "total_amount": "1,757,420",
+      "admission_date": "2026-08-17",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-08-18",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026-08-24"
+     },
+     "dropped": [],
+     "error": null
+    }
+   ],
+   "rows": [
+    {
+     "case_id": "CLM-00001",
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      100000
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-CONF-01",
+       "R-CONS-01",
+       "R-DIAG-02",
+       "R-HOSP-02",
+       "R-REQ-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      100000,
+      [
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": false,
+      "diagnosis_code": false,
+      "diagnosis_date": false,
+      "diagnosis_name": true,
+      "discharge_date": false,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "이수아",
+      "total_amount": "595890",
+      "admission_date": "2025-12-30",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2025-12-30",
+      "diagnosis_name": "급성 심근경색",
+      "discharge_date": "2026-01-01"
+     },
+     "dropped": [],
+     "cost_usd": 0.004185,
+     "latency_ms": 6004.7,
+     "input_tokens": 2345,
+     "output_tokens": 368,
+     "run_id": "51d04daf-066f-4459-af28-092d3b04fee1"
+    },
+    {
+     "case_id": "CLM-00003",
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-HOSP-01",
+       "R-REQ-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      0,
+      [
+       "R-HOSP-01",
+       "R-REQ-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "장도윤",
+      "surgery_date": "2026-10-10",
+      "surgery_name": "유방절제술",
+      "total_amount": "1921612",
+      "surgery_grade": "4종",
+      "admission_date": "2026-10-10",
+      "diagnosis_code": "C50.9",
+      "discharge_date": "2026-10-12"
+     },
+     "dropped": [],
+     "cost_usd": 0.004343,
+     "latency_ms": 3312.3,
+     "input_tokens": 2348,
+     "output_tokens": 399,
+     "run_id": "54f9abf3-758c-4641-b9fe-63d0ab5894c5"
+    },
+    {
+     "case_id": "CLM-00005",
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      450000
+     ],
+     "rules": [
+      "REVIEW",
+      450000,
+      [
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      450000,
+      [
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "이도윤",
+      "total_amount": "2,851,551",
+      "admission_date": "2025.06.03",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025.06.04",
+      "diagnosis_name": "유방의 악성신생물",
+      "discharge_date": "2025.06.12"
+     },
+     "dropped": [],
+     "cost_usd": 0.004774,
+     "latency_ms": 4803.7,
+     "input_tokens": 2364,
+     "output_tokens": 482,
+     "run_id": "dea0536a-87d6-4dda-a96d-02645e8ee797"
+    },
+    {
+     "case_id": "CLM-00007",
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "이예은",
+      "total_amount": "2,547,936",
+      "admission_date": "2026년 12월 1일",
+      "diagnosis_code": "I63.9",
+      "diagnosis_date": "2026년 12월 2일",
+      "diagnosis_name": "뇌경색증",
+      "discharge_date": "2026년 12월 10일"
+     },
+     "dropped": [],
+     "cost_usd": 0.004303,
+     "latency_ms": 3300.4,
+     "input_tokens": 2368,
+     "output_tokens": 387,
+     "run_id": "74975376-64a3-4dc8-af83-e3d5a49ff671"
+    },
+    {
+     "case_id": "CLM-00009",
+     "scenario": "high_amount",
+     "gold": [
+      "REVIEW",
+      31600000
+     ],
+     "rules": [
+      "REVIEW",
+      31600000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      31600000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "조도윤",
+      "total_amount": "5,282,560",
+      "admission_date": "2027/01/22",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2027/01/23",
+      "diagnosis_name": "유방의 악성신생물",
+      "discharge_date": "2027/02/23"
+     },
+     "dropped": [],
+     "cost_usd": 0.004238,
+     "latency_ms": 3159.9,
+     "input_tokens": 2358,
+     "output_tokens": 376,
+     "run_id": "c3ad4015-53da-4577-80cc-2cd049fe81c5"
+    },
+    {
+     "case_id": "CLM-00011",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      540000
+     ],
+     "rules": [
+      "APPROVE",
+      540000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      540000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "김지호",
+      "surgery_date": "2026-01-01",
+      "surgery_name": "충수절제술",
+      "total_amount": "5,083,558",
+      "surgery_grade": "2종",
+      "admission_date": "2025-12-30",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2025-12-31",
+      "diagnosis_name": "급성 충수염",
+      "discharge_date": "2026-01-10"
+     },
+     "dropped": [
+      "insured_name"
+     ],
+     "cost_usd": 0.005237,
+     "latency_ms": 4395.0,
+     "input_tokens": 2482,
+     "output_tokens": 551,
+     "run_id": "366a5aee-0a73-4a36-a12a-a6ea77835ce0"
+    },
+    {
+     "case_id": "CLM-00013",
+     "scenario": "format_variance",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "윤예은",
+      "total_amount": "170,308",
+      "admission_date": "2026.11.19",
+      "discharge_date": "2026.11.20"
+     },
+     "dropped": [],
+     "cost_usd": 0.003413,
+     "latency_ms": 2106.5,
+     "input_tokens": 2228,
+     "output_tokens": 237,
+     "run_id": "540995a0-a79c-48cb-8821-c82f1f1b63a8"
+    },
+    {
+     "case_id": "CLM-00015",
+     "scenario": "date_conflict",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-CONS-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      0,
+      [
+       "R-CONS-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "강지우",
+      "total_amount": "1,517,976",
+      "admission_date": "2025-05-23",
+      "discharge_date": "2025-05-21"
+     },
+     "dropped": [],
+     "cost_usd": 0.003413,
+     "latency_ms": 2201.0,
+     "input_tokens": 2228,
+     "output_tokens": 237,
+     "run_id": "d403f909-b8d9-4531-b2a3-41017cff4ee9"
+    },
+    {
+     "case_id": "CLM-00017",
+     "scenario": "exclusion",
+     "gold": [
+      "REVIEW",
+      30000
+     ],
+     "rules": [
+      "REVIEW",
+      30000,
+      [
+       "R-EXC-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      30000,
+      [
+       "R-EXC-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "윤도윤",
+      "surgery_date": "2026/01/12",
+      "surgery_name": "심방중격결손 폐쇄술",
+      "total_amount": "3040352",
+      "surgery_grade": "5종",
+      "admission_date": "2026/01/11",
+      "diagnosis_code": "Q21.1",
+      "diagnosis_date": "2026/01/11",
+      "diagnosis_name": "심방중격결손",
+      "discharge_date": "2026/01/15"
+     },
+     "dropped": [],
+     "cost_usd": 0.005042,
+     "latency_ms": 3979.9,
+     "input_tokens": 2492,
+     "output_tokens": 510,
+     "run_id": "6d63c737-b8b9-4860-b3c9-17f3223dd730"
+    },
+    {
+     "case_id": "CLM-00019",
+     "scenario": "lapsed_policy",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-POL-02"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-POL-02"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "강하은",
+      "surgery_date": "2026-07-27",
+      "surgery_name": "충수절제술",
+      "total_amount": "4,012,615",
+      "surgery_grade": "2종",
+      "admission_date": "2026-07-27",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2026-07-27",
+      "diagnosis_name": "급성 충수염",
+      "discharge_date": "2026-08-03"
+     },
+     "dropped": [
+      "insured_name"
+     ],
+     "cost_usd": 0.005129,
+     "latency_ms": 4191.7,
+     "input_tokens": 2489,
+     "output_tokens": 528,
+     "run_id": "b34fc179-bc30-4248-9b25-f07bb32855cf"
+    },
+    {
+     "case_id": "CLM-00021",
+     "scenario": "grade_missing",
+     "gold": [
+      "APPROVE",
+      350000
+     ],
+     "rules": [
+      "APPROVE",
+      350000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      350000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "강예은",
+      "total_amount": "1,739,164",
+      "admission_date": "2026/06/12",
+      "discharge_date": "2026/06/19"
+     },
+     "dropped": [],
+     "cost_usd": 0.003389,
+     "latency_ms": 2098.4,
+     "input_tokens": 2219,
+     "output_tokens": 234,
+     "run_id": "bba92dc5-9533-4d6b-83ab-0218408dada6"
+    },
+    {
+     "case_id": "CLM-00023",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      60000
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-CONF-01",
+       "R-CONS-01",
+       "R-HOSP-02",
+       "R-REQ-02"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      60000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": false,
+      "discharge_date": false,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "이도윤",
+      "total_amount": "1,011,080",
+      "admission_date": "2027-01-25",
+      "discharge_date": "2027-01-30"
+     },
+     "dropped": [],
+     "cost_usd": 0.003447,
+     "latency_ms": 2244.6,
+     "input_tokens": 2232,
+     "output_tokens": 243,
+     "run_id": "27cea59a-17e7-4019-8e73-56996f5b82a0"
+    },
+    {
+     "case_id": "CLM-00025",
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      550000
+     ],
+     "rules": [
+      "REVIEW",
+      550000,
+      [
+       "R-HOSP-01",
+       "R-REQ-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      550000,
+      [
+       "R-HOSP-01",
+       "R-REQ-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "김예은",
+      "total_amount": "3,493,127",
+      "admission_date": "2025-11-01",
+      "discharge_date": "2025-11-12"
+     },
+     "dropped": [],
+     "cost_usd": 0.003411,
+     "latency_ms": 2111.0,
+     "input_tokens": 2226,
+     "output_tokens": 237,
+     "run_id": "ee5edff3-e6fb-48a4-82b1-5510c01486a6"
+    },
+    {
+     "case_id": "CLM-00027",
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      550000
+     ],
+     "rules": [
+      "REVIEW",
+      550000,
+      [
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      550000,
+      [
+       "R-CHAL-02",
+       "R-CONF-01",
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "김현우",
+      "surgery_date": null,
+      "surgery_name": null,
+      "total_amount": "3,521,518",
+      "surgery_grade": null,
+      "admission_date": "2025년 8월 23일",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025년 8월 24일",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2025년 9월 3일"
+     },
+     "dropped": [
+      "insured_name",
+      "surgery_date",
+      "surgery_grade",
+      "surgery_name"
+     ],
+     "cost_usd": 0.00484,
+     "latency_ms": 4002.7,
+     "input_tokens": 2375,
+     "output_tokens": 493,
+     "run_id": "aff0427e-e9b4-4a5c-9574-a205f9a1b92f"
+    },
+    {
+     "case_id": "CLM-00029",
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "정서연",
+      "surgery_date": "2025년 12월 13일",
+      "surgery_name": "관상동맥 스텐트 삽입술",
+      "total_amount": "금 4,113,870원정",
+      "surgery_grade": "4종",
+      "admission_date": "2025년 12월 12일",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2025년 12월 12일",
+      "diagnosis_name": "급성 심근경색",
+      "discharge_date": "2025년 12월 21일"
+     },
+     "dropped": [
+      "insured_name"
+     ],
+     "cost_usd": 0.005545,
+     "latency_ms": 4852.6,
+     "input_tokens": 2520,
+     "output_tokens": 605,
+     "run_id": "8a0e21c2-82b3-44af-af5a-baa357b2232c"
+    },
+    {
+     "case_id": "CLM-00031",
+     "scenario": "high_amount",
+     "gold": [
+      "REVIEW",
+      32650000
+     ],
+     "rules": [
+      "REVIEW",
+      32650000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      32650000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "정서연",
+      "total_amount": "9,068,088",
+      "admission_date": "2026.10.27",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026.10.28",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2026.12.19"
+     },
+     "dropped": [],
+     "cost_usd": 0.004462,
+     "latency_ms": 3369.5,
+     "input_tokens": 2357,
+     "output_tokens": 421,
+     "run_id": "01658280-2bab-42cf-b887-9829d68df9e2"
+    },
+    {
+     "case_id": "CLM-00033",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      330000
+     ],
+     "rules": [
+      "APPROVE",
+      330000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      330000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "이도윤",
+      "surgery_date": "2025-12-24",
+      "surgery_name": "충수절제술",
+      "total_amount": "2,452,860원",
+      "surgery_grade": "2종",
+      "admission_date": "2025-12-23",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2025-12-24",
+      "diagnosis_name": "급성 충수염",
+      "discharge_date": "2025-12-27"
+     },
+     "dropped": [],
+     "cost_usd": 0.005295,
+     "latency_ms": 4395.3,
+     "input_tokens": 2480,
+     "output_tokens": 563,
+     "run_id": "189b162d-3244-4791-8936-20d59ba06256"
+    },
+    {
+     "case_id": "CLM-00035",
+     "scenario": "high_amount",
+     "gold": [
+      "REVIEW",
+      12290000
+     ],
+     "rules": [
+      "REVIEW",
+      12290000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      2290000,
+      [
+       "R-CHAL-02",
+       "R-CONF-01",
+       "R-DIAG-02",
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": false,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "이지우",
+      "surgery_date": "2026/10/09",
+      "surgery_name": "위아전절제술",
+      "total_amount": "19,059,534",
+      "surgery_grade": "4종",
+      "admission_date": "2026/10/08",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026/10/08",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2026/11/23"
+     },
+     "dropped": [
+      "diagnosis_code",
+      "insured_name"
+     ],
+     "cost_usd": 0.005534,
+     "latency_ms": 4714.4,
+     "input_tokens": 2484,
+     "output_tokens": 610,
+     "run_id": "438d8e71-513b-4267-bc55-bdaf3c2aab31"
+    },
+    {
+     "case_id": "CLM-00037",
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      550000
+     ],
+     "rules": [
+      "APPROVE",
+      550000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      550000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "임하은",
+      "total_amount": "4230061",
+      "admission_date": "2026.02.05",
+      "discharge_date": "2026.02.16"
+     },
+     "dropped": [
+      "insured_name"
+     ],
+     "cost_usd": 0.00339,
+     "latency_ms": 2138.3,
+     "input_tokens": 2215,
+     "output_tokens": 235,
+     "run_id": "a4691159-8e43-4cc9-85f7-6fbe98550e78"
+    },
+    {
+     "case_id": "CLM-00039",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2270000
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-CONF-01",
+       "R-CONS-01",
+       "R-DIAG-02",
+       "R-HOSP-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      270000,
+      [
+       "R-CONS-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": false,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": false,
+      "diagnosis_date": false,
+      "diagnosis_name": true,
+      "discharge_date": false,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "장지호",
+      "total_amount": "3,962,532",
+      "admission_date": "2026/10/24",
+      "diagnosis_code": "DO5,l",
+      "diagnosis_date": "2026/10/25",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026/11/05"
+     },
+     "dropped": [],
+     "cost_usd": 0.004249,
+     "latency_ms": 3122.5,
+     "input_tokens": 2364,
+     "output_tokens": 377,
+     "run_id": "eafd1b8d-bd55-4426-8a31-10e34925a406"
+    },
+    {
+     "case_id": "CLM-00041",
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "rules": [
+      "APPROVE",
+      150000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      150000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "윤하은",
+      "total_amount": "818,019",
+      "admission_date": "2027/02/18",
+      "discharge_date": "2027/02/21"
+     },
+     "dropped": [],
+     "cost_usd": 0.003415,
+     "latency_ms": 2114.7,
+     "input_tokens": 2230,
+     "output_tokens": 237,
+     "run_id": "af892b98-c3ad-4097-9b87-fd01d5b23a5f"
+    },
+    {
+     "case_id": "CLM-00043",
+     "scenario": "grade_missing",
+     "gold": [
+      "REVIEW",
+      10000000
+     ],
+     "rules": [
+      "REVIEW",
+      10000000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-SURG-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      10000000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-SURG-02"
+      ]
+     ],
+     "model_hits": {
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "이서준",
+      "surgery_date": "2026-04-01",
+      "surgery_name": "위아전절제술",
+      "total_amount": "1792973",
+      "admission_date": "2026-03-31",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-04-01",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2026-04-01"
+     },
+     "dropped": [],
+     "cost_usd": 0.00483,
+     "latency_ms": 4126.6,
+     "input_tokens": 2345,
+     "output_tokens": 497,
+     "run_id": "4553d349-0500-4668-b4e5-bdda1e49971a"
+    },
+    {
+     "case_id": "CLM-00045",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      530000
+     ],
+     "rules": [
+      "APPROVE",
+      530000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      530000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "이하은",
+      "surgery_date": "2026-09-08",
+      "surgery_name": "담낭절제술",
+      "total_amount": "2,880,356원",
+      "surgery_grade": "3종",
+      "admission_date": "2026-09-06",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2026-09-07",
+      "diagnosis_name": "담낭결석",
+      "discharge_date": "2026-09-10"
+     },
+     "dropped": [],
+     "cost_usd": 0.004953,
+     "latency_ms": 3953.6,
+     "input_tokens": 2478,
+     "output_tokens": 495,
+     "run_id": "ec94a2e2-f362-4d13-9a88-c97895c625dc"
+    },
+    {
+     "case_id": "CLM-00047",
+     "scenario": "lapsed_policy",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-POL-02"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-POL-02"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "정현우",
+      "total_amount": "1,620,328원",
+      "admission_date": "2026년 9월 22일",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026년 9월 23일",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026년 9월 30일"
+     },
+     "dropped": [],
+     "cost_usd": 0.004318,
+     "latency_ms": 3155.8,
+     "input_tokens": 2363,
+     "output_tokens": 391,
+     "run_id": "8857f77f-ceab-485a-9ec4-1f1e31af6f5f"
+    },
+    {
+     "case_id": "CLM-00049",
+     "scenario": "lapsed_policy",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-POL-02"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-POL-02"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "임수아",
+      "total_amount": "1,732,664",
+      "admission_date": "2026년 3월 17일",
+      "discharge_date": "2026년 3월 25일"
+     },
+     "dropped": [],
+     "cost_usd": 0.003469,
+     "latency_ms": 2151.8,
+     "input_tokens": 2234,
+     "output_tokens": 247,
+     "run_id": "81fc31af-dfa0-4fc4-9946-8e48cb6e3765"
+    },
+    {
+     "case_id": "CLM-00051",
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      2000000
+     ],
+     "rules": [
+      "APPROVE",
+      2000000,
+      [
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      2000000,
+      [
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "조서연",
+      "total_amount": "817,968",
+      "admission_date": "2026-08-07",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-08-07",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026-08-10"
+     },
+     "dropped": [],
+     "cost_usd": 0.004476,
+     "latency_ms": 3422.7,
+     "input_tokens": 2346,
+     "output_tokens": 426,
+     "run_id": "f9f05f68-ff71-4941-a11d-4c7209e85667"
+    },
+    {
+     "case_id": "CLM-00053",
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "박예은",
+      "surgery_date": "2026.01.30",
+      "surgery_name": "관상동맥 스텐트 삽입술",
+      "total_amount": "2,289,460",
+      "surgery_grade": "4종",
+      "admission_date": "2026.01.28",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2026.01.29",
+      "diagnosis_name": "급성 심근경색",
+      "discharge_date": "2026.02.01"
+     },
+     "dropped": [],
+     "cost_usd": 0.005405,
+     "latency_ms": 4637.0,
+     "input_tokens": 2490,
+     "output_tokens": 583,
+     "run_id": "309cf089-be65-4d0a-b7bc-495600868dbd"
+    },
+    {
+     "case_id": "CLM-00055",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "rules": [
+      "APPROVE",
+      150000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      150000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "윤수아",
+      "total_amount": "1,127,187원",
+      "admission_date": "2026-05-30",
+      "discharge_date": "2026-06-02"
+     },
+     "dropped": [],
+     "cost_usd": 0.003404,
+     "latency_ms": 2110.4,
+     "input_tokens": 2219,
+     "output_tokens": 237,
+     "run_id": "c4201cc0-d0a0-472e-8d2e-2a9620151b2d"
+    },
+    {
+     "case_id": "CLM-00057",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      450000
+     ],
+     "rules": [
+      "APPROVE",
+      450000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      450000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "이도윤",
+      "total_amount": "1,549,296",
+      "admission_date": "2025-12-24",
+      "discharge_date": "2026-01-02"
+     },
+     "dropped": [],
+     "cost_usd": 0.003399,
+     "latency_ms": 2110.8,
+     "input_tokens": 2219,
+     "output_tokens": 236,
+     "run_id": "edf393ac-5704-4033-a9bf-0d81638a28b6"
+    },
+    {
+     "case_id": "CLM-00059",
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      270000
+     ],
+     "rules": [
+      "REVIEW",
+      270000,
+      [
+       "R-HOSP-01",
+       "R-REQ-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      270000,
+      [
+       "R-HOSP-01",
+       "R-REQ-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "강예은",
+      "surgery_date": "2027/03/11",
+      "surgery_name": "충수절제술",
+      "total_amount": "4,008,312",
+      "surgery_grade": "2종",
+      "admission_date": "2027/03/09",
+      "diagnosis_code": "K35.8",
+      "discharge_date": "2027/03/21"
+     },
+     "dropped": [],
+     "cost_usd": 0.004381,
+     "latency_ms": 3324.8,
+     "input_tokens": 2361,
+     "output_tokens": 404,
+     "run_id": "d5809f11-0879-4f02-a09f-f046a00bba66"
+    },
+    {
+     "case_id": "CLM-00061",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      680000
+     ],
+     "rules": [
+      "APPROVE",
+      680000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      0,
+      [
+       "R-CHAL-02",
+       "R-CONF-01",
+       "R-CONS-01",
+       "R-HOSP-02",
+       "R-REQ-02",
+       "R-SURG-02"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": false,
+      "diagnosis_code": false,
+      "diagnosis_date": false,
+      "diagnosis_name": false,
+      "discharge_date": false,
+      "hospital": false,
+      "insured_name": false,
+      "surgery_date": false,
+      "surgery_grade": false,
+      "surgery_name": false,
+      "total_amount": false
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "정현우",
+      "surgery_date": "2027-04-30",
+      "surgery_name": "관혈적 정복술 및 내고정술",
+      "total_amount": "3,945,291",
+      "surgery_grade": "3종",
+      "admission_date": "2027-04-29",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2027-04-30",
+      "diagnosis_name": "경골 원위부 골절",
+      "discharge_date": "2027-05-08"
+     },
+     "dropped": [
+      "admission_date",
+      "diagnosis_code",
+      "diagnosis_date",
+      "diagnosis_name",
+      "discharge_date",
+      "hospital",
+      "insured_name",
+      "surgery_date",
+      "surgery_grade",
+      "surgery_name",
+      "total_amount"
+     ],
+     "cost_usd": 0.006295,
+     "latency_ms": 5789.3,
+     "input_tokens": 2495,
+     "output_tokens": 760,
+     "run_id": "4a77a7a2-efdc-493e-8246-30dfbb916958"
+    },
+    {
+     "case_id": "CLM-00063",
+     "scenario": "grade_missing",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-HOSP-01",
+       "R-SURG-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      0,
+      [
+       "R-CHAL-02",
+       "R-CONF-01",
+       "R-HOSP-01",
+       "R-SURG-02"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": false,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "surgery_date": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "조수아",
+      "surgery_date": "2025/10/19",
+      "surgery_name": "관혈적 정복술 및 내고정술",
+      "total_amount": "1694704",
+      "admission_date": "2025/10/19",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2025/10/19",
+      "diagnosis_name": "경골 원위부 골절",
+      "discharge_date": "2025/10/20"
+     },
+     "dropped": [
+      "diagnosis_code",
+      "insured_name"
+     ],
+     "cost_usd": 0.005094,
+     "latency_ms": 4154.3,
+     "input_tokens": 2479,
+     "output_tokens": 523,
+     "run_id": "c8199483-f97b-4e0b-a105-040bd455a4b0"
+    },
+    {
+     "case_id": "CLM-00065",
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      30150000
+     ],
+     "rules": [
+      "REVIEW",
+      30000000,
+      [
+       "R-AMT-01",
+       "R-CONS-01",
+       "R-DIAG-01",
+       "R-HOSP-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      30150000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": false,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "최예은",
+      "total_amount": "1,005,117",
+      "admission_date": "2026-02-19",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-02-19",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2026-02-22"
+     },
+     "dropped": [],
+     "cost_usd": 0.004232,
+     "latency_ms": 3120.2,
+     "input_tokens": 2357,
+     "output_tokens": 375,
+     "run_id": "279e7c56-4d55-4ee4-996c-8fa14663eb2b"
+    },
+    {
+     "case_id": "CLM-00067",
+     "scenario": "exclusion",
+     "gold": [
+      "REVIEW",
+      90000
+     ],
+     "rules": [
+      "REVIEW",
+      90000,
+      [
+       "R-EXC-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      90000,
+      [
+       "R-EXC-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "박도윤",
+      "total_amount": "939732",
+      "admission_date": "2026.06.04",
+      "diagnosis_code": "C44.9",
+      "diagnosis_date": "2026.06.05",
+      "diagnosis_name": "피부의 악성신생물",
+      "discharge_date": "2026.06.10"
+     },
+     "dropped": [],
+     "cost_usd": 0.004484,
+     "latency_ms": 3460.2,
+     "input_tokens": 2349,
+     "output_tokens": 427,
+     "run_id": "fd549325-d571-4859-91fb-fd715ea779f2"
+    },
+    {
+     "case_id": "CLM-00069",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      330000
+     ],
+     "rules": [
+      "APPROVE",
+      330000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      330000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "박지호",
+      "surgery_date": "2027-02-15",
+      "surgery_name": "탈장교정술",
+      "total_amount": "2,825,116",
+      "surgery_grade": "2종",
+      "admission_date": "2027-02-13",
+      "diagnosis_code": "K40.9",
+      "diagnosis_date": "2027-02-13",
+      "diagnosis_name": "서혜부 탈장",
+      "discharge_date": "2027-02-17"
+     },
+     "dropped": [],
+     "cost_usd": 0.004981,
+     "latency_ms": 3987.9,
+     "input_tokens": 2481,
+     "output_tokens": 500,
+     "run_id": "47233156-1c1e-4e76-8f36-0f030d502263"
+    },
+    {
+     "case_id": "CLM-00071",
+     "scenario": "exclusion",
+     "gold": [
+      "REVIEW",
+      180000
+     ],
+     "rules": [
+      "REVIEW",
+      180000,
+      [
+       "R-EXC-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      180000,
+      [
+       "R-EXC-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "임서준",
+      "total_amount": "3,326,661",
+      "admission_date": "2026.07.15",
+      "diagnosis_code": "C44.9",
+      "diagnosis_date": "2026.07.16",
+      "diagnosis_name": "피부의 악성신생물",
+      "discharge_date": "2026.07.24"
+     },
+     "dropped": [
+      "insured_name"
+     ],
+     "cost_usd": 0.004583,
+     "latency_ms": 3676.0,
+     "input_tokens": 2358,
+     "output_tokens": 445,
+     "run_id": "cef7f3b2-7ddd-4195-b261-cfdda2468842"
+    },
+    {
+     "case_id": "CLM-00073",
+     "scenario": "grade_missing",
+     "gold": [
+      "REVIEW",
+      210000
+     ],
+     "rules": [
+      "REVIEW",
+      210000,
+      [
+       "R-HOSP-01",
+       "R-SURG-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      210000,
+      [
+       "R-HOSP-01",
+       "R-SURG-02"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "임서연",
+      "surgery_date": "2026년 3월 31일",
+      "surgery_name": "체외충격파쇄석술",
+      "total_amount": "4,260,210",
+      "admission_date": "2026년 3월 30일",
+      "diagnosis_code": "N20.0",
+      "diagnosis_date": "2026년 3월 31일",
+      "diagnosis_name": "신장결석",
+      "discharge_date": "2026년 4월 9일"
+     },
+     "dropped": [],
+     "cost_usd": 0.005244,
+     "latency_ms": 4214.4,
+     "input_tokens": 2499,
+     "output_tokens": 549,
+     "run_id": "55b37840-fa9b-40d9-a374-5a47ed5d634b"
+    },
+    {
+     "case_id": "CLM-00075",
+     "scenario": "format_variance",
+     "gold": [
+      "REVIEW",
+      30200000
+     ],
+     "rules": [
+      "REVIEW",
+      30200000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      0,
+      [
+       "R-CHAL-02",
+       "R-CONF-01",
+       "R-CONS-01",
+       "R-DIAG-02",
+       "R-HOSP-02",
+       "R-REQ-02"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": false,
+      "diagnosis_code": false,
+      "diagnosis_date": false,
+      "diagnosis_name": false,
+      "discharge_date": false,
+      "hospital": false,
+      "insured_name": false,
+      "total_amount": false
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "강수아",
+      "surgery_date": null,
+      "surgery_name": null,
+      "total_amount": "914496",
+      "surgery_grade": null,
+      "admission_date": "2025.12.22",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025.12.23",
+      "diagnosis_name": "유방의 악성신생물",
+      "discharge_date": "2025.12.26"
+     },
+     "dropped": [
+      "admission_date",
+      "diagnosis_code",
+      "diagnosis_date",
+      "diagnosis_name",
+      "discharge_date",
+      "hospital",
+      "insured_name",
+      "surgery_date",
+      "surgery_grade",
+      "surgery_name",
+      "total_amount"
+     ],
+     "cost_usd": 0.004866,
+     "latency_ms": 4043.0,
+     "input_tokens": 2346,
+     "output_tokens": 504,
+     "run_id": "aabbc959-26ee-4296-ac59-37c6cb0dad55"
+    },
+    {
+     "case_id": "CLM-00077",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      270000
+     ],
+     "rules": [
+      "APPROVE",
+      270000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      270000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "이지호",
+      "total_amount": "3,037,572",
+      "admission_date": "2026-10-21",
+      "discharge_date": "2026-11-02"
+     },
+     "dropped": [],
+     "cost_usd": 0.003391,
+     "latency_ms": 2122.4,
+     "input_tokens": 2221,
+     "output_tokens": 234,
+     "run_id": "260b9a51-41d1-4b40-8dc2-3d2dedd33530"
+    },
+    {
+     "case_id": "CLM-00079",
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      200000
+     ],
+     "rules": [
+      "REVIEW",
+      200000,
+      [
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      200000,
+      [
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "강예은",
+      "total_amount": "1531936",
+      "admission_date": "2025/06/10",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025/06/10",
+      "diagnosis_name": "유방의 악성신생물",
+      "discharge_date": "2025/06/14"
+     },
+     "dropped": [],
+     "cost_usd": 0.0042,
+     "latency_ms": 3032.1,
+     "input_tokens": 2350,
+     "output_tokens": 370,
+     "run_id": "59369b54-a359-4b16-b95d-b93bc3ba8315"
+    },
+    {
+     "case_id": "CLM-00081",
+     "scenario": "format_variance",
+     "gold": [
+      "REVIEW",
+      30150000
+     ],
+     "rules": [
+      "REVIEW",
+      30150000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      30150000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "강수아",
+      "total_amount": "464,628",
+      "admission_date": "2025.11.21",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025.11.21",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2025.11.24"
+     },
+     "dropped": [],
+     "cost_usd": 0.004481,
+     "latency_ms": 3479.2,
+     "input_tokens": 2351,
+     "output_tokens": 426,
+     "run_id": "d9db8645-d72e-4706-9ad7-805bd28ce618"
+    },
+    {
+     "case_id": "CLM-00083",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      560000
+     ],
+     "rules": [
+      "APPROVE",
+      560000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      560000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "조하은",
+      "surgery_date": "2026-01-03",
+      "surgery_name": "관혈적 정복술 및 내고정술",
+      "total_amount": "2,533,910",
+      "surgery_grade": "3종",
+      "admission_date": "2026-01-02",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-01-03",
+      "diagnosis_name": "경골 원위부 골절",
+      "discharge_date": "2026-01-07"
+     },
+     "dropped": [],
+     "cost_usd": 0.005105,
+     "latency_ms": 4111.4,
+     "input_tokens": 2495,
+     "output_tokens": 522,
+     "run_id": "ba0a2a87-a8d7-46cb-a4f9-d0e89dc1c572"
+    },
+    {
+     "case_id": "CLM-00085",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      180000
+     ],
+     "rules": [
+      "APPROVE",
+      180000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      180000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "이민준",
+      "total_amount": "1,980,414",
+      "admission_date": "2025-07-18",
+      "discharge_date": "2025-07-27"
+     },
+     "dropped": [],
+     "cost_usd": 0.003389,
+     "latency_ms": 2068.8,
+     "input_tokens": 2219,
+     "output_tokens": 234,
+     "run_id": "8da38591-4815-43ab-bb26-ce3bed8599cc"
+    },
+    {
+     "case_id": "CLM-00087",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      240000
+     ],
+     "rules": [
+      "APPROVE",
+      240000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      240000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "조서준",
+      "total_amount": "1,857,603",
+      "admission_date": "2026-11-15",
+      "discharge_date": "2026-11-26"
+     },
+     "dropped": [],
+     "cost_usd": 0.003401,
+     "latency_ms": 2111.5,
+     "input_tokens": 2221,
+     "output_tokens": 236,
+     "run_id": "305b445c-0508-4c2b-b08e-69980b7149f5"
+    },
+    {
+     "case_id": "CLM-00089",
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      50000
+     ],
+     "rules": [
+      "REVIEW",
+      50000,
+      [
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      50000,
+      [
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "강예은",
+      "total_amount": "150,211원",
+      "admission_date": "2025년 8월 2일",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025년 8월 2일",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2025년 8월 3일"
+     },
+     "dropped": [
+      "insured_name"
+     ],
+     "cost_usd": 0.004416,
+     "latency_ms": 3367.4,
+     "input_tokens": 2366,
+     "output_tokens": 410,
+     "run_id": "cf04297a-44e4-4a92-b39a-dc7efce2ba9d"
+    },
+    {
+     "case_id": "CLM-00091",
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      680000
+     ],
+     "rules": [
+      "APPROVE",
+      680000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      680000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "조지우",
+      "surgery_date": "2025/10/17",
+      "surgery_name": "관혈적 정복술 및 내고정술",
+      "total_amount": "3,398,334",
+      "surgery_grade": "3종",
+      "admission_date": "2025/10/15",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2025/10/15",
+      "diagnosis_name": "경골 원위부 골절",
+      "discharge_date": "2025/10/24"
+     },
+     "dropped": [],
+     "cost_usd": 0.005091,
+     "latency_ms": 4056.4,
+     "input_tokens": 2491,
+     "output_tokens": 520,
+     "run_id": "fc0705ed-552f-4971-806d-ef74d38b74d6"
+    },
+    {
+     "case_id": "CLM-00093",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "rules": [
+      "APPROVE",
+      150000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      150000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "이수아",
+      "total_amount": "623,646",
+      "admission_date": "2025-08-29",
+      "discharge_date": "2025-09-01"
+     },
+     "dropped": [],
+     "cost_usd": 0.003377,
+     "latency_ms": 2230.0,
+     "input_tokens": 2217,
+     "output_tokens": 232,
+     "run_id": "a5339df0-676f-4612-b244-cdb751d5031e"
+    },
+    {
+     "case_id": "CLM-00095",
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-REQ-01",
+       "R-REQ-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      0,
+      [
+       "R-REQ-01"
+      ]
+     ],
+     "model_hits": {
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "최지호",
+      "total_amount": "1,510,360",
+      "admission_date": "2026-03-29",
+      "discharge_date": "2026-04-03"
+     },
+     "dropped": [],
+     "cost_usd": 0.00337,
+     "latency_ms": 2166.7,
+     "input_tokens": 2095,
+     "output_tokens": 255,
+     "run_id": "c43d2d4c-69f1-4daa-9043-249512ca93bf"
+    },
+    {
+     "case_id": "CLM-00097",
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      200000
+     ],
+     "rules": [
+      "APPROVE",
+      200000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      200000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "이민준",
+      "total_amount": "691,268",
+      "admission_date": "2026.09.20",
+      "discharge_date": "2026.09.24"
+     },
+     "dropped": [],
+     "cost_usd": 0.003389,
+     "latency_ms": 2101.6,
+     "input_tokens": 2224,
+     "output_tokens": 233,
+     "run_id": "7fe04320-db02-4a10-ad11-0e5e2dd11bd9"
+    },
+    {
+     "case_id": "CLM-00099",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2060000
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-CONF-01",
+       "R-CONS-01",
+       "R-DIAG-02",
+       "R-HOSP-02",
+       "R-REQ-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      60000,
+      [
+       "R-CHAL-02",
+       "R-CONS-01",
+       "R-DIAG-02",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": false,
+      "diagnosis_date": false,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": false,
+      "diagnosis_code": false,
+      "diagnosis_date": false,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "강수아",
+      "total_amount": "1726435",
+      "admission_date": "2026.10.12",
+      "diagnosis_code": "D05.l",
+      "diagnosis_date": "2026.10.12",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026.10.17"
+     },
+     "dropped": [
+      "diagnosis_date"
+     ],
+     "cost_usd": 0.004211,
+     "latency_ms": 3049.5,
+     "input_tokens": 2351,
+     "output_tokens": 372,
+     "run_id": "40befdab-e82f-4445-993c-0d30f41ead6c"
+    },
+    {
+     "case_id": "CLM-00101",
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      740000
+     ],
+     "rules": [
+      "APPROVE",
+      740000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      740000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "정서준",
+      "surgery_date": "2027/04/18",
+      "surgery_name": "담낭절제술",
+      "total_amount": "5,827,730",
+      "surgery_grade": "3종",
+      "admission_date": "2027/04/18",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2027/04/19",
+      "diagnosis_name": "담낭결석",
+      "discharge_date": "2027/04/29"
+     },
+     "dropped": [],
+     "cost_usd": 0.004962,
+     "latency_ms": 3987.0,
+     "input_tokens": 2482,
+     "output_tokens": 496,
+     "run_id": "4bf6001e-6f41-478b-8f41-a2a1f391f434"
+    },
+    {
+     "case_id": "CLM-00103",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2120000
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-CONF-01",
+       "R-CONS-01",
+       "R-DIAG-02",
+       "R-HOSP-02"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      2120000,
+      [
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": false,
+      "diagnosis_name": true,
+      "discharge_date": false,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "최수아",
+      "total_amount": "1,757,420",
+      "admission_date": "2026-08-17",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-08-18",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026-08-24"
+     },
+     "dropped": [],
+     "cost_usd": 0.004519,
+     "latency_ms": 3447.3,
+     "input_tokens": 2364,
+     "output_tokens": 431,
+     "run_id": "ce082afc-ce11-4a61-a89a-c8832eb4315a"
+    },
+    {
+     "case_id": "CLM-00105",
+     "scenario": "waiting_period",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-WAIT-01"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-WAIT-01"
+      ]
+     ],
+     "model_hits": {
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "조도윤",
+      "total_amount": "301,472",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025/03/20",
+      "diagnosis_name": "위의 악성신생물"
+     },
+     "dropped": [],
+     "cost_usd": 0.00362,
+     "latency_ms": 2475.4,
+     "input_tokens": 2225,
+     "output_tokens": 279,
+     "run_id": "79a502c0-80b1-4623-92ec-b5416eb2c880"
+    },
+    {
+     "case_id": "CLM-00107",
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "김하은",
+      "total_amount": "1,890,918",
+      "admission_date": "2025-11-25",
+      "discharge_date": "2025-12-01"
+     },
+     "dropped": [],
+     "cost_usd": 0.003403,
+     "latency_ms": 2219.5,
+     "input_tokens": 2223,
+     "output_tokens": 236,
+     "run_id": "2db532b4-33f3-4a50-875f-35e61fbca528"
+    },
+    {
+     "case_id": "CLM-00109",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      500000
+     ],
+     "rules": [
+      "APPROVE",
+      500000,
+      [
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      500000,
+      [
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "윤예은",
+      "surgery_date": "2026-03-26",
+      "surgery_name": "관혈적 정복술 및 내고정술",
+      "total_amount": "2,393,088",
+      "surgery_grade": "3종",
+      "admission_date": "2026-03-24",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-03-24",
+      "diagnosis_name": "경골 원위부 골절",
+      "discharge_date": "2026-03-27"
+     },
+     "dropped": [],
+     "cost_usd": 0.005412,
+     "latency_ms": 4638.2,
+     "input_tokens": 2372,
+     "output_tokens": 608,
+     "run_id": "7bc59c6d-b634-4298-9147-73fc6a79a2f2"
+    },
+    {
+     "case_id": "CLM-00111",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      770000
+     ],
+     "rules": [
+      "APPROVE",
+      770000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      770000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "조서연",
+      "surgery_date": "2026-05-31",
+      "surgery_name": "담낭절제술",
+      "total_amount": "5,623,080",
+      "surgery_grade": "3종",
+      "admission_date": "2026-05-29",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2026-05-29",
+      "diagnosis_name": "담낭결석",
+      "discharge_date": "2026-06-10"
+     },
+     "dropped": [
+      "insured_name"
+     ],
+     "cost_usd": 0.005553,
+     "latency_ms": 4887.6,
+     "input_tokens": 2478,
+     "output_tokens": 615,
+     "run_id": "e55c6ef6-4d13-4dad-acb9-60bc6e10d456"
+    },
+    {
+     "case_id": "CLM-00113",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      400000
+     ],
+     "rules": [
+      "APPROVE",
+      400000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      400000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "이서연",
+      "total_amount": "2,812,264",
+      "admission_date": "2026-05-18",
+      "discharge_date": "2026-05-26"
+     },
+     "dropped": [],
+     "cost_usd": 0.003391,
+     "latency_ms": 2078.0,
+     "input_tokens": 2221,
+     "output_tokens": 234,
+     "run_id": "ec56fc2e-7ab2-4373-ae68-f5e0e41608b2"
+    },
+    {
+     "case_id": "CLM-00115",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      180000
+     ],
+     "rules": [
+      "APPROVE",
+      180000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      180000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "강민준",
+      "total_amount": "1,597,374",
+      "admission_date": "2026-06-26",
+      "discharge_date": "2026-07-05"
+     },
+     "dropped": [],
+     "cost_usd": 0.003537,
+     "latency_ms": 2280.2,
+     "input_tokens": 2217,
+     "output_tokens": 264,
+     "run_id": "2f4529df-6c17-4b56-ba97-1c66df081255"
+    },
+    {
+     "case_id": "CLM-00117",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      400000
+     ],
+     "rules": [
+      "APPROVE",
+      400000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      400000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "장서연",
+      "total_amount": "3,087,216",
+      "admission_date": "2027-03-18",
+      "discharge_date": "2027-03-26"
+     },
+     "dropped": [],
+     "cost_usd": 0.003541,
+     "latency_ms": 2235.6,
+     "input_tokens": 2221,
+     "output_tokens": 264,
+     "run_id": "4d9922fe-39ba-4ec7-b53c-4668ff689471"
+    },
+    {
+     "case_id": "CLM-00119",
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      11000000
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-CONF-01",
+       "R-CONS-01",
+       "R-DIAG-02",
+       "R-REQ-02",
+       "R-SURG-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      0,
+      [
+       "R-CONS-01",
+       "R-DIAG-02",
+       "R-REQ-02",
+       "R-SURG-02"
+      ]
+     ],
+     "model_hits": {
+      "diagnosis_code": false,
+      "diagnosis_date": false,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": false,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "diagnosis_code": false,
+      "diagnosis_date": false,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": false,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "최하은",
+      "surgery_date": "2O26년 6월 1S일",
+      "surgery_name": "유방절제술",
+      "total_amount": "1,823,968",
+      "surgery_grade": "4종",
+      "admission_date": "2O26년 6월 15일",
+      "diagnosis_code": "CS0,9",
+      "diagnosis_date": "2026년 6월 1S일",
+      "diagnosis_name": "유방의 악성신생물",
+      "discharge_date": "2026년 6월 16일"
+     },
+     "dropped": [],
+     "cost_usd": 0.005165,
+     "latency_ms": 4284.3,
+     "input_tokens": 2375,
+     "output_tokens": 558,
+     "run_id": "155af378-f676-4569-b9c0-7353603a200b"
+    }
+   ],
+   "model_errors": []
+  },
+  {
+   "input": "text layer, repeat 3",
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/39963623165",
+   "protocol": {
+    "code_sha": "b272111af937def13ccb9946585bf33c73ec965a",
+    "started_at": "2026-10-23T13:44:47.657370+00:00",
+    "provider": "anthropic",
+    "model": "claude-haiku-4-5-20251001",
+    "split": "test",
+    "scan": null,
+    "max_cases": null,
+    "ceiling_usd": "0.6",
+    "per_run_cap_usd": "0.04",
+    "pricing_usd_per_million": {
+     "input": "1",
+     "output": "5"
+    },
+    "scoring": "claims/evaluate.py rules against the generator's gold; the rules reader reads the same bytes as the model run"
+   },
+   "spent_line": "0.255492 ceiling 0.6 skipped 0 stopped None agreement 0.8667",
+   "summary_model": {
+    "cases": 60,
+    "decision_accuracy": 0.95,
+    "wrong_pay_count": 0,
+    "wrong_deny_count": 0,
+    "review_rate": 0.4333,
+    "auto_rate": 0.8929,
+    "field_accuracy": 0.9742,
+    "field_accuracy_by_field": {
+     "admission_date": 1.0,
+     "diagnosis_code": 0.9,
+     "diagnosis_date": 1.0,
+     "diagnosis_name": 1.0,
+     "discharge_date": 1.0,
+     "hospital": 1.0,
+     "insured_name": 0.8667,
+     "surgery_date": 1.0,
+     "surgery_grade": 1.0,
+     "surgery_name": 1.0,
+     "total_amount": 1.0
+    },
+    "by_scenario": {
+     "clean": {
+      "cases": 17,
+      "correct": 16,
+      "wrong_pay": 0,
+      "review": 1
+     },
+     "date_conflict": {
+      "cases": 1,
+      "correct": 1,
+      "wrong_pay": 0,
+      "review": 1
+     },
+     "duplicate": {
+      "cases": 4,
+      "correct": 4,
+      "wrong_pay": 0,
+      "review": 0
+     },
+     "exclusion": {
+      "cases": 3,
+      "correct": 3,
+      "wrong_pay": 0,
+      "review": 3
+     },
+     "format_variance": {
+      "cases": 9,
+      "correct": 9,
+      "wrong_pay": 0,
+      "review": 2
+     },
+     "grade_missing": {
+      "cases": 4,
+      "correct": 4,
+      "wrong_pay": 0,
+      "review": 3
+     },
+     "high_amount": {
+      "cases": 3,
+      "correct": 3,
+      "wrong_pay": 0,
+      "review": 3
+     },
+     "lapsed_policy": {
+      "cases": 3,
+      "correct": 3,
+      "wrong_pay": 0,
+      "review": 0
+     },
+     "missing_doc": {
+      "cases": 4,
+      "correct": 4,
+      "wrong_pay": 0,
+      "review": 4
+     },
+     "ocr_noise": {
+      "cases": 7,
+      "correct": 5,
+      "wrong_pay": 0,
+      "review": 5
+     },
+     "waiting_period": {
+      "cases": 5,
+      "correct": 5,
+      "wrong_pay": 0,
+      "review": 4
+     }
+    },
+    "completed_or_waiting": 60,
+    "failed": 0,
+    "ungrounded_reviews": 3,
+    "fields_dropped_by_grounding": 20,
+    "model_errors": 0,
+    "repairs": 0,
+    "cost_usd": 0.255492,
+    "latency_ms_median": 3236.6,
+    "input_tokens": 140602,
+    "output_tokens": 22978
+   },
+   "summary_rules": {
+    "cases": 60,
+    "decision_accuracy": 0.8833,
+    "wrong_pay_count": 0,
+    "wrong_deny_count": 0,
+    "review_rate": 0.45,
+    "auto_rate": 0.8571,
+    "field_accuracy": 0.9614,
+    "field_accuracy_by_field": {
+     "admission_date": 0.9273,
+     "diagnosis_code": 0.9,
+     "diagnosis_date": 0.8684,
+     "diagnosis_name": 1.0,
+     "discharge_date": 0.9273,
+     "hospital": 1.0,
+     "insured_name": 1.0,
+     "surgery_date": 0.9524,
+     "surgery_grade": 1.0,
+     "surgery_name": 1.0,
+     "total_amount": 1.0
+    },
+    "by_scenario": {
+     "clean": {
+      "cases": 17,
+      "correct": 17,
+      "wrong_pay": 0,
+      "review": 0
+     },
+     "date_conflict": {
+      "cases": 1,
+      "correct": 1,
+      "wrong_pay": 0,
+      "review": 1
+     },
+     "duplicate": {
+      "cases": 4,
+      "correct": 4,
+      "wrong_pay": 0,
+      "review": 0
+     },
+     "exclusion": {
+      "cases": 3,
+      "correct": 3,
+      "wrong_pay": 0,
+      "review": 3
+     },
+     "format_variance": {
+      "cases": 9,
+      "correct": 9,
+      "wrong_pay": 0,
+      "review": 2
+     },
+     "grade_missing": {
+      "cases": 4,
+      "correct": 4,
+      "wrong_pay": 0,
+      "review": 3
+     },
+     "high_amount": {
+      "cases": 3,
+      "correct": 3,
+      "wrong_pay": 0,
+      "review": 3
+     },
+     "lapsed_policy": {
+      "cases": 3,
+      "correct": 3,
+      "wrong_pay": 0,
+      "review": 0
+     },
+     "missing_doc": {
+      "cases": 4,
+      "correct": 4,
+      "wrong_pay": 0,
+      "review": 4
+     },
+     "ocr_noise": {
+      "cases": 7,
+      "correct": 0,
+      "wrong_pay": 0,
+      "review": 7
+     },
+     "waiting_period": {
+      "cases": 5,
+      "correct": 5,
+      "wrong_pay": 0,
+      "review": 4
+     }
+    }
+   },
+   "headline": {
+    "model": {
+     "cases": 60,
+     "decision_accuracy": 0.95,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.4333,
+     "auto_rate": 0.8929,
+     "field_accuracy": 0.9742,
+     "ungrounded_reviews": 3,
+     "fields_dropped_by_grounding": 20,
+     "failed": 0,
+     "model_errors": 0,
+     "repairs": 0,
+     "cost_usd": 0.255492,
+     "latency_ms_median": 3236.6,
+     "input_tokens": 140602,
+     "output_tokens": 22978
+    },
+    "rules": {
+     "cases": 60,
+     "decision_accuracy": 0.8833,
+     "wrong_pay_count": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.45,
+     "auto_rate": 0.8571,
+     "field_accuracy": 0.9614
+    },
+    "agreement": "0.255492 ceiling 0.6 skipped 0 stopped None agreement 0.8667"
+   },
+   "disagreements": [
+    {
+     "case_id": "CLM-00001",
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      100000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      100000
+     ],
+     "model_rules_added": [
+      "R-DIAG-01",
+      "R-HOSP-01"
+     ],
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "이수아",
+      "total_amount": "595890",
+      "admission_date": "2025-12-30",
+      "diagnosis_code": "I21,9",
+      "diagnosis_date": "2025-12-30",
+      "diagnosis_name": "급성 심근경색",
+      "discharge_date": "2026-01-01"
+     },
+     "dropped": [],
+     "error": null
+    },
+    {
+     "case_id": "CLM-00023",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      60000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "APPROVE",
+      60000
+     ],
+     "model_rules_added": [
+      "R-HOSP-01"
+     ],
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "이도윤",
+      "total_amount": "1,011,080",
+      "admission_date": "2027-01-25",
+      "discharge_date": "2027-01-30"
+     },
+     "dropped": [],
+     "error": null
+    },
+    {
+     "case_id": "CLM-00039",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2270000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      270000
+     ],
+     "model_rules_added": [
+      "R-DIAG-01",
+      "R-HOSP-01"
+     ],
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "장지호",
+      "total_amount": "3,962,532",
+      "admission_date": "2026/10/24",
+      "diagnosis_code": "DO5,l",
+      "diagnosis_date": "2026/10/25",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026/11/05"
+     },
+     "dropped": [],
+     "error": null
+    },
+    {
+     "case_id": "CLM-00065",
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      30150000
+     ],
+     "rules": [
+      "REVIEW",
+      30000000
+     ],
+     "model": [
+      "REVIEW",
+      30150000
+     ],
+     "model_rules_added": [
+      "R-HOSP-01"
+     ],
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "최예은",
+      "total_amount": "1,005,117",
+      "admission_date": "2026-02-19",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-02-19",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2026-02-22"
+     },
+     "dropped": [],
+     "error": null
+    },
+    {
+     "case_id": "CLM-00099",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2060000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      2060000
+     ],
+     "model_rules_added": [
+      "R-DIAG-01",
+      "R-HOSP-01"
+     ],
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "강수아",
+      "total_amount": "1726435",
+      "admission_date": "2026.10.12",
+      "diagnosis_code": "D05.l",
+      "diagnosis_date": "2026.10.12",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026.10.17"
+     },
+     "dropped": [],
+     "error": null
+    },
+    {
+     "case_id": "CLM-00103",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2120000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "APPROVE",
+      2120000
+     ],
+     "model_rules_added": [
+      "R-DIAG-01",
+      "R-HOSP-01"
+     ],
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "최수아",
+      "total_amount": "1,757,420",
+      "admission_date": "2026년 8월 17일",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026년 8월 18일",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026년 8월 24일"
+     },
+     "dropped": [],
+     "error": null
+    },
+    {
+     "case_id": "CLM-00115",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      180000
+     ],
+     "rules": [
+      "APPROVE",
+      180000
+     ],
+     "model": [
+      "REVIEW",
+      180000
+     ],
+     "model_rules_added": [
+      "R-CHAL-02",
+      "R-CONF-01"
+     ],
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "강민준",
+      "surgery_date": null,
+      "surgery_name": null,
+      "total_amount": "1,597,374",
+      "surgery_grade": null,
+      "admission_date": "2026-06-26",
+      "diagnosis_code": null,
+      "diagnosis_date": null,
+      "diagnosis_name": null,
+      "discharge_date": "2026-07-05"
+     },
+     "dropped": [
+      "diagnosis_code",
+      "diagnosis_date",
+      "diagnosis_name",
+      "surgery_date",
+      "surgery_grade",
+      "surgery_name"
+     ],
+     "error": null
+    },
+    {
+     "case_id": "CLM-00119",
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      11000000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      11000000
+     ],
+     "model_rules_added": [
+      "R-AMT-01",
+      "R-DIAG-01",
+      "R-SURG-01"
+     ],
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "최하은",
+      "surgery_date": "2026년 6월 15일",
+      "surgery_name": "유방절제술",
+      "total_amount": "1,823,968",
+      "surgery_grade": "4종",
+      "admission_date": "2026년 6월 15일",
+      "diagnosis_code": "CS0,9",
+      "diagnosis_date": "2026년 6월 15일",
+      "diagnosis_name": "유방의 악성신생물",
+      "discharge_date": "2026년 6월 16일"
+     },
+     "dropped": [],
+     "error": null
+    }
+   ],
+   "rows": [
+    {
+     "case_id": "CLM-00001",
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      100000
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-CONF-01",
+       "R-CONS-01",
+       "R-DIAG-02",
+       "R-HOSP-02",
+       "R-REQ-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      100000,
+      [
+       "R-CONS-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": false,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": false,
+      "diagnosis_code": false,
+      "diagnosis_date": false,
+      "diagnosis_name": true,
+      "discharge_date": false,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "이수아",
+      "total_amount": "595890",
+      "admission_date": "2025-12-30",
+      "diagnosis_code": "I21,9",
+      "diagnosis_date": "2025-12-30",
+      "diagnosis_name": "급성 심근경색",
+      "discharge_date": "2026-01-01"
+     },
+     "dropped": [],
+     "cost_usd": 0.004185,
+     "latency_ms": 5215.3,
+     "input_tokens": 2345,
+     "output_tokens": 368,
+     "run_id": "5d01fe60-641a-4221-aca7-dea0c3072303"
+    },
+    {
+     "case_id": "CLM-00003",
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-HOSP-01",
+       "R-REQ-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      0,
+      [
+       "R-HOSP-01",
+       "R-REQ-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "장도윤",
+      "surgery_date": "2026-10-10",
+      "surgery_name": "유방절제술",
+      "total_amount": "1921612",
+      "surgery_grade": "4종",
+      "admission_date": "2026-10-10",
+      "diagnosis_code": "C50.9",
+      "discharge_date": "2026-10-12"
+     },
+     "dropped": [],
+     "cost_usd": 0.004343,
+     "latency_ms": 3205.5,
+     "input_tokens": 2348,
+     "output_tokens": 399,
+     "run_id": "a9a1650d-84fc-40d9-b995-2448e1692ec3"
+    },
+    {
+     "case_id": "CLM-00005",
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      450000
+     ],
+     "rules": [
+      "REVIEW",
+      450000,
+      [
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      450000,
+      [
+       "R-CHAL-02",
+       "R-CONF-01",
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "이도윤",
+      "surgery_date": null,
+      "surgery_name": null,
+      "total_amount": "2,851,551",
+      "surgery_grade": null,
+      "admission_date": "2025.06.03",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025.06.04",
+      "diagnosis_name": "유방의 악성신생물",
+      "discharge_date": "2025.06.12"
+     },
+     "dropped": [
+      "insured_name",
+      "surgery_date",
+      "surgery_grade",
+      "surgery_name"
+     ],
+     "cost_usd": 0.004769,
+     "latency_ms": 3949.4,
+     "input_tokens": 2364,
+     "output_tokens": 481,
+     "run_id": "9cd347fe-eae2-4b1e-932b-afe06bfabf7f"
+    },
+    {
+     "case_id": "CLM-00007",
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "이예은",
+      "total_amount": "2,547,936",
+      "admission_date": "2026년 12월 1일",
+      "diagnosis_code": "I63.9",
+      "diagnosis_date": "2026년 12월 2일",
+      "diagnosis_name": "뇌경색증",
+      "discharge_date": "2026년 12월 10일"
+     },
+     "dropped": [],
+     "cost_usd": 0.004303,
+     "latency_ms": 3242.3,
+     "input_tokens": 2368,
+     "output_tokens": 387,
+     "run_id": "7391de09-825d-4b10-9dbd-20f1b8529e11"
+    },
+    {
+     "case_id": "CLM-00009",
+     "scenario": "high_amount",
+     "gold": [
+      "REVIEW",
+      31600000
+     ],
+     "rules": [
+      "REVIEW",
+      31600000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      31600000,
+      [
+       "R-AMT-01",
+       "R-CHAL-02",
+       "R-CONF-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "조도윤",
+      "surgery_date": null,
+      "surgery_name": null,
+      "total_amount": "5,282,560",
+      "surgery_grade": null,
+      "admission_date": "2027/01/22",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2027/01/23",
+      "diagnosis_name": "유방의 악성신생물",
+      "discharge_date": "2027/02/23"
+     },
+     "dropped": [
+      "surgery_date",
+      "surgery_grade",
+      "surgery_name"
+     ],
+     "cost_usd": 0.004643,
+     "latency_ms": 3714.5,
+     "input_tokens": 2358,
+     "output_tokens": 457,
+     "run_id": "1ce324bc-570e-4ee5-89dd-83d2ca0a40d7"
+    },
+    {
+     "case_id": "CLM-00011",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      540000
+     ],
+     "rules": [
+      "APPROVE",
+      540000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      540000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "김지호",
+      "surgery_date": "2026-01-01",
+      "surgery_name": "충수절제술",
+      "total_amount": "5,083,558",
+      "surgery_grade": "2종",
+      "admission_date": "2025-12-30",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2025-12-31",
+      "diagnosis_name": "급성 충수염",
+      "discharge_date": "2026-01-10"
+     },
+     "dropped": [
+      "insured_name"
+     ],
+     "cost_usd": 0.005237,
+     "latency_ms": 4652.7,
+     "input_tokens": 2482,
+     "output_tokens": 551,
+     "run_id": "ee306ced-f3ff-44a3-8f42-7182299c734c"
+    },
+    {
+     "case_id": "CLM-00013",
+     "scenario": "format_variance",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "윤예은",
+      "total_amount": "170,308",
+      "admission_date": "2026.11.19",
+      "discharge_date": "2026.11.20"
+     },
+     "dropped": [],
+     "cost_usd": 0.003413,
+     "latency_ms": 2217.0,
+     "input_tokens": 2228,
+     "output_tokens": 237,
+     "run_id": "cc02465b-b216-4549-a5bc-c43d8b90bb31"
+    },
+    {
+     "case_id": "CLM-00015",
+     "scenario": "date_conflict",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-CONS-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      0,
+      [
+       "R-CONS-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "강지우",
+      "total_amount": "1,517,976",
+      "admission_date": "2025-05-23",
+      "discharge_date": "2025-05-21"
+     },
+     "dropped": [],
+     "cost_usd": 0.003413,
+     "latency_ms": 2200.6,
+     "input_tokens": 2228,
+     "output_tokens": 237,
+     "run_id": "db5d6427-193d-43bd-9c08-56a59adc61b0"
+    },
+    {
+     "case_id": "CLM-00017",
+     "scenario": "exclusion",
+     "gold": [
+      "REVIEW",
+      30000
+     ],
+     "rules": [
+      "REVIEW",
+      30000,
+      [
+       "R-EXC-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      30000,
+      [
+       "R-EXC-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "윤도윤",
+      "surgery_date": "2026/01/12",
+      "surgery_name": "심방중격결손 폐쇄술",
+      "total_amount": "3040352",
+      "surgery_grade": "5종",
+      "admission_date": "2026/01/11",
+      "diagnosis_code": "Q21.1",
+      "diagnosis_date": "2026/01/11",
+      "diagnosis_name": "심방중격결손",
+      "discharge_date": "2026/01/15"
+     },
+     "dropped": [],
+     "cost_usd": 0.005042,
+     "latency_ms": 4019.1,
+     "input_tokens": 2492,
+     "output_tokens": 510,
+     "run_id": "49685d4a-a5df-42c0-8694-cb858c9e482d"
+    },
+    {
+     "case_id": "CLM-00019",
+     "scenario": "lapsed_policy",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-POL-02"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-POL-02"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "강하은",
+      "surgery_date": "2026-07-27",
+      "surgery_name": "충수절제술",
+      "total_amount": "4,012,615",
+      "surgery_grade": "2종",
+      "admission_date": "2026-07-27",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2026-07-27",
+      "diagnosis_name": "급성 충수염",
+      "discharge_date": "2026-08-03"
+     },
+     "dropped": [
+      "insured_name"
+     ],
+     "cost_usd": 0.004999,
+     "latency_ms": 4046.1,
+     "input_tokens": 2489,
+     "output_tokens": 502,
+     "run_id": "96f93101-c1a6-47c9-8f18-689108f5e3ba"
+    },
+    {
+     "case_id": "CLM-00021",
+     "scenario": "grade_missing",
+     "gold": [
+      "APPROVE",
+      350000
+     ],
+     "rules": [
+      "APPROVE",
+      350000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      350000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "강예은",
+      "total_amount": "1,739,164",
+      "admission_date": "2026/06/12",
+      "discharge_date": "2026/06/19"
+     },
+     "dropped": [],
+     "cost_usd": 0.003389,
+     "latency_ms": 2108.7,
+     "input_tokens": 2219,
+     "output_tokens": 234,
+     "run_id": "f7393920-2af9-4d42-a403-18077f5163ab"
+    },
+    {
+     "case_id": "CLM-00023",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      60000
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-CONF-01",
+       "R-CONS-01",
+       "R-HOSP-02",
+       "R-REQ-02"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      60000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": false,
+      "discharge_date": false,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "이도윤",
+      "total_amount": "1,011,080",
+      "admission_date": "2027-01-25",
+      "discharge_date": "2027-01-30"
+     },
+     "dropped": [],
+     "cost_usd": 0.003447,
+     "latency_ms": 2198.7,
+     "input_tokens": 2232,
+     "output_tokens": 243,
+     "run_id": "a573decd-1a26-4e67-8426-2f5f82e257c7"
+    },
+    {
+     "case_id": "CLM-00025",
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      550000
+     ],
+     "rules": [
+      "REVIEW",
+      550000,
+      [
+       "R-HOSP-01",
+       "R-REQ-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      550000,
+      [
+       "R-HOSP-01",
+       "R-REQ-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "김예은",
+      "total_amount": "3,493,127",
+      "admission_date": "2025-11-01",
+      "discharge_date": "2025-11-12"
+     },
+     "dropped": [],
+     "cost_usd": 0.003411,
+     "latency_ms": 2154.9,
+     "input_tokens": 2226,
+     "output_tokens": 237,
+     "run_id": "a23a04d8-a86e-4267-9e8f-a26ddb043e91"
+    },
+    {
+     "case_id": "CLM-00027",
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      550000
+     ],
+     "rules": [
+      "REVIEW",
+      550000,
+      [
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      550000,
+      [
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "김현우",
+      "total_amount": "3,521,518",
+      "admission_date": "2025년 8월 23일",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025년 8월 24일",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2025년 9월 3일"
+     },
+     "dropped": [],
+     "cost_usd": 0.00433,
+     "latency_ms": 3250.0,
+     "input_tokens": 2375,
+     "output_tokens": 391,
+     "run_id": "20c8ae1a-8bb9-4d54-bdde-cf9b18b2a786"
+    },
+    {
+     "case_id": "CLM-00029",
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "정서연",
+      "surgery_date": "2025년 12월 13일",
+      "surgery_name": "관상동맥 스텐트 삽입술",
+      "total_amount": "4,113,870원",
+      "surgery_grade": "4종",
+      "admission_date": "2025년 12월 12일",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2025년 12월 12일",
+      "diagnosis_name": "급성 심근경색",
+      "discharge_date": "2025년 12월 21일"
+     },
+     "dropped": [],
+     "cost_usd": 0.00524,
+     "latency_ms": 4226.3,
+     "input_tokens": 2520,
+     "output_tokens": 544,
+     "run_id": "a06ce154-792a-489e-9156-c2b1c1844557"
+    },
+    {
+     "case_id": "CLM-00031",
+     "scenario": "high_amount",
+     "gold": [
+      "REVIEW",
+      32650000
+     ],
+     "rules": [
+      "REVIEW",
+      32650000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      32650000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "정서연",
+      "total_amount": "9,068,088",
+      "admission_date": "2026.10.27",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026.10.28",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2026.12.19"
+     },
+     "dropped": [
+      "insured_name"
+     ],
+     "cost_usd": 0.004327,
+     "latency_ms": 3237.4,
+     "input_tokens": 2357,
+     "output_tokens": 394,
+     "run_id": "6ee14f9e-946e-43f0-9027-018aab1299a0"
+    },
+    {
+     "case_id": "CLM-00033",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      330000
+     ],
+     "rules": [
+      "APPROVE",
+      330000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      330000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "이도윤",
+      "surgery_date": "2025-12-24",
+      "surgery_name": "충수절제술",
+      "total_amount": "2,452,860원",
+      "surgery_grade": "2종",
+      "admission_date": "2025-12-23",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2025-12-24",
+      "diagnosis_name": "급성 충수염",
+      "discharge_date": "2025-12-27"
+     },
+     "dropped": [
+      "insured_name"
+     ],
+     "cost_usd": 0.00527,
+     "latency_ms": 4480.3,
+     "input_tokens": 2480,
+     "output_tokens": 558,
+     "run_id": "7c1a27a4-58ac-46bd-b778-e9942af97b22"
+    },
+    {
+     "case_id": "CLM-00035",
+     "scenario": "high_amount",
+     "gold": [
+      "REVIEW",
+      12290000
+     ],
+     "rules": [
+      "REVIEW",
+      12290000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      12290000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "이지우",
+      "surgery_date": "2026/10/09",
+      "surgery_name": "위아전절제술",
+      "total_amount": "19,059,534",
+      "surgery_grade": "4종",
+      "admission_date": "2026/10/08",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026/10/08",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2026/11/23"
+     },
+     "dropped": [],
+     "cost_usd": 0.004989,
+     "latency_ms": 4036.2,
+     "input_tokens": 2484,
+     "output_tokens": 501,
+     "run_id": "53ccd85a-d1be-479c-b41f-5b9e07347edb"
+    },
+    {
+     "case_id": "CLM-00037",
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      550000
+     ],
+     "rules": [
+      "APPROVE",
+      550000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      550000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "임하은",
+      "total_amount": "4230061",
+      "admission_date": "2026.02.05",
+      "discharge_date": "2026.02.16"
+     },
+     "dropped": [],
+     "cost_usd": 0.003365,
+     "latency_ms": 2069.9,
+     "input_tokens": 2215,
+     "output_tokens": 230,
+     "run_id": "dc4a5a6d-bd84-472b-a425-fe26a815672d"
+    },
+    {
+     "case_id": "CLM-00039",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2270000
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-CONF-01",
+       "R-CONS-01",
+       "R-DIAG-02",
+       "R-HOSP-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      270000,
+      [
+       "R-CONS-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": false,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": false,
+      "diagnosis_date": false,
+      "diagnosis_name": true,
+      "discharge_date": false,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "장지호",
+      "total_amount": "3,962,532",
+      "admission_date": "2026/10/24",
+      "diagnosis_code": "DO5,l",
+      "diagnosis_date": "2026/10/25",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026/11/05"
+     },
+     "dropped": [],
+     "cost_usd": 0.004249,
+     "latency_ms": 3215.5,
+     "input_tokens": 2364,
+     "output_tokens": 377,
+     "run_id": "68374681-3696-48c7-9f1a-aa430013eb87"
+    },
+    {
+     "case_id": "CLM-00041",
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "rules": [
+      "APPROVE",
+      150000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      150000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "윤하은",
+      "total_amount": "818,019",
+      "admission_date": "2027/02/18",
+      "discharge_date": "2027/02/21"
+     },
+     "dropped": [],
+     "cost_usd": 0.003415,
+     "latency_ms": 2146.7,
+     "input_tokens": 2230,
+     "output_tokens": 237,
+     "run_id": "6cdbcd8b-f030-45bd-9027-d15a627979d9"
+    },
+    {
+     "case_id": "CLM-00043",
+     "scenario": "grade_missing",
+     "gold": [
+      "REVIEW",
+      10000000
+     ],
+     "rules": [
+      "REVIEW",
+      10000000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-SURG-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      10000000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-SURG-02"
+      ]
+     ],
+     "model_hits": {
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "이서준",
+      "surgery_date": "2026-04-01",
+      "surgery_name": "위아전절제술",
+      "total_amount": "1792973",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-04-01",
+      "diagnosis_name": "위의 악성신생물"
+     },
+     "dropped": [],
+     "cost_usd": 0.004185,
+     "latency_ms": 3097.4,
+     "input_tokens": 2345,
+     "output_tokens": 368,
+     "run_id": "88831966-d4f6-4c3f-87f2-6bf2d8712505"
+    },
+    {
+     "case_id": "CLM-00045",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      530000
+     ],
+     "rules": [
+      "APPROVE",
+      530000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      530000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "이하은",
+      "surgery_date": "2026-09-08",
+      "surgery_name": "담낭절제술",
+      "total_amount": "2,880,356원",
+      "surgery_grade": "3종",
+      "admission_date": "2026-09-06",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2026-09-07",
+      "diagnosis_name": "담낭결석",
+      "discharge_date": "2026-09-10"
+     },
+     "dropped": [],
+     "cost_usd": 0.005283,
+     "latency_ms": 4309.2,
+     "input_tokens": 2478,
+     "output_tokens": 561,
+     "run_id": "b3a9d5ca-89f3-4056-9208-0695d2cc4dc2"
+    },
+    {
+     "case_id": "CLM-00047",
+     "scenario": "lapsed_policy",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-POL-02"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-POL-02"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "정현우",
+      "total_amount": "1,620,328원",
+      "admission_date": "2026년 9월 22일",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026년 9월 23일",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026년 9월 30일"
+     },
+     "dropped": [],
+     "cost_usd": 0.004318,
+     "latency_ms": 3250.3,
+     "input_tokens": 2363,
+     "output_tokens": 391,
+     "run_id": "70d644e9-04f8-4c5b-8548-c68c46f9dd0c"
+    },
+    {
+     "case_id": "CLM-00049",
+     "scenario": "lapsed_policy",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-POL-02"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-POL-02"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "임수아",
+      "total_amount": "1,732,664",
+      "admission_date": "2026년 3월 17일",
+      "discharge_date": "2026년 3월 25일"
+     },
+     "dropped": [],
+     "cost_usd": 0.003469,
+     "latency_ms": 2164.4,
+     "input_tokens": 2234,
+     "output_tokens": 247,
+     "run_id": "d196e192-ce8d-4a10-b0f8-b5d049071af8"
+    },
+    {
+     "case_id": "CLM-00051",
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      2000000
+     ],
+     "rules": [
+      "APPROVE",
+      2000000,
+      [
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      2000000,
+      [
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "조서연",
+      "total_amount": "817,968",
+      "admission_date": "2026-08-07",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-08-07",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026-08-10"
+     },
+     "dropped": [],
+     "cost_usd": 0.004191,
+     "latency_ms": 3123.1,
+     "input_tokens": 2346,
+     "output_tokens": 369,
+     "run_id": "2a6d5297-e258-467b-8332-7b5290bc48e9"
+    },
+    {
+     "case_id": "CLM-00053",
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "박예은",
+      "surgery_date": "2026.01.30",
+      "surgery_name": "관상동맥 스텐트 삽입술",
+      "total_amount": "2,289,460",
+      "surgery_grade": "4종",
+      "admission_date": "2026.01.28",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2026.01.29",
+      "diagnosis_name": "급성 심근경색",
+      "discharge_date": "2026.02.01"
+     },
+     "dropped": [],
+     "cost_usd": 0.005075,
+     "latency_ms": 4234.8,
+     "input_tokens": 2490,
+     "output_tokens": 517,
+     "run_id": "8d1922a8-54ff-4208-97f9-68931aa1cb89"
+    },
+    {
+     "case_id": "CLM-00055",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "rules": [
+      "APPROVE",
+      150000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      150000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "윤수아",
+      "total_amount": "1,127,187",
+      "admission_date": "2026-05-30",
+      "discharge_date": "2026-06-02"
+     },
+     "dropped": [],
+     "cost_usd": 0.003399,
+     "latency_ms": 2156.5,
+     "input_tokens": 2219,
+     "output_tokens": 236,
+     "run_id": "44dd7034-01b3-4d4a-9784-2b08bb1e927c"
+    },
+    {
+     "case_id": "CLM-00057",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      450000
+     ],
+     "rules": [
+      "APPROVE",
+      450000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      450000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "이도윤",
+      "total_amount": "1,549,296",
+      "admission_date": "2025-12-24",
+      "discharge_date": "2026-01-02"
+     },
+     "dropped": [],
+     "cost_usd": 0.003399,
+     "latency_ms": 2105.6,
+     "input_tokens": 2219,
+     "output_tokens": 236,
+     "run_id": "c83d7292-9997-45fb-9acd-f89d704c8270"
+    },
+    {
+     "case_id": "CLM-00059",
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      270000
+     ],
+     "rules": [
+      "REVIEW",
+      270000,
+      [
+       "R-HOSP-01",
+       "R-REQ-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      270000,
+      [
+       "R-HOSP-01",
+       "R-REQ-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "강예은",
+      "surgery_date": "2027/03/11",
+      "surgery_name": "충수절제술",
+      "total_amount": "4,008,312",
+      "surgery_grade": "2종",
+      "admission_date": "2027/03/09",
+      "diagnosis_code": "K35.8",
+      "discharge_date": "2027/03/21"
+     },
+     "dropped": [],
+     "cost_usd": 0.004381,
+     "latency_ms": 3301.7,
+     "input_tokens": 2361,
+     "output_tokens": 404,
+     "run_id": "77419824-f543-4311-ba5c-a1c9c3d38976"
+    },
+    {
+     "case_id": "CLM-00061",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      680000
+     ],
+     "rules": [
+      "APPROVE",
+      680000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      680000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "정현우",
+      "surgery_date": "2027-04-30",
+      "surgery_name": "관혈적 정복술 및 내고정술",
+      "total_amount": "3,945,291",
+      "surgery_grade": "3종",
+      "admission_date": "2027-04-29",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2027-04-30",
+      "diagnosis_name": "경골 원위부 골절",
+      "discharge_date": "2027-05-08"
+     },
+     "dropped": [],
+     "cost_usd": 0.005105,
+     "latency_ms": 4139.8,
+     "input_tokens": 2495,
+     "output_tokens": 522,
+     "run_id": "def6cf21-c68f-4598-bdef-cf2f7d081b7a"
+    },
+    {
+     "case_id": "CLM-00063",
+     "scenario": "grade_missing",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-HOSP-01",
+       "R-SURG-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      0,
+      [
+       "R-HOSP-01",
+       "R-SURG-02"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "조수아",
+      "surgery_date": "2025/10/19",
+      "surgery_name": "관혈적 정복술 및 내고정술",
+      "total_amount": "1694704",
+      "admission_date": "2025/10/19",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2025/10/19",
+      "diagnosis_name": "경골 원위부 골절",
+      "discharge_date": "2025/10/20"
+     },
+     "dropped": [],
+     "cost_usd": 0.004879,
+     "latency_ms": 4048.9,
+     "input_tokens": 2479,
+     "output_tokens": 480,
+     "run_id": "676465f9-c065-4252-8463-14df9bb5c37e"
+    },
+    {
+     "case_id": "CLM-00065",
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      30150000
+     ],
+     "rules": [
+      "REVIEW",
+      30000000,
+      [
+       "R-AMT-01",
+       "R-CONS-01",
+       "R-DIAG-01",
+       "R-HOSP-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      30150000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": false,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "최예은",
+      "total_amount": "1,005,117",
+      "admission_date": "2026-02-19",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-02-19",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2026-02-22"
+     },
+     "dropped": [],
+     "cost_usd": 0.004232,
+     "latency_ms": 3095.8,
+     "input_tokens": 2357,
+     "output_tokens": 375,
+     "run_id": "81f8de71-b3f7-4e85-94f1-c3ab71dc88e1"
+    },
+    {
+     "case_id": "CLM-00067",
+     "scenario": "exclusion",
+     "gold": [
+      "REVIEW",
+      90000
+     ],
+     "rules": [
+      "REVIEW",
+      90000,
+      [
+       "R-EXC-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      90000,
+      [
+       "R-EXC-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "박도윤",
+      "total_amount": "939732",
+      "admission_date": "2026.06.04",
+      "diagnosis_code": "C44.9",
+      "diagnosis_date": "2026.06.05",
+      "diagnosis_name": "피부의 악성신생물",
+      "discharge_date": "2026.06.10"
+     },
+     "dropped": [],
+     "cost_usd": 0.004439,
+     "latency_ms": 3368.0,
+     "input_tokens": 2349,
+     "output_tokens": 418,
+     "run_id": "09f0b951-792a-4f7a-bdab-f9aa55c12bc1"
+    },
+    {
+     "case_id": "CLM-00069",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      330000
+     ],
+     "rules": [
+      "APPROVE",
+      330000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      330000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "박지호",
+      "surgery_date": "2027-02-15",
+      "surgery_name": "탈장교정술",
+      "total_amount": "2,825,116",
+      "surgery_grade": "2종",
+      "admission_date": "2027-02-13",
+      "diagnosis_code": "K40.9",
+      "diagnosis_date": "2027-02-13",
+      "diagnosis_name": "서혜부 탈장",
+      "discharge_date": "2027-02-17"
+     },
+     "dropped": [],
+     "cost_usd": 0.004981,
+     "latency_ms": 4024.7,
+     "input_tokens": 2481,
+     "output_tokens": 500,
+     "run_id": "6a0f2784-55b5-4593-8657-eed8505694b3"
+    },
+    {
+     "case_id": "CLM-00071",
+     "scenario": "exclusion",
+     "gold": [
+      "REVIEW",
+      180000
+     ],
+     "rules": [
+      "REVIEW",
+      180000,
+      [
+       "R-EXC-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      180000,
+      [
+       "R-EXC-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "임서준",
+      "total_amount": "3,326,661원",
+      "admission_date": "2026.07.15",
+      "diagnosis_code": "C44.9",
+      "diagnosis_date": "2026.07.16",
+      "diagnosis_name": "피부의 악성신생물",
+      "discharge_date": "2026.07.24"
+     },
+     "dropped": [],
+     "cost_usd": 0.004243,
+     "latency_ms": 3159.4,
+     "input_tokens": 2358,
+     "output_tokens": 377,
+     "run_id": "adf36213-53f0-4cf7-9c51-1ea367b6c50f"
+    },
+    {
+     "case_id": "CLM-00073",
+     "scenario": "grade_missing",
+     "gold": [
+      "REVIEW",
+      210000
+     ],
+     "rules": [
+      "REVIEW",
+      210000,
+      [
+       "R-HOSP-01",
+       "R-SURG-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      210000,
+      [
+       "R-HOSP-01",
+       "R-SURG-02"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "surgery_date": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "임서연",
+      "surgery_date": "2026년 3월 31일",
+      "surgery_name": "체외충격파쇄석술",
+      "total_amount": "4,260,210",
+      "admission_date": "2026년 3월 30일",
+      "diagnosis_code": "N20.0",
+      "diagnosis_date": "2026년 3월 31일",
+      "diagnosis_name": "신장결석",
+      "discharge_date": "2026년 4월 9일"
+     },
+     "dropped": [
+      "insured_name"
+     ],
+     "cost_usd": 0.005084,
+     "latency_ms": 4159.2,
+     "input_tokens": 2499,
+     "output_tokens": 517,
+     "run_id": "06b3fcb9-966b-47be-8bcd-233f3db160b3"
+    },
+    {
+     "case_id": "CLM-00075",
+     "scenario": "format_variance",
+     "gold": [
+      "REVIEW",
+      30200000
+     ],
+     "rules": [
+      "REVIEW",
+      30200000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      30200000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "강수아",
+      "total_amount": "914496",
+      "admission_date": "2025.12.22",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025.12.23",
+      "diagnosis_name": "유방의 악성신생물",
+      "discharge_date": "2025.12.26"
+     },
+     "dropped": [],
+     "cost_usd": 0.004186,
+     "latency_ms": 3032.9,
+     "input_tokens": 2346,
+     "output_tokens": 368,
+     "run_id": "bce1d5e3-2432-401b-8048-a8af439cb96a"
+    },
+    {
+     "case_id": "CLM-00077",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      270000
+     ],
+     "rules": [
+      "APPROVE",
+      270000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      270000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "이지호",
+      "total_amount": "3,037,572",
+      "admission_date": "2026-10-21",
+      "discharge_date": "2026-11-02"
+     },
+     "dropped": [],
+     "cost_usd": 0.003391,
+     "latency_ms": 2120.9,
+     "input_tokens": 2221,
+     "output_tokens": 234,
+     "run_id": "dbc8f128-b8d8-428d-930e-d57d13dff25b"
+    },
+    {
+     "case_id": "CLM-00079",
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      200000
+     ],
+     "rules": [
+      "REVIEW",
+      200000,
+      [
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      200000,
+      [
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "강예은",
+      "total_amount": "1531936",
+      "admission_date": "2025/06/10",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025/06/10",
+      "diagnosis_name": "유방의 악성신생물",
+      "discharge_date": "2025/06/14"
+     },
+     "dropped": [],
+     "cost_usd": 0.004485,
+     "latency_ms": 3474.4,
+     "input_tokens": 2350,
+     "output_tokens": 427,
+     "run_id": "747eb83b-b960-412e-93fb-3a55e89a1e73"
+    },
+    {
+     "case_id": "CLM-00081",
+     "scenario": "format_variance",
+     "gold": [
+      "REVIEW",
+      30150000
+     ],
+     "rules": [
+      "REVIEW",
+      30150000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      30150000,
+      [
+       "R-AMT-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "강수아",
+      "total_amount": "464,628",
+      "admission_date": "2025.11.21",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025.11.21",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2025.11.24"
+     },
+     "dropped": [
+      "insured_name"
+     ],
+     "cost_usd": 0.004671,
+     "latency_ms": 3819.0,
+     "input_tokens": 2351,
+     "output_tokens": 464,
+     "run_id": "8326d221-a29d-4dbd-816e-0ce9ee15a7c1"
+    },
+    {
+     "case_id": "CLM-00083",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      560000
+     ],
+     "rules": [
+      "APPROVE",
+      560000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      560000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "조하은",
+      "surgery_date": "2026-01-03",
+      "surgery_name": "관혈적 정복술 및 내고정술",
+      "total_amount": "2,533,910",
+      "surgery_grade": "3종",
+      "admission_date": "2026-01-02",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-01-03",
+      "diagnosis_name": "경골 원위부 골절",
+      "discharge_date": "2026-01-07"
+     },
+     "dropped": [],
+     "cost_usd": 0.005435,
+     "latency_ms": 4464.4,
+     "input_tokens": 2495,
+     "output_tokens": 588,
+     "run_id": "b73088e5-fec5-44d5-bbdd-8edac1fd3c98"
+    },
+    {
+     "case_id": "CLM-00085",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      180000
+     ],
+     "rules": [
+      "APPROVE",
+      180000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      180000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "이민준",
+      "total_amount": "1,980,414",
+      "admission_date": "2025-07-18",
+      "discharge_date": "2025-07-27"
+     },
+     "dropped": [],
+     "cost_usd": 0.003389,
+     "latency_ms": 2172.7,
+     "input_tokens": 2219,
+     "output_tokens": 234,
+     "run_id": "4c306710-85f6-4fbf-8338-a7ffec71caa7"
+    },
+    {
+     "case_id": "CLM-00087",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      240000
+     ],
+     "rules": [
+      "APPROVE",
+      240000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      240000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "조서준",
+      "total_amount": "1,857,603원",
+      "admission_date": "2026-11-15",
+      "discharge_date": "2026-11-26"
+     },
+     "dropped": [],
+     "cost_usd": 0.003406,
+     "latency_ms": 2083.8,
+     "input_tokens": 2221,
+     "output_tokens": 237,
+     "run_id": "388edf8e-3fa9-4905-b708-fe243b297483"
+    },
+    {
+     "case_id": "CLM-00089",
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      50000
+     ],
+     "rules": [
+      "REVIEW",
+      50000,
+      [
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      50000,
+      [
+       "R-HOSP-01",
+       "R-WAIT-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "강예은",
+      "total_amount": "150,211원",
+      "admission_date": "2025년 8월 2일",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025년 8월 2일",
+      "diagnosis_name": "위의 악성신생물",
+      "discharge_date": "2025년 8월 3일"
+     },
+     "dropped": [],
+     "cost_usd": 0.004311,
+     "latency_ms": 3201.7,
+     "input_tokens": 2366,
+     "output_tokens": 389,
+     "run_id": "3af13540-33c3-4b6b-8894-a4badf90a9b8"
+    },
+    {
+     "case_id": "CLM-00091",
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      680000
+     ],
+     "rules": [
+      "APPROVE",
+      680000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      680000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "조지우",
+      "surgery_date": "2025/10/17",
+      "surgery_name": "관혈적 정복술 및 내고정술",
+      "total_amount": "3,398,334",
+      "surgery_grade": "3종",
+      "admission_date": "2025/10/15",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2025/10/15",
+      "diagnosis_name": "경골 원위부 골절",
+      "discharge_date": "2025/10/24"
+     },
+     "dropped": [],
+     "cost_usd": 0.005091,
+     "latency_ms": 4134.7,
+     "input_tokens": 2491,
+     "output_tokens": 520,
+     "run_id": "42a1187d-3edb-4636-a605-286b1eed9648"
+    },
+    {
+     "case_id": "CLM-00093",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "rules": [
+      "APPROVE",
+      150000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      150000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "이수아",
+      "total_amount": "623,646",
+      "admission_date": "2025-08-29",
+      "discharge_date": "2025-09-01"
+     },
+     "dropped": [],
+     "cost_usd": 0.003527,
+     "latency_ms": 2364.1,
+     "input_tokens": 2217,
+     "output_tokens": 262,
+     "run_id": "97ed0a4d-6a22-4dd3-a670-2114e4587cd0"
+    },
+    {
+     "case_id": "CLM-00095",
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-REQ-01",
+       "R-REQ-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      0,
+      [
+       "R-REQ-01"
+      ]
+     ],
+     "model_hits": {
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "푸른내과의원",
+      "insured_name": "최지호",
+      "total_amount": "1,510,360",
+      "admission_date": "2026-03-29",
+      "discharge_date": "2026-04-03"
+     },
+     "dropped": [],
+     "cost_usd": 0.00337,
+     "latency_ms": 2182.6,
+     "input_tokens": 2095,
+     "output_tokens": 255,
+     "run_id": "7739d161-2093-481f-99e1-0d2dca5a334d"
+    },
+    {
+     "case_id": "CLM-00097",
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      200000
+     ],
+     "rules": [
+      "APPROVE",
+      200000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      200000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "이민준",
+      "total_amount": "691,268",
+      "admission_date": "2026.09.20",
+      "discharge_date": "2026.09.24"
+     },
+     "dropped": [],
+     "cost_usd": 0.003389,
+     "latency_ms": 2149.2,
+     "input_tokens": 2224,
+     "output_tokens": 233,
+     "run_id": "eaaeeab6-5a83-4c35-a58a-0be825765c0f"
+    },
+    {
+     "case_id": "CLM-00099",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2060000
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-CONF-01",
+       "R-CONS-01",
+       "R-DIAG-02",
+       "R-HOSP-02",
+       "R-REQ-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      2060000,
+      [
+       "R-CONS-01",
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": false,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": false,
+      "diagnosis_code": false,
+      "diagnosis_date": false,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "강수아",
+      "total_amount": "1726435",
+      "admission_date": "2026.10.12",
+      "diagnosis_code": "D05.l",
+      "diagnosis_date": "2026.10.12",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026.10.17"
+     },
+     "dropped": [],
+     "cost_usd": 0.004211,
+     "latency_ms": 3091.5,
+     "input_tokens": 2351,
+     "output_tokens": 372,
+     "run_id": "49d17978-57a4-40bd-b509-b04a3faafa17"
+    },
+    {
+     "case_id": "CLM-00101",
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      740000
+     ],
+     "rules": [
+      "APPROVE",
+      740000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      740000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": false,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "정서준",
+      "surgery_date": "2027/04/18",
+      "surgery_name": "담낭절제술",
+      "total_amount": "5,827,730",
+      "surgery_grade": "3종",
+      "admission_date": "2027/04/18",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2027/04/19",
+      "diagnosis_name": "담낭결석",
+      "discharge_date": "2027/04/29"
+     },
+     "dropped": [
+      "insured_name"
+     ],
+     "cost_usd": 0.005237,
+     "latency_ms": 4540.0,
+     "input_tokens": 2482,
+     "output_tokens": 551,
+     "run_id": "ae6f5988-42da-4741-b6a5-720b22c5f78d"
+    },
+    {
+     "case_id": "CLM-00103",
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2120000
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-CONF-01",
+       "R-CONS-01",
+       "R-DIAG-02",
+       "R-HOSP-02"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      2120000,
+      [
+       "R-DIAG-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": false,
+      "diagnosis_name": true,
+      "discharge_date": false,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "최수아",
+      "total_amount": "1,757,420",
+      "admission_date": "2026년 8월 17일",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026년 8월 18일",
+      "diagnosis_name": "유방 상피내암종",
+      "discharge_date": "2026년 8월 24일"
+     },
+     "dropped": [],
+     "cost_usd": 0.004324,
+     "latency_ms": 3235.7,
+     "input_tokens": 2364,
+     "output_tokens": 392,
+     "run_id": "a1770ea2-ae63-466f-ad46-dcc3e619567e"
+    },
+    {
+     "case_id": "CLM-00105",
+     "scenario": "waiting_period",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-WAIT-01"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-WAIT-01"
+      ]
+     ],
+     "model_hits": {
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "조도윤",
+      "total_amount": "301,472",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025/03/20",
+      "diagnosis_name": "위의 악성신생물"
+     },
+     "dropped": [],
+     "cost_usd": 0.00362,
+     "latency_ms": 2440.1,
+     "input_tokens": 2225,
+     "output_tokens": 279,
+     "run_id": "bc380f00-23da-4b66-bf7a-2b1556dff7d6"
+    },
+    {
+     "case_id": "CLM-00107",
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model": [
+      "DENY",
+      0,
+      [
+       "R-DUP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "김하은",
+      "total_amount": "1,890,918",
+      "admission_date": "2025-11-25",
+      "discharge_date": "2025-12-01"
+     },
+     "dropped": [],
+     "cost_usd": 0.003403,
+     "latency_ms": 2117.0,
+     "input_tokens": 2223,
+     "output_tokens": 236,
+     "run_id": "9f2a43ae-2923-44c5-ba26-9c347b3df962"
+    },
+    {
+     "case_id": "CLM-00109",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      500000
+     ],
+     "rules": [
+      "APPROVE",
+      500000,
+      [
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      500000,
+      [
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "미래대학교병원",
+      "insured_name": "윤예은",
+      "surgery_date": "2026-03-26",
+      "surgery_name": "관혈적 정복술 및 내고정술",
+      "total_amount": "2,393,088",
+      "surgery_grade": "3종",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-03-24",
+      "diagnosis_name": "경골 원위부 골절"
+     },
+     "dropped": [],
+     "cost_usd": 0.004532,
+     "latency_ms": 3515.0,
+     "input_tokens": 2372,
+     "output_tokens": 432,
+     "run_id": "f243bd1d-803a-401d-b2c9-236cefcf7c65"
+    },
+    {
+     "case_id": "CLM-00111",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      770000
+     ],
+     "rules": [
+      "APPROVE",
+      770000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      770000,
+      [
+       "R-HOSP-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "diagnosis_code": true,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "조서연",
+      "surgery_date": "2026-05-31",
+      "surgery_name": "담낭절제술",
+      "total_amount": "5,623,080",
+      "surgery_grade": "3종",
+      "admission_date": "2026-05-29",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2026-05-29",
+      "diagnosis_name": "담낭결석",
+      "discharge_date": "2026-06-10"
+     },
+     "dropped": [],
+     "cost_usd": 0.004948,
+     "latency_ms": 3972.5,
+     "input_tokens": 2478,
+     "output_tokens": 494,
+     "run_id": "af0bff3b-f0a6-460d-ab2d-276f3f23a1f7"
+    },
+    {
+     "case_id": "CLM-00113",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      400000
+     ],
+     "rules": [
+      "APPROVE",
+      400000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      400000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "한빛의료원",
+      "insured_name": "이서연",
+      "total_amount": "2,812,264",
+      "admission_date": "2026-05-18",
+      "discharge_date": "2026-05-26"
+     },
+     "dropped": [],
+     "cost_usd": 0.003391,
+     "latency_ms": 2063.1,
+     "input_tokens": 2221,
+     "output_tokens": 234,
+     "run_id": "89bfbf83-b727-4df8-85b3-ee4729b8f849"
+    },
+    {
+     "case_id": "CLM-00115",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      180000
+     ],
+     "rules": [
+      "APPROVE",
+      180000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      180000,
+      [
+       "R-CHAL-02",
+       "R-CONF-01",
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "강민준",
+      "surgery_date": null,
+      "surgery_name": null,
+      "total_amount": "1,597,374",
+      "surgery_grade": null,
+      "admission_date": "2026-06-26",
+      "diagnosis_code": null,
+      "diagnosis_date": null,
+      "diagnosis_name": null,
+      "discharge_date": "2026-07-05"
+     },
+     "dropped": [
+      "diagnosis_code",
+      "diagnosis_date",
+      "diagnosis_name",
+      "surgery_date",
+      "surgery_grade",
+      "surgery_name"
+     ],
+     "cost_usd": 0.004197,
+     "latency_ms": 3262.0,
+     "input_tokens": 2217,
+     "output_tokens": 396,
+     "run_id": "c9906b39-b35e-41d0-99f8-f4ceaa6054e7"
+    },
+    {
+     "case_id": "CLM-00117",
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      400000
+     ],
+     "rules": [
+      "APPROVE",
+      400000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model": [
+      "APPROVE",
+      400000,
+      [
+       "R-HOSP-01"
+      ]
+     ],
+     "model_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "admission_date": true,
+      "discharge_date": true,
+      "hospital": true,
+      "insured_name": true,
+      "total_amount": true
+     },
+     "state": "completed",
+     "error": null,
+     "proposed": {
+      "hospital": "서울연합병원",
+      "insured_name": "장서연",
+      "total_amount": "3,087,216",
+      "admission_date": "2027-03-18",
+      "discharge_date": "2027-03-26"
+     },
+     "dropped": [],
+     "cost_usd": 0.003391,
+     "latency_ms": 2055.7,
+     "input_tokens": 2221,
+     "output_tokens": 234,
+     "run_id": "81c0f80c-9dcb-4ae3-83df-021a1d810c0d"
+    },
+    {
+     "case_id": "CLM-00119",
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      11000000
+     ],
+     "rules": [
+      "REVIEW",
+      0,
+      [
+       "R-CONF-01",
+       "R-CONS-01",
+       "R-DIAG-02",
+       "R-REQ-02",
+       "R-SURG-02"
+      ]
+     ],
+     "model": [
+      "REVIEW",
+      11000000,
+      [
+       "R-AMT-01",
+       "R-CONS-01",
+       "R-DIAG-01",
+       "R-SURG-01"
+      ]
+     ],
+     "model_hits": {
+      "diagnosis_code": false,
+      "diagnosis_date": true,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": true,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "rules_hits": {
+      "diagnosis_code": false,
+      "diagnosis_date": false,
+      "diagnosis_name": true,
+      "hospital": true,
+      "insured_name": true,
+      "surgery_date": false,
+      "surgery_grade": true,
+      "surgery_name": true,
+      "total_amount": true
+     },
+     "state": "waiting_input",
+     "error": null,
+     "proposed": {
+      "hospital": "강남제일병원",
+      "insured_name": "최하은",
+      "surgery_date": "2026년 6월 15일",
+      "surgery_name": "유방절제술",
+      "total_amount": "1,823,968",
+      "surgery_grade": "4종",
+      "admission_date": "2026년 6월 15일",
+      "diagnosis_code": "CS0,9",
+      "diagnosis_date": "2026년 6월 15일",
+      "diagnosis_name": "유방의 악성신생물",
+      "discharge_date": "2026년 6월 16일"
+     },
+     "dropped": [],
+     "cost_usd": 0.005145,
+     "latency_ms": 4282.2,
+     "input_tokens": 2375,
+     "output_tokens": 554,
+     "run_id": "7c24de41-79fb-468a-8000-d8a4f57e659a"
+    }
+   ],
+   "model_errors": []
   }
  ],
- "spent_usd_total": 0.499047
+ "spent_usd_total": 1.014931,
+ "repeats": {
+  "what": "the text-layer batch three times (the first on e8fa7aa, the repeats on d423686 and b272111; the extraction and grounding code are the same, the scanned flag fix does not touch the text layer)",
+  "decision_accuracy_per_run": [
+   0.9333,
+   0.9,
+   0.95
+  ],
+  "rules_per_run": [
+   0.8833,
+   0.8833,
+   0.8833
+  ],
+  "wrong_pay_per_run": [
+   0,
+   0,
+   0
+  ],
+  "wrong_deny_per_run": [
+   0,
+   0,
+   0
+  ],
+  "cases": 60,
+  "identical_decisions_across_runs": 53,
+  "correct_in_every_run": 52,
+  "mean_accuracy": 0.9278,
+  "cases_that_differed": {
+   "CLM-00035": "REVIEW amount 12,290,000 / 2,290,000 / 12,290,000",
+   "CLM-00043": "REVIEW 0 / 10,000,000 / 10,000,000",
+   "CLM-00061": "APPROVE 680,000 / REVIEW 0 / APPROVE 680,000",
+   "CLM-00075": "REVIEW 30,200,000 / 0 / 30,200,000",
+   "CLM-00099": "REVIEW 2,060,000 / 60,000 / 2,060,000",
+   "CLM-00115": "APPROVE / APPROVE / REVIEW 180,000",
+   "CLM-00119": "REVIEW 0 / 0 / 11,000,000"
+  }
+ }
 }
