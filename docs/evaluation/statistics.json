@@ -1,0 +1,586 @@
+{
+ "created_at": "2026-10-23T04:00:48.082498+00:00",
+ "code_sha": "cdfcd8d8eb36d106acbaab61e6c3eb84e877b28f",
+ "method": {
+  "ci95": "Wilson score interval; 0/n과 n/n에서도 유한한 폭",
+  "repeats": "pass^k = 모든 반복에서 맞은 사례의 비율",
+  "bootstrap": "사례를 복원 추출(반복은 사례와 함께 이동), 1000회, 고정 seed 1701",
+  "caveat": "같은 질의의 반복과 같은 실행 안의 verdict는 독립 표본이 아니므로 사례·실행 단위로 셈"
+ },
+ "entries": [
+  {
+   "name": "PDF 근거 판정, Claude Haiku 4.5, 정답 verdict",
+   "source": "claude.json",
+   "correct": 72,
+   "total": 72,
+   "share": 1.0,
+   "ci95": [
+    0.9493,
+    1.0
+   ],
+   "repeats": {
+    "cases": 24,
+    "k": 3,
+    "pass_power_k": 1.0,
+    "pass_power_k_ci95": [
+     0.862,
+     1.0
+    ],
+    "pass_at_1": 1,
+    "cases_all_correct": 24
+   },
+   "note": "72 verdict는 24 사례 x 3회라 독립 72건이 아님; pass^3가 사례 단위 신뢰도"
+  },
+  {
+   "name": "PDF 근거 판정, Claude Haiku 4.5, 잘못된 일치(false acceptance)",
+   "source": "claude.json",
+   "correct": 0,
+   "total": 42,
+   "share": 0.0,
+   "ci95": [
+    0.0,
+    0.0838
+   ],
+   "note": "match가 아닌 사례 중 match로 판정한 수"
+  },
+  {
+   "name": "PDF 근거 판정, Qwen3-1.7B 로컬 pilot, 정답 verdict",
+   "source": "run-20261004/predictions.jsonl",
+   "correct": 54,
+   "total": 72,
+   "share": 0.75,
+   "ci95": [
+    0.6391,
+    0.8356
+   ],
+   "repeats": {
+    "cases": 24,
+    "k": 3,
+    "pass_power_k": 0.75,
+    "pass_power_k_ci95": [
+     0.551,
+     0.88
+    ],
+    "pass_at_1": 0.75,
+    "cases_all_correct": 18
+   },
+   "per_repeat": [
+    0.75,
+    0.75,
+    0.75
+   ],
+   "accuracy_case_bootstrap_ci95": [
+    0.5833,
+    0.9167
+   ]
+  },
+  {
+   "name": "복합 검색 retrieval-v2, lexical",
+   "source": "retrieval-37198685994/runs.jsonl.gz (3 repeats)",
+   "rows": 72,
+   "cases": 24,
+   "recall_at_5": 0.25,
+   "recall_at_5_ci95": [
+    0.0833,
+    0.4167
+   ],
+   "ndcg_at_10": 0.25,
+   "ndcg_at_10_ci95": [
+    0.0833,
+    0.4167
+   ]
+  },
+  {
+   "name": "복합 검색 retrieval-v2, semantic",
+   "source": "retrieval-37198685994/runs.jsonl.gz (3 repeats)",
+   "rows": 72,
+   "cases": 24,
+   "recall_at_5": 0.2292,
+   "recall_at_5_ci95": [
+    0.0833,
+    0.3958
+   ],
+   "ndcg_at_10": 0.2085,
+   "ndcg_at_10_ci95": [
+    0.0896,
+    0.3401
+   ]
+  },
+  {
+   "name": "복합 검색 retrieval-v2, image",
+   "source": "retrieval-37198685994/runs.jsonl.gz (3 repeats)",
+   "rows": 72,
+   "cases": 24,
+   "recall_at_5": 0.0556,
+   "recall_at_5_ci95": [
+    0.0,
+    0.1389
+   ],
+   "ndcg_at_10": 0.0883,
+   "ndcg_at_10_ci95": [
+    0.0247,
+    0.1642
+   ]
+  },
+  {
+   "name": "복합 검색 retrieval-v2, hybrid",
+   "source": "retrieval-37198685994/runs.jsonl.gz (3 repeats)",
+   "rows": 72,
+   "cases": 24,
+   "recall_at_5": 0.3333,
+   "recall_at_5_ci95": [
+    0.1701,
+    0.4931
+   ],
+   "ndcg_at_10": 0.3676,
+   "ndcg_at_10_ci95": [
+    0.2049,
+    0.5181
+   ]
+  },
+  {
+   "name": "재정렬 reranking-v1, hybrid",
+   "source": "reranking-37206750470/runs.jsonl.gz (3 repeats)",
+   "rows": 72,
+   "cases": 24,
+   "recall_at_5": 0.3993,
+   "recall_at_5_ci95": [
+    0.2326,
+    0.5556
+   ],
+   "ndcg_at_10": 0.4775,
+   "ndcg_at_10_ci95": [
+    0.3251,
+    0.6173
+   ]
+  },
+  {
+   "name": "재정렬 reranking-v1, cross_encoder",
+   "source": "reranking-37206750470/runs.jsonl.gz (3 repeats)",
+   "rows": 72,
+   "cases": 24,
+   "recall_at_5": 0.5417,
+   "recall_at_5_ci95": [
+    0.3958,
+    0.6875
+   ],
+   "ndcg_at_10": 0.5947,
+   "ndcg_at_10_ci95": [
+    0.451,
+    0.7336
+   ]
+  },
+  {
+   "name": "재정렬 reranking-v1, constraints",
+   "source": "reranking-37206750470/runs.jsonl.gz (3 repeats)",
+   "rows": 72,
+   "cases": 24,
+   "recall_at_5": 0.6424,
+   "recall_at_5_ci95": [
+    0.4792,
+    0.7986
+   ],
+   "ndcg_at_10": 0.67,
+   "ndcg_at_10_ci95": [
+    0.5258,
+    0.8096
+   ]
+  },
+  {
+   "name": "실제 모델 경로 39808318655 fixed, 완료한 실행",
+   "source": "agent-trajectory.json",
+   "correct": 6,
+   "total": 6,
+   "share": 1.0,
+   "ci95": [
+    0.6097,
+    1.0
+   ],
+   "verdict_accuracy": 1.0,
+   "note": "verdict 30개는 실행 6개 안에서 상관됨; 구간은 실행 단위"
+  },
+  {
+   "name": "실제 모델 경로 39808318655 react, 완료한 실행",
+   "source": "agent-trajectory.json",
+   "correct": 6,
+   "total": 6,
+   "share": 1.0,
+   "ci95": [
+    0.6097,
+    1.0
+   ],
+   "verdict_accuracy": 1.0,
+   "note": "verdict 30개는 실행 6개 안에서 상관됨; 구간은 실행 단위"
+  },
+  {
+   "name": "실제 모델 경로 39808318655 fitwitness, 완료한 실행",
+   "source": "agent-trajectory.json",
+   "correct": 4,
+   "total": 6,
+   "share": 0.6667,
+   "ci95": [
+    0.3,
+    0.9032
+   ],
+   "verdict_accuracy": 0.6667,
+   "note": "verdict 30개는 실행 6개 안에서 상관됨; 구간은 실행 단위"
+  },
+  {
+   "name": "실제 모델 경로 39810119357 fitwitness, 완료한 실행",
+   "source": "agent-trajectory.json",
+   "correct": 4,
+   "total": 6,
+   "share": 0.6667,
+   "ci95": [
+    0.3,
+    0.9032
+   ],
+   "verdict_accuracy": 0.6667,
+   "note": "verdict 30개는 실행 6개 안에서 상관됨; 구간은 실행 단위"
+  },
+  {
+   "name": "실제 모델 경로 39812082502 fixed, 완료한 실행",
+   "source": "agent-trajectory.json",
+   "correct": 6,
+   "total": 6,
+   "share": 1.0,
+   "ci95": [
+    0.6097,
+    1.0
+   ],
+   "verdict_accuracy": 0.8,
+   "note": "verdict 30개는 실행 6개 안에서 상관됨; 구간은 실행 단위"
+  },
+  {
+   "name": "실제 모델 경로 39812082502 react, 완료한 실행",
+   "source": "agent-trajectory.json",
+   "correct": 6,
+   "total": 6,
+   "share": 1.0,
+   "ci95": [
+    0.6097,
+    1.0
+   ],
+   "verdict_accuracy": 0.8667,
+   "note": "verdict 30개는 실행 6개 안에서 상관됨; 구간은 실행 단위"
+  },
+  {
+   "name": "실제 모델 경로 39812082502 fitwitness, 완료한 실행",
+   "source": "agent-trajectory.json",
+   "correct": 6,
+   "total": 6,
+   "share": 1.0,
+   "ci95": [
+    0.6097,
+    1.0
+   ],
+   "verdict_accuracy": 1.0,
+   "note": "verdict 30개는 실행 6개 안에서 상관됨; 구간은 실행 단위"
+  },
+  {
+   "name": "실제 모델 경로 39847555708 fixed, 완료한 실행",
+   "source": "agent-trajectory.json",
+   "correct": 6,
+   "total": 6,
+   "share": 1.0,
+   "ci95": [
+    0.6097,
+    1.0
+   ],
+   "verdict_accuracy": 1.0,
+   "note": "verdict 30개는 실행 6개 안에서 상관됨; 구간은 실행 단위"
+  },
+  {
+   "name": "실제 모델 경로 39847555708 react, 완료한 실행",
+   "source": "agent-trajectory.json",
+   "correct": 6,
+   "total": 6,
+   "share": 1.0,
+   "ci95": [
+    0.6097,
+    1.0
+   ],
+   "verdict_accuracy": 1.0,
+   "note": "verdict 30개는 실행 6개 안에서 상관됨; 구간은 실행 단위"
+  },
+  {
+   "name": "실제 모델 경로 39847555708 fitwitness, 완료한 실행",
+   "source": "agent-trajectory.json",
+   "correct": 6,
+   "total": 6,
+   "share": 1.0,
+   "ci95": [
+    0.6097,
+    1.0
+   ],
+   "verdict_accuracy": 1.0,
+   "note": "verdict 30개는 실행 6개 안에서 상관됨; 구간은 실행 단위"
+  },
+  {
+   "name": "보험 청구 120건, 잘못 지급",
+   "source": "gate-baseline.json claims",
+   "correct": 0,
+   "total": 120,
+   "share": 0.0,
+   "ci95": [
+    0.0,
+    0.031
+   ]
+  },
+  {
+   "name": "보험 청구 120건, 잘못 부지급",
+   "source": "gate-baseline.json claims",
+   "correct": 0,
+   "total": 120,
+   "share": 0.0,
+   "ci95": [
+    0.0,
+    0.031
+   ]
+  },
+  {
+   "name": "보험 청구 120건, 결정 정확도",
+   "source": "gate-baseline.json claims",
+   "correct": 111,
+   "total": 120,
+   "share": 0.925,
+   "ci95": [
+    0.8636,
+    0.96
+   ]
+  },
+  {
+   "name": "스캔 공식 서식 test clean, 필드 정답",
+   "source": "official-scan.json redrawn_layout.test",
+   "correct": 551,
+   "total": 600,
+   "share": 0.9183,
+   "ci95": [
+    0.8937,
+    0.9377
+   ]
+  },
+  {
+   "name": "스캔 공식 서식 test clean, 잘못 지급",
+   "source": "official-scan.json redrawn_layout.test",
+   "correct": 0,
+   "total": 60,
+   "share": 0.0,
+   "ci95": [
+    0.0,
+    0.0602
+   ]
+  },
+  {
+   "name": "스캔 공식 서식 test light, 필드 정답",
+   "source": "official-scan.json redrawn_layout.test",
+   "correct": 552,
+   "total": 600,
+   "share": 0.92,
+   "ci95": [
+    0.8955,
+    0.9391
+   ]
+  },
+  {
+   "name": "스캔 공식 서식 test light, 잘못 지급",
+   "source": "official-scan.json redrawn_layout.test",
+   "correct": 0,
+   "total": 60,
+   "share": 0.0,
+   "ci95": [
+    0.0,
+    0.0602
+   ]
+  },
+  {
+   "name": "스캔 공식 서식 test medium, 필드 정답",
+   "source": "official-scan.json redrawn_layout.test",
+   "correct": 560,
+   "total": 600,
+   "share": 0.9333,
+   "ci95": [
+    0.9105,
+    0.9507
+   ]
+  },
+  {
+   "name": "스캔 공식 서식 test medium, 잘못 지급",
+   "source": "official-scan.json redrawn_layout.test",
+   "correct": 0,
+   "total": 60,
+   "share": 0.0,
+   "ci95": [
+    0.0,
+    0.0602
+   ]
+  },
+  {
+   "name": "스캔 공식 서식 test heavy, 필드 정답",
+   "source": "official-scan.json redrawn_layout.test",
+   "correct": 547,
+   "total": 600,
+   "share": 0.9117,
+   "ci95": [
+    0.8863,
+    0.9318
+   ]
+  },
+  {
+   "name": "스캔 공식 서식 test heavy, 잘못 지급",
+   "source": "official-scan.json redrawn_layout.test",
+   "correct": 0,
+   "total": 60,
+   "share": 0.0,
+   "ci95": [
+    0.0,
+    0.0602
+   ]
+  },
+  {
+   "name": "실제 빈 서식 test medium, 필드 정답",
+   "source": "official-scan.json real_blank_forms.test",
+   "correct": 562,
+   "total": 600,
+   "share": 0.9367,
+   "ci95": [
+    0.9143,
+    0.9535
+   ]
+  },
+  {
+   "name": "실제 빈 서식 test heavy, 필드 정답",
+   "source": "official-scan.json real_blank_forms.test",
+   "correct": 505,
+   "total": 600,
+   "share": 0.8417,
+   "ci95": [
+    0.8103,
+    0.8687
+   ]
+  },
+  {
+   "name": "NIST STEP 11쌍, Top-1",
+   "source": "nist-cad.json",
+   "correct": 11,
+   "total": 11,
+   "share": 1.0,
+   "ci95": [
+    0.7412,
+    1.0
+   ]
+  },
+  {
+   "name": "VLM 이미지 읽기, 구조화 완료",
+   "source": "vision.json",
+   "correct": 15,
+   "total": 18,
+   "share": 0.8333,
+   "ci95": [
+    0.6078,
+    0.9416
+   ]
+  },
+  {
+   "name": "VLM 이미지 읽기, 필드 정답",
+   "source": "vision.json",
+   "correct": 23,
+   "total": 36,
+   "share": 0.6389,
+   "ci95": [
+    0.4758,
+    0.7752
+   ]
+  },
+  {
+   "name": "실제 도면 표제란 OCR, drawing_number",
+   "source": "title-block-real.json",
+   "correct": 10,
+   "total": 12,
+   "share": 0.8333,
+   "ci95": [
+    0.552,
+    0.953
+   ]
+  },
+  {
+   "name": "실제 도면 표제란 OCR, material",
+   "source": "title-block-real.json",
+   "correct": 4,
+   "total": 8,
+   "share": 0.5,
+   "ci95": [
+    0.2152,
+    0.7848
+   ]
+  },
+  {
+   "name": "판정 프롬프트 비교, Qwen3-1.7B dev 36문항",
+   "source": "prompts-local.json",
+   "resolution_per_item": 0.0278,
+   "accuracy": {
+    "baseline": 0.75,
+    "procedure": 0.5833,
+    "cot": 0.2778,
+    "fewshot": 0.5833
+   },
+   "accuracy_ci95": {
+    "baseline": [
+     0.6944,
+     0.8056
+    ],
+    "procedure": [
+     0.4444,
+     0.7222
+    ],
+    "cot": [
+     0.1389,
+     0.3889
+    ],
+    "fewshot": [
+     0.5278,
+     0.6389
+    ]
+   },
+   "versus_baseline": {
+    "procedure": {
+     "difference": -0.1667,
+     "ci95": [
+      -0.2778,
+      -0.0556
+     ],
+     "pairs": 36
+    },
+    "cot": {
+     "difference": -0.4722,
+     "ci95": [
+      -0.6389,
+      -0.3611
+     ],
+     "pairs": 36
+    },
+    "fewshot": {
+     "difference": -0.1667,
+     "ci95": [
+      -0.2778,
+      -0.0556
+     ],
+     "pairs": 36
+    }
+   },
+   "note": "family 단위 bootstrap 구간(기록에 있던 값). 36문항에서 한 문항은 2.8%p"
+  },
+  {
+   "name": "판정 프롬프트 비교, Claude Haiku 4.5 dev 36문항",
+   "source": "prompts-claude.json",
+   "resolution_per_item": 0.0278,
+   "accuracy": {
+    "baseline": 1.0,
+    "procedure": 1.0,
+    "cot": 1.0,
+    "fewshot": 1.0
+   },
+   "note": "네 프롬프트 모두 36/36으로 천장: 차이를 잴 수 없음"
+  }
+ ]
+}
