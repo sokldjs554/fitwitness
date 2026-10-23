@@ -2,7 +2,6 @@
 import json
 import pytest
 from fitwitness.claims.extract import extract_documents, ground, normalise_amount, normalise_date
-from fitwitness.claims.models import Extraction
 from fitwitness.claims.synth import generate_cases
 
 
@@ -103,3 +102,20 @@ def test_a_field_label_inside_a_remark_never_becomes_the_value_and_cannot_ground
     assert ex.admission_date is None  # the remark's date is not the admission date the form never printed
     grounded = ground({"admission_date": {"value": "2019-01-01", "snippet": "입원일: 2019-01-01 (정정)"}}, [("a", "admission", data)])
     assert grounded.admission_date is None  # nor can a model ground that value in the remark
+
+
+def test_the_models_draft_reaches_grounding_in_the_shape_ground_reads():
+    """The model branch of the extract node: a draft's filled fields become {field: {value, snippet}}; an unfilled
+    field is left out; grounding then drops a field whose snippet is in no document. The first paid run of the
+    claim graph with a real model failed on every claim before this conversion was made a function and tested."""
+    from fitwitness.claims.extract import ground
+    from fitwitness.claims.graph import ClaimDraft, DraftField, draft_candidate
+
+    draft = ClaimDraft(admission_date=DraftField(value="2025-12-10", snippet="입원일: 2025-12-10"),
+                       total_amount=DraftField(value=1234000, snippet="합계: 1,234,000 원"))
+    candidate = draft_candidate(draft)
+    assert candidate == {"admission_date": {"value": "2025-12-10", "snippet": "입원일: 2025-12-10"},
+                         "total_amount": {"value": 1234000, "snippet": "합계: 1,234,000 원"}}
+    ex = ground(candidate, [])
+    assert ex.admission_date is None and ex.total_amount is None, "a snippet found in no document is not a value"
+    assert ex.confidence == pytest.approx(0.6)

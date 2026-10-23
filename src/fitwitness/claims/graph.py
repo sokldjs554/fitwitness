@@ -131,7 +131,7 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                                     for d, k, pdf in documents)
                 draft, metadata = model.structured(ClaimDraft, EXTRACT_PROMPT, texts, role="extractor")
                 emit("model", metadata)
-                ex = ground({k: v.model_dump() for k, v in draft.model_dump().items() if v}, documents)
+                ex = ground(draft_candidate(draft), documents)
                 ex = Extraction.model_validate({**ex.model_dump(), "evidence": ex.evidence})
                 source = "model+grounding"
             emit("tool", {"role": "extractor", "name": "extract_documents", "arguments": {"documents": len(documents), "source": source},
@@ -326,6 +326,15 @@ def _pairs(pdf: bytes, doc_id: str):
 class DraftField(Strict):
     value: str | int | None = None
     snippet: str = ""
+
+
+def draft_candidate(draft: "ClaimDraft") -> dict:
+    """The model's draft as ``ground`` reads it: {field: {"value", "snippet"}} for the fields it filled.
+
+    ``model_dump`` already turns every DraftField into a dict; the first paid run of this path failed on every
+    claim because the old code called ``model_dump`` a second time on those dicts. No test had run the model
+    branch of the extract node before that run."""
+    return {k: v for k, v in draft.model_dump().items() if v}
 
 
 class ClaimDraft(Strict):
