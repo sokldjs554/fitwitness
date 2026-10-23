@@ -2934,307 +2934,106 @@
    "doc_id": "CLM-00009-diagnosis",
    "field": "hospital",
    "got": "한빚의료원",
-   "truth": "한빛의료원"
-  },
-  {
-   "doc_id": "CLM-00011-diagnosis",
-   "field": "diagnosis_name",
-   "got": "급성충수염",
-   "truth": "급성 충수염"
-  },
-  {
-   "doc_id": "CLM-00011-diagnosis",
-   "field": "hospital",
-   "got": "미 래대학교병원",
-   "truth": "미래대학교병원"
-  },
-  {
-   "doc_id": "CLM-00011-receipt",
-   "field": "hospital",
-   "got": "미 래 대 학교병원",
-   "truth": "미래대학교병원"
-  },
-  {
-   "doc_id": "CLM-00013-receipt",
-   "field": "hospital",
-   "got": "푸 른내과의원",
-   "truth": "푸른내과의원"
-  },
-  {
-   "doc_id": "CLM-00017-receipt",
-   "field": "hospital",
-   "got": "한빛 의 료원",
-   "truth": "한빛의료원"
-  },
-  {
-   "doc_id": "CLM-00019-diagnosis",
-   "field": "diagnosis_name",
-   "got": "급성충수염",
-   "truth": "급성 충수염"
-  },
-  {
-   "doc_id": "CLM-00019-diagnosis",
-   "field": "hospital",
-   "got": "미 래대학교병원",
-   "truth": "미래대학교병원"
-  },
-  {
-   "doc_id": "CLM-00019-receipt",
-   "field": "hospital",
-   "got": "미 래대학교병원",
-   "truth": "미래대학교병원"
-  },
-  {
-   "doc_id": "CLM-00021-receipt",
-   "field": "hospital",
-   "got": "서 울연합병원",
-   "truth": "서울연합병원"
+   "truth": "한빛의료원",
+   "kind": "wrong"
   },
   {
    "doc_id": "CLM-00023-receipt",
    "field": "hospital",
    "got": "강 남제 일 병워",
-   "truth": "강남제일병원"
-  },
-  {
-   "doc_id": "CLM-00025-receipt",
-   "field": "hospital",
-   "got": "푸 른내과의원",
-   "truth": "푸른내과의원"
-  },
-  {
-   "doc_id": "CLM-00033-diagnosis",
-   "field": "diagnosis_name",
-   "got": "급성충수염",
-   "truth": "급성 충수염"
-  },
-  {
-   "doc_id": "CLM-00035-diagnosis",
-   "field": "diagnosis_name",
-   "got": "위의악성신생물",
-   "truth": "위의 악성신생물"
-  },
-  {
-   "doc_id": "CLM-00039-receipt",
-   "field": "hospital",
-   "got": "미 래대학교병원",
-   "truth": "미래대학교병원"
-  },
-  {
-   "doc_id": "CLM-00043-receipt",
-   "field": "hospital",
-   "got": "푸 른 내과의원",
-   "truth": "푸른내과의원"
+   "truth": "강남제일병원",
+   "kind": "wrong"
   },
   {
    "doc_id": "CLM-00045-diagnosis",
    "field": "diagnosis_date",
    "got": null,
-   "truth": "2026-09-07"
+   "truth": "2026-09-07",
+   "kind": "missing"
   },
   {
    "doc_id": "CLM-00045-diagnosis",
    "field": "hospital",
    "got": "한빚의료원",
-   "truth": "한빛의료원"
+   "truth": "한빛의료원",
+   "kind": "wrong"
   },
   {
    "doc_id": "CLM-00045-receipt",
    "field": "hospital",
    "got": "한빚의료원",
-   "truth": "한빛의료원"
+   "truth": "한빛의료원",
+   "kind": "wrong"
   },
   {
    "doc_id": "CLM-00049-receipt",
    "field": "hospital",
    "got": "서 울 연 한병 워",
-   "truth": "서울연합병원"
+   "truth": "서울연합병원",
+   "kind": "wrong"
   },
   {
    "doc_id": "CLM-00051-diagnosis",
    "field": "diagnosis_date",
    "got": null,
-   "truth": "2026-08-07"
+   "truth": "2026-08-07",
+   "kind": "missing"
   },
   {
    "doc_id": "CLM-00051-diagnosis",
    "field": "admission_date",
    "got": null,
-   "truth": "2026-08-07"
+   "truth": "2026-08-07",
+   "kind": "missing"
   },
   {
    "doc_id": "CLM-00059-receipt",
    "field": "hospital",
    "got": "하빛의료원",
-   "truth": "한빛의료원"
-  },
-  {
-   "doc_id": "CLM-00061-diagnosis",
-   "field": "diagnosis_name",
-   "got": "경골원위부골절",
-   "truth": "경골 원위부 골절"
-  },
-  {
-   "doc_id": "CLM-00061-diagnosis",
-   "field": "hospital",
-   "got": "미 래대학교병원",
-   "truth": "미래대학교병원"
-  },
-  {
-   "doc_id": "CLM-00061-receipt",
-   "field": "hospital",
-   "got": "미 래대학교병원",
-   "truth": "미래대학교병원"
-  },
-  {
-   "doc_id": "CLM-00063-diagnosis",
-   "field": "diagnosis_name",
-   "got": "경골원위부골절",
-   "truth": "경골 원위부 골절"
+   "truth": "한빛의료원",
+   "kind": "wrong"
   },
   {
    "doc_id": "CLM-00063-diagnosis",
    "field": "diagnosis_code",
    "got": null,
-   "truth": "S82.3"
-  },
-  {
-   "doc_id": "CLM-00063-receipt",
-   "field": "hospital",
-   "got": "푸 른내과의원",
-   "truth": "푸른내과의원"
+   "truth": "S82.3",
+   "kind": "missing"
   },
   {
    "doc_id": "CLM-00065-diagnosis",
    "field": "hospital",
    "got": "한빚의료원",
-   "truth": "한빛의료원"
-  },
-  {
-   "doc_id": "CLM-00067-diagnosis",
-   "field": "diagnosis_name",
-   "got": "피부의악성신생물",
-   "truth": "피부의 악성신생물"
-  },
-  {
-   "doc_id": "CLM-00069-diagnosis",
-   "field": "diagnosis_name",
-   "got": "서 혜부 탈장",
-   "truth": "서혜부 탈장"
+   "truth": "한빛의료원",
+   "kind": "wrong"
   },
   {
    "doc_id": "CLM-00069-diagnosis",
    "field": "diagnosis_date",
    "got": null,
-   "truth": "2027-02-13"
-  },
-  {
-   "doc_id": "CLM-00071-receipt",
-   "field": "hospital",
-   "got": "미 래대학교병원",
-   "truth": "미래대학교병원"
+   "truth": "2027-02-13",
+   "kind": "missing"
   },
   {
    "doc_id": "CLM-00073-diagnosis",
    "field": "hospital",
    "got": "한빚의료원",
-   "truth": "한빛의료원"
-  },
-  {
-   "doc_id": "CLM-00075-receipt",
-   "field": "hospital",
-   "got": "서 울연합병원",
-   "truth": "서울연합병원"
+   "truth": "한빛의료원",
+   "kind": "wrong"
   },
   {
    "doc_id": "CLM-00079-receipt",
    "field": "hospital",
    "got": "강남제일 원",
-   "truth": "강남제일병원"
-  },
-  {
-   "doc_id": "CLM-00083-diagnosis",
-   "field": "diagnosis_name",
-   "got": "경골원위부골절",
-   "truth": "경골 원위부 골절"
+   "truth": "강남제일병원",
+   "kind": "wrong"
   },
   {
    "doc_id": "CLM-00083-diagnosis",
    "field": "discharge_date",
    "got": null,
-   "truth": "2026-01-07"
-  },
-  {
-   "doc_id": "CLM-00085-receipt",
-   "field": "hospital",
-   "got": "서 울연합병원",
-   "truth": "서울연합병원"
-  },
-  {
-   "doc_id": "CLM-00087-receipt",
-   "field": "hospital",
-   "got": "푸 른내과의원",
-   "truth": "푸른내과의원"
-  },
-  {
-   "doc_id": "CLM-00089-receipt",
-   "field": "hospital",
-   "got": "푸 른내과의원",
-   "truth": "푸른내과의원"
-  },
-  {
-   "doc_id": "CLM-00091-diagnosis",
-   "field": "diagnosis_name",
-   "got": "경골원위부골절",
-   "truth": "경골 원위부 골절"
-  },
-  {
-   "doc_id": "CLM-00093-receipt",
-   "field": "hospital",
-   "got": "미 래 대 학교병원",
-   "truth": "미래대학교병원"
-  },
-  {
-   "doc_id": "CLM-00095-receipt",
-   "field": "hospital",
-   "got": "푸 른내 과의원",
-   "truth": "푸른내과의원"
-  },
-  {
-   "doc_id": "CLM-00101-receipt",
-   "field": "hospital",
-   "got": "미 래대학교병원",
-   "truth": "미래대학교병원"
-  },
-  {
-   "doc_id": "CLM-00105-diagnosis",
-   "field": "diagnosis_name",
-   "got": "위의악성신생물",
-   "truth": "위의 악성신생물"
-  },
-  {
-   "doc_id": "CLM-00107-receipt",
-   "field": "hospital",
-   "got": "미 래 대학교병원",
-   "truth": "미래대학교병원"
-  },
-  {
-   "doc_id": "CLM-00109-diagnosis",
-   "field": "diagnosis_name",
-   "got": "경골원위부골절",
-   "truth": "경골 원위부 골절"
-  },
-  {
-   "doc_id": "CLM-00109-receipt",
-   "field": "hospital",
-   "got": "미 래대학교병원",
-   "truth": "미래대학교병원"
-  },
-  {
-   "doc_id": "CLM-00111-receipt",
-   "field": "hospital",
-   "got": "서 울연합병원",
-   "truth": "서울연합병원"
+   "truth": "2026-01-07",
+   "kind": "missing"
   }
  ],
  "estimated_usd_total": 4.08,
@@ -3245,5 +3044,6 @@
   "The diagnosis_name description was corrected after four test pages had been seen; the other field descriptions were not touched.",
   "Cost is pages x the assumed 0.04 USD per page; the bill in the vendor console is the real number and was not read from here.",
   "One damage level (medium). light and heavy were not sent."
- ]
+ ],
+ "grid_reader_misses_note": "scored with the script's own rule: names compared without spaces, dates and amounts normalised; 6 missing + 9 wrong = 15, matching the summary"
 }
