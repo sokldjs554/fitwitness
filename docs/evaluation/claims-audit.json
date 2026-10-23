@@ -1,0 +1,505 @@
+{
+ "what": "Before a payout, Claude Haiku 4.5 is shown the policy terms in words, computed facts (nights, days since the policy started, waiting period, required documents present, total against the limit, earlier payments that match), the documents' printed rows, the values read and the decision with its reasons, and asked for reasons not to pay (claims/audit.py). Its verdict can only send the claim to a person (R-AUD-01). Measured with evaluation/claims_audit.py on every APPROVE decision of the 120 synthetic claims: in the weakened mode (document requirement ignored, ledger blind, approval limit gone) and in the sound mode. A wrong payment is a decision whose outcome or amount differs from the gold.",
+ "date": "2026-10-23",
+ "model": "claude-haiku-4-5-20251001",
+ "pricing_usd_per_million": {
+  "input": "1",
+  "output": "5"
+ },
+ "per_call_cap_usd": 0.03,
+ "checks_before_the_full_runs": [
+  {
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/39950273830",
+   "code_sha": "8cd11be",
+   "payload": "terms, rows, values, decision (no computed facts)",
+   "audited": 5,
+   "wrong_payments": 1,
+   "caught": 1,
+   "correct_payments": 4,
+   "false_flags": 4,
+   "cost_usd": 0.019123,
+   "latency_ms_median": 3576.3,
+   "why_the_false_flags": "the model counted hospital days inclusively where the rules count nights, compared dates the wrong way round (2025-12-30 called earlier than 2025-01-04), and looked for the daily benefit among the receipt's lines"
+  },
+  {
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/39951011180",
+   "code_sha": "7a5f83c",
+   "payload": "the same plus the computed facts and two prompt sentences (use the facts; the benefits are fixed amounts)",
+   "audited": 5,
+   "wrong_payments": 1,
+   "caught": 1,
+   "correct_payments": 4,
+   "false_flags": 0,
+   "cost_usd": 0.013587,
+   "latency_ms_median": 769.2
+  }
+ ],
+ "runs": [
+  {
+   "mode": "degraded",
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/39951588612",
+   "code_sha": "7a5f83c",
+   "split": "all",
+   "ceiling_usd": 0.5,
+   "audited": 65,
+   "failed_calls": 0,
+   "wrong_payments": 19,
+   "caught": 19,
+   "catch_rate": 1.0,
+   "catch_rate_wilson95": [
+    0.8318,
+    1.0
+   ],
+   "correct_payments": 46,
+   "false_flags": 1,
+   "false_flag_rate": 0.0217,
+   "false_flag_rate_wilson95": [
+    0.0038,
+    0.1134
+   ],
+   "by_scenario": {
+    "clean": {
+     "audited": 34,
+     "should_flag": 0,
+     "caught": 0,
+     "false_flag": 0
+    },
+    "duplicate": {
+     "audited": 7,
+     "should_flag": 7,
+     "caught": 7,
+     "false_flag": 0
+    },
+    "format_variance": {
+     "audited": 12,
+     "should_flag": 4,
+     "caught": 4,
+     "false_flag": 1
+    },
+    "grade_missing": {
+     "audited": 5,
+     "should_flag": 1,
+     "caught": 1,
+     "false_flag": 0
+    },
+    "high_amount": {
+     "audited": 5,
+     "should_flag": 5,
+     "caught": 5,
+     "false_flag": 0
+    },
+    "missing_doc": {
+     "audited": 2,
+     "should_flag": 2,
+     "caught": 2,
+     "false_flag": 0
+    }
+   },
+   "concern_codes_on_caught": {
+    "above_auto_limit": 12,
+    "already_paid": 8,
+    "missing_document": 2,
+    "surgery_diagnosis_mismatch": 1
+   },
+   "concern_codes_on_false_flags": {
+    "excluded_diagnosis": 1,
+    "documents_disagree": 1
+   },
+   "cost_usd": 0.194708,
+   "latency_ms_median": 816.6,
+   "input_tokens": 164323,
+   "output_tokens": 6077,
+   "model_errors": 0,
+   "repairs": 0,
+   "caught_rows": [
+    {
+     "case_id": "CLM-00009",
+     "scenario": "high_amount",
+     "decision": [
+      "APPROVE",
+      31600000
+     ],
+     "gold": [
+      "REVIEW",
+      31600000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "above_auto_limit"
+     ]
+    },
+    {
+     "case_id": "CLM-00014",
+     "scenario": "missing_doc",
+     "decision": [
+      "APPROVE",
+      590000
+     ],
+     "gold": [
+      "REVIEW",
+      90000
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "missing_document",
+      "surgery_diagnosis_mismatch"
+     ]
+    },
+    {
+     "case_id": "CLM-00018",
+     "scenario": "duplicate",
+     "decision": [
+      "APPROVE",
+      30000
+     ],
+     "gold": [
+      "DENY",
+      0
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "already_paid"
+     ]
+    },
+    {
+     "case_id": "CLM-00020",
+     "scenario": "high_amount",
+     "decision": [
+      "APPROVE",
+      12230000
+     ],
+     "gold": [
+      "REVIEW",
+      12230000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "above_auto_limit"
+     ]
+    },
+    {
+     "case_id": "CLM-00029",
+     "scenario": "duplicate",
+     "decision": [
+      "APPROVE",
+      6180000
+     ],
+     "gold": [
+      "DENY",
+      0
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "already_paid",
+      "above_auto_limit"
+     ]
+    },
+    {
+     "case_id": "CLM-00031",
+     "scenario": "high_amount",
+     "decision": [
+      "APPROVE",
+      32650000
+     ],
+     "gold": [
+      "REVIEW",
+      32650000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "above_auto_limit"
+     ]
+    },
+    {
+     "case_id": "CLM-00032",
+     "scenario": "grade_missing",
+     "decision": [
+      "APPROVE",
+      5210000
+     ],
+     "gold": [
+      "REVIEW",
+      5210000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "above_auto_limit"
+     ]
+    },
+    {
+     "case_id": "CLM-00035",
+     "scenario": "high_amount",
+     "decision": [
+      "APPROVE",
+      12290000
+     ],
+     "gold": [
+      "REVIEW",
+      12290000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "above_auto_limit"
+     ]
+    },
+    {
+     "case_id": "CLM-00053",
+     "scenario": "duplicate",
+     "decision": [
+      "APPROVE",
+      1030000
+     ],
+     "gold": [
+      "DENY",
+      0
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "already_paid"
+     ]
+    },
+    {
+     "case_id": "CLM-00054",
+     "scenario": "duplicate",
+     "decision": [
+      "APPROVE",
+      150000
+     ],
+     "gold": [
+      "DENY",
+      0
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "already_paid"
+     ]
+    },
+    {
+     "case_id": "CLM-00056",
+     "scenario": "duplicate",
+     "decision": [
+      "APPROVE",
+      6090000
+     ],
+     "gold": [
+      "DENY",
+      0
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "already_paid",
+      "above_auto_limit"
+     ]
+    },
+    {
+     "case_id": "CLM-00059",
+     "scenario": "missing_doc",
+     "decision": [
+      "APPROVE",
+      570000
+     ],
+     "gold": [
+      "REVIEW",
+      270000
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "missing_document"
+     ]
+    },
+    {
+     "case_id": "CLM-00075",
+     "scenario": "format_variance",
+     "decision": [
+      "APPROVE",
+      30200000
+     ],
+     "gold": [
+      "REVIEW",
+      30200000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "above_auto_limit"
+     ]
+    },
+    {
+     "case_id": "CLM-00081",
+     "scenario": "format_variance",
+     "decision": [
+      "APPROVE",
+      30150000
+     ],
+     "gold": [
+      "REVIEW",
+      30150000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "above_auto_limit"
+     ]
+    },
+    {
+     "case_id": "CLM-00082",
+     "scenario": "format_variance",
+     "decision": [
+      "APPROVE",
+      10000000
+     ],
+     "gold": [
+      "REVIEW",
+      10000000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "above_auto_limit"
+     ]
+    },
+    {
+     "case_id": "CLM-00094",
+     "scenario": "format_variance",
+     "decision": [
+      "APPROVE",
+      6030000
+     ],
+     "gold": [
+      "REVIEW",
+      6030000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "above_auto_limit"
+     ]
+    },
+    {
+     "case_id": "CLM-00102",
+     "scenario": "high_amount",
+     "decision": [
+      "APPROVE",
+      12410000
+     ],
+     "gold": [
+      "REVIEW",
+      12410000
+     ],
+     "recommendation": "review",
+     "concern_codes": [
+      "above_auto_limit"
+     ]
+    },
+    {
+     "case_id": "CLM-00107",
+     "scenario": "duplicate",
+     "decision": [
+      "APPROVE",
+      90000
+     ],
+     "gold": [
+      "DENY",
+      0
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "already_paid"
+     ]
+    },
+    {
+     "case_id": "CLM-00118",
+     "scenario": "duplicate",
+     "decision": [
+      "APPROVE",
+      540000
+     ],
+     "gold": [
+      "DENY",
+      0
+     ],
+     "recommendation": "deny",
+     "concern_codes": [
+      "already_paid",
+      "already_paid"
+     ]
+    }
+   ],
+   "false_flag_rows": [
+    {
+     "case_id": "CLM-00051",
+     "scenario": "format_variance",
+     "decision": [
+      "APPROVE",
+      2000000
+     ],
+     "gold": [
+      "APPROVE",
+      2000000
+     ],
+     "recommendation": "deny",
+     "concerns": [
+      {
+       "code": "excluded_diagnosis",
+       "message": "진단코드 D05.1(유방 상피내암종)을 약관의 C 접두사 면책과 함께 검토해야 한다는 주장; D05.1은 C 접두사가 아니며 면책이 아님"
+      },
+      {
+       "code": "documents_disagree",
+       "message": "입원 진료과 내과와 진단 유방 상피내암종이 맞지 않는다는 주장"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "mode": "clean",
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/39951592549",
+   "code_sha": "7a5f83c",
+   "split": "all",
+   "ceiling_usd": 0.5,
+   "audited": 46,
+   "failed_calls": 0,
+   "wrong_payments": 0,
+   "caught": 0,
+   "correct_payments": 46,
+   "false_flags": 0,
+   "false_flag_rate": 0.0,
+   "false_flag_rate_wilson95": [
+    -0.0,
+    0.0771
+   ],
+   "by_scenario": {
+    "clean": {
+     "audited": 34,
+     "false_flag": 0
+    },
+    "format_variance": {
+     "audited": 8,
+     "false_flag": 0
+    },
+    "grade_missing": {
+     "audited": 4,
+     "false_flag": 0
+    }
+   },
+   "cost_usd": 0.12412,
+   "latency_ms_median": 776.6,
+   "input_tokens": 112620,
+   "output_tokens": 2300,
+   "model_errors": 0,
+   "repairs": 0
+  }
+ ],
+ "spent_usd_total": 0.351538,
+ "findings": [
+  "With the computed facts in the payload, the auditor stopped all 19 wrong payments the weakened rules let through (12 above the approval limit, 7 already paid, 2 with a required document missing; one claim raised two) and 1 of 46 right ones.",
+  "Without the facts (first check) it stopped the one wrong payment and all four right ones: the model's own date arithmetic and its reading of the receipt were wrong, not its reading of the terms.",
+  "The facts section names a missing document, an earlier payment and a total above the limit outright, so most catches are the model reading a fact and quoting the term; the one catch the facts did not spell out was the surgery without a diagnosis certificate (surgery_diagnosis_mismatch).",
+  "The one false flag judged an in-situ carcinoma code (D05.1) against the C-prefix exclusion and the admission ward against the diagnosis: a person's look, not money.",
+  "On the sound run it agreed with every correct payment: 0 of 46.",
+  "About 0.003 USD and 0.8 s per decision at Haiku 4.5 prices."
+ ],
+ "limitations": [
+  "Synthetic claims and a synthetic policy table; the weakened mode is the three breakages the gate's control uses, not a catalogue of real failures.",
+  "The facts are computed by the same code base as the rules; they are independent of the decision (documents, terms, ledger) but a bug shared by both would be invisible to the auditor.",
+  "One run per decision; a model's output varies between runs.",
+  "The auditor can only add a review reason; whether a person agrees with it was not measured.",
+  "Four batches cost 0.3515 USD, kept apart from the cumulative API cost in EVIDENCE.md."
+ ]
+}
