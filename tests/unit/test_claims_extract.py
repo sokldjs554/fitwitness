@@ -119,3 +119,15 @@ def test_the_models_draft_reaches_grounding_in_the_shape_ground_reads():
     ex = ground(candidate, [])
     assert ex.admission_date is None and ex.total_amount is None, "a snippet found in no document is not a value"
     assert ex.confidence == pytest.approx(0.6)
+
+
+def test_a_models_amount_or_grade_as_text_becomes_the_number_the_field_holds():
+    """The second paid run of the model path failed on 14 of 16 claims: the model quoted the total as
+    "3,884,730" or "3,884,730원" and the typed Extraction refused the string. Digits-only reading applies."""
+    from fitwitness.claims.extract import coerce
+
+    assert coerce("total_amount", "3,884,730") == 3884730 and coerce("total_amount", "3,884,730원") == 3884730
+    assert coerce("total_amount", 1234000) == 1234000 and coerce("total_amount", "없음") is None
+    assert coerce("surgery_grade", "2종") == 2 and coerce("surgery_grade", 3) == 3 and coerce("surgery_grade", "이종") is None
+    assert coerce("admission_date", "2025.12.07") == "2025-12-07" and coerce("insured_name", "박지우") == "박지우"
+    assert coerce("diagnosis_code", None) is None

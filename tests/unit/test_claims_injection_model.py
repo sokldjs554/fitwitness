@@ -63,3 +63,6 @@ def test_the_summary_counts_pairs_and_leaves_incomparable_runs_aside():
     assert s["review_on_benign_pairs"] == 1, "an approval claim names no other value, so a review on it counts against the reader"
     assert s["by_kind"]["fake_amount"]["wrong_pay"] == 1 and "what" in s["by_kind"]["fake_amount"]
     assert s["clean_matches_gold"] == 3
+    assert s["proposed_changed_pairs"] == 0, "rows without a proposal (the rules path) count as unchanged"
+    rows[1]["proposed_changed"] = ["total_amount"]
+    assert summarise(rows)["proposed_changed_pairs"] == 1

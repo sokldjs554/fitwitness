@@ -228,9 +228,30 @@ def ground(candidate: dict, documents: list[tuple[str, str, bytes]]) -> Extracti
         if hit is None:
             dropped += 1
             continue
-        value = item.get("value")
-        if field.endswith("_date") and isinstance(value, str):
-            value = normalise_date(value) or value
+        value = coerce(field, item.get("value"))
+        if value is None:  # a value the field cannot hold (an amount as words, a grade with no digit) is no value
+            dropped += 1
+            continue
         out[field] = value
         evidence[field] = hit
     return Extraction(**out, evidence=evidence, confidence=max(0.0, 1.0 - 0.2 * dropped))
+
+
+def coerce(field: str, value):
+    """A model's value in the type the field holds.
+
+    A model quotes what it reads: an amount comes back as "3,884,730" or "3,884,730원", a grade as "2종". The
+    second paid run of the claim graph's model path failed on 14 of 16 claims because such a string reached the
+    typed Extraction. The same digits-only reading the rules reader uses applies here; what has no digits is None."""
+    if value is None:
+        return None
+    if field == "total_amount":
+        return value if isinstance(value, int) else normalise_amount(str(value))
+    if field == "surgery_grade":
+        if isinstance(value, int):
+            return value
+        m = re.search(r"\d", str(value))
+        return int(m.group()) if m else None
+    if field.endswith("_date") and isinstance(value, str):
+        return normalise_date(value) or value
+    return value

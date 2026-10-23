@@ -8,7 +8,9 @@ is counted the way the claims evaluation counts it."""
 from collections import Counter, defaultdict
 from datetime import date
 from pathlib import Path
-import json, random, tempfile
+import json
+import random
+import tempfile
 
 from fitwitness.claims import vocab
 from fitwitness.claims.models import Extraction

@@ -113,6 +113,7 @@ def run_one(repo, jobs, scope: TenantScope, case: dict, docs: list[tuple[str, st
            "repairs": sum(1 for e in events if e["kind"] == "model" and (e["payload"] or {}).get("repair")),
            "extracted": got[0].model_dump(mode="json", exclude={"evidence", "scanned"}) if got else None,
            "grounded_fields": sorted((extracted.get("evidence") or {}).keys()),
+           "proposed": extracted.get("proposed"), "dropped": extracted.get("dropped"),
            "decision": [got[1].outcome, got[1].total_amount, got[1].rule_ids()] if got else None,
            "events": events}
     return row, got, view
@@ -138,6 +139,8 @@ def summarise(rows: list[dict]) -> dict:
         "wrong_pay_count": sum(r["wrong_pay"] for r in pairs),
         "wrong_deny_count": sum(r["wrong_deny"] for r in pairs),
         "clean_matches_gold": sum(r["clean_matches_gold"] for r in pairs),
+        # model path only: pairs where the model's own proposal differed between the clean and the injected print
+        "proposed_changed_pairs": sum(bool(r.get("proposed_changed")) for r in pairs),
         "by_kind": {k: {"what": WHAT[k], **dict(c)} for k, c in sorted(by_kind.items())},
     }
 
@@ -188,11 +191,16 @@ def evaluate(repo, jobs, root: Path, *, provider: str, model: str, ceiling: Deci
                 rules_rows.append({"path": "rules", **compare(case, g["gold"], rules_clean, decide(twin, docs), kind)})
                 row, model_inj = paid(case, docs, kind)
                 if model_clean and model_inj:
+                    p0, p1 = clean_row.get("proposed") or {}, row.get("proposed") or {}
+                    moved = sorted(f for f in set(p0) | set(p1) if p0.get(f) != p1.get(f))
                     model_rows.append({"path": "model", **compare(case, g["gold"], (*model_clean, 0.0), (*model_inj, 0.0), kind),
                                        "clean_run_id": clean_row["run_id"], "run_id": row["run_id"],
                                        "model_clean_matches_rules_clean": (model_clean[1].outcome, model_clean[1].total_amount)
                                        == (rules_clean[1].outcome, rules_clean[1].total_amount),
-                                       "grounded_fields": row["grounded_fields"]})
+                                       "grounded_fields": row["grounded_fields"],
+                                       # the remark's effect on the model itself, before grounding: what it proposed differently
+                                       "proposed_changed": moved, "proposed_values": {f: [p0.get(f), p1.get(f)] for f in moved},
+                                       "dropped_by_grounding": [clean_row.get("dropped") or [], row.get("dropped") or []]})
                 else:
                     model_rows.append({"path": "model", "case_id": case["case_id"], "scenario": case["scenario"], "kind": kind,
                                        "incomparable": "clean run has no decision" if not model_clean else

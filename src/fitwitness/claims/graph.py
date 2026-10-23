@@ -122,6 +122,7 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
         def extract(state: State):
             guard()
             started = time.monotonic()
+            proposed: dict | None = None
             if model is None:
                 ex = extract_documents(documents)
                 source = "rules"
@@ -131,15 +132,19 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                                     for d, k, pdf in documents)
                 draft, metadata = model.structured(ClaimDraft, EXTRACT_PROMPT, texts, role="extractor")
                 emit("model", metadata)
-                ex = ground(draft_candidate(draft), documents)
+                candidate = draft_candidate(draft)
+                ex = ground(candidate, documents)
                 ex = Extraction.model_validate({**ex.model_dump(), "evidence": ex.evidence})
+                proposed = {k: v.get("value") for k, v in candidate.items()}  # what the model said, before grounding
                 source = "model+grounding"
             emit("tool", {"role": "extractor", "name": "extract_documents", "arguments": {"documents": len(documents), "source": source},
                           "items": sum(1 for f in Extraction.FIELDS if getattr(ex, f) is not None),
                           "latency_ms": (time.monotonic() - started) * 1000})
             emit("extracted", {"fields": {f: getattr(ex, f) for f in Extraction.FIELDS if getattr(ex, f) is not None},
                                "evidence": {f: {"doc_id": r.doc_id, "page": r.page} for f, r in ex.evidence.items()},
-                               "confidence": ex.confidence})
+                               "confidence": ex.confidence,
+                               # the model path only: the proposal as sent, and the fields grounding did not accept
+                               **({"proposed": proposed, "dropped": sorted(set(proposed) - set(ex.evidence))} if proposed is not None else {})})
             return {"extraction": ex.model_dump(mode="json"), "audit": _audit(state, f"extract[{source}]: confidence={ex.confidence:.2f}")}
 
         def validate_node(state: State):

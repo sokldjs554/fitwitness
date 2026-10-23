@@ -101,9 +101,9 @@ jobs:
           for path in ('model', 'rules'):
               print('== summary', path, json.dumps(s[path], ensure_ascii=False))
           for row in r['rows']:
-              print('== pair', json.dumps({k: row.get(k) for k in ('path', 'case_id', 'scenario', 'kind', 'incomparable', 'clean', 'injected', 'fields_changed', 'values', 'decision_changed', 'sent_to_review', 'unsafe_change', 'wrong_pay', 'wrong_deny', 'clean_matches_gold', 'rules_added', 'confidence', 'model_clean_matches_rules_clean', 'grounded_fields', 'run_id')}, ensure_ascii=False, default=str))
+              print('== pair', json.dumps({k: row.get(k) for k in ('path', 'case_id', 'scenario', 'kind', 'incomparable', 'clean', 'injected', 'fields_changed', 'values', 'decision_changed', 'sent_to_review', 'unsafe_change', 'wrong_pay', 'wrong_deny', 'clean_matches_gold', 'rules_added', 'confidence', 'model_clean_matches_rules_clean', 'grounded_fields', 'proposed_changed', 'proposed_values', 'dropped_by_grounding', 'run_id')}, ensure_ascii=False, default=str))
           for run in r['runs']:
-              print('== run', json.dumps({k: run.get(k) for k in ('case_id', 'kind', 'state', 'error', 'extracted', 'grounded_fields', 'decision', 'model_calls', 'repairs', 'input_tokens', 'output_tokens', 'cost_usd', 'charged_usd', 'latency_ms', 'run_id')}, ensure_ascii=False, default=str))
+              print('== run', json.dumps({k: run.get(k) for k in ('case_id', 'kind', 'state', 'error', 'extracted', 'proposed', 'dropped', 'grounded_fields', 'decision', 'model_calls', 'repairs', 'input_tokens', 'output_tokens', 'cost_usd', 'charged_usd', 'latency_ms', 'run_id')}, ensure_ascii=False, default=str))
           # The artifact cannot always be fetched from where the log is read, so a model's refused or malformed
           # output is printed here too: the parse error and the raw output are the only way to say why a run failed.
           for run in r['runs']:
