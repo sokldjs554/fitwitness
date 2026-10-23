@@ -4,7 +4,9 @@
 not to pay. Two questions decide whether that is worth a call: on the weakened control (``--mode degraded``: the
 document requirement ignored, the ledger blind to earlier payments, the approval limit gone, which lets claims
 through that should not pay) how many of the wrong payments does it stop, and on the sound run (``--mode clean``)
-how often does it stop a payment that was right. Every APPROVE decision of the split is audited once; the gold
+how often does it stop a payment that was right. ``--mode subtle`` breaks what the computed facts do not name
+(a surgery grade and a discharge date read off by one, the deductible not taken off): what the auditor finds
+there, it finds by reading the documents' rows against the decision, not a fact handed to it. Every APPROVE decision of the split is audited once; the gold
 says which of them were wrong. There is no model in the decision itself, so a verdict that is wrong costs a
 person's look, never money.
 
@@ -33,7 +35,7 @@ from fitwitness.claims.policy import PRODUCTS
 from fitwitness.evaluation.agent_trajectory import Ledger
 from fitwitness.evaluation.claims_model import SPLITS
 
-MODES = {"clean": False, "degraded": True}
+MODES = {"clean": False, "degraded": True, "subtle": "subtle"}  # subtle: the amount is wrong for a reason no computed fact names
 
 
 class StubModel:

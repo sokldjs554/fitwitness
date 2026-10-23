@@ -11,11 +11,11 @@ on:
         type: choice
         options: [anthropic, openai]
       mode:
-        description: degraded = the weakened rules that let wrong payments through; clean = the sound rules
+        description: degraded = the weakened rules that let wrong payments through; clean = the sound rules; subtle = a grade and a date read off by one and the deductible not taken off, which no computed fact names
         default: 'degraded'
         required: true
         type: choice
-        options: [degraded, clean]
+        options: [degraded, clean, subtle]
       split:
         description: which claims (all = 120)
         default: 'all'

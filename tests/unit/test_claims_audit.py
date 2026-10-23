@@ -71,3 +71,25 @@ def test_judging_a_verdict_against_the_gold_and_summing_up():
 def test_the_stub_agrees_and_reports_usage():
     verdict, meta = StubModel().structured(AuditVerdict, "p", "x" * 400)
     assert verdict.recommendation == "pay" and meta["usage"]["input_tokens"] == 100
+
+
+def test_the_subtle_control_pays_a_wrong_amount_that_no_computed_fact_names(tmp_path):
+    import json
+    from fitwitness.claims.evaluate import decide
+    from fitwitness.claims.synth import generate_cases
+    from fitwitness.claims.audit import document_rows, facts
+    generate_cases(tmp_path, n=22, seed=5)
+    manifest = json.loads((tmp_path / "manifest.json").read_text())
+    gold = json.loads((tmp_path / "gold.json").read_text())
+    case = next(c for c in manifest["cases"] if c["scenario"] == "clean" and "surgery" in c["requested"] and "hospitalization_daily" in c["requested"])
+    docs = [(d["id"], d["kind"], (tmp_path / case["case_id"] / f"{d['id']}.pdf").read_bytes()) for d in case["documents"]]
+    sound_ex, sound, _ = decide(case, docs)
+    ex, decision, _ = decide(case, docs, degraded="subtle")
+    assert sound.outcome == decision.outcome == "APPROVE" and sound.total_amount == gold[case["case_id"]]["gold"]["total_amount"]
+    assert decision.total_amount > sound.total_amount, "one grade up, one night more and no deductible: more money than the documents support"
+    assert ex.surgery_grade == sound_ex.surgery_grade + 1 and ex.discharge_date > sound_ex.discharge_date
+    policy = Policy.model_validate(case["policy"])
+    rows = document_rows(docs)
+    assert f"{sound_ex.surgery_grade}종" in rows and sound_ex.discharge_date in rows, "the printed rows still say what the documents say"
+    stated = facts(policy, PRODUCTS[policy.product_id], list(case["requested"]), {k for _, k, _ in docs}, ex, decision, [])
+    assert "모두 있음" in stated and "한도 이내" in stated and "이미 지급된 것: 없음" in stated, "every fact the auditor is handed looks fine"

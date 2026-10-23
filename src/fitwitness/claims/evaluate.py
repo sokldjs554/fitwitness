@@ -68,8 +68,13 @@ def run_pipeline(root: Path, case: dict, *, degraded: bool = False, scan: str | 
     return decide(case, docs, degraded=degraded)
 
 
-def decide(case: dict, docs: list[tuple[str, str, bytes]], *, degraded: bool = False) -> tuple[Extraction, ClaimDecision, float]:
-    """Extraction, validation, rules and the challenge step over the given documents of ``case``."""
+def decide(case: dict, docs: list[tuple[str, str, bytes]], *, degraded: bool | str = False) -> tuple[Extraction, ClaimDecision, float]:
+    """Extraction, validation, rules and the challenge step over the given documents of ``case``.
+
+    ``degraded=True`` is the gate's control: the document check, the ledger and the approval limit broken at
+    once. ``degraded="subtle"`` breaks what no computed fact names: the surgery grade is read one higher and the
+    discharge date one day later than the documents print them, and the deductible days are not taken off, so
+    every document is present, nothing was paid before, the limit holds, and the amount is still wrong."""
     started = time.perf_counter()
     ex = extract_documents(docs)
     present = {d["kind"] for d in case["documents"]}
@@ -77,12 +82,30 @@ def decide(case: dict, docs: list[tuple[str, str, bytes]], *, degraded: bool = F
     policy = Policy.model_validate(case["policy"])
     product = PRODUCTS[policy.product_id]
     prior = set(case["prior_paid_keys"])
-    if degraded:
+    if degraded is True:
         present = present | {"diagnosis", "admission", "surgery", "receipt"}  # every document "is there"
         prior = set()  # the ledger lookup is broken
         product = product.model_copy(update={"auto_approve_limit": 10**12})  # nobody signs off on large amounts
+    elif degraded == "subtle":
+        ex = misread(ex)
+        product = product.model_copy(update={"coverages": {k: c.model_copy(update={"deductible_days": 0}) for k, c in product.coverages.items()}})
     decision = challenge(ex, adjudicate(policy, product, case["requested"], ex, present, prior, flags))
     return ex, decision, (time.perf_counter() - started) * 1000
+
+
+def misread(ex: Extraction) -> Extraction:
+    """The extraction with the surgery grade one higher and the discharge date one day later than printed;
+    the evidence still points at the printed rows, as a reader's slip would."""
+    from datetime import timedelta
+
+    from fitwitness.claims.policy import parse_date
+
+    updates = {}
+    if ex.surgery_grade is not None and ex.surgery_grade < 5:
+        updates["surgery_grade"] = ex.surgery_grade + 1
+    if parse_date(ex.discharge_date):
+        updates["discharge_date"] = (parse_date(ex.discharge_date) + timedelta(days=1)).isoformat()
+    return ex.model_copy(update=updates) if updates else ex
 
 
 def _same(field: str, got, want, scan: str | None) -> bool:
