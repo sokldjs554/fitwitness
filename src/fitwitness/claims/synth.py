@@ -129,7 +129,9 @@ def render_png(pdf_path: Path, png_path: Path, scale: float = 1.2) -> None:
 
 def build_documents(case_dir: Path, case_id: str, truth: Extraction, requested: list[str], issued: date,
                     rng: random.Random, fmt: str, amt_style: int, department: str, omit: str | None,
-                    ocr_rate: float, conflict: bool, doctor: str) -> list[ClaimDocument]:
+                    ocr_rate: float, conflict: bool, doctor: str, extra: list[tuple[str, str]] | None = None) -> list[ClaimDocument]:
+    """``extra`` rows are printed under the form rows of every document: the robustness evaluation uses them for
+    text that is not a field (a remark that gives instructions, or looks like a second field)."""
     need: set[str] = set()
     for k in requested:
         need |= REQUIRED_DOCS[k]
@@ -145,7 +147,7 @@ def build_documents(case_dir: Path, case_id: str, truth: Extraction, requested: 
     def emit(kind: str, title: str, rows: list[tuple[str, str]], closing: str) -> None:
         doc_id = f"{case_id}-{kind[:3].upper()}"
         pdf = case_dir / f"{doc_id}.pdf"
-        render_document(pdf, title, rows, issued, hosp, doctor, f"{issued.year}-{abs(hash(doc_id)) % 900000 + 100000}", closing)
+        render_document(pdf, title, rows + list(extra or []), issued, hosp, doctor, f"{issued.year}-{abs(hash(doc_id)) % 900000 + 100000}", closing)
         render_png(pdf, case_dir / f"{doc_id}.png")
         docs.append(ClaimDocument(id=doc_id, case_id=case_id, kind=kind, issued_at=issued.isoformat()))
 

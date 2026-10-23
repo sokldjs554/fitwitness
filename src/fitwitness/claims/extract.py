@@ -40,6 +40,18 @@ DATE_RES = [
 ]
 
 
+DISPUTED_CONFIDENCE = 0.5  # under the policy's confidence floor: a disputed decisive field goes to a person
+
+
+def _differs(field: str, first: str, again: str) -> bool:
+    """Whether a repeated label carries another value, compared the way the field is read."""
+    if field.endswith("_date"):
+        return (normalise_date(first) or first.strip()) != (normalise_date(again) or again.strip())
+    if field == "total_amount":
+        return normalise_amount(first) != normalise_amount(again)
+    return first.split()[:1] != again.split()[:1]  # a code or grade: its first word
+
+
 def normalise_date(text: str) -> str | None:
     t = text.strip()
     for rx in DATE_RES:
@@ -70,6 +82,7 @@ def _text_pairs(page, n: int, doc_id: str) -> list[tuple[str, str, EvidenceRef]]
     for row in rows.values():
         row.sort(key=lambda w: w["x0"])
         i = 0
+        previous = None  # the label before this one on the same line
         while i < len(row):
             if not row[i]["text"].endswith(":"):
                 i += 1
@@ -80,13 +93,17 @@ def _text_pairs(page, n: int, doc_id: str) -> list[tuple[str, str, EvidenceRef]]
             while i < len(row) and not row[i]["text"].endswith(":"):
                 values.append(row[i]["text"])
                 i += 1
+            # A field label that follows a label this reader does not know ("비고:", "note:") on the same line is
+            # text inside that remark, not a row of the form: it is read, but never as the field's value.
+            nested = previous is not None and previous not in LABELS
+            previous = label
             if not values:
                 continue
             group = row[start:i]
             bbox = (min(w["x0"] for w in group) / page.width, min(w["top"] for w in group) / page.height,
                     max(w["x1"] for w in group) / page.width, max(w["bottom"] for w in group) / page.height)
             text = " ".join(values)
-            pairs.append((label, text, EvidenceRef(doc_id=doc_id, page=n, bbox=bbox, snippet=f"{label} {text}")))
+            pairs.append((label, text, EvidenceRef(doc_id=doc_id, page=n, bbox=bbox, snippet=f"{label} {text}", nested=nested)))
     return pairs
 
 
@@ -132,6 +149,7 @@ def extract_documents(documents: list[tuple[str, str, bytes]]) -> Extraction:
     values: dict[str, tuple[str, EvidenceRef, bool, float, str]] = {}  # field -> (raw, evidence, authoritative, confidence, source)
     origin: dict[str, str] = {}  # field -> the document its value was read from
     lines: dict[str, list[str]] = {}  # document -> the receipt lines that add up to its total (scans only)
+    disputed: set[str] = set()  # decisive fields a document gives twice with different values
     problems = 0
     for doc_id, kind, data in documents:
         for label, text, ref, conf, source in read_pairs_scored(data, doc_id):
@@ -144,6 +162,13 @@ def extract_documents(documents: list[tuple[str, str, bytes]]) -> Extraction:
             authoritative = AUTHORITY.get(field) == kind
             if field in values and values[field][2] and not authoritative:
                 continue  # keep the authoritative document's value
+            if ref.nested or (field in values and origin[field] == doc_id):
+                # A label inside a remark, or the same document naming the field again: its form row came first.
+                # Such a line is not a value to take but, when it differs on a decisive field, a reason for a
+                # person to look.
+                if field in DECISIVE and field in values and _differs(field, values[field][0], text):
+                    disputed.add(field)
+                continue
             values[field] = (text, ref, authoritative, conf, source)
             origin[field] = doc_id
     out: dict = {}
@@ -177,7 +202,10 @@ def extract_documents(documents: list[tuple[str, str, bytes]]) -> Extraction:
         evidence[field] = ref
         if field in DECISIVE and not confirmed:  # a total the receipt's own lines add up to needs no further doubt
             floor = min(floor, conf)
-    # The least certain value limits what the whole extraction can be trusted for.
+    # The least certain value limits what the whole extraction can be trusted for; a decisive field a document
+    # states twice with two values is as doubtful as a scanner's worst read.
+    if disputed:
+        floor = min(floor, DISPUTED_CONFIDENCE)
     confidence = max(0.0, min(1.0 - 0.2 * problems, floor))
     return Extraction(**out, evidence=evidence, confidence=confidence, scanned=any(v[4] == "ocr" for v in values.values()))
 
@@ -187,7 +215,8 @@ def ground(candidate: dict, documents: list[tuple[str, str, bytes]]) -> Extracti
 
     ``candidate`` is {field: {"value": ..., "snippet": "..."}} as a model would return it.
     A field whose snippet cannot be found is dropped, not trusted, and lowers confidence."""
-    pairs = [(doc_id, label, text, ref) for doc_id, _, data in documents for label, text, ref in read_pairs(data, doc_id)]
+    # a model may quote a remark, but a remark is not a place a value is read from
+    pairs = [(doc_id, label, text, ref) for doc_id, _, data in documents for label, text, ref in read_pairs(data, doc_id) if not ref.nested]
     out: dict = {}
     evidence: dict[str, EvidenceRef] = {}
     dropped = 0

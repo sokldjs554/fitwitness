@@ -72,6 +72,11 @@ THRESHOLDS: dict[str, dict] = {
     "claims_scan.field_accuracy": {"min": 0.90, "max_drop": 0.03, "optional": True},
     # Only about six of the 22 sampled claims are payable, so a drop is not read from this rate: one claim is 17 points.
     "claims_scan.auto_rate": {"min": 0.50, "optional": True},
+    "claims_injection.wrong_pay_count": {"equals": 0},
+    "claims_injection.wrong_deny_count": {"equals": 0},
+    "claims_injection.fields_changed_pairs": {"max": 0},
+    "claims_injection.unsafe_decision_changes": {"max": 0},
+    "claims_injection.review_on_benign_pairs": {"max": 0},
     # The same two forms as page pictures: registered on their grid and read by cell. Optional like the scan suite.
     "claims_official_scan.wrong_pay_rate": {"equals": 0.0, "optional": True},
     "claims_official_scan.wrong_deny_rate": {"equals": 0.0, "optional": True},
@@ -225,6 +230,14 @@ def run_claims_scan(root: Path) -> dict | None:
     return evaluate(root, scan=SCAN_LEVEL, workers=max(1, min(4, os.cpu_count() or 1)), cases=_scan_sample(root, SCAN_CASES_PER_SCENARIO))
 
 
+def run_claims_injection(root: Path) -> dict:
+    """One claim per scenario printed twice, the second time with a remark that gives instructions or repeats a
+    field's label with another value (``claims/injection.py``): the decision must not move."""
+    from fitwitness.claims.injection import evaluate_injection
+
+    return evaluate_injection(root, cases=_scan_sample(root, SCAN_OFFICIAL_CASES_PER_SCENARIO))
+
+
 def run_claims_official_scan(root: Path) -> dict | None:
     """The two official forms as page pictures, one case per scenario: read by registering their grid
     (``claims/official_scan.py``), and again by the OCR path alone, as if the grid reader did not exist."""
@@ -269,6 +282,7 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajecto
     claims_scan = run_claims_scan(claims_root) if claims else None
     claims_official = run_claims_official(claims_root) if claims else None
     claims_official_scan = run_claims_official_scan(claims_root) if claims else None
+    claims_injection = run_claims_injection(claims_root) if claims else None
     trajectory = None
     if claims:
         from fitwitness.evaluation.trajectory import run_trajectories
@@ -304,6 +318,7 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajecto
         "claims_scan": ({**claims_scan["summary"], "level": SCAN_LEVEL} if claims_scan else None),
         "claims_official": claims_official["normal"]["summary"] if claims_official else None,
         "claims_official_scan": ({**claims_official_scan["normal"]["summary"], "level": SCAN_LEVEL} if claims_official_scan else None),
+        "claims_injection": claims_injection["summary"] if claims_injection else None,
         "limitations": [
             "합성 도면 150개·고정 test split 6 family 기준의 회귀 게이트입니다. 산업 데이터 성능이 아닙니다.",
             "모델·API 호출이 없습니다. 의미·이미지 채널과 LLM Agent 품질은 별도 실측 workflow가 측정합니다.",
@@ -313,12 +328,14 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajecto
             "claims_official 항목은 진단서와 진료비 계산서·영수증을 공식 서식의 라벨·선을 다시 그린 판에 생성기의 값으로 채워 읽은 결과입니다. 값의 위치는 서식에서 잰 것이고 병원 소프트웨어가 실제로 찍는 위치가 아닙니다. 두 서류 외에는 합성 문서 그대로입니다.",
             "claims_official_scan 항목은 같은 두 서식을 스캔처럼 열화시켜(medium) 서식의 격자를 맞춰 칸마다 읽은 결과이고, 시나리오마다 1건만 잰 표본입니다. 서식의 선·라벨 좌표는 읽기와 서류 채우기가 같은 파일을 쓰므로, 실제 서식에 대한 확인은 이 게이트가 아니라 scripts/eval-official-forms.py로 합니다. Tesseract가 없으면 건너뜁니다.",
             "trajectory 항목은 규칙 엔진과 고정 대본의 planner/challenger가 지나는 경로입니다. 실제 모델이 고르는 경로의 품질은 측정하지 않습니다.",
+            "claims_injection 항목은 시나리오마다 1건을 생성기의 기본 양식으로 두 번 찍어(깨끗한 판, 비고란에 지시문·가짜 라벨·승인 주장을 더한 판) 규칙 경로로 비교한 것입니다. 모델 추출 경로는 포함하지 않으며, 7가지 문구는 제가 만든 것이라 실제 공격의 분포가 아닙니다.",
         ],
     }
     (output / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2))
     (output / "rows.json").write_text(json.dumps({"lexical": lexical["rows"], "degraded": degraded["rows"], "geometry": geometry["rows"],
                                                   "rules": {"expected": rules["expected"], "actual": rules["actual"]},
-                                                  "claims": claims["normal"]["rows"] if claims else []}, ensure_ascii=False, indent=1))
+                                                  "claims": claims["normal"]["rows"] if claims else [],
+                                                  "claims_injection": claims_injection["rows"] if claims_injection else []}, ensure_ascii=False, indent=1))
     return report
 
 
@@ -347,6 +364,8 @@ def compare(report: dict, baseline: dict | None, thresholds: dict[str, dict] = T
                 why.append(f"{value:.3f} < min {rule['min']}")
             if "equals" in rule and value != rule["equals"]:
                 why.append(f"{value} != {rule['equals']}")
+            if "max" in rule and value > rule["max"]:
+                why.append(f"{value} > max {rule['max']}")
             if "max_drop" in rule and base is not None and value < base - rule["max_drop"]:
                 why.append(f"dropped {base:.3f} -> {value:.3f} (> {rule['max_drop']})")
         checks.append({"metric": path, "value": value, "baseline": base, "ok": not why, "why": "; ".join(why)})

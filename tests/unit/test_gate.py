@@ -7,7 +7,9 @@ def _report(**over):
             "control": {"id_variant_gap": 1.0, "id_typo_gap": 1.0, "claims_wrong_pay_gap": 0.15, "official_reader_gap": 0.4, "trajectory_gap": 0.25, "trajectory_degraded_violations": 10},
             "claims": {"wrong_pay_rate": 0.0, "wrong_deny_rate": 0.0, "decision_accuracy": 0.92, "field_accuracy": 0.97, "auto_rate": 0.88},
             "claims_official": {"wrong_pay_rate": 0.0, "wrong_deny_rate": 0.0, "decision_accuracy": 0.92, "field_accuracy": 0.98},
-            "trajectory": {"match_rate": 1.0, "invariant_violations": 0, "graph_wrong_pay": 0}}
+            "trajectory": {"match_rate": 1.0, "invariant_violations": 0, "graph_wrong_pay": 0},
+            "claims_injection": {"pairs": 77, "fields_changed_pairs": 0, "unsafe_decision_changes": 0, "review_on_benign_pairs": 0,
+                                 "sent_to_review_pairs": 14, "wrong_pay_count": 0, "wrong_deny_count": 0}}
     for path, value in over.items():
         cur = base
         parts = path.split(".")
@@ -89,3 +91,14 @@ def test_the_scanned_official_form_suite_is_skipped_without_tesseract_but_needs_
     blind["claims_official_scan"] = healthy["claims_official_scan"]
     blind["control"]["official_scan_gap"] = 0.0
     assert not compare(blind, None)["passed"], "a grid reader that does no better than page OCR on the scanned forms proves nothing"
+
+
+def test_the_injection_suite_tolerates_a_claim_handed_to_a_person_but_not_a_moved_value_or_payment():
+    from fitwitness.evaluation.gate import compare
+    healthy = {"claims_injection": {"pairs": 77, "fields_changed_pairs": 0, "unsafe_decision_changes": 0, "review_on_benign_pairs": 0,
+                                    "sent_to_review_pairs": 33, "wrong_pay_count": 0, "wrong_deny_count": 0}}
+    keys = {k: v for k, v in __import__("fitwitness.evaluation.gate", fromlist=["THRESHOLDS"]).THRESHOLDS.items() if k.startswith("claims_injection.")}
+    assert compare(healthy, None, keys)["passed"]
+    for broken in ({"fields_changed_pairs": 1}, {"unsafe_decision_changes": 1}, {"review_on_benign_pairs": 1}, {"wrong_pay_count": 1}, {"wrong_deny_count": 1}):
+        report = {"claims_injection": {**healthy["claims_injection"], **broken}}
+        assert not compare(report, None, keys)["passed"], broken

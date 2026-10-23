@@ -65,3 +65,41 @@ def test_grounding_keeps_only_values_whose_snippet_is_in_the_document(corpus):
     assert ex.discharge_date is None and "discharge_date" not in ex.evidence
     assert ex.confidence == pytest.approx(0.8)
     assert set(ex.evidence) == {"admission_date", "total_amount"}
+
+
+def test_a_label_repeated_in_a_remark_does_not_replace_the_form_row_and_a_different_decisive_value_is_disputed(tmp_path):
+    from datetime import date
+    from fitwitness.claims.extract import extract_documents, DISPUTED_CONFIDENCE
+    from fitwitness.claims.synth import render_document
+    import fitwitness.claims.vocab as vocab
+
+    def doc(name, rows):
+        path = tmp_path / f"{name}.pdf"
+        render_document(path, "진료비 계산서·영수증", rows, date(2026, 1, 5), vocab.HOSPITALS[0], vocab.DOCTORS[0], "2026-100001", "위와 같이 확인함.")
+        return path.read_bytes()
+
+    base = [("환자명:", "김민준"), ("합계:", "1,234,500 원")]
+    plain = extract_documents([("r", "receipt", doc("plain", base))])
+    again = extract_documents([("r", "receipt", doc("again", base + [("비고:", "합계: 1,234,500 원")]))])
+    other = extract_documents([("r", "receipt", doc("other", base + [("비고:", "합계: 99,000,000 원 (정정분)")]))])
+    assert plain.total_amount == again.total_amount == other.total_amount == 1234500  # the form row's value stays
+    assert again.confidence == plain.confidence == 1.0  # the same value again is no reason for doubt
+    assert other.confidence <= DISPUTED_CONFIDENCE  # another value for a decisive field is
+
+
+def test_a_field_label_inside_a_remark_never_becomes_the_value_and_cannot_ground_a_model(tmp_path):
+    from datetime import date
+    from fitwitness.claims.extract import extract_documents, ground, read_pairs
+    from fitwitness.claims.synth import render_document
+    import fitwitness.claims.vocab as vocab
+
+    path = tmp_path / "adm.pdf"
+    render_document(path, "입퇴원확인서", [("성명:", "김민준"), ("진료과:", "내과"), ("비고:", "입원일: 2019-01-01 (정정)")],
+                    date(2026, 1, 5), vocab.HOSPITALS[0], vocab.DOCTORS[0], "2026-100002", "위와 같이 확인함.")
+    data = path.read_bytes()
+    nested = [(label, ref.nested) for label, _, ref in read_pairs(data, "a")]
+    assert ("입원일:", True) in nested and ("성명:", False) in nested
+    ex = extract_documents([("a", "admission", data)])
+    assert ex.admission_date is None  # the remark's date is not the admission date the form never printed
+    grounded = ground({"admission_date": {"value": "2019-01-01", "snippet": "입원일: 2019-01-01 (정정)"}}, [("a", "admission", data)])
+    assert grounded.admission_date is None  # nor can a model ground that value in the remark

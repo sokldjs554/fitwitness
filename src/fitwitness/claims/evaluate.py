@@ -65,6 +65,11 @@ def run_pipeline(root: Path, case: dict, *, degraded: bool = False, scan: str | 
         from fitwitness.claims.scan import scan_pdf
 
         docs = [(i, k, scan_pdf(data, scan, i)) for i, k, data in docs]
+    return decide(case, docs, degraded=degraded)
+
+
+def decide(case: dict, docs: list[tuple[str, str, bytes]], *, degraded: bool = False) -> tuple[Extraction, ClaimDecision, float]:
+    """Extraction, validation, rules and the challenge step over the given documents of ``case``."""
     started = time.perf_counter()
     ex = extract_documents(docs)
     present = {d["kind"] for d in case["documents"]}

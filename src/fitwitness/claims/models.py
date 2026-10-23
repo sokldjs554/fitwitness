@@ -49,6 +49,7 @@ class EvidenceRef(Strict):
     page: int
     bbox: tuple[float, float, float, float]
     snippet: str
+    nested: bool = False  # the pair sits inside another line's text (a remark), not in a row of its own
 
 
 class Extraction(Strict):
