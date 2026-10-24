@@ -1,0 +1,322 @@
+{
+ "09c0a281": {
+  "drawing_number": null,
+  "material": null,
+  "scale": null,
+  "title_block": "no",
+  "unclear": false,
+  "note": "Border sheet with no title block; only a '3D EXERCISES 308' tag top-left and a view label 'A (1:2)'."
+ },
+ "100c1dcf": {
+  "drawing_number": null,
+  "material": null,
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": "Korean-style block, all cells empty except scale 1:1. Circled '99' is a sheet label outside the block, not a drawing-number cell."
+ },
+ "163376fc": {
+  "drawing_number": null,
+  "material": null,
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": "Block empty except scale 1:1. Circled '267' is a sheet label outside the block."
+ },
+ "1663097e": {
+  "drawing_number": "LJT02.04",
+  "material": "60Si2MnA",
+  "scale": null,
+  "title_block": "yes",
+  "unclear": false,
+  "note": "GB block, scale (比例) cell empty. Page also has a 3D render."
+ },
+ "1b808e30": {
+  "drawing_number": null,
+  "material": "45#调质或40Gr调质",
+  "scale": null,
+  "title_block": "yes",
+  "unclear": false,
+  "note": "No drawing-number cell; 比例 cell empty (the '2:1' on the page is for view B)."
+ },
+ "1c92b3c7": {
+  "drawing_number": null,
+  "material": null,
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": "Block empty except scale 1:1. Circled '191' is a sheet label outside the block."
+ },
+ "1ecf6cee": {
+  "drawing_number": null,
+  "material": null,
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": "Block empty except scale 1:1. Circled '127' is a sheet label outside the block."
+ },
+ "2900dd75": {
+  "drawing_number": null,
+  "material": null,
+  "scale": null,
+  "title_block": "no",
+  "unclear": false,
+  "note": "Product web page with parameter tables (JIS B2801 bolt); not a drawing sheet."
+ },
+ "30382862": {
+  "drawing_number": null,
+  "material": null,
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": "Block empty except scale 1:1; no number label on page."
+ },
+ "33f79704": {
+  "drawing_number": "PKQ1-03",
+  "material": "HT200",
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": "Book page with three drawings; this is the bottom one (活动钳口, bottom-right block). Others on page are PKQ1-02 and PKQ1-06."
+ },
+ "3525bce5": {
+  "drawing_number": null,
+  "material": null,
+  "scale": null,
+  "title_block": "no",
+  "unclear": false,
+  "note": "fastener spec sheet (screw), not a drawing title block"
+ },
+ "37a360de": {
+  "drawing_number": "LJT04.20",
+  "material": "HT150",
+  "scale": null,
+  "title_block": "yes",
+  "unclear": false,
+  "note": "scale cell empty"
+ },
+ "37a8294b": {
+  "drawing_number": null,
+  "material": null,
+  "scale": null,
+  "title_block": "no",
+  "unclear": false,
+  "note": "fastener spec sheet (bolt)"
+ },
+ "3c70ad01": {
+  "drawing_number": null,
+  "material": "38CrMoAl",
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": true,
+  "note": "page holds two drawings (bottom: 离合碗 38CrMoAl 1:1, top: 宝塔带轮 HT200 1:1); values are for the bottom-right one; no drawing number cell filled"
+ },
+ "542a97d5": {
+  "drawing_number": null,
+  "material": null,
+  "scale": null,
+  "title_block": "no",
+  "unclear": false,
+  "note": "fastener spec sheet (rivet)"
+ },
+ "5c444d9c": {
+  "drawing_number": "LJT06.07",
+  "material": "HT200",
+  "scale": null,
+  "title_block": "yes",
+  "unclear": false,
+  "note": "scale cell empty"
+ },
+ "615c96ae": {
+  "drawing_number": "LJT06.41",
+  "material": "HT200",
+  "scale": null,
+  "title_block": "yes",
+  "unclear": false,
+  "note": "scale cell empty; left half of page is render images only"
+ },
+ "62167669": {
+  "drawing_number": null,
+  "material": null,
+  "scale": null,
+  "title_block": "no",
+  "unclear": false,
+  "note": "fastener spec sheet (nut)"
+ },
+ "660e1f78": {
+  "drawing_number": "DJZ-17",
+  "material": "45",
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": true,
+  "note": "page has four drawings (DJZ-014, DJZ-15, DJZ-16, DJZ-17); values are for the bottom-right one (套)"
+ },
+ "6f6fc4f8": {
+  "drawing_number": null,
+  "material": null,
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": "nearly empty title block; 1:1 is printed in its lower-left cell; no drawing number or material"
+ },
+ "6fb5ebb8": {
+  "drawing_number": "YBL-003",
+  "material": "HT300",
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": ""
+ },
+ "7989ade1": {
+  "drawing_number": null,
+  "material": "ZL105",
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": "drawing-number cell (right of scale/material) is empty"
+ },
+ "7b2aa775": {
+  "drawing_number": null,
+  "material": null,
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": "Korean-style blank title block; only scale 1:1 filled; circled 218 is an item number outside the block"
+ },
+ "7f5a2eea": {
+  "drawing_number": "DJZ-21",
+  "material": "45",
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": "page has four drawings (DJZ-18..21); bottom-right one is DJZ-21 handle"
+ },
+ "85f3208f": {
+  "drawing_number": "LJT05.36",
+  "material": "HT200",
+  "scale": null,
+  "title_block": "yes",
+  "unclear": false,
+  "note": "HU-style block; material printed in the large cell; scale (比例) cell empty"
+ },
+ "903c8afe": {
+  "drawing_number": null,
+  "material": null,
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": "assembly with BOM; 代号 cells and main number cell empty"
+ },
+ "963ff1c0": {
+  "drawing_number": "LJT01.06",
+  "material": "40Cr",
+  "scale": null,
+  "title_block": "yes",
+  "unclear": false,
+  "note": "scale (比例) cell empty"
+ },
+ "9a35186c": {
+  "drawing_number": "HKQ-001",
+  "material": "HT200",
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": ""
+ },
+ "a4f4025d": {
+  "drawing_number": "LJT05.34",
+  "material": "HT200",
+  "scale": null,
+  "title_block": "yes",
+  "unclear": false,
+  "note": "scale (比例) cell empty"
+ },
+ "ad4c7cf0": {
+  "drawing_number": null,
+  "material": null,
+  "scale": null,
+  "title_block": "no",
+  "unclear": false,
+  "note": "product spec web page (JB/ZQ 4363-2006 anchor bolt), not a drawing sheet; 产品编号 and 材料牌号 cells empty"
+ },
+ "b6655ec2": {
+  "drawing_number": "LJT06.39",
+  "material": "HT200",
+  "scale": null,
+  "title_block": "yes",
+  "unclear": false,
+  "note": "scale cell empty"
+ },
+ "ba17c354": {
+  "drawing_number": null,
+  "material": null,
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": "Korean-style block, number/material cells empty; circled 220 is an item number outside the block"
+ },
+ "bfeb3824": {
+  "drawing_number": null,
+  "material": null,
+  "scale": null,
+  "title_block": "no",
+  "unclear": false,
+  "note": "product spec web table, not a drawing page"
+ },
+ "cebec467": {
+  "drawing_number": null,
+  "material": null,
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": "number/material cells empty; circled 86 is an item number outside the block"
+ },
+ "d552059f": {
+  "drawing_number": null,
+  "material": null,
+  "scale": null,
+  "title_block": "no",
+  "unclear": false,
+  "note": "product spec web table, not a drawing page"
+ },
+ "d6f63e78": {
+  "drawing_number": null,
+  "material": null,
+  "scale": null,
+  "title_block": "no",
+  "unclear": false,
+  "note": "product spec web table, not a drawing page"
+ },
+ "df7b0332": {
+  "drawing_number": "XSF-04",
+  "material": "65Mn",
+  "scale": "4:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": "title block is small on a book page (spring drawing, fig 5-126); read from full page at low resolution, fairly confident"
+ },
+ "f1c47bfa": {
+  "drawing_number": "LJT04.47",
+  "material": "ZL107",
+  "scale": null,
+  "title_block": "yes",
+  "unclear": false,
+  "note": "ZL107 is the centre cell above the stage marks (material); scale cell empty"
+ },
+ "f34c2d3e": {
+  "drawing_number": null,
+  "material": null,
+  "scale": null,
+  "title_block": "no",
+  "unclear": false,
+  "note": "product spec web table, not a drawing page"
+ },
+ "f5d85c61": {
+  "drawing_number": null,
+  "material": null,
+  "scale": "1:1",
+  "title_block": "yes",
+  "unclear": false,
+  "note": "number/material cells empty; circled 87 is an item number outside the block"
+ }
+}

@@ -1,0 +1,602 @@
+{
+  "summary": {
+    "drawings": 27,
+    "skipped": 13,
+    "correct": {
+      "drawing_number": 4,
+      "material": 3,
+      "scale": 0
+    },
+    "expected": {
+      "drawing_number": 14,
+      "material": 16,
+      "scale": 17
+    },
+    "wrong_values_reported": 1,
+    "readings_where_the_block_has_no_such_cell": 0,
+    "seconds_median": 6.8,
+    "languages": "chi_sim+kor+eng"
+  },
+  "skipped": [
+    {
+      "image": "09c0a281",
+      "why": "no title block",
+      "note": "Border sheet with no title block; only a '3D EXERCISES 308' tag top-left and a view label 'A (1:2)'."
+    },
+    {
+      "image": "2900dd75",
+      "why": "no title block",
+      "note": "Product web page with parameter tables (JIS B2801 bolt); not a drawing sheet."
+    },
+    {
+      "image": "3525bce5",
+      "why": "no title block",
+      "note": "fastener spec sheet (screw), not a drawing title block"
+    },
+    {
+      "image": "37a8294b",
+      "why": "no title block",
+      "note": "fastener spec sheet (bolt)"
+    },
+    {
+      "image": "3c70ad01",
+      "why": "unclear",
+      "note": "page holds two drawings (bottom: 离合碗 38CrMoAl 1:1, top: 宝塔带轮 HT200 1:1); values are for the bottom-right one; no drawing number cell filled"
+    },
+    {
+      "image": "542a97d5",
+      "why": "no title block",
+      "note": "fastener spec sheet (rivet)"
+    },
+    {
+      "image": "62167669",
+      "why": "no title block",
+      "note": "fastener spec sheet (nut)"
+    },
+    {
+      "image": "660e1f78",
+      "why": "unclear",
+      "note": "page has four drawings (DJZ-014, DJZ-15, DJZ-16, DJZ-17); values are for the bottom-right one (套)"
+    },
+    {
+      "image": "ad4c7cf0",
+      "why": "no title block",
+      "note": "product spec web page (JB/ZQ 4363-2006 anchor bolt), not a drawing sheet; 产品编号 and 材料牌号 cells empty"
+    },
+    {
+      "image": "bfeb3824",
+      "why": "no title block",
+      "note": "product spec web table, not a drawing page"
+    },
+    {
+      "image": "d552059f",
+      "why": "no title block",
+      "note": "product spec web table, not a drawing page"
+    },
+    {
+      "image": "d6f63e78",
+      "why": "no title block",
+      "note": "product spec web table, not a drawing page"
+    },
+    {
+      "image": "f34c2d3e",
+      "why": "no title block",
+      "note": "product spec web table, not a drawing page"
+    }
+  ],
+  "rows": [
+    {
+      "image": "100c1dcf",
+      "seconds": 4.3,
+      "drawing_number": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "163376fc",
+      "seconds": 3.9,
+      "drawing_number": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "1663097e",
+      "seconds": 5.4,
+      "drawing_number": {
+        "expected": "LJT02.04",
+        "read": "LJT0204",
+        "confidence": 0.8
+      },
+      "material": {
+        "expected": "60Si2MnA",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "1b808e30",
+      "seconds": 11.3,
+      "drawing_number": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": "45#调质或40Gr调质",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "1c92b3c7",
+      "seconds": 4.4,
+      "drawing_number": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "1ecf6cee",
+      "seconds": 4.4,
+      "drawing_number": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "30382862",
+      "seconds": 4.1,
+      "drawing_number": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "33f79704",
+      "seconds": 9.2,
+      "drawing_number": {
+        "expected": "PKQ1-03",
+        "read": "PKQ1-03",
+        "confidence": 0.92
+      },
+      "material": {
+        "expected": "HT200",
+        "read": "HT200",
+        "confidence": 0.76
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "37a360de",
+      "seconds": 8.9,
+      "drawing_number": {
+        "expected": "LJT04.20",
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": "HT150",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "5c444d9c",
+      "seconds": 10.8,
+      "drawing_number": {
+        "expected": "LJT06.07",
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": "HT200",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "615c96ae",
+      "seconds": 10.6,
+      "drawing_number": {
+        "expected": "LJT06.41",
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": "HT200",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "6f6fc4f8",
+      "seconds": 4.2,
+      "drawing_number": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "6fb5ebb8",
+      "seconds": 9.1,
+      "drawing_number": {
+        "expected": "YBL-003",
+        "read": "YBL-003",
+        "confidence": 0.93
+      },
+      "material": {
+        "expected": "HT300",
+        "read": "HT300",
+        "confidence": 0.92
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "7989ade1",
+      "seconds": 6.8,
+      "drawing_number": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": "ZL105",
+        "read": "ZL105",
+        "confidence": 0.79
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "7b2aa775",
+      "seconds": 3.8,
+      "drawing_number": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "7f5a2eea",
+      "seconds": 9.6,
+      "drawing_number": {
+        "expected": "DJZ-21",
+        "read": "DJZ-21",
+        "confidence": 0.92
+      },
+      "material": {
+        "expected": "45",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "85f3208f",
+      "seconds": 11.5,
+      "drawing_number": {
+        "expected": "LJT05.36",
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": "HT200",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "903c8afe",
+      "seconds": 12.2,
+      "drawing_number": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "963ff1c0",
+      "seconds": 9.0,
+      "drawing_number": {
+        "expected": "LJT01.06",
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": "40Cr",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "9a35186c",
+      "seconds": 8.7,
+      "drawing_number": {
+        "expected": "HKQ-001",
+        "read": "HKQ-001",
+        "confidence": 0.92
+      },
+      "material": {
+        "expected": "HT200",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "a4f4025d",
+      "seconds": 14.5,
+      "drawing_number": {
+        "expected": "LJT05.34",
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": "HT200",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "b6655ec2",
+      "seconds": 5.9,
+      "drawing_number": {
+        "expected": "LJT06.39",
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": "HT200",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "ba17c354",
+      "seconds": 3.8,
+      "drawing_number": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "cebec467",
+      "seconds": 4.4,
+      "drawing_number": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "df7b0332",
+      "seconds": 6.8,
+      "drawing_number": {
+        "expected": "XSF-04",
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": "65Mn",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "4:1",
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "f1c47bfa",
+      "seconds": 11.6,
+      "drawing_number": {
+        "expected": "LJT04.47",
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": "ZL107",
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      }
+    },
+    {
+      "image": "f5d85c61",
+      "seconds": 4.4,
+      "drawing_number": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "material": {
+        "expected": null,
+        "read": null,
+        "confidence": null
+      },
+      "scale": {
+        "expected": "1:1",
+        "read": null,
+        "confidence": null
+      }
+    }
+  ]
+}
