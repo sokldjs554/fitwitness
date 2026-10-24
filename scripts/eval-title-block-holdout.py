@@ -5,8 +5,8 @@
         --gold docs/evaluation/title-block-holdout-gold.json --output docs/evaluation/title-block-holdout.json
 
 The gold file maps an 8-character image prefix to what is printed in the drawing's title block (written by
-looking at the drawing before the reader was run on it). Entries marked "unclear" are left out of the score
-and counted. Each page goes through the same path as scripts/eval-title-block.py.
+looking at the drawing before the reader was run on it). Entries marked "unclear", "title_block": "no" or
+"duplicate_of" (the same drawing as one the reader was developed on) are left out of the score and counted. Each page goes through the same path as scripts/eval-title-block.py.
 """
 import argparse
 import glob
@@ -43,8 +43,9 @@ def main() -> int:
     rows, correct, expected, wrong, none_but_read, skipped = [], dict.fromkeys(FIELDS, 0), dict.fromkeys(FIELDS, 0), 0, 0, []
     for key in sorted(gold):
         g = gold[key]
-        if g.get("unclear") or g.get("title_block") == "no":
-            skipped.append({"image": key, "why": "unclear" if g.get("unclear") else "no title block", "note": g.get("note", "")})
+        if g.get("unclear") or g.get("title_block") == "no" or g.get("duplicate_of"):
+            why = "duplicate of a development drawing" if g.get("duplicate_of") else "unclear" if g.get("unclear") else "no title block"
+            skipped.append({"image": key, "why": why, "note": g.get("note", "")})
             continue
         buf = io.BytesIO()
         Image.open(files[key]).convert("RGB").save(buf, format="PDF", resolution=150)
