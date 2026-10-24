@@ -4,7 +4,8 @@
 mechanical drawing keeps its identity in the title block in the bottom-right corner (drawing number,
 material, scale), so this module renders the page, runs Tesseract over a few overlapping crops of
 that corner in sparse-text mode, pairs each known label with the cell to its right, and finds the
-drawing number by its shape.
+drawing number by its shape (and, in a block that is plainly a title block, a material grade written in
+its unlabelled cell).
 
 Whatever it reads is an observation, not a fact the verifier may rely on. ``extract_pdf`` stores it
 with certainty "uncertain": the verifier then answers "insufficient evidence" and shows the reviewer
@@ -45,12 +46,25 @@ LABELS = {
 OTHER_LABELS = {"数量", "重量", "质量", "单位", "制图", "审核", "设计", "批准", "工艺", "名称", "代号", "序号", "备注", "单件", "总计", "标记", "处数", "分区",
                 "수량", "중량", "단위", "설계", "검도", "승인", "QTY", "WEIGHT", "UNIT", "NAME", "DRAWN", "CHECKED", "APPROVED", "TITLE"}
 # Prefixes that make a hyphenated code something else: a page footer ("Page-271"), a figure, a standard.
-NOT_A_NUMBER = ("PAGE", "FIG", "FIGURE", "TABLE", "TAB", "GB", "GBT", "ISO", "DIN", "JIS", "ANSI", "ASME", "ASTM", "IEC", "EN")
+NOT_A_NUMBER = ("PAGE", "FIG", "FIGURE", "TABLE", "TAB", "GB", "GBT", "ISO", "DIN", "JIS", "ANSI", "ASME", "ASTM", "IEC", "EN",
+                "RA", "RZ", "RY", "SR")  # the last four: surface roughness and spherical radius, "Ra1.6", "SR12.5"
 SEPARATORS = set("|丨/\\:：;-_.,'\"`~!l")
 # A drawing number: a hyphenated code ("DJZ-02", "QF02-10", "WLJSQ475-00") or three or more letters and digits ("ZPT19").
 # Two letters and digits ("HT200", "ZL107", "LY12", "Q235") are material designations, not numbers.
 NUMBER = re.compile(r"^(?:[A-Z]{1,6}\d{0,4}(?:-\d{1,4}){1,3}|[A-Z]{3,6}\d{1,4})$")
 BARS = "|丨 \t"
+# A dotted code ("LJT04.20"): letters, then digits, a dot, digits. It is set in a thin italic CAD font in which O/0, J/I and 1/l are
+# confused, so it needs a surer reading than the other shapes, and a letter O among its digits is turned back into a zero.
+DOTTED = re.compile(r"^([A-Z]{2,6}?)([0-9O]{1,3})\.([0-9O]{1,3})$")
+MIN_DOTTED = 0.70
+CODE_LIKE = re.compile(r"^[A-Z]{2,6}[0-9OIl]{1,4}(?:\.[0-9OIl]{1,3})?$")
+# A material grade written in the large unlabelled cell of a GB title block. Cast and standard grades are matched in any case, alloy steels
+# ("40Cr", "60Si2MnA", "38CrMoAl") as printed; a bare number ("45") is never taken, it is too often something else.
+_ALLOY = r"(?:Mn|Cr|Si|Mo|V|Al|Ni|B|Ti|W|Nb|Cu)"
+GRADE_CAST = re.compile(r"^(?:HT\d{3}|QT\d{3}-\d{1,2}|ZL\d{3}|ZG\d{2,3}(?:-\d{2,3})?|Q\d{3}[A-F]?)$")
+GRADE_ALLOY = re.compile(rf"^\d{{2}}{_ALLOY}\d?(?:{_ALLOY}\d?)*A?$")
+# Words of the blocks themselves; three of them in one corner mean a title block, so an unlabelled grade in it is the material.
+BLOCK_WORDS = {"设计", "制图", "审核", "工艺", "批准", "标记", "处数", "分区", "比例", "质量", "标准化", "签名", "年月日", "更改文件号", "阶段标记"}
 
 
 @dataclass
@@ -205,10 +219,42 @@ def _cell_value(image, label: ocr.Token, lang: str, field: str) -> ocr.Token | N
     return None
 
 
-def _number(text: str) -> bool:
+def _canonical(text: str) -> str:
+    """A code as it is stored: upper case, one kind of hyphen, and the letter O read inside the digits of a dotted code turned into a zero."""
     t = _clean(text).upper().replace("\u2014", "-").replace("\uff0d", "-")
+    m = DOTTED.match(t)
+    return f"{m.group(1)}{m.group(2).replace('O', '0')}.{m.group(3).replace('O', '0')}" if m else t
+
+
+def _dotted(text: str) -> bool:
+    return bool(DOTTED.match(_clean(text).upper()))
+
+
+def _number(text: str) -> bool:
+    t = _canonical(text)
     prefix = re.match(r"[A-Z]+", t)
-    return bool(NUMBER.match(t)) and any(c.isdigit() for c in t) and len(t) >= 4 and not (prefix and prefix.group(0) in NOT_A_NUMBER)
+    return (bool(NUMBER.match(t)) or bool(DOTTED.match(t))) and any(c.isdigit() for c in t) and len(t) >= 4 and not (prefix and prefix.group(0) in NOT_A_NUMBER)
+
+
+def _grade(text: str) -> str | None:
+    t = _clean(text)
+    if GRADE_CAST.match(t.upper()):
+        return t.upper()
+    return t if GRADE_ALLOY.match(t) else None
+
+
+def _overlaps(a: ocr.Token, b: ocr.Token) -> bool:
+    h = max(a.bottom - a.top, b.bottom - b.top)
+    return abs((a.top + a.bottom) / 2 - (b.top + b.bottom) / 2) < 0.7 * h and min(a.x1, b.x1) - max(a.x0, b.x0) > 0.3 * min(a.x1 - a.x0, b.x1 - b.x0)
+
+
+def _flat(text: str) -> str:
+    return _clean(text).upper().replace(".", "").replace("O", "0")
+
+
+def _lost_a_dot(w: ocr.Token, codes: list[ocr.Token]) -> bool:
+    """The same cell was read once with a dot and once without, as two different codes: one of them lost the dot or a letter, and which is unknown."""
+    return any(o is not w and _overlaps(w, o) and ("." in w.text) != ("." in o.text) and _flat(w.text) != _flat(o.text) for o in codes)
 
 
 def read_image(image, lang: str | None = None) -> list[Reading]:
@@ -229,11 +275,13 @@ def read_words(words: list[ocr.Token], size: tuple[int, int], cell=None) -> list
     header = [w for w in words if _norm(w.text) in ("代号", "序号")]
     floor = max((w.bottom for w in header), default=0)
     found = [w for w in words if w.top >= floor and _number(w.text)]
-    found = [w for w in found if w.conf >= MIN_READING * 100]
+    found = [w for w in found if w.conf >= (MIN_DOTTED if _dotted(w.text) else MIN_READING) * 100]
+    codes = [w for w in words if w.top >= floor and CODE_LIKE.match(_clean(w.text).upper())]
+    found = [w for w in found if not _lost_a_dot(w, codes)]
     if found:
         best = max(found, key=lambda w: (w.conf, w.top))
         taken.add(id(best))
-        readings.append(Reading("drawing_number", _clean(best.text).upper().replace("\u2014", "-").replace("\uff0d", "-"), best.conf / 100.0, box([best]), None))
+        readings.append(Reading("drawing_number", _canonical(best.text), best.conf / 100.0, box([best]), None))
     for label in words:
         field = LABELS.get(_norm(label.text))
         if not field or field == "drawing_number" and any(r.field == "drawing_number" for r in readings):
@@ -247,6 +295,19 @@ def read_words(words: list[ocr.Token], size: tuple[int, int], cell=None) -> list
             continue
         taken.add(id(value))
         readings.append(Reading(field, text, conf, box([label, value]), label.text))
+    # A GB block writes the material in a large cell that has no label. Taken only inside a corner that shows the block's own words, when no
+    # material label is on the page (an assembly's parts list has a "材料" column and lists the materials of its parts, not one of its own),
+    # below any parts-list header, and only when the corner holds one grade.
+    labelled = any(LABELS.get(_norm(w.text)) == "material" for w in words)
+    if not any(r.field == "material" for r in readings) and not labelled and not header and sum(1 for w in words if _norm(w.text) in BLOCK_WORDS) >= 3:
+        grades: dict[str, list[ocr.Token]] = {}
+        for w in words:
+            if (g := _grade(w.text)) and w.conf >= MIN_READING * 100 and id(w) not in taken:
+                grades.setdefault(g, []).append(w)
+        if len(grades) == 1:
+            g, ws = next(iter(grades.items()))
+            best = max(ws, key=lambda w: w.conf)
+            readings.append(Reading("material", g, best.conf / 100.0, box([best]), None))
     return _one_per_field(readings)
 
 

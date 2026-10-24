@@ -114,3 +114,24 @@ def test_the_reader_can_be_switched_off(monkeypatch):
     data = _sheet()
     rev = DrawingRevision(tenant_id="t", document_id="d", drawing_number="X", family_id="f", revision_label="A", source_hash=hashlib.sha256(data).hexdigest())
     assert extract_pdf(data, rev) == []
+
+
+def test_a_dotted_code_is_a_drawing_number_only_when_read_surely_and_an_o_among_its_digits_is_a_zero():
+    assert [(r.field, r.value) for r in read([w("LJTO1.06", 2700, y=2800, width=320, conf=75.0)])] == [("drawing_number", "LJT01.06")]
+    assert read([w("LIT04.20", 2700, y=2800, width=320, conf=68.0)]) == [], "a thin italic code read below the dotted floor may have a wrong letter"
+    assert read([w("Ra1.6", 2700, width=200), w("SR12.5", 2700, y=2700, width=240)]) == [], "surface roughness and a radius are not drawing numbers"
+
+
+def test_a_cell_read_once_with_its_dot_and_once_without_as_two_different_codes_is_not_reported():
+    assert read([w("LJT0204", 2700, y=2800, width=300, conf=80.0), w("LIT02.04", 2705, y=2802, width=320, conf=61.0)]) == []
+
+
+def test_a_grade_in_the_unlabelled_cell_of_a_title_block_is_the_material_and_only_there():
+    block = [w("设计", 1000, y=2500, width=100), w("制图", 1000, y=2570, width=100), w("审核", 1000, y=2640, width=100)]
+    grade = w("HT150", 2200, y=2400, width=200)
+    material = lambda words: [(r.field, r.value) for r in read(words) if r.field == "material"]  # noqa: E731
+    assert material(block + [grade]) == [("material", "HT150")]
+    assert material([grade]) == [], "without the block's own words the grade could be anything"
+    assert material(block + [grade, w("HT200", 2200, y=2300, width=200)]) == [], "two grades: the page does not say which is the material"
+    assert material(block + [w("序号", 1900, y=2300, width=100), w("代号", 2100, y=2300, width=100), w("HT150", 2200, y=2600, width=200)]) == [], "an assembly lists many materials and has none"
+    assert material(block + [grade, w("材料", 1800, y=2200, width=100)]) == [], "a material label on the page means the grade may belong to a parts list"
