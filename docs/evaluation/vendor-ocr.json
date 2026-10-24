@@ -1,5 +1,5 @@
 {
- "what": "The test split's diagnosis certificates and fee statements on the redrawn statutory forms, as medium-damage page pictures, read by Upstage information-extract (one JSON-schema call per page, no prompt tuning beyond the field descriptions) and by this repository's grid reader; both scored field by field against the generator's values with the same rules. Script scripts/eval-vendor-ocr.py, workflow vendor-ocr-evaluation.",
+ "what": "The test split's diagnosis certificates and fee statements on the redrawn statutory forms, as page pictures at three damage levels (medium on 2026-10-23, light and heavy on 2026-10-24; clean was not sent), read by Upstage information-extract (one JSON-schema call per page, no prompt tuning beyond the field descriptions) and by this repository's grid reader; both scored field by field against the generator's values with the same rules. Script scripts/eval-vendor-ocr.py, workflow vendor-ocr-evaluation.",
  "date": "2026-10-23",
  "level": "medium",
  "split": "test",
@@ -2927,6 +2927,22 @@
     "completion_tokens": 4773,
     "total_tokens": 215115
    }
+  },
+  {
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/40093390897",
+   "level": "light",
+   "pages_sent": 98,
+   "estimated_usd": 3.92,
+   "vendor_errors": 0,
+   "note": "approved by the user on 2026-10-24 with max_pages=98; the field descriptions were not touched; per-level detail under `levels.light`"
+  },
+  {
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/40093409992",
+   "level": "heavy",
+   "pages_sent": 98,
+   "estimated_usd": 3.92,
+   "vendor_errors": 0,
+   "note": "approved by the user on 2026-10-24 with max_pages=98; the field descriptions were not touched; per-level detail under `levels.heavy`"
   }
  ],
  "grid_reader_misses": [
@@ -3036,14 +3052,7022 @@
    "kind": "missing"
   }
  ],
- "estimated_usd_total": 4.08,
+ "estimated_usd_total": 11.92,
  "usd_per_page_assumed": 0.04,
  "limitations": [
   "Synthetic values on the redrawn statutory forms with simulated damage; not documents a hospital issued. A reader that is right here is not thereby right on real paper.",
   "The vendor sees one page picture and a JSON schema with a one-line description per field; the grid reader knows the form's geometry. They are not the same task, and the comparison says what each gives on these pictures, not which is the better product.",
   "The diagnosis_name description was corrected after four test pages had been seen; the other field descriptions were not touched.",
   "Cost is pages x the assumed 0.04 USD per page; the bill in the vendor console is the real number and was not read from here.",
-  "One damage level (medium). light and heavy were not sent."
+  "Three damage levels (medium, light, heavy), one run each; clean was not sent. The levels are not a strict order of difficulty for the grid reader (light scored below medium here, as in docs/CLAIMS.md's field table).",
+  "The vendor's answers were scored as raw field reads. They were not put through the claims pipeline, so what a wrong vendor value would do to a payment decision was not measured; the grid reader's pipeline-level result (no wrong payment or denial at any level) is a separate measurement in docs/CLAIMS.md.",
+  "heavy: the vendor gave two wrong values (a diagnosis code with the letter I read as the digit 1; the secondary-disease decoy cell given as the main disease, the mistake the four-page check showed before the diagnosis_name description was changed). The harness reads no vendor confidence, so nothing marks them as doubtful here."
  ],
- "grid_reader_misses_note": "scored with the script's own rule: names compared without spaces, dates and amounts normalised; 6 missing + 9 wrong = 15, matching the summary"
+ "grid_reader_misses_note": "scored with the script's own rule: names compared without spaces, dates and amounts normalised; 6 missing + 9 wrong = 15, matching the summary",
+ "levels": {
+  "medium": {
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/39918174432",
+   "pages_sent": 98,
+   "estimated_usd": 3.92,
+   "vendor_errors": 0,
+   "vendor_summary": {
+    "fields": 446,
+    "correct": 446,
+    "missing": 0,
+    "wrong": 0,
+    "accuracy": 1.0,
+    "by_field": {
+     "admission_date": {
+      "correct": 38
+     },
+     "diagnosis_code": {
+      "correct": 38
+     },
+     "diagnosis_date": {
+      "correct": 38
+     },
+     "diagnosis_name": {
+      "correct": 38
+     },
+     "discharge_date": {
+      "correct": 38
+     },
+     "hospital": {
+      "correct": 98
+     },
+     "insured_name": {
+      "correct": 98
+     },
+     "total_amount": {
+      "correct": 60
+     }
+    }
+   },
+   "grid_reader_summary": {
+    "fields": 446,
+    "correct": 431,
+    "missing": 6,
+    "wrong": 9,
+    "accuracy": 0.9664,
+    "by_field": {
+     "admission_date": {
+      "correct": 37,
+      "missing": 1
+     },
+     "diagnosis_code": {
+      "correct": 37,
+      "missing": 1
+     },
+     "diagnosis_date": {
+      "correct": 35,
+      "missing": 3
+     },
+     "diagnosis_name": {
+      "correct": 38
+     },
+     "discharge_date": {
+      "correct": 37,
+      "missing": 1
+     },
+     "hospital": {
+      "correct": 89,
+      "wrong": 9
+     },
+     "insured_name": {
+      "correct": 98
+     },
+     "total_amount": {
+      "correct": 60
+     }
+    }
+   },
+   "wilson95": {
+    "vendor": [
+     0.9915,
+     1.0
+    ],
+    "grid_reader": [
+     0.9453,
+     0.9795
+    ]
+   },
+   "latency_ms": {
+    "median": 6750.7,
+    "min": 4862.4,
+    "max": 8072.2
+   },
+   "vendor_usage_tokens": {
+    "prompt_tokens": 210342,
+    "completion_tokens": 4773,
+    "total_tokens": 215115
+   },
+   "vendor_misses": [],
+   "grid_reader_misses": [
+    {
+     "doc_id": "CLM-00009-diagnosis",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00023-receipt",
+     "field": "hospital",
+     "got": "강 남제 일 병워",
+     "truth": "강남제일병원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00045-diagnosis",
+     "field": "diagnosis_date",
+     "got": null,
+     "truth": "2026-09-07",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00045-diagnosis",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00045-receipt",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00049-receipt",
+     "field": "hospital",
+     "got": "서 울 연 한병 워",
+     "truth": "서울연합병원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00051-diagnosis",
+     "field": "diagnosis_date",
+     "got": null,
+     "truth": "2026-08-07",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00051-diagnosis",
+     "field": "admission_date",
+     "got": null,
+     "truth": "2026-08-07",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00059-receipt",
+     "field": "hospital",
+     "got": "하빛의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00063-diagnosis",
+     "field": "diagnosis_code",
+     "got": null,
+     "truth": "S82.3",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00065-diagnosis",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00069-diagnosis",
+     "field": "diagnosis_date",
+     "got": null,
+     "truth": "2027-02-13",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00073-diagnosis",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00079-receipt",
+     "field": "hospital",
+     "got": "강남제일 원",
+     "truth": "강남제일병원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00083-diagnosis",
+     "field": "discharge_date",
+     "got": null,
+     "truth": "2026-01-07",
+     "kind": "missing"
+    }
+   ],
+   "pages": "top-level `pages`"
+  },
+  "light": {
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/40093390897",
+   "pages_sent": 98,
+   "estimated_usd": 3.92,
+   "vendor_errors": 0,
+   "vendor_summary": {
+    "fields": 446,
+    "correct": 446,
+    "missing": 0,
+    "wrong": 0,
+    "accuracy": 1.0,
+    "by_field": {
+     "admission_date": {
+      "correct": 38
+     },
+     "diagnosis_code": {
+      "correct": 38
+     },
+     "diagnosis_date": {
+      "correct": 38
+     },
+     "diagnosis_name": {
+      "correct": 38
+     },
+     "discharge_date": {
+      "correct": 38
+     },
+     "hospital": {
+      "correct": 98
+     },
+     "insured_name": {
+      "correct": 98
+     },
+     "total_amount": {
+      "correct": 60
+     }
+    }
+   },
+   "grid_reader_summary": {
+    "fields": 446,
+    "correct": 413,
+    "missing": 11,
+    "wrong": 22,
+    "accuracy": 0.926,
+    "by_field": {
+     "admission_date": {
+      "correct": 38
+     },
+     "diagnosis_code": {
+      "correct": 32,
+      "wrong": 1,
+      "missing": 5
+     },
+     "diagnosis_date": {
+      "correct": 35,
+      "missing": 3
+     },
+     "diagnosis_name": {
+      "correct": 37,
+      "wrong": 1
+     },
+     "discharge_date": {
+      "correct": 35,
+      "missing": 2,
+      "wrong": 1
+     },
+     "hospital": {
+      "correct": 82,
+      "wrong": 16
+     },
+     "insured_name": {
+      "correct": 98
+     },
+     "total_amount": {
+      "correct": 56,
+      "wrong": 3,
+      "missing": 1
+     }
+    }
+   },
+   "wilson95": {
+    "vendor": [
+     0.9915,
+     1.0
+    ],
+    "grid_reader": [
+     0.8979,
+     0.9468
+    ]
+   },
+   "latency_ms": {
+    "median": 7135.65,
+    "min": 6141.6,
+    "max": 15387.1
+   },
+   "vendor_usage_tokens": {
+    "prompt_tokens": 209542,
+    "completion_tokens": 4773,
+    "total_tokens": 214315
+   },
+   "vendor_misses": [],
+   "grid_reader_misses": [
+    {
+     "doc_id": "CLM-00005-diagnosis",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00005-receipt",
+     "field": "total_amount",
+     "got": 2891551,
+     "truth": 2851551,
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00009-receipt",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00017-diagnosis",
+     "field": "diagnosis_code",
+     "got": "Q21",
+     "truth": "Q21.1",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00017-diagnosis",
+     "field": "diagnosis_date",
+     "got": null,
+     "truth": "2026-01-11",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00017-receipt",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00023-receipt",
+     "field": "hospital",
+     "got": "갓 남제 일병워",
+     "truth": "강남제일병원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00039-diagnosis",
+     "field": "discharge_date",
+     "got": null,
+     "truth": "2026-11-05",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00043-receipt",
+     "field": "hospital",
+     "got": "푸 르 내 과의 원",
+     "truth": "푸른내과의원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00043-receipt",
+     "field": "total_amount",
+     "got": 1192973,
+     "truth": 1792973,
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00045-diagnosis",
+     "field": "diagnosis_date",
+     "got": null,
+     "truth": "2026-09-07",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00045-receipt",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00047-diagnosis",
+     "field": "diagnosis_code",
+     "got": null,
+     "truth": "D05.1",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00049-receipt",
+     "field": "hospital",
+     "got": "서 울연한병원",
+     "truth": "서울연합병원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00051-diagnosis",
+     "field": "diagnosis_code",
+     "got": null,
+     "truth": "D05.1",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00051-receipt",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00053-diagnosis",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00055-receipt",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00059-receipt",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00063-diagnosis",
+     "field": "diagnosis_code",
+     "got": null,
+     "truth": "S82.3",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00065-receipt",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00069-diagnosis",
+     "field": "diagnosis_name",
+     "got": "서 혜부 탐장",
+     "truth": "서혜부 탈장",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00069-diagnosis",
+     "field": "discharge_date",
+     "got": "2027-02-10",
+     "truth": "2027-02-17",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00077-receipt",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00077-receipt",
+     "field": "total_amount",
+     "got": null,
+     "truth": 3037572,
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00081-receipt",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00083-diagnosis",
+     "field": "discharge_date",
+     "got": null,
+     "truth": "2026-01-07",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00083-receipt",
+     "field": "total_amount",
+     "got": 2933910,
+     "truth": 2533910,
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00097-receipt",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00099-diagnosis",
+     "field": "diagnosis_code",
+     "got": null,
+     "truth": "D05.1",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00099-diagnosis",
+     "field": "diagnosis_date",
+     "got": null,
+     "truth": "2026-10-12",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00103-diagnosis",
+     "field": "diagnosis_code",
+     "got": null,
+     "truth": "D05.1",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00113-receipt",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    }
+   ],
+   "pages": [
+    {
+     "doc_id": "CLM-00001-diagnosis",
+     "vendor": {
+      "insured_name": "이수아",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2025-12-30",
+      "admission_date": "2025-12-30",
+      "discharge_date": "2026-01-01",
+      "hospital": "서울연합병원"
+     },
+     "grid_reader": {
+      "insured_name": "이 수아",
+      "diagnosis_name": "급성심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2025-12-30",
+      "admission_date": "2025-12-30",
+      "discharge_date": "2026-01-01",
+      "hospital": "서울연합병원"
+     },
+     "truth": {
+      "insured_name": "이수아",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2025-12-30",
+      "admission_date": "2025-12-30",
+      "discharge_date": "2026-01-01",
+      "hospital": "서울연합병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6725.9,
+      "usage": {
+       "prompt_tokens": 1925,
+       "completion_tokens": 77,
+       "total_tokens": 2002
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00001-receipt",
+     "vendor": {
+      "insured_name": "이수아",
+      "hospital": "서울연합병원",
+      "total_amount": 595890
+     },
+     "grid_reader": {
+      "insured_name": "이 수아",
+      "hospital": "서울연합병원",
+      "total_amount": 595890
+     },
+     "truth": {
+      "insured_name": "이수아",
+      "hospital": "서울연합병원",
+      "total_amount": 595890
+     },
+     "vendor_meta": {
+      "latency_ms": 7473.0,
+      "usage": {
+       "prompt_tokens": 2282,
+       "completion_tokens": 29,
+       "total_tokens": 2311
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00003-receipt",
+     "vendor": {
+      "insured_name": "장도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 1921612
+     },
+     "grid_reader": {
+      "insured_name": "장도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 1921612
+     },
+     "truth": {
+      "insured_name": "장도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 1921612
+     },
+     "vendor_meta": {
+      "latency_ms": 7316.5,
+      "usage": {
+       "prompt_tokens": 2282,
+       "completion_tokens": 30,
+       "total_tokens": 2312
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00005-diagnosis",
+     "vendor": {
+      "insured_name": "이도윤",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-06-04",
+      "admission_date": "2025-06-03",
+      "discharge_date": "2025-06-12",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "이도윤",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-06-04",
+      "admission_date": "2025-06-03",
+      "discharge_date": "2025-06-12",
+      "hospital": "한빚의료원"
+     },
+     "truth": {
+      "insured_name": "이도윤",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-06-04",
+      "admission_date": "2025-06-03",
+      "discharge_date": "2025-06-12",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6274.2,
+      "usage": {
+       "prompt_tokens": 1923,
+       "completion_tokens": 79,
+       "total_tokens": 2002
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00005-receipt",
+     "vendor": {
+      "insured_name": "이도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 2851551
+     },
+     "grid_reader": {
+      "insured_name": "이 도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 2891551
+     },
+     "truth": {
+      "insured_name": "이도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 2851551
+     },
+     "vendor_meta": {
+      "latency_ms": 6233.8,
+      "usage": {
+       "prompt_tokens": 2289,
+       "completion_tokens": 30,
+       "total_tokens": 2319
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00007-diagnosis",
+     "vendor": {
+      "insured_name": "이예은",
+      "diagnosis_name": "뇌경색증",
+      "diagnosis_code": "I63.9",
+      "diagnosis_date": "2026-12-02",
+      "admission_date": "2026-12-01",
+      "discharge_date": "2026-12-10",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "이예은",
+      "diagnosis_name": "뇌 경 색증",
+      "diagnosis_code": "I63.9",
+      "diagnosis_date": "2026-12-02",
+      "admission_date": "2026-12-01",
+      "discharge_date": "2026-12-10",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "이예은",
+      "diagnosis_name": "뇌경색증",
+      "diagnosis_code": "I63.9",
+      "diagnosis_date": "2026-12-02",
+      "admission_date": "2026-12-01",
+      "discharge_date": "2026-12-10",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6624.4,
+      "usage": {
+       "prompt_tokens": 1909,
+       "completion_tokens": 76,
+       "total_tokens": 1985
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00007-receipt",
+     "vendor": {
+      "insured_name": "이예은",
+      "hospital": "한빛의료원",
+      "total_amount": 2547936
+     },
+     "grid_reader": {
+      "insured_name": "이 예 은",
+      "hospital": "한빛의료원",
+      "total_amount": 2547936
+     },
+     "truth": {
+      "insured_name": "이예은",
+      "hospital": "한빛의료원",
+      "total_amount": 2547936
+     },
+     "vendor_meta": {
+      "latency_ms": 7245.6,
+      "usage": {
+       "prompt_tokens": 2256,
+       "completion_tokens": 30,
+       "total_tokens": 2286
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00009-diagnosis",
+     "vendor": {
+      "insured_name": "조도윤",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2027-01-23",
+      "admission_date": "2027-01-22",
+      "discharge_date": "2027-02-23",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "조도윤",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2027-01-23",
+      "admission_date": "2027-01-22",
+      "discharge_date": "2027-02-23",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "조도윤",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2027-01-23",
+      "admission_date": "2027-01-22",
+      "discharge_date": "2027-02-23",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6429.8,
+      "usage": {
+       "prompt_tokens": 1907,
+       "completion_tokens": 79,
+       "total_tokens": 1986
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00009-receipt",
+     "vendor": {
+      "insured_name": "조도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 5282560
+     },
+     "grid_reader": {
+      "insured_name": "조 도윤",
+      "hospital": "한빚의료원",
+      "total_amount": 5282560
+     },
+     "truth": {
+      "insured_name": "조도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 5282560
+     },
+     "vendor_meta": {
+      "latency_ms": 7599.2,
+      "usage": {
+       "prompt_tokens": 2275,
+       "completion_tokens": 30,
+       "total_tokens": 2305
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00011-diagnosis",
+     "vendor": {
+      "insured_name": "김지호",
+      "diagnosis_name": "급성 충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2025-12-31",
+      "admission_date": "2025-12-30",
+      "discharge_date": "2026-01-10",
+      "hospital": "미래대학교병원"
+     },
+     "grid_reader": {
+      "insured_name": "김지호",
+      "diagnosis_name": "급성 충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2025-12-31",
+      "admission_date": "2025-12-30",
+      "discharge_date": "2026-01-10",
+      "hospital": "미 래대학교병원"
+     },
+     "truth": {
+      "insured_name": "김지호",
+      "diagnosis_name": "급성 충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2025-12-31",
+      "admission_date": "2025-12-30",
+      "discharge_date": "2026-01-10",
+      "hospital": "미래대학교병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6760.0,
+      "usage": {
+       "prompt_tokens": 1899,
+       "completion_tokens": 76,
+       "total_tokens": 1975
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00011-receipt",
+     "vendor": {
+      "insured_name": "김지호",
+      "hospital": "미래대학교병원",
+      "total_amount": 5083558
+     },
+     "grid_reader": {
+      "insured_name": "김지호",
+      "hospital": "미 래 대 학교병원",
+      "total_amount": 5083558
+     },
+     "truth": {
+      "insured_name": "김지호",
+      "hospital": "미래대학교병원",
+      "total_amount": 5083558
+     },
+     "vendor_meta": {
+      "latency_ms": 7093.8,
+      "usage": {
+       "prompt_tokens": 2301,
+       "completion_tokens": 30,
+       "total_tokens": 2331
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00013-receipt",
+     "vendor": {
+      "insured_name": "윤예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 170308
+     },
+     "grid_reader": {
+      "insured_name": "윤예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 170308
+     },
+     "truth": {
+      "insured_name": "윤예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 170308
+     },
+     "vendor_meta": {
+      "latency_ms": 7837.5,
+      "usage": {
+       "prompt_tokens": 2307,
+       "completion_tokens": 30,
+       "total_tokens": 2337
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00015-receipt",
+     "vendor": {
+      "insured_name": "강지우",
+      "hospital": "강남제일병원",
+      "total_amount": 1517976
+     },
+     "grid_reader": {
+      "insured_name": "강지우",
+      "hospital": "강남제일병원",
+      "total_amount": 1517976
+     },
+     "truth": {
+      "insured_name": "강지우",
+      "hospital": "강남제일병원",
+      "total_amount": 1517976
+     },
+     "vendor_meta": {
+      "latency_ms": 7400.6,
+      "usage": {
+       "prompt_tokens": 2284,
+       "completion_tokens": 31,
+       "total_tokens": 2315
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00017-diagnosis",
+     "vendor": {
+      "insured_name": "윤도윤",
+      "diagnosis_name": "심방중격결손",
+      "diagnosis_code": "Q21.1",
+      "diagnosis_date": "2026-01-11",
+      "admission_date": "2026-01-11",
+      "discharge_date": "2026-01-15",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "윤도윤",
+      "diagnosis_name": "심방중격결손",
+      "diagnosis_code": "Q21",
+      "diagnosis_date": null,
+      "admission_date": "2026-01-11",
+      "discharge_date": "2026-01-15",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "윤도윤",
+      "diagnosis_name": "심방중격결손",
+      "diagnosis_code": "Q21.1",
+      "diagnosis_date": "2026-01-11",
+      "admission_date": "2026-01-11",
+      "discharge_date": "2026-01-15",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6488.4,
+      "usage": {
+       "prompt_tokens": 1905,
+       "completion_tokens": 77,
+       "total_tokens": 1982
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00017-receipt",
+     "vendor": {
+      "insured_name": "윤도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 3040352
+     },
+     "grid_reader": {
+      "insured_name": "윤도윤",
+      "hospital": "한빚의료원",
+      "total_amount": 3040352
+     },
+     "truth": {
+      "insured_name": "윤도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 3040352
+     },
+     "vendor_meta": {
+      "latency_ms": 6141.6,
+      "usage": {
+       "prompt_tokens": 2265,
+       "completion_tokens": 30,
+       "total_tokens": 2295
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00019-diagnosis",
+     "vendor": {
+      "insured_name": "강하은",
+      "diagnosis_name": "급성 충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2026-07-27",
+      "admission_date": "2026-07-27",
+      "discharge_date": "2026-08-03",
+      "hospital": "미래대학교병원"
+     },
+     "grid_reader": {
+      "insured_name": "강하은",
+      "diagnosis_name": "급성충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2026-07-27",
+      "admission_date": "2026-07-27",
+      "discharge_date": "2026-08-03",
+      "hospital": "미래대학교병원"
+     },
+     "truth": {
+      "insured_name": "강하은",
+      "diagnosis_name": "급성 충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2026-07-27",
+      "admission_date": "2026-07-27",
+      "discharge_date": "2026-08-03",
+      "hospital": "미래대학교병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6219.8,
+      "usage": {
+       "prompt_tokens": 1908,
+       "completion_tokens": 76,
+       "total_tokens": 1984
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00019-receipt",
+     "vendor": {
+      "insured_name": "강하은",
+      "hospital": "미래대학교병원",
+      "total_amount": 4012615
+     },
+     "grid_reader": {
+      "insured_name": "강하은",
+      "hospital": "미 래 대 학교병원",
+      "total_amount": 4012615
+     },
+     "truth": {
+      "insured_name": "강하은",
+      "hospital": "미래대학교병원",
+      "total_amount": 4012615
+     },
+     "vendor_meta": {
+      "latency_ms": 6989.1,
+      "usage": {
+       "prompt_tokens": 2279,
+       "completion_tokens": 30,
+       "total_tokens": 2309
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00021-receipt",
+     "vendor": {
+      "insured_name": "강예은",
+      "hospital": "서울연합병원",
+      "total_amount": 1739164
+     },
+     "grid_reader": {
+      "insured_name": "강예은",
+      "hospital": "서울연합병원",
+      "total_amount": 1739164
+     },
+     "truth": {
+      "insured_name": "강예은",
+      "hospital": "서울연합병원",
+      "total_amount": 1739164
+     },
+     "vendor_meta": {
+      "latency_ms": 7074.5,
+      "usage": {
+       "prompt_tokens": 2282,
+       "completion_tokens": 30,
+       "total_tokens": 2312
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00023-receipt",
+     "vendor": {
+      "insured_name": "이도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 1011080
+     },
+     "grid_reader": {
+      "insured_name": "이 도윤",
+      "hospital": "갓 남제 일병워",
+      "total_amount": 1011080
+     },
+     "truth": {
+      "insured_name": "이도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 1011080
+     },
+     "vendor_meta": {
+      "latency_ms": 6359.0,
+      "usage": {
+       "prompt_tokens": 2273,
+       "completion_tokens": 31,
+       "total_tokens": 2304
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00025-receipt",
+     "vendor": {
+      "insured_name": "김예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 3493127
+     },
+     "grid_reader": {
+      "insured_name": "김 예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 3493127
+     },
+     "truth": {
+      "insured_name": "김예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 3493127
+     },
+     "vendor_meta": {
+      "latency_ms": 6187.6,
+      "usage": {
+       "prompt_tokens": 2278,
+       "completion_tokens": 31,
+       "total_tokens": 2309
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00027-diagnosis",
+     "vendor": {
+      "insured_name": "김현우",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-08-24",
+      "admission_date": "2025-08-23",
+      "discharge_date": "2025-09-03",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "김현우",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-08-24",
+      "admission_date": "2025-08-23",
+      "discharge_date": "2025-09-03",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "김현우",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-08-24",
+      "admission_date": "2025-08-23",
+      "discharge_date": "2025-09-03",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6573.2,
+      "usage": {
+       "prompt_tokens": 1906,
+       "completion_tokens": 79,
+       "total_tokens": 1985
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00027-receipt",
+     "vendor": {
+      "insured_name": "김현우",
+      "hospital": "강남제일병원",
+      "total_amount": 3521518
+     },
+     "grid_reader": {
+      "insured_name": "김현우",
+      "hospital": "강남제일병원",
+      "total_amount": 3521518
+     },
+     "truth": {
+      "insured_name": "김현우",
+      "hospital": "강남제일병원",
+      "total_amount": 3521518
+     },
+     "vendor_meta": {
+      "latency_ms": 7294.5,
+      "usage": {
+       "prompt_tokens": 2291,
+       "completion_tokens": 31,
+       "total_tokens": 2322
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00029-diagnosis",
+     "vendor": {
+      "insured_name": "정서연",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2025-12-12",
+      "admission_date": "2025-12-12",
+      "discharge_date": "2025-12-21",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "정서 연",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2025-12-12",
+      "admission_date": "2025-12-12",
+      "discharge_date": "2025-12-21",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "정서연",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2025-12-12",
+      "admission_date": "2025-12-12",
+      "discharge_date": "2025-12-21",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 7749.5,
+      "usage": {
+       "prompt_tokens": 1905,
+       "completion_tokens": 78,
+       "total_tokens": 1983
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00029-receipt",
+     "vendor": {
+      "insured_name": "정서연",
+      "hospital": "강남제일병원",
+      "total_amount": 4113870
+     },
+     "grid_reader": {
+      "insured_name": "정 서연",
+      "hospital": "강남제일병원",
+      "total_amount": 4113870
+     },
+     "truth": {
+      "insured_name": "정서연",
+      "hospital": "강남제일병원",
+      "total_amount": 4113870
+     },
+     "vendor_meta": {
+      "latency_ms": 7417.9,
+      "usage": {
+       "prompt_tokens": 2302,
+       "completion_tokens": 31,
+       "total_tokens": 2333
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00031-diagnosis",
+     "vendor": {
+      "insured_name": "정서연",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-10-28",
+      "admission_date": "2026-10-27",
+      "discharge_date": "2026-12-19",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "정서연",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-10-28",
+      "admission_date": "2026-10-27",
+      "discharge_date": "2026-12-19",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "정서연",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-10-28",
+      "admission_date": "2026-10-27",
+      "discharge_date": "2026-12-19",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6814.7,
+      "usage": {
+       "prompt_tokens": 1911,
+       "completion_tokens": 79,
+       "total_tokens": 1990
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00031-receipt",
+     "vendor": {
+      "insured_name": "정서연",
+      "hospital": "강남제일병원",
+      "total_amount": 9068088
+     },
+     "grid_reader": {
+      "insured_name": "정서연",
+      "hospital": "강남제일병원",
+      "total_amount": 9068088
+     },
+     "truth": {
+      "insured_name": "정서연",
+      "hospital": "강남제일병원",
+      "total_amount": 9068088
+     },
+     "vendor_meta": {
+      "latency_ms": 7300.6,
+      "usage": {
+       "prompt_tokens": 2310,
+       "completion_tokens": 31,
+       "total_tokens": 2341
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00033-diagnosis",
+     "vendor": {
+      "insured_name": "이도윤",
+      "diagnosis_name": "급성 충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2025-12-24",
+      "admission_date": "2025-12-23",
+      "discharge_date": "2025-12-27",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "이도윤",
+      "diagnosis_name": "급성 충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2025-12-24",
+      "admission_date": "2025-12-23",
+      "discharge_date": "2025-12-27",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "이도윤",
+      "diagnosis_name": "급성 충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2025-12-24",
+      "admission_date": "2025-12-23",
+      "discharge_date": "2025-12-27",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 7778.3,
+      "usage": {
+       "prompt_tokens": 1903,
+       "completion_tokens": 77,
+       "total_tokens": 1980
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00033-receipt",
+     "vendor": {
+      "insured_name": "이도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 2452860
+     },
+     "grid_reader": {
+      "insured_name": "이도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 2452860
+     },
+     "truth": {
+      "insured_name": "이도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 2452860
+     },
+     "vendor_meta": {
+      "latency_ms": 6169.9,
+      "usage": {
+       "prompt_tokens": 2270,
+       "completion_tokens": 31,
+       "total_tokens": 2301
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00035-diagnosis",
+     "vendor": {
+      "insured_name": "이지우",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-10-08",
+      "admission_date": "2026-10-08",
+      "discharge_date": "2026-11-23",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "이지우",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-10-08",
+      "admission_date": "2026-10-08",
+      "discharge_date": "2026-11-23",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "이지우",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-10-08",
+      "admission_date": "2026-10-08",
+      "discharge_date": "2026-11-23",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6879.7,
+      "usage": {
+       "prompt_tokens": 1909,
+       "completion_tokens": 77,
+       "total_tokens": 1986
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00035-receipt",
+     "vendor": {
+      "insured_name": "이지우",
+      "hospital": "한빛의료원",
+      "total_amount": 19059534
+     },
+     "grid_reader": {
+      "insured_name": "이지우",
+      "hospital": "한빛의료원",
+      "total_amount": 19059534
+     },
+     "truth": {
+      "insured_name": "이지우",
+      "hospital": "한빛의료원",
+      "total_amount": 19059534
+     },
+     "vendor_meta": {
+      "latency_ms": 6591.1,
+      "usage": {
+       "prompt_tokens": 2262,
+       "completion_tokens": 29,
+       "total_tokens": 2291
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00037-receipt",
+     "vendor": {
+      "insured_name": "임하은",
+      "hospital": "강남제일병원",
+      "total_amount": 4230061
+     },
+     "grid_reader": {
+      "insured_name": "임하은",
+      "hospital": "강남제일병원",
+      "total_amount": 4230061
+     },
+     "truth": {
+      "insured_name": "임하은",
+      "hospital": "강남제일병원",
+      "total_amount": 4230061
+     },
+     "vendor_meta": {
+      "latency_ms": 7164.8,
+      "usage": {
+       "prompt_tokens": 2276,
+       "completion_tokens": 31,
+       "total_tokens": 2307
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00039-diagnosis",
+     "vendor": {
+      "insured_name": "장지호",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-10-25",
+      "admission_date": "2026-10-24",
+      "discharge_date": "2026-11-05",
+      "hospital": "미래대학교병원"
+     },
+     "grid_reader": {
+      "insured_name": "장지 호",
+      "diagnosis_name": "유방상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-10-25",
+      "admission_date": "2026-10-24",
+      "discharge_date": null,
+      "hospital": "미래대학교병원"
+     },
+     "truth": {
+      "insured_name": "장지호",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-10-25",
+      "admission_date": "2026-10-24",
+      "discharge_date": "2026-11-05",
+      "hospital": "미래대학교병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6669.8,
+      "usage": {
+       "prompt_tokens": 1928,
+       "completion_tokens": 78,
+       "total_tokens": 2006
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00039-receipt",
+     "vendor": {
+      "insured_name": "장지호",
+      "hospital": "미래대학교병원",
+      "total_amount": 3962532
+     },
+     "grid_reader": {
+      "insured_name": "장지 호",
+      "hospital": "미래대학교병원",
+      "total_amount": 3962532
+     },
+     "truth": {
+      "insured_name": "장지호",
+      "hospital": "미래대학교병원",
+      "total_amount": 3962532
+     },
+     "vendor_meta": {
+      "latency_ms": 7134.9,
+      "usage": {
+       "prompt_tokens": 2296,
+       "completion_tokens": 30,
+       "total_tokens": 2326
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00041-receipt",
+     "vendor": {
+      "insured_name": "윤하은",
+      "hospital": "푸른내과의원",
+      "total_amount": 818019
+     },
+     "grid_reader": {
+      "insured_name": "윤하은",
+      "hospital": "푸른내과의원",
+      "total_amount": 818019
+     },
+     "truth": {
+      "insured_name": "윤하은",
+      "hospital": "푸른내과의원",
+      "total_amount": 818019
+     },
+     "vendor_meta": {
+      "latency_ms": 7369.7,
+      "usage": {
+       "prompt_tokens": 2276,
+       "completion_tokens": 30,
+       "total_tokens": 2306
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00043-diagnosis",
+     "vendor": {
+      "insured_name": "이서준",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-04-01",
+      "admission_date": "2026-03-31",
+      "discharge_date": "2026-04-01",
+      "hospital": "푸른내과의원"
+     },
+     "grid_reader": {
+      "insured_name": "이 서 준",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-04-01",
+      "admission_date": "2026-03-31",
+      "discharge_date": "2026-04-01",
+      "hospital": "푸른내과의원"
+     },
+     "truth": {
+      "insured_name": "이서준",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-04-01",
+      "admission_date": "2026-03-31",
+      "discharge_date": "2026-04-01",
+      "hospital": "푸른내과의원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6449.4,
+      "usage": {
+       "prompt_tokens": 1908,
+       "completion_tokens": 79,
+       "total_tokens": 1987
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00043-receipt",
+     "vendor": {
+      "insured_name": "이서준",
+      "hospital": "푸른내과의원",
+      "total_amount": 1792973
+     },
+     "grid_reader": {
+      "insured_name": "이서 준",
+      "hospital": "푸 르 내 과의 원",
+      "total_amount": 1192973
+     },
+     "truth": {
+      "insured_name": "이서준",
+      "hospital": "푸른내과의원",
+      "total_amount": 1792973
+     },
+     "vendor_meta": {
+      "latency_ms": 7136.4,
+      "usage": {
+       "prompt_tokens": 2297,
+       "completion_tokens": 31,
+       "total_tokens": 2328
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00045-diagnosis",
+     "vendor": {
+      "insured_name": "이하은",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2026-09-07",
+      "admission_date": "2026-09-06",
+      "discharge_date": "2026-09-10",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "이하은",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": null,
+      "admission_date": "2026-09-06",
+      "discharge_date": "2026-09-10",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "이하은",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2026-09-07",
+      "admission_date": "2026-09-06",
+      "discharge_date": "2026-09-10",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6415.3,
+      "usage": {
+       "prompt_tokens": 1903,
+       "completion_tokens": 76,
+       "total_tokens": 1979
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00045-receipt",
+     "vendor": {
+      "insured_name": "이하은",
+      "hospital": "한빛의료원",
+      "total_amount": 2880356
+     },
+     "grid_reader": {
+      "insured_name": "이 하은",
+      "hospital": "한빚의료원",
+      "total_amount": 2880356
+     },
+     "truth": {
+      "insured_name": "이하은",
+      "hospital": "한빛의료원",
+      "total_amount": 2880356
+     },
+     "vendor_meta": {
+      "latency_ms": 6260.7,
+      "usage": {
+       "prompt_tokens": 2293,
+       "completion_tokens": 30,
+       "total_tokens": 2323
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00047-diagnosis",
+     "vendor": {
+      "insured_name": "정현우",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-09-23",
+      "admission_date": "2026-09-22",
+      "discharge_date": "2026-09-30",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "정현우",
+      "diagnosis_name": "유방상피내암종",
+      "diagnosis_code": null,
+      "diagnosis_date": "2026-09-23",
+      "admission_date": "2026-09-22",
+      "discharge_date": "2026-09-30",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "정현우",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-09-23",
+      "admission_date": "2026-09-22",
+      "discharge_date": "2026-09-30",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6681.3,
+      "usage": {
+       "prompt_tokens": 1904,
+       "completion_tokens": 78,
+       "total_tokens": 1982
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00047-receipt",
+     "vendor": {
+      "insured_name": "정현우",
+      "hospital": "한빛의료원",
+      "total_amount": 1620328
+     },
+     "grid_reader": {
+      "insured_name": "정 현우",
+      "hospital": "한빛의료원",
+      "total_amount": 1620328
+     },
+     "truth": {
+      "insured_name": "정현우",
+      "hospital": "한빛의료원",
+      "total_amount": 1620328
+     },
+     "vendor_meta": {
+      "latency_ms": 7494.3,
+      "usage": {
+       "prompt_tokens": 2271,
+       "completion_tokens": 30,
+       "total_tokens": 2301
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00049-receipt",
+     "vendor": {
+      "insured_name": "임수아",
+      "hospital": "서울연합병원",
+      "total_amount": 1732664
+     },
+     "grid_reader": {
+      "insured_name": "임수아",
+      "hospital": "서 울연한병원",
+      "total_amount": 1732664
+     },
+     "truth": {
+      "insured_name": "임수아",
+      "hospital": "서울연합병원",
+      "total_amount": 1732664
+     },
+     "vendor_meta": {
+      "latency_ms": 11361.2,
+      "usage": {
+       "prompt_tokens": 2269,
+       "completion_tokens": 30,
+       "total_tokens": 2299
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00051-diagnosis",
+     "vendor": {
+      "insured_name": "조서연",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-08-07",
+      "admission_date": "2026-08-07",
+      "discharge_date": "2026-08-10",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "조서연",
+      "diagnosis_name": "유방상피내암종",
+      "diagnosis_code": null,
+      "diagnosis_date": "2026-08-07",
+      "admission_date": "2026-08-07",
+      "discharge_date": "2026-08-10",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "조서연",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-08-07",
+      "admission_date": "2026-08-07",
+      "discharge_date": "2026-08-10",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6480.1,
+      "usage": {
+       "prompt_tokens": 1943,
+       "completion_tokens": 78,
+       "total_tokens": 2021
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00051-receipt",
+     "vendor": {
+      "insured_name": "조서연",
+      "hospital": "한빛의료원",
+      "total_amount": 817968
+     },
+     "grid_reader": {
+      "insured_name": "조서연",
+      "hospital": "한빚의료원",
+      "total_amount": 817968
+     },
+     "truth": {
+      "insured_name": "조서연",
+      "hospital": "한빛의료원",
+      "total_amount": 817968
+     },
+     "vendor_meta": {
+      "latency_ms": 6281.0,
+      "usage": {
+       "prompt_tokens": 2270,
+       "completion_tokens": 29,
+       "total_tokens": 2299
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00053-diagnosis",
+     "vendor": {
+      "insured_name": "박예은",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2026-01-29",
+      "admission_date": "2026-01-28",
+      "discharge_date": "2026-02-01",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "박예은",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2026-01-29",
+      "admission_date": "2026-01-28",
+      "discharge_date": "2026-02-01",
+      "hospital": "한빚의료원"
+     },
+     "truth": {
+      "insured_name": "박예은",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2026-01-29",
+      "admission_date": "2026-01-28",
+      "discharge_date": "2026-02-01",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6208.5,
+      "usage": {
+       "prompt_tokens": 1919,
+       "completion_tokens": 77,
+       "total_tokens": 1996
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00053-receipt",
+     "vendor": {
+      "insured_name": "박예은",
+      "hospital": "한빛의료원",
+      "total_amount": 2289460
+     },
+     "grid_reader": {
+      "insured_name": "박예은",
+      "hospital": "한빛의료원",
+      "total_amount": 2289460
+     },
+     "truth": {
+      "insured_name": "박예은",
+      "hospital": "한빛의료원",
+      "total_amount": 2289460
+     },
+     "vendor_meta": {
+      "latency_ms": 15387.1,
+      "usage": {
+       "prompt_tokens": 2270,
+       "completion_tokens": 30,
+       "total_tokens": 2300
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00055-receipt",
+     "vendor": {
+      "insured_name": "윤수아",
+      "hospital": "한빛의료원",
+      "total_amount": 1127187
+     },
+     "grid_reader": {
+      "insured_name": "윤 수아",
+      "hospital": "한빚의료원",
+      "total_amount": 1127187
+     },
+     "truth": {
+      "insured_name": "윤수아",
+      "hospital": "한빛의료원",
+      "total_amount": 1127187
+     },
+     "vendor_meta": {
+      "latency_ms": 8712.0,
+      "usage": {
+       "prompt_tokens": 2308,
+       "completion_tokens": 30,
+       "total_tokens": 2338
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00057-receipt",
+     "vendor": {
+      "insured_name": "이도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 1549296
+     },
+     "grid_reader": {
+      "insured_name": "이 도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 1549296
+     },
+     "truth": {
+      "insured_name": "이도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 1549296
+     },
+     "vendor_meta": {
+      "latency_ms": 9045.4,
+      "usage": {
+       "prompt_tokens": 2275,
+       "completion_tokens": 31,
+       "total_tokens": 2306
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00059-receipt",
+     "vendor": {
+      "insured_name": "강예은",
+      "hospital": "한빛의료원",
+      "total_amount": 4008312
+     },
+     "grid_reader": {
+      "insured_name": "강예은",
+      "hospital": "한빚의료원",
+      "total_amount": 4008312
+     },
+     "truth": {
+      "insured_name": "강예은",
+      "hospital": "한빛의료원",
+      "total_amount": 4008312
+     },
+     "vendor_meta": {
+      "latency_ms": 10720.7,
+      "usage": {
+       "prompt_tokens": 2256,
+       "completion_tokens": 30,
+       "total_tokens": 2286
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00061-diagnosis",
+     "vendor": {
+      "insured_name": "정현우",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2027-04-30",
+      "admission_date": "2027-04-29",
+      "discharge_date": "2027-05-08",
+      "hospital": "미래대학교병원"
+     },
+     "grid_reader": {
+      "insured_name": "정현우",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2027-04-30",
+      "admission_date": "2027-04-29",
+      "discharge_date": "2027-05-08",
+      "hospital": "미래대학교병원"
+     },
+     "truth": {
+      "insured_name": "정현우",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2027-04-30",
+      "admission_date": "2027-04-29",
+      "discharge_date": "2027-05-08",
+      "hospital": "미래대학교병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 7029.4,
+      "usage": {
+       "prompt_tokens": 1907,
+       "completion_tokens": 78,
+       "total_tokens": 1985
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00061-receipt",
+     "vendor": {
+      "insured_name": "정현우",
+      "hospital": "미래대학교병원",
+      "total_amount": 3945291
+     },
+     "grid_reader": {
+      "insured_name": "정현우",
+      "hospital": "미 래 대학교병원",
+      "total_amount": 3945291
+     },
+     "truth": {
+      "insured_name": "정현우",
+      "hospital": "미래대학교병원",
+      "total_amount": 3945291
+     },
+     "vendor_meta": {
+      "latency_ms": 10009.0,
+      "usage": {
+       "prompt_tokens": 2304,
+       "completion_tokens": 30,
+       "total_tokens": 2334
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00063-diagnosis",
+     "vendor": {
+      "insured_name": "조수아",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2025-10-19",
+      "admission_date": "2025-10-19",
+      "discharge_date": "2025-10-20",
+      "hospital": "푸른내과의원"
+     },
+     "grid_reader": {
+      "insured_name": "조수아",
+      "diagnosis_name": "경골 원위부골절",
+      "diagnosis_code": null,
+      "diagnosis_date": "2025-10-19",
+      "admission_date": "2025-10-19",
+      "discharge_date": "2025-10-20",
+      "hospital": "푸른내과의원"
+     },
+     "truth": {
+      "insured_name": "조수아",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2025-10-19",
+      "admission_date": "2025-10-19",
+      "discharge_date": "2025-10-20",
+      "hospital": "푸른내과의원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6561.5,
+      "usage": {
+       "prompt_tokens": 1910,
+       "completion_tokens": 79,
+       "total_tokens": 1989
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00063-receipt",
+     "vendor": {
+      "insured_name": "조수아",
+      "hospital": "푸른내과의원",
+      "total_amount": 1694704
+     },
+     "grid_reader": {
+      "insured_name": "조수아",
+      "hospital": "푸른내과의원",
+      "total_amount": 1694704
+     },
+     "truth": {
+      "insured_name": "조수아",
+      "hospital": "푸른내과의원",
+      "total_amount": 1694704
+     },
+     "vendor_meta": {
+      "latency_ms": 8776.0,
+      "usage": {
+       "prompt_tokens": 2257,
+       "completion_tokens": 31,
+       "total_tokens": 2288
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00065-diagnosis",
+     "vendor": {
+      "insured_name": "최예은",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-02-19",
+      "admission_date": "2026-02-19",
+      "discharge_date": "2026-02-22",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "최 예은",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-02-19",
+      "admission_date": "2026-02-19",
+      "discharge_date": "2026-02-22",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "최예은",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-02-19",
+      "admission_date": "2026-02-19",
+      "discharge_date": "2026-02-22",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6553.2,
+      "usage": {
+       "prompt_tokens": 1904,
+       "completion_tokens": 78,
+       "total_tokens": 1982
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00065-receipt",
+     "vendor": {
+      "insured_name": "최예은",
+      "hospital": "한빛의료원",
+      "total_amount": 1005117
+     },
+     "grid_reader": {
+      "insured_name": "최예은",
+      "hospital": "한빚의료원",
+      "total_amount": 1005117
+     },
+     "truth": {
+      "insured_name": "최예은",
+      "hospital": "한빛의료원",
+      "total_amount": 1005117
+     },
+     "vendor_meta": {
+      "latency_ms": 6972.4,
+      "usage": {
+       "prompt_tokens": 2298,
+       "completion_tokens": 30,
+       "total_tokens": 2328
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00067-diagnosis",
+     "vendor": {
+      "insured_name": "박도윤",
+      "diagnosis_name": "피부의 악성신생물",
+      "diagnosis_code": "C44.9",
+      "diagnosis_date": "2026-06-05",
+      "admission_date": "2026-06-04",
+      "discharge_date": "2026-06-10",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "박도윤",
+      "diagnosis_name": "피부의 악성신생물",
+      "diagnosis_code": "C44.9",
+      "diagnosis_date": "2026-06-05",
+      "admission_date": "2026-06-04",
+      "discharge_date": "2026-06-10",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "박도윤",
+      "diagnosis_name": "피부의 악성신생물",
+      "diagnosis_code": "C44.9",
+      "diagnosis_date": "2026-06-05",
+      "admission_date": "2026-06-04",
+      "discharge_date": "2026-06-10",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6456.4,
+      "usage": {
+       "prompt_tokens": 1913,
+       "completion_tokens": 80,
+       "total_tokens": 1993
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00067-receipt",
+     "vendor": {
+      "insured_name": "박도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 939732
+     },
+     "grid_reader": {
+      "insured_name": "박도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 939732
+     },
+     "truth": {
+      "insured_name": "박도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 939732
+     },
+     "vendor_meta": {
+      "latency_ms": 7220.8,
+      "usage": {
+       "prompt_tokens": 2272,
+       "completion_tokens": 30,
+       "total_tokens": 2302
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00069-diagnosis",
+     "vendor": {
+      "insured_name": "박지호",
+      "diagnosis_name": "서혜부 탈장",
+      "diagnosis_code": "K40.9",
+      "diagnosis_date": "2027-02-13",
+      "admission_date": "2027-02-13",
+      "discharge_date": "2027-02-17",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "박지호",
+      "diagnosis_name": "서 혜부 탐장",
+      "diagnosis_code": "K40.9",
+      "diagnosis_date": "2027-02-13",
+      "admission_date": "2027-02-13",
+      "discharge_date": "2027-02-10",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "박지호",
+      "diagnosis_name": "서혜부 탈장",
+      "diagnosis_code": "K40.9",
+      "diagnosis_date": "2027-02-13",
+      "admission_date": "2027-02-13",
+      "discharge_date": "2027-02-17",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 7111.2,
+      "usage": {
+       "prompt_tokens": 1906,
+       "completion_tokens": 77,
+       "total_tokens": 1983
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00069-receipt",
+     "vendor": {
+      "insured_name": "박지호",
+      "hospital": "강남제일병원",
+      "total_amount": 2825116
+     },
+     "grid_reader": {
+      "insured_name": "박지호",
+      "hospital": "강남제일병원",
+      "total_amount": 2825116
+     },
+     "truth": {
+      "insured_name": "박지호",
+      "hospital": "강남제일병원",
+      "total_amount": 2825116
+     },
+     "vendor_meta": {
+      "latency_ms": 6189.5,
+      "usage": {
+       "prompt_tokens": 2270,
+       "completion_tokens": 31,
+       "total_tokens": 2301
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00071-diagnosis",
+     "vendor": {
+      "insured_name": "임서준",
+      "diagnosis_name": "피부의 악성신생물",
+      "diagnosis_code": "C44.9",
+      "diagnosis_date": "2026-07-16",
+      "admission_date": "2026-07-15",
+      "discharge_date": "2026-07-24",
+      "hospital": "미래대학교병원"
+     },
+     "grid_reader": {
+      "insured_name": "임서준",
+      "diagnosis_name": "피부의 악성신생물",
+      "diagnosis_code": "C44.9",
+      "diagnosis_date": "2026-07-16",
+      "admission_date": "2026-07-15",
+      "discharge_date": "2026-07-24",
+      "hospital": "미래대학교병원"
+     },
+     "truth": {
+      "insured_name": "임서준",
+      "diagnosis_name": "피부의 악성신생물",
+      "diagnosis_code": "C44.9",
+      "diagnosis_date": "2026-07-16",
+      "admission_date": "2026-07-15",
+      "discharge_date": "2026-07-24",
+      "hospital": "미래대학교병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6863.7,
+      "usage": {
+       "prompt_tokens": 1906,
+       "completion_tokens": 79,
+       "total_tokens": 1985
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00071-receipt",
+     "vendor": {
+      "insured_name": "임서준",
+      "hospital": "미래대학교병원",
+      "total_amount": 3326661
+     },
+     "grid_reader": {
+      "insured_name": "임서준",
+      "hospital": "미래 대학교병원",
+      "total_amount": 3326661
+     },
+     "truth": {
+      "insured_name": "임서준",
+      "hospital": "미래대학교병원",
+      "total_amount": 3326661
+     },
+     "vendor_meta": {
+      "latency_ms": 8659.8,
+      "usage": {
+       "prompt_tokens": 2278,
+       "completion_tokens": 30,
+       "total_tokens": 2308
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00073-diagnosis",
+     "vendor": {
+      "insured_name": "임서연",
+      "diagnosis_name": "신장결석",
+      "diagnosis_code": "N20.0",
+      "diagnosis_date": "2026-03-31",
+      "admission_date": "2026-03-30",
+      "discharge_date": "2026-04-09",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "임서연",
+      "diagnosis_name": "신장결석",
+      "diagnosis_code": "N20.0",
+      "diagnosis_date": "2026-03-31",
+      "admission_date": "2026-03-30",
+      "discharge_date": "2026-04-09",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "임서연",
+      "diagnosis_name": "신장결석",
+      "diagnosis_code": "N20.0",
+      "diagnosis_date": "2026-03-31",
+      "admission_date": "2026-03-30",
+      "discharge_date": "2026-04-09",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 7429.3,
+      "usage": {
+       "prompt_tokens": 1907,
+       "completion_tokens": 75,
+       "total_tokens": 1982
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00073-receipt",
+     "vendor": {
+      "insured_name": "임서연",
+      "hospital": "한빛의료원",
+      "total_amount": 4260210
+     },
+     "grid_reader": {
+      "insured_name": "임서연",
+      "hospital": "한빛의료원",
+      "total_amount": 4260210
+     },
+     "truth": {
+      "insured_name": "임서연",
+      "hospital": "한빛의료원",
+      "total_amount": 4260210
+     },
+     "vendor_meta": {
+      "latency_ms": 7161.1,
+      "usage": {
+       "prompt_tokens": 2270,
+       "completion_tokens": 30,
+       "total_tokens": 2300
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00075-diagnosis",
+     "vendor": {
+      "insured_name": "강수아",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-12-23",
+      "admission_date": "2025-12-22",
+      "discharge_date": "2025-12-26",
+      "hospital": "서울연합병원"
+     },
+     "grid_reader": {
+      "insured_name": "강수아",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-12-23",
+      "admission_date": "2025-12-22",
+      "discharge_date": "2025-12-26",
+      "hospital": "서울연합병원"
+     },
+     "truth": {
+      "insured_name": "강수아",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-12-23",
+      "admission_date": "2025-12-22",
+      "discharge_date": "2025-12-26",
+      "hospital": "서울연합병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6550.6,
+      "usage": {
+       "prompt_tokens": 1902,
+       "completion_tokens": 79,
+       "total_tokens": 1981
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00075-receipt",
+     "vendor": {
+      "insured_name": "강수아",
+      "hospital": "서울연합병원",
+      "total_amount": 914496
+     },
+     "grid_reader": {
+      "insured_name": "강수아",
+      "hospital": "서울연합병원",
+      "total_amount": 914496
+     },
+     "truth": {
+      "insured_name": "강수아",
+      "hospital": "서울연합병원",
+      "total_amount": 914496
+     },
+     "vendor_meta": {
+      "latency_ms": 7040.0,
+      "usage": {
+       "prompt_tokens": 2262,
+       "completion_tokens": 29,
+       "total_tokens": 2291
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00077-receipt",
+     "vendor": {
+      "insured_name": "이지호",
+      "hospital": "한빛의료원",
+      "total_amount": 3037572
+     },
+     "grid_reader": {
+      "insured_name": "이지호",
+      "hospital": "한빚의료원",
+      "total_amount": null
+     },
+     "truth": {
+      "insured_name": "이지호",
+      "hospital": "한빛의료원",
+      "total_amount": 3037572
+     },
+     "vendor_meta": {
+      "latency_ms": 7044.7,
+      "usage": {
+       "prompt_tokens": 2300,
+       "completion_tokens": 29,
+       "total_tokens": 2329
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00079-diagnosis",
+     "vendor": {
+      "insured_name": "강예은",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-06-10",
+      "admission_date": "2025-06-10",
+      "discharge_date": "2025-06-14",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "강예은",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-06-10",
+      "admission_date": "2025-06-10",
+      "discharge_date": "2025-06-14",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "강예은",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-06-10",
+      "admission_date": "2025-06-10",
+      "discharge_date": "2025-06-14",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6437.7,
+      "usage": {
+       "prompt_tokens": 1908,
+       "completion_tokens": 80,
+       "total_tokens": 1988
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00079-receipt",
+     "vendor": {
+      "insured_name": "강예은",
+      "hospital": "강남제일병원",
+      "total_amount": 1531936
+     },
+     "grid_reader": {
+      "insured_name": "강예은",
+      "hospital": "강남제일 병원",
+      "total_amount": 1531936
+     },
+     "truth": {
+      "insured_name": "강예은",
+      "hospital": "강남제일병원",
+      "total_amount": 1531936
+     },
+     "vendor_meta": {
+      "latency_ms": 7204.2,
+      "usage": {
+       "prompt_tokens": 2301,
+       "completion_tokens": 31,
+       "total_tokens": 2332
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00081-diagnosis",
+     "vendor": {
+      "insured_name": "강수아",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-11-21",
+      "admission_date": "2025-11-21",
+      "discharge_date": "2025-11-24",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "강수아",
+      "diagnosis_name": "위의악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-11-21",
+      "admission_date": "2025-11-21",
+      "discharge_date": "2025-11-24",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "강수아",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-11-21",
+      "admission_date": "2025-11-21",
+      "discharge_date": "2025-11-24",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6471.0,
+      "usage": {
+       "prompt_tokens": 1904,
+       "completion_tokens": 78,
+       "total_tokens": 1982
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00081-receipt",
+     "vendor": {
+      "insured_name": "강수아",
+      "hospital": "한빛의료원",
+      "total_amount": 464628
+     },
+     "grid_reader": {
+      "insured_name": "강수아",
+      "hospital": "한빚의료원",
+      "total_amount": 464628
+     },
+     "truth": {
+      "insured_name": "강수아",
+      "hospital": "한빛의료원",
+      "total_amount": 464628
+     },
+     "vendor_meta": {
+      "latency_ms": 7095.5,
+      "usage": {
+       "prompt_tokens": 2294,
+       "completion_tokens": 29,
+       "total_tokens": 2323
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00083-diagnosis",
+     "vendor": {
+      "insured_name": "조하은",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-01-03",
+      "admission_date": "2026-01-02",
+      "discharge_date": "2026-01-07",
+      "hospital": "푸른내과의원"
+     },
+     "grid_reader": {
+      "insured_name": "조하은",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-01-03",
+      "admission_date": "2026-01-02",
+      "discharge_date": null,
+      "hospital": "푸른내과의원"
+     },
+     "truth": {
+      "insured_name": "조하은",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-01-03",
+      "admission_date": "2026-01-02",
+      "discharge_date": "2026-01-07",
+      "hospital": "푸른내과의원"
+     },
+     "vendor_meta": {
+      "latency_ms": 8523.7,
+      "usage": {
+       "prompt_tokens": 1912,
+       "completion_tokens": 79,
+       "total_tokens": 1991
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00083-receipt",
+     "vendor": {
+      "insured_name": "조하은",
+      "hospital": "푸른내과의원",
+      "total_amount": 2533910
+     },
+     "grid_reader": {
+      "insured_name": "조 하은",
+      "hospital": "푸른내과의원",
+      "total_amount": 2933910
+     },
+     "truth": {
+      "insured_name": "조하은",
+      "hospital": "푸른내과의원",
+      "total_amount": 2533910
+     },
+     "vendor_meta": {
+      "latency_ms": 9546.4,
+      "usage": {
+       "prompt_tokens": 2278,
+       "completion_tokens": 31,
+       "total_tokens": 2309
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00085-receipt",
+     "vendor": {
+      "insured_name": "이민준",
+      "hospital": "서울연합병원",
+      "total_amount": 1980414
+     },
+     "grid_reader": {
+      "insured_name": "이 민 준",
+      "hospital": "서 울연합병원",
+      "total_amount": 1980414
+     },
+     "truth": {
+      "insured_name": "이민준",
+      "hospital": "서울연합병원",
+      "total_amount": 1980414
+     },
+     "vendor_meta": {
+      "latency_ms": 7196.1,
+      "usage": {
+       "prompt_tokens": 2271,
+       "completion_tokens": 30,
+       "total_tokens": 2301
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00087-receipt",
+     "vendor": {
+      "insured_name": "조서준",
+      "hospital": "푸른내과의원",
+      "total_amount": 1857603
+     },
+     "grid_reader": {
+      "insured_name": "조서준",
+      "hospital": "푸른내과의원",
+      "total_amount": 1857603
+     },
+     "truth": {
+      "insured_name": "조서준",
+      "hospital": "푸른내과의원",
+      "total_amount": 1857603
+     },
+     "vendor_meta": {
+      "latency_ms": 7194.3,
+      "usage": {
+       "prompt_tokens": 2303,
+       "completion_tokens": 31,
+       "total_tokens": 2334
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00089-diagnosis",
+     "vendor": {
+      "insured_name": "강예은",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-08-02",
+      "admission_date": "2025-08-02",
+      "discharge_date": "2025-08-03",
+      "hospital": "푸른내과의원"
+     },
+     "grid_reader": {
+      "insured_name": "강예은",
+      "diagnosis_name": "위의악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-08-02",
+      "admission_date": "2025-08-02",
+      "discharge_date": "2025-08-03",
+      "hospital": "푸른내과의원"
+     },
+     "truth": {
+      "insured_name": "강예은",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-08-02",
+      "admission_date": "2025-08-02",
+      "discharge_date": "2025-08-03",
+      "hospital": "푸른내과의원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6476.9,
+      "usage": {
+       "prompt_tokens": 1910,
+       "completion_tokens": 79,
+       "total_tokens": 1989
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00089-receipt",
+     "vendor": {
+      "insured_name": "강예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 150211
+     },
+     "grid_reader": {
+      "insured_name": "강예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 150211
+     },
+     "truth": {
+      "insured_name": "강예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 150211
+     },
+     "vendor_meta": {
+      "latency_ms": 7285.6,
+      "usage": {
+       "prompt_tokens": 2282,
+       "completion_tokens": 30,
+       "total_tokens": 2312
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00091-diagnosis",
+     "vendor": {
+      "insured_name": "조지우",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2025-10-15",
+      "admission_date": "2025-10-15",
+      "discharge_date": "2025-10-24",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "조지 우",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2025-10-15",
+      "admission_date": "2025-10-15",
+      "discharge_date": "2025-10-24",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "조지우",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2025-10-15",
+      "admission_date": "2025-10-15",
+      "discharge_date": "2025-10-24",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 8535.9,
+      "usage": {
+       "prompt_tokens": 1901,
+       "completion_tokens": 78,
+       "total_tokens": 1979
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00091-receipt",
+     "vendor": {
+      "insured_name": "조지우",
+      "hospital": "한빛의료원",
+      "total_amount": 3398334
+     },
+     "grid_reader": {
+      "insured_name": "조지우",
+      "hospital": "한빛의료원",
+      "total_amount": 3398334
+     },
+     "truth": {
+      "insured_name": "조지우",
+      "hospital": "한빛의료원",
+      "total_amount": 3398334
+     },
+     "vendor_meta": {
+      "latency_ms": 6488.4,
+      "usage": {
+       "prompt_tokens": 2277,
+       "completion_tokens": 30,
+       "total_tokens": 2307
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00093-receipt",
+     "vendor": {
+      "insured_name": "이수아",
+      "hospital": "미래대학교병원",
+      "total_amount": 623646
+     },
+     "grid_reader": {
+      "insured_name": "이 수아",
+      "hospital": "미 래 대학교병원",
+      "total_amount": 623646
+     },
+     "truth": {
+      "insured_name": "이수아",
+      "hospital": "미래대학교병원",
+      "total_amount": 623646
+     },
+     "vendor_meta": {
+      "latency_ms": 7583.3,
+      "usage": {
+       "prompt_tokens": 2307,
+       "completion_tokens": 29,
+       "total_tokens": 2336
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00095-receipt",
+     "vendor": {
+      "insured_name": "최지호",
+      "hospital": "푸른내과의원",
+      "total_amount": 1510360
+     },
+     "grid_reader": {
+      "insured_name": "최 지호",
+      "hospital": "푸른내과의원",
+      "total_amount": 1510360
+     },
+     "truth": {
+      "insured_name": "최지호",
+      "hospital": "푸른내과의원",
+      "total_amount": 1510360
+     },
+     "vendor_meta": {
+      "latency_ms": 8851.7,
+      "usage": {
+       "prompt_tokens": 2291,
+       "completion_tokens": 31,
+       "total_tokens": 2322
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00097-receipt",
+     "vendor": {
+      "insured_name": "이민준",
+      "hospital": "한빛의료원",
+      "total_amount": 691268
+     },
+     "grid_reader": {
+      "insured_name": "이민준",
+      "hospital": "한빚의료원",
+      "total_amount": 691268
+     },
+     "truth": {
+      "insured_name": "이민준",
+      "hospital": "한빛의료원",
+      "total_amount": 691268
+     },
+     "vendor_meta": {
+      "latency_ms": 7567.9,
+      "usage": {
+       "prompt_tokens": 2303,
+       "completion_tokens": 29,
+       "total_tokens": 2332
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00099-diagnosis",
+     "vendor": {
+      "insured_name": "강수아",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-10-12",
+      "admission_date": "2026-10-12",
+      "discharge_date": "2026-10-17",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "강수아",
+      "diagnosis_name": "유방상피내암종",
+      "diagnosis_code": null,
+      "diagnosis_date": null,
+      "admission_date": "2026-10-12",
+      "discharge_date": "2026-10-17",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "강수아",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-10-12",
+      "admission_date": "2026-10-12",
+      "discharge_date": "2026-10-17",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6497.8,
+      "usage": {
+       "prompt_tokens": 1906,
+       "completion_tokens": 79,
+       "total_tokens": 1985
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00099-receipt",
+     "vendor": {
+      "insured_name": "강수아",
+      "hospital": "강남제일병원",
+      "total_amount": 1726435
+     },
+     "grid_reader": {
+      "insured_name": "강수아",
+      "hospital": "강남제일병원",
+      "total_amount": 1726435
+     },
+     "truth": {
+      "insured_name": "강수아",
+      "hospital": "강남제일병원",
+      "total_amount": 1726435
+     },
+     "vendor_meta": {
+      "latency_ms": 7372.7,
+      "usage": {
+       "prompt_tokens": 2284,
+       "completion_tokens": 31,
+       "total_tokens": 2315
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00101-diagnosis",
+     "vendor": {
+      "insured_name": "정서준",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2027-04-19",
+      "admission_date": "2027-04-18",
+      "discharge_date": "2027-04-29",
+      "hospital": "미래대학교병원"
+     },
+     "grid_reader": {
+      "insured_name": "정서준",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2027-04-19",
+      "admission_date": "2027-04-18",
+      "discharge_date": "2027-04-29",
+      "hospital": "미래대학교병원"
+     },
+     "truth": {
+      "insured_name": "정서준",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2027-04-19",
+      "admission_date": "2027-04-18",
+      "discharge_date": "2027-04-29",
+      "hospital": "미래대학교병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 7513.6,
+      "usage": {
+       "prompt_tokens": 1904,
+       "completion_tokens": 76,
+       "total_tokens": 1980
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00101-receipt",
+     "vendor": {
+      "insured_name": "정서준",
+      "hospital": "미래대학교병원",
+      "total_amount": 5827730
+     },
+     "grid_reader": {
+      "insured_name": "정서준",
+      "hospital": "미 래 대학교병원",
+      "total_amount": 5827730
+     },
+     "truth": {
+      "insured_name": "정서준",
+      "hospital": "미래대학교병원",
+      "total_amount": 5827730
+     },
+     "vendor_meta": {
+      "latency_ms": 8340.3,
+      "usage": {
+       "prompt_tokens": 2279,
+       "completion_tokens": 30,
+       "total_tokens": 2309
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00103-diagnosis",
+     "vendor": {
+      "insured_name": "최수아",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-08-18",
+      "admission_date": "2026-08-17",
+      "discharge_date": "2026-08-24",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "최수아",
+      "diagnosis_name": "유방상피내암종",
+      "diagnosis_code": null,
+      "diagnosis_date": "2026-08-18",
+      "admission_date": "2026-08-17",
+      "discharge_date": "2026-08-24",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "최수아",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-08-18",
+      "admission_date": "2026-08-17",
+      "discharge_date": "2026-08-24",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 9215.3,
+      "usage": {
+       "prompt_tokens": 1906,
+       "completion_tokens": 79,
+       "total_tokens": 1985
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00103-receipt",
+     "vendor": {
+      "insured_name": "최수아",
+      "hospital": "강남제일병원",
+      "total_amount": 1757420
+     },
+     "grid_reader": {
+      "insured_name": "최수아",
+      "hospital": "강남제일병원",
+      "total_amount": 1757420
+     },
+     "truth": {
+      "insured_name": "최수아",
+      "hospital": "강남제일병원",
+      "total_amount": 1757420
+     },
+     "vendor_meta": {
+      "latency_ms": 8921.3,
+      "usage": {
+       "prompt_tokens": 2278,
+       "completion_tokens": 31,
+       "total_tokens": 2309
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00105-diagnosis",
+     "vendor": {
+      "insured_name": "조도윤",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-03-20",
+      "admission_date": "2025-03-20",
+      "discharge_date": "2025-03-21",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "조도윤",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-03-20",
+      "admission_date": "2025-03-20",
+      "discharge_date": "2025-03-21",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "조도윤",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-03-20",
+      "admission_date": "2025-03-20",
+      "discharge_date": "2025-03-21",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6902.4,
+      "usage": {
+       "prompt_tokens": 1907,
+       "completion_tokens": 79,
+       "total_tokens": 1986
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00105-receipt",
+     "vendor": {
+      "insured_name": "조도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 301472
+     },
+     "grid_reader": {
+      "insured_name": "조 도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 301472
+     },
+     "truth": {
+      "insured_name": "조도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 301472
+     },
+     "vendor_meta": {
+      "latency_ms": 11400.7,
+      "usage": {
+       "prompt_tokens": 2254,
+       "completion_tokens": 30,
+       "total_tokens": 2284
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00107-receipt",
+     "vendor": {
+      "insured_name": "김하은",
+      "hospital": "미래대학교병원",
+      "total_amount": 1890918
+     },
+     "grid_reader": {
+      "insured_name": "김 하은",
+      "hospital": "미래 대 학교병원",
+      "total_amount": 1890918
+     },
+     "truth": {
+      "insured_name": "김하은",
+      "hospital": "미래대학교병원",
+      "total_amount": 1890918
+     },
+     "vendor_meta": {
+      "latency_ms": 10103.4,
+      "usage": {
+       "prompt_tokens": 2302,
+       "completion_tokens": 30,
+       "total_tokens": 2332
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00109-diagnosis",
+     "vendor": {
+      "insured_name": "윤예은",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-03-24",
+      "admission_date": "2026-03-24",
+      "discharge_date": "2026-03-27",
+      "hospital": "미래대학교병원"
+     },
+     "grid_reader": {
+      "insured_name": "윤예 은",
+      "diagnosis_name": "경골원위부골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-03-24",
+      "admission_date": "2026-03-24",
+      "discharge_date": "2026-03-27",
+      "hospital": "미래대학교병원"
+     },
+     "truth": {
+      "insured_name": "윤예은",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-03-24",
+      "admission_date": "2026-03-24",
+      "discharge_date": "2026-03-27",
+      "hospital": "미래대학교병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6266.1,
+      "usage": {
+       "prompt_tokens": 1906,
+       "completion_tokens": 78,
+       "total_tokens": 1984
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00109-receipt",
+     "vendor": {
+      "insured_name": "윤예은",
+      "hospital": "미래대학교병원",
+      "total_amount": 2393088
+     },
+     "grid_reader": {
+      "insured_name": "윤예은",
+      "hospital": "미래대학교병원",
+      "total_amount": 2393088
+     },
+     "truth": {
+      "insured_name": "윤예은",
+      "hospital": "미래대학교병원",
+      "total_amount": 2393088
+     },
+     "vendor_meta": {
+      "latency_ms": 9695.9,
+      "usage": {
+       "prompt_tokens": 2274,
+       "completion_tokens": 30,
+       "total_tokens": 2304
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00111-diagnosis",
+     "vendor": {
+      "insured_name": "조서연",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2026-05-29",
+      "admission_date": "2026-05-29",
+      "discharge_date": "2026-06-10",
+      "hospital": "서울연합병원"
+     },
+     "grid_reader": {
+      "insured_name": "조서연",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2026-05-29",
+      "admission_date": "2026-05-29",
+      "discharge_date": "2026-06-10",
+      "hospital": "서울연합병원"
+     },
+     "truth": {
+      "insured_name": "조서연",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2026-05-29",
+      "admission_date": "2026-05-29",
+      "discharge_date": "2026-06-10",
+      "hospital": "서울연합병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 7988.9,
+      "usage": {
+       "prompt_tokens": 1903,
+       "completion_tokens": 76,
+       "total_tokens": 1979
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00111-receipt",
+     "vendor": {
+      "insured_name": "조서연",
+      "hospital": "서울연합병원",
+      "total_amount": 5623080
+     },
+     "grid_reader": {
+      "insured_name": "조서연",
+      "hospital": "서울연합병원",
+      "total_amount": 5623080
+     },
+     "truth": {
+      "insured_name": "조서연",
+      "hospital": "서울연합병원",
+      "total_amount": 5623080
+     },
+     "vendor_meta": {
+      "latency_ms": 7763.5,
+      "usage": {
+       "prompt_tokens": 2306,
+       "completion_tokens": 30,
+       "total_tokens": 2336
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00113-receipt",
+     "vendor": {
+      "insured_name": "이서연",
+      "hospital": "한빛의료원",
+      "total_amount": 2812264
+     },
+     "grid_reader": {
+      "insured_name": "이 서연",
+      "hospital": "한빚의료원",
+      "total_amount": 2812264
+     },
+     "truth": {
+      "insured_name": "이서연",
+      "hospital": "한빛의료원",
+      "total_amount": 2812264
+     },
+     "vendor_meta": {
+      "latency_ms": 8013.3,
+      "usage": {
+       "prompt_tokens": 2277,
+       "completion_tokens": 30,
+       "total_tokens": 2307
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00115-receipt",
+     "vendor": {
+      "insured_name": "강민준",
+      "hospital": "서울연합병원",
+      "total_amount": 1597374
+     },
+     "grid_reader": {
+      "insured_name": "강민준",
+      "hospital": "서울연합병원",
+      "total_amount": 1597374
+     },
+     "truth": {
+      "insured_name": "강민준",
+      "hospital": "서울연합병원",
+      "total_amount": 1597374
+     },
+     "vendor_meta": {
+      "latency_ms": 7655.9,
+      "usage": {
+       "prompt_tokens": 2304,
+       "completion_tokens": 30,
+       "total_tokens": 2334
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00117-receipt",
+     "vendor": {
+      "insured_name": "장서연",
+      "hospital": "서울연합병원",
+      "total_amount": 3087216
+     },
+     "grid_reader": {
+      "insured_name": "장서연",
+      "hospital": "서 울연합병원",
+      "total_amount": 3087216
+     },
+     "truth": {
+      "insured_name": "장서연",
+      "hospital": "서울연합병원",
+      "total_amount": 3087216
+     },
+     "vendor_meta": {
+      "latency_ms": 7154.9,
+      "usage": {
+       "prompt_tokens": 2299,
+       "completion_tokens": 30,
+       "total_tokens": 2329
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00119-diagnosis",
+     "vendor": {
+      "insured_name": "최하은",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2026-06-15",
+      "admission_date": "2026-06-15",
+      "discharge_date": "2026-06-16",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "최하은",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2026-06-15",
+      "admission_date": "2026-06-15",
+      "discharge_date": "2026-06-16",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "최하은",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2026-06-15",
+      "admission_date": "2026-06-15",
+      "discharge_date": "2026-06-16",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6632.4,
+      "usage": {
+       "prompt_tokens": 1906,
+       "completion_tokens": 80,
+       "total_tokens": 1986
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00119-receipt",
+     "vendor": {
+      "insured_name": "최하은",
+      "hospital": "강남제일병원",
+      "total_amount": 1823968
+     },
+     "grid_reader": {
+      "insured_name": "최하은",
+      "hospital": "강남제일병원",
+      "total_amount": 1823968
+     },
+     "truth": {
+      "insured_name": "최하은",
+      "hospital": "강남제일병원",
+      "total_amount": 1823968
+     },
+     "vendor_meta": {
+      "latency_ms": 6219.1,
+      "usage": {
+       "prompt_tokens": 2279,
+       "completion_tokens": 31,
+       "total_tokens": 2310
+      }
+     }
+    }
+   ]
+  },
+  "heavy": {
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/40093409992",
+   "pages_sent": 98,
+   "estimated_usd": 3.92,
+   "vendor_errors": 0,
+   "vendor_summary": {
+    "fields": 446,
+    "correct": 444,
+    "missing": 0,
+    "wrong": 2,
+    "accuracy": 0.9955,
+    "by_field": {
+     "admission_date": {
+      "correct": 38
+     },
+     "diagnosis_code": {
+      "wrong": 1,
+      "correct": 37
+     },
+     "diagnosis_date": {
+      "correct": 38
+     },
+     "diagnosis_name": {
+      "correct": 37,
+      "wrong": 1
+     },
+     "discharge_date": {
+      "correct": 38
+     },
+     "hospital": {
+      "correct": 98
+     },
+     "insured_name": {
+      "correct": 98
+     },
+     "total_amount": {
+      "correct": 60
+     }
+    }
+   },
+   "grid_reader_summary": {
+    "fields": 446,
+    "correct": 399,
+    "missing": 20,
+    "wrong": 27,
+    "accuracy": 0.8946,
+    "by_field": {
+     "admission_date": {
+      "correct": 34,
+      "missing": 4
+     },
+     "diagnosis_code": {
+      "wrong": 1,
+      "correct": 35,
+      "missing": 2
+     },
+     "diagnosis_date": {
+      "correct": 29,
+      "missing": 9
+     },
+     "diagnosis_name": {
+      "correct": 33,
+      "wrong": 5
+     },
+     "discharge_date": {
+      "correct": 35,
+      "missing": 3
+     },
+     "hospital": {
+      "correct": 85,
+      "wrong": 13
+     },
+     "insured_name": {
+      "correct": 88,
+      "wrong": 8,
+      "missing": 2
+     },
+     "total_amount": {
+      "correct": 60
+     }
+    }
+   },
+   "wilson95": {
+    "vendor": [
+     0.9838,
+     0.9988
+    ],
+    "grid_reader": [
+     0.8627,
+     0.9198
+    ]
+   },
+   "latency_ms": {
+    "median": 7083.25,
+    "min": 6063.7,
+    "max": 13681.9
+   },
+   "vendor_usage_tokens": {
+    "prompt_tokens": 209949,
+    "completion_tokens": 4770,
+    "total_tokens": 214719
+   },
+   "vendor_misses": [
+    {
+     "doc_id": "CLM-00001-diagnosis",
+     "field": "diagnosis_code",
+     "got": "121.9",
+     "truth": "I21.9",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00039-diagnosis",
+     "field": "diagnosis_name",
+     "got": "급성 충수염",
+     "truth": "유방 상피내암종",
+     "kind": "wrong"
+    }
+   ],
+   "grid_reader_misses": [
+    {
+     "doc_id": "CLM-00001-diagnosis",
+     "field": "diagnosis_code",
+     "got": "R19",
+     "truth": "I21.9",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00005-diagnosis",
+     "field": "diagnosis_date",
+     "got": null,
+     "truth": "2025-06-04",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00007-diagnosis",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00007-receipt",
+     "field": "insured_name",
+     "got": "이예온",
+     "truth": "이예은",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00011-diagnosis",
+     "field": "diagnosis_name",
+     "got": "금성충수염",
+     "truth": "급성 충수염",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00011-diagnosis",
+     "field": "diagnosis_date",
+     "got": null,
+     "truth": "2025-12-31",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00011-receipt",
+     "field": "hospital",
+     "got": "미 래대학교 워",
+     "truth": "미래대학교병원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00013-receipt",
+     "field": "insured_name",
+     "got": "윤 예",
+     "truth": "윤예은",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00017-diagnosis",
+     "field": "discharge_date",
+     "got": null,
+     "truth": "2026-01-15",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00017-receipt",
+     "field": "insured_name",
+     "got": "은도을",
+     "truth": "윤도윤",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00017-receipt",
+     "field": "hospital",
+     "got": "하빛의료워",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00019-diagnosis",
+     "field": "diagnosis_date",
+     "got": null,
+     "truth": "2026-07-27",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00019-receipt",
+     "field": "insured_name",
+     "got": null,
+     "truth": "강하은",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00021-receipt",
+     "field": "hospital",
+     "got": "서울연함병원",
+     "truth": "서울연합병원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00023-receipt",
+     "field": "hospital",
+     "got": "간남제일 병",
+     "truth": "강남제일병원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00027-diagnosis",
+     "field": "diagnosis_name",
+     "got": "위의 악성신생몰",
+     "truth": "위의 악성신생물",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00027-diagnosis",
+     "field": "admission_date",
+     "got": null,
+     "truth": "2025-08-23",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00029-diagnosis",
+     "field": "admission_date",
+     "got": null,
+     "truth": "2025-12-12",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00029-receipt",
+     "field": "insured_name",
+     "got": "정처연",
+     "truth": "정서연",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00031-receipt",
+     "field": "hospital",
+     "got": "강 남체 일 병원",
+     "truth": "강남제일병원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00035-diagnosis",
+     "field": "diagnosis_date",
+     "got": null,
+     "truth": "2026-10-08",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00039-diagnosis",
+     "field": "diagnosis_code",
+     "got": null,
+     "truth": "D05.1",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00039-diagnosis",
+     "field": "diagnosis_date",
+     "got": null,
+     "truth": "2026-10-25",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00043-receipt",
+     "field": "hospital",
+     "got": "푸르내과의원",
+     "truth": "푸른내과의원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00045-diagnosis",
+     "field": "diagnosis_date",
+     "got": null,
+     "truth": "2026-09-07",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00045-diagnosis",
+     "field": "admission_date",
+     "got": null,
+     "truth": "2026-09-06",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00045-receipt",
+     "field": "hospital",
+     "got": "하빛의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00047-diagnosis",
+     "field": "admission_date",
+     "got": null,
+     "truth": "2026-09-22",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00049-receipt",
+     "field": "hospital",
+     "got": "서 울 여한벽워",
+     "truth": "서울연합병원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00051-diagnosis",
+     "field": "discharge_date",
+     "got": null,
+     "truth": "2026-08-10",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00059-receipt",
+     "field": "hospital",
+     "got": "하이료위",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00065-diagnosis",
+     "field": "hospital",
+     "got": "한빚의료원",
+     "truth": "한빛의료원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00067-diagnosis",
+     "field": "diagnosis_code",
+     "got": null,
+     "truth": "C44.9",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00069-diagnosis",
+     "field": "diagnosis_date",
+     "got": null,
+     "truth": "2027-02-13",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00075-receipt",
+     "field": "insured_name",
+     "got": "수아",
+     "truth": "강수아",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00081-diagnosis",
+     "field": "diagnosis_name",
+     "got": "위의 악성신생",
+     "truth": "위의 악성신생물",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00081-diagnosis",
+     "field": "diagnosis_date",
+     "got": null,
+     "truth": "2025-11-21",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00081-receipt",
+     "field": "insured_name",
+     "got": "수아",
+     "truth": "강수아",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00083-diagnosis",
+     "field": "discharge_date",
+     "got": null,
+     "truth": "2026-01-07",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00083-diagnosis",
+     "field": "hospital",
+     "got": "푸론내과의원",
+     "truth": "푸른내과의원",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00089-diagnosis",
+     "field": "diagnosis_name",
+     "got": "위의 악성신생울",
+     "truth": "위의 악성신생물",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00099-diagnosis",
+     "field": "insured_name",
+     "got": "수아",
+     "truth": "강수아",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00105-receipt",
+     "field": "insured_name",
+     "got": null,
+     "truth": "조도윤",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00111-diagnosis",
+     "field": "diagnosis_date",
+     "got": null,
+     "truth": "2026-05-29",
+     "kind": "missing"
+    },
+    {
+     "doc_id": "CLM-00113-receipt",
+     "field": "insured_name",
+     "got": "져 변",
+     "truth": "이서연",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00119-diagnosis",
+     "field": "diagnosis_name",
+     "got": "유방의 악성선생물",
+     "truth": "유방의 악성신생물",
+     "kind": "wrong"
+    },
+    {
+     "doc_id": "CLM-00119-receipt",
+     "field": "hospital",
+     "got": "강남제잎병원",
+     "truth": "강남제일병원",
+     "kind": "wrong"
+    }
+   ],
+   "pages": [
+    {
+     "doc_id": "CLM-00001-diagnosis",
+     "vendor": {
+      "insured_name": "이수아",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "121.9",
+      "diagnosis_date": "2025-12-30",
+      "admission_date": "2025-12-30",
+      "discharge_date": "2026-01-01",
+      "hospital": "서울연합병원"
+     },
+     "grid_reader": {
+      "insured_name": "이수아",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "R19",
+      "diagnosis_date": "2025-12-30",
+      "admission_date": "2025-12-30",
+      "discharge_date": "2026-01-01",
+      "hospital": "서울연합병원"
+     },
+     "truth": {
+      "insured_name": "이수아",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2025-12-30",
+      "admission_date": "2025-12-30",
+      "discharge_date": "2026-01-01",
+      "hospital": "서울연합병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 9537.9,
+      "usage": {
+       "prompt_tokens": 1922,
+       "completion_tokens": 76,
+       "total_tokens": 1998
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00001-receipt",
+     "vendor": {
+      "insured_name": "이수아",
+      "hospital": "서울연합병원",
+      "total_amount": 595890
+     },
+     "grid_reader": {
+      "insured_name": "이 수아",
+      "hospital": "서울연합병원",
+      "total_amount": 595890
+     },
+     "truth": {
+      "insured_name": "이수아",
+      "hospital": "서울연합병원",
+      "total_amount": 595890
+     },
+     "vendor_meta": {
+      "latency_ms": 7114.4,
+      "usage": {
+       "prompt_tokens": 2250,
+       "completion_tokens": 29,
+       "total_tokens": 2279
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00003-receipt",
+     "vendor": {
+      "insured_name": "장도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 1921612
+     },
+     "grid_reader": {
+      "insured_name": "장도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 1921612
+     },
+     "truth": {
+      "insured_name": "장도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 1921612
+     },
+     "vendor_meta": {
+      "latency_ms": 10132.1,
+      "usage": {
+       "prompt_tokens": 2304,
+       "completion_tokens": 30,
+       "total_tokens": 2334
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00005-diagnosis",
+     "vendor": {
+      "insured_name": "이도윤",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-06-04",
+      "admission_date": "2025-06-03",
+      "discharge_date": "2025-06-12",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "이도윤",
+      "diagnosis_name": "유방의악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": null,
+      "admission_date": "2025-06-03",
+      "discharge_date": "2025-06-12",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "이도윤",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-06-04",
+      "admission_date": "2025-06-03",
+      "discharge_date": "2025-06-12",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 8102.8,
+      "usage": {
+       "prompt_tokens": 1928,
+       "completion_tokens": 79,
+       "total_tokens": 2007
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00005-receipt",
+     "vendor": {
+      "insured_name": "이도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 2851551
+     },
+     "grid_reader": {
+      "insured_name": "이도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 2851551
+     },
+     "truth": {
+      "insured_name": "이도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 2851551
+     },
+     "vendor_meta": {
+      "latency_ms": 9140.9,
+      "usage": {
+       "prompt_tokens": 2270,
+       "completion_tokens": 30,
+       "total_tokens": 2300
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00007-diagnosis",
+     "vendor": {
+      "insured_name": "이예은",
+      "diagnosis_name": "뇌경색증",
+      "diagnosis_code": "I63.9",
+      "diagnosis_date": "2026-12-02",
+      "admission_date": "2026-12-01",
+      "discharge_date": "2026-12-10",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "이예은",
+      "diagnosis_name": "뇌경색증",
+      "diagnosis_code": "I63.9",
+      "diagnosis_date": "2026-12-02",
+      "admission_date": "2026-12-01",
+      "discharge_date": "2026-12-10",
+      "hospital": "한빚의료원"
+     },
+     "truth": {
+      "insured_name": "이예은",
+      "diagnosis_name": "뇌경색증",
+      "diagnosis_code": "I63.9",
+      "diagnosis_date": "2026-12-02",
+      "admission_date": "2026-12-01",
+      "discharge_date": "2026-12-10",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 7202.0,
+      "usage": {
+       "prompt_tokens": 1909,
+       "completion_tokens": 76,
+       "total_tokens": 1985
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00007-receipt",
+     "vendor": {
+      "insured_name": "이예은",
+      "hospital": "한빛의료원",
+      "total_amount": 2547936
+     },
+     "grid_reader": {
+      "insured_name": "이예온",
+      "hospital": "한빛의료원",
+      "total_amount": 2547936
+     },
+     "truth": {
+      "insured_name": "이예은",
+      "hospital": "한빛의료원",
+      "total_amount": 2547936
+     },
+     "vendor_meta": {
+      "latency_ms": 7235.7,
+      "usage": {
+       "prompt_tokens": 2283,
+       "completion_tokens": 30,
+       "total_tokens": 2313
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00009-diagnosis",
+     "vendor": {
+      "insured_name": "조도윤",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2027-01-23",
+      "admission_date": "2027-01-22",
+      "discharge_date": "2027-02-23",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "조도윤",
+      "diagnosis_name": "유방의악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2027-01-23",
+      "admission_date": "2027-01-22",
+      "discharge_date": "2027-02-23",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "조도윤",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2027-01-23",
+      "admission_date": "2027-01-22",
+      "discharge_date": "2027-02-23",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6977.9,
+      "usage": {
+       "prompt_tokens": 1921,
+       "completion_tokens": 79,
+       "total_tokens": 2000
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00009-receipt",
+     "vendor": {
+      "insured_name": "조도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 5282560
+     },
+     "grid_reader": {
+      "insured_name": "조도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 5282560
+     },
+     "truth": {
+      "insured_name": "조도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 5282560
+     },
+     "vendor_meta": {
+      "latency_ms": 6063.7,
+      "usage": {
+       "prompt_tokens": 2301,
+       "completion_tokens": 30,
+       "total_tokens": 2331
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00011-diagnosis",
+     "vendor": {
+      "insured_name": "김지호",
+      "diagnosis_name": "급성 충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2025-12-31",
+      "admission_date": "2025-12-30",
+      "discharge_date": "2026-01-10",
+      "hospital": "미래대학교병원"
+     },
+     "grid_reader": {
+      "insured_name": "김지호",
+      "diagnosis_name": "금성충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": null,
+      "admission_date": "2025-12-30",
+      "discharge_date": "2026-01-10",
+      "hospital": "미래대학교병원"
+     },
+     "truth": {
+      "insured_name": "김지호",
+      "diagnosis_name": "급성 충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2025-12-31",
+      "admission_date": "2025-12-30",
+      "discharge_date": "2026-01-10",
+      "hospital": "미래대학교병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 7236.2,
+      "usage": {
+       "prompt_tokens": 1917,
+       "completion_tokens": 76,
+       "total_tokens": 1993
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00011-receipt",
+     "vendor": {
+      "insured_name": "김지호",
+      "hospital": "미래대학교병원",
+      "total_amount": 5083558
+     },
+     "grid_reader": {
+      "insured_name": "김지호",
+      "hospital": "미 래대학교 워",
+      "total_amount": 5083558
+     },
+     "truth": {
+      "insured_name": "김지호",
+      "hospital": "미래대학교병원",
+      "total_amount": 5083558
+     },
+     "vendor_meta": {
+      "latency_ms": 11173.6,
+      "usage": {
+       "prompt_tokens": 2299,
+       "completion_tokens": 30,
+       "total_tokens": 2329
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00013-receipt",
+     "vendor": {
+      "insured_name": "윤예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 170308
+     },
+     "grid_reader": {
+      "insured_name": "윤 예",
+      "hospital": "푸 른내과의원",
+      "total_amount": 170308
+     },
+     "truth": {
+      "insured_name": "윤예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 170308
+     },
+     "vendor_meta": {
+      "latency_ms": 9421.5,
+      "usage": {
+       "prompt_tokens": 2254,
+       "completion_tokens": 30,
+       "total_tokens": 2284
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00015-receipt",
+     "vendor": {
+      "insured_name": "강지우",
+      "hospital": "강남제일병원",
+      "total_amount": 1517976
+     },
+     "grid_reader": {
+      "insured_name": "강지우",
+      "hospital": "강남제일병원",
+      "total_amount": 1517976
+     },
+     "truth": {
+      "insured_name": "강지우",
+      "hospital": "강남제일병원",
+      "total_amount": 1517976
+     },
+     "vendor_meta": {
+      "latency_ms": 7264.8,
+      "usage": {
+       "prompt_tokens": 2276,
+       "completion_tokens": 31,
+       "total_tokens": 2307
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00017-diagnosis",
+     "vendor": {
+      "insured_name": "윤도윤",
+      "diagnosis_name": "심방중격결손",
+      "diagnosis_code": "Q21.1",
+      "diagnosis_date": "2026-01-11",
+      "admission_date": "2026-01-11",
+      "discharge_date": "2026-01-15",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "윤도윤",
+      "diagnosis_name": "심방중격결손",
+      "diagnosis_code": "Q21.1",
+      "diagnosis_date": "2026-01-11",
+      "admission_date": "2026-01-11",
+      "discharge_date": null,
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "윤도윤",
+      "diagnosis_name": "심방중격결손",
+      "diagnosis_code": "Q21.1",
+      "diagnosis_date": "2026-01-11",
+      "admission_date": "2026-01-11",
+      "discharge_date": "2026-01-15",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 7265.9,
+      "usage": {
+       "prompt_tokens": 1923,
+       "completion_tokens": 77,
+       "total_tokens": 2000
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00017-receipt",
+     "vendor": {
+      "insured_name": "윤도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 3040352
+     },
+     "grid_reader": {
+      "insured_name": "은도을",
+      "hospital": "하빛의료워",
+      "total_amount": 3040352
+     },
+     "truth": {
+      "insured_name": "윤도윤",
+      "hospital": "한빛의료원",
+      "total_amount": 3040352
+     },
+     "vendor_meta": {
+      "latency_ms": 13681.9,
+      "usage": {
+       "prompt_tokens": 2269,
+       "completion_tokens": 30,
+       "total_tokens": 2299
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00019-diagnosis",
+     "vendor": {
+      "insured_name": "강하은",
+      "diagnosis_name": "급성 충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2026-07-27",
+      "admission_date": "2026-07-27",
+      "discharge_date": "2026-08-03",
+      "hospital": "미래대학교병원"
+     },
+     "grid_reader": {
+      "insured_name": "강하은",
+      "diagnosis_name": "급성충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": null,
+      "admission_date": "2026-07-27",
+      "discharge_date": "2026-08-03",
+      "hospital": "미래대학교병원"
+     },
+     "truth": {
+      "insured_name": "강하은",
+      "diagnosis_name": "급성 충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2026-07-27",
+      "admission_date": "2026-07-27",
+      "discharge_date": "2026-08-03",
+      "hospital": "미래대학교병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 12358.5,
+      "usage": {
+       "prompt_tokens": 1929,
+       "completion_tokens": 76,
+       "total_tokens": 2005
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00019-receipt",
+     "vendor": {
+      "insured_name": "강하은",
+      "hospital": "미래대학교병원",
+      "total_amount": 4012615
+     },
+     "grid_reader": {
+      "insured_name": null,
+      "hospital": "미래대학교병원",
+      "total_amount": 4012615
+     },
+     "truth": {
+      "insured_name": "강하은",
+      "hospital": "미래대학교병원",
+      "total_amount": 4012615
+     },
+     "vendor_meta": {
+      "latency_ms": 12400.7,
+      "usage": {
+       "prompt_tokens": 2294,
+       "completion_tokens": 30,
+       "total_tokens": 2324
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00021-receipt",
+     "vendor": {
+      "insured_name": "강예은",
+      "hospital": "서울연합병원",
+      "total_amount": 1739164
+     },
+     "grid_reader": {
+      "insured_name": "강예은",
+      "hospital": "서울연함병원",
+      "total_amount": 1739164
+     },
+     "truth": {
+      "insured_name": "강예은",
+      "hospital": "서울연합병원",
+      "total_amount": 1739164
+     },
+     "vendor_meta": {
+      "latency_ms": 7328.7,
+      "usage": {
+       "prompt_tokens": 2281,
+       "completion_tokens": 30,
+       "total_tokens": 2311
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00023-receipt",
+     "vendor": {
+      "insured_name": "이도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 1011080
+     },
+     "grid_reader": {
+      "insured_name": "이도윤",
+      "hospital": "간남제일 병",
+      "total_amount": 1011080
+     },
+     "truth": {
+      "insured_name": "이도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 1011080
+     },
+     "vendor_meta": {
+      "latency_ms": 6130.5,
+      "usage": {
+       "prompt_tokens": 2310,
+       "completion_tokens": 31,
+       "total_tokens": 2341
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00025-receipt",
+     "vendor": {
+      "insured_name": "김예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 3493127
+     },
+     "grid_reader": {
+      "insured_name": "김예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 3493127
+     },
+     "truth": {
+      "insured_name": "김예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 3493127
+     },
+     "vendor_meta": {
+      "latency_ms": 6304.4,
+      "usage": {
+       "prompt_tokens": 2280,
+       "completion_tokens": 31,
+       "total_tokens": 2311
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00027-diagnosis",
+     "vendor": {
+      "insured_name": "김현우",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-08-24",
+      "admission_date": "2025-08-23",
+      "discharge_date": "2025-09-03",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "김현우",
+      "diagnosis_name": "위의 악성신생몰",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-08-24",
+      "admission_date": null,
+      "discharge_date": "2025-09-03",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "김현우",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-08-24",
+      "admission_date": "2025-08-23",
+      "discharge_date": "2025-09-03",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6269.8,
+      "usage": {
+       "prompt_tokens": 1923,
+       "completion_tokens": 79,
+       "total_tokens": 2002
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00027-receipt",
+     "vendor": {
+      "insured_name": "김현우",
+      "hospital": "강남제일병원",
+      "total_amount": 3521518
+     },
+     "grid_reader": {
+      "insured_name": "김현우",
+      "hospital": "강남제일병원",
+      "total_amount": 3521518
+     },
+     "truth": {
+      "insured_name": "김현우",
+      "hospital": "강남제일병원",
+      "total_amount": 3521518
+     },
+     "vendor_meta": {
+      "latency_ms": 8636.4,
+      "usage": {
+       "prompt_tokens": 2276,
+       "completion_tokens": 31,
+       "total_tokens": 2307
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00029-diagnosis",
+     "vendor": {
+      "insured_name": "정서연",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2025-12-12",
+      "admission_date": "2025-12-12",
+      "discharge_date": "2025-12-21",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "정서연",
+      "diagnosis_name": "급성심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2025-12-12",
+      "admission_date": null,
+      "discharge_date": "2025-12-21",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "정서연",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2025-12-12",
+      "admission_date": "2025-12-12",
+      "discharge_date": "2025-12-21",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6708.0,
+      "usage": {
+       "prompt_tokens": 1922,
+       "completion_tokens": 78,
+       "total_tokens": 2000
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00029-receipt",
+     "vendor": {
+      "insured_name": "정서연",
+      "hospital": "강남제일병원",
+      "total_amount": 4113870
+     },
+     "grid_reader": {
+      "insured_name": "정처연",
+      "hospital": "강남제일병원",
+      "total_amount": 4113870
+     },
+     "truth": {
+      "insured_name": "정서연",
+      "hospital": "강남제일병원",
+      "total_amount": 4113870
+     },
+     "vendor_meta": {
+      "latency_ms": 7479.4,
+      "usage": {
+       "prompt_tokens": 2306,
+       "completion_tokens": 31,
+       "total_tokens": 2337
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00031-diagnosis",
+     "vendor": {
+      "insured_name": "정서연",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-10-28",
+      "admission_date": "2026-10-27",
+      "discharge_date": "2026-12-19",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "정서연",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-10-28",
+      "admission_date": "2026-10-27",
+      "discharge_date": "2026-12-19",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "정서연",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-10-28",
+      "admission_date": "2026-10-27",
+      "discharge_date": "2026-12-19",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 7155.9,
+      "usage": {
+       "prompt_tokens": 1925,
+       "completion_tokens": 79,
+       "total_tokens": 2004
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00031-receipt",
+     "vendor": {
+      "insured_name": "정서연",
+      "hospital": "강남제일병원",
+      "total_amount": 9068088
+     },
+     "grid_reader": {
+      "insured_name": "정서연",
+      "hospital": "강 남체 일 병원",
+      "total_amount": 9068088
+     },
+     "truth": {
+      "insured_name": "정서연",
+      "hospital": "강남제일병원",
+      "total_amount": 9068088
+     },
+     "vendor_meta": {
+      "latency_ms": 7229.9,
+      "usage": {
+       "prompt_tokens": 2273,
+       "completion_tokens": 31,
+       "total_tokens": 2304
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00033-diagnosis",
+     "vendor": {
+      "insured_name": "이도윤",
+      "diagnosis_name": "급성 충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2025-12-24",
+      "admission_date": "2025-12-23",
+      "discharge_date": "2025-12-27",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "이도윤",
+      "diagnosis_name": "급성충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2025-12-24",
+      "admission_date": "2025-12-23",
+      "discharge_date": "2025-12-27",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "이도윤",
+      "diagnosis_name": "급성 충수염",
+      "diagnosis_code": "K35.8",
+      "diagnosis_date": "2025-12-24",
+      "admission_date": "2025-12-23",
+      "discharge_date": "2025-12-27",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6954.8,
+      "usage": {
+       "prompt_tokens": 1920,
+       "completion_tokens": 77,
+       "total_tokens": 1997
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00033-receipt",
+     "vendor": {
+      "insured_name": "이도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 2452860
+     },
+     "grid_reader": {
+      "insured_name": "이도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 2452860
+     },
+     "truth": {
+      "insured_name": "이도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 2452860
+     },
+     "vendor_meta": {
+      "latency_ms": 7415.3,
+      "usage": {
+       "prompt_tokens": 2257,
+       "completion_tokens": 31,
+       "total_tokens": 2288
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00035-diagnosis",
+     "vendor": {
+      "insured_name": "이지우",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-10-08",
+      "admission_date": "2026-10-08",
+      "discharge_date": "2026-11-23",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "이지우",
+      "diagnosis_name": "위의악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": null,
+      "admission_date": "2026-10-08",
+      "discharge_date": "2026-11-23",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "이지우",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-10-08",
+      "admission_date": "2026-10-08",
+      "discharge_date": "2026-11-23",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6419.1,
+      "usage": {
+       "prompt_tokens": 1909,
+       "completion_tokens": 77,
+       "total_tokens": 1986
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00035-receipt",
+     "vendor": {
+      "insured_name": "이지우",
+      "hospital": "한빛의료원",
+      "total_amount": 19059534
+     },
+     "grid_reader": {
+      "insured_name": "이지우",
+      "hospital": "한빛의료원",
+      "total_amount": 19059534
+     },
+     "truth": {
+      "insured_name": "이지우",
+      "hospital": "한빛의료원",
+      "total_amount": 19059534
+     },
+     "vendor_meta": {
+      "latency_ms": 6376.0,
+      "usage": {
+       "prompt_tokens": 2260,
+       "completion_tokens": 29,
+       "total_tokens": 2289
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00037-receipt",
+     "vendor": {
+      "insured_name": "임하은",
+      "hospital": "강남제일병원",
+      "total_amount": 4230061
+     },
+     "grid_reader": {
+      "insured_name": "임하은",
+      "hospital": "강남제일병원",
+      "total_amount": 4230061
+     },
+     "truth": {
+      "insured_name": "임하은",
+      "hospital": "강남제일병원",
+      "total_amount": 4230061
+     },
+     "vendor_meta": {
+      "latency_ms": 6273.7,
+      "usage": {
+       "prompt_tokens": 2295,
+       "completion_tokens": 31,
+       "total_tokens": 2326
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00039-diagnosis",
+     "vendor": {
+      "insured_name": "장지호",
+      "diagnosis_name": "급성 충수염",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-10-25",
+      "admission_date": "2026-10-24",
+      "discharge_date": "2026-11-05",
+      "hospital": "미래대학교병원"
+     },
+     "grid_reader": {
+      "insured_name": "장지호",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": null,
+      "diagnosis_date": null,
+      "admission_date": "2026-10-24",
+      "discharge_date": "2026-11-05",
+      "hospital": "미래대학교병원"
+     },
+     "truth": {
+      "insured_name": "장지호",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-10-25",
+      "admission_date": "2026-10-24",
+      "discharge_date": "2026-11-05",
+      "hospital": "미래대학교병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6597.1,
+      "usage": {
+       "prompt_tokens": 1926,
+       "completion_tokens": 76,
+       "total_tokens": 2002
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00039-receipt",
+     "vendor": {
+      "insured_name": "장지호",
+      "hospital": "미래대학교병원",
+      "total_amount": 3962532
+     },
+     "grid_reader": {
+      "insured_name": "장 지 호",
+      "hospital": "미래대학교병원",
+      "total_amount": 3962532
+     },
+     "truth": {
+      "insured_name": "장지호",
+      "hospital": "미래대학교병원",
+      "total_amount": 3962532
+     },
+     "vendor_meta": {
+      "latency_ms": 8334.4,
+      "usage": {
+       "prompt_tokens": 2261,
+       "completion_tokens": 30,
+       "total_tokens": 2291
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00041-receipt",
+     "vendor": {
+      "insured_name": "윤하은",
+      "hospital": "푸른내과의원",
+      "total_amount": 818019
+     },
+     "grid_reader": {
+      "insured_name": "윤하은",
+      "hospital": "푸른내과의원",
+      "total_amount": 818019
+     },
+     "truth": {
+      "insured_name": "윤하은",
+      "hospital": "푸른내과의원",
+      "total_amount": 818019
+     },
+     "vendor_meta": {
+      "latency_ms": 8287.2,
+      "usage": {
+       "prompt_tokens": 2256,
+       "completion_tokens": 30,
+       "total_tokens": 2286
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00043-diagnosis",
+     "vendor": {
+      "insured_name": "이서준",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-04-01",
+      "admission_date": "2026-03-31",
+      "discharge_date": "2026-04-01",
+      "hospital": "푸른내과의원"
+     },
+     "grid_reader": {
+      "insured_name": "이서준",
+      "diagnosis_name": "위의악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-04-01",
+      "admission_date": "2026-03-31",
+      "discharge_date": "2026-04-01",
+      "hospital": "푸른내과의원"
+     },
+     "truth": {
+      "insured_name": "이서준",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-04-01",
+      "admission_date": "2026-03-31",
+      "discharge_date": "2026-04-01",
+      "hospital": "푸른내과의원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6301.3,
+      "usage": {
+       "prompt_tokens": 1926,
+       "completion_tokens": 79,
+       "total_tokens": 2005
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00043-receipt",
+     "vendor": {
+      "insured_name": "이서준",
+      "hospital": "푸른내과의원",
+      "total_amount": 1792973
+     },
+     "grid_reader": {
+      "insured_name": "이 서준",
+      "hospital": "푸르내과의원",
+      "total_amount": 1792973
+     },
+     "truth": {
+      "insured_name": "이서준",
+      "hospital": "푸른내과의원",
+      "total_amount": 1792973
+     },
+     "vendor_meta": {
+      "latency_ms": 6993.4,
+      "usage": {
+       "prompt_tokens": 2246,
+       "completion_tokens": 31,
+       "total_tokens": 2277
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00045-diagnosis",
+     "vendor": {
+      "insured_name": "이하은",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2026-09-07",
+      "admission_date": "2026-09-06",
+      "discharge_date": "2026-09-10",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "이하은",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": null,
+      "admission_date": null,
+      "discharge_date": "2026-09-10",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "이하은",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2026-09-07",
+      "admission_date": "2026-09-06",
+      "discharge_date": "2026-09-10",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6599.8,
+      "usage": {
+       "prompt_tokens": 1935,
+       "completion_tokens": 76,
+       "total_tokens": 2011
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00045-receipt",
+     "vendor": {
+      "insured_name": "이하은",
+      "hospital": "한빛의료원",
+      "total_amount": 2880356
+     },
+     "grid_reader": {
+      "insured_name": "이하은",
+      "hospital": "하빛의료원",
+      "total_amount": 2880356
+     },
+     "truth": {
+      "insured_name": "이하은",
+      "hospital": "한빛의료원",
+      "total_amount": 2880356
+     },
+     "vendor_meta": {
+      "latency_ms": 6225.1,
+      "usage": {
+       "prompt_tokens": 2280,
+       "completion_tokens": 30,
+       "total_tokens": 2310
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00047-diagnosis",
+     "vendor": {
+      "insured_name": "정현우",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-09-23",
+      "admission_date": "2026-09-22",
+      "discharge_date": "2026-09-30",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "정현우",
+      "diagnosis_name": "유방상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-09-23",
+      "admission_date": null,
+      "discharge_date": "2026-09-30",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "정현우",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-09-23",
+      "admission_date": "2026-09-22",
+      "discharge_date": "2026-09-30",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6718.9,
+      "usage": {
+       "prompt_tokens": 1924,
+       "completion_tokens": 78,
+       "total_tokens": 2002
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00047-receipt",
+     "vendor": {
+      "insured_name": "정현우",
+      "hospital": "한빛의료원",
+      "total_amount": 1620328
+     },
+     "grid_reader": {
+      "insured_name": "정현우",
+      "hospital": "한빛의료원",
+      "total_amount": 1620328
+     },
+     "truth": {
+      "insured_name": "정현우",
+      "hospital": "한빛의료원",
+      "total_amount": 1620328
+     },
+     "vendor_meta": {
+      "latency_ms": 6384.0,
+      "usage": {
+       "prompt_tokens": 2253,
+       "completion_tokens": 30,
+       "total_tokens": 2283
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00049-receipt",
+     "vendor": {
+      "insured_name": "임수아",
+      "hospital": "서울연합병원",
+      "total_amount": 1732664
+     },
+     "grid_reader": {
+      "insured_name": "임 수아",
+      "hospital": "서 울 여한벽워",
+      "total_amount": 1732664
+     },
+     "truth": {
+      "insured_name": "임수아",
+      "hospital": "서울연합병원",
+      "total_amount": 1732664
+     },
+     "vendor_meta": {
+      "latency_ms": 6171.9,
+      "usage": {
+       "prompt_tokens": 2285,
+       "completion_tokens": 30,
+       "total_tokens": 2315
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00051-diagnosis",
+     "vendor": {
+      "insured_name": "조서연",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-08-07",
+      "admission_date": "2026-08-07",
+      "discharge_date": "2026-08-10",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "조서연",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-08-07",
+      "admission_date": "2026-08-07",
+      "discharge_date": null,
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "조서연",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-08-07",
+      "admission_date": "2026-08-07",
+      "discharge_date": "2026-08-10",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6450.6,
+      "usage": {
+       "prompt_tokens": 1927,
+       "completion_tokens": 78,
+       "total_tokens": 2005
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00051-receipt",
+     "vendor": {
+      "insured_name": "조서연",
+      "hospital": "한빛의료원",
+      "total_amount": 817968
+     },
+     "grid_reader": {
+      "insured_name": "조서연",
+      "hospital": "한빛의료원",
+      "total_amount": 817968
+     },
+     "truth": {
+      "insured_name": "조서연",
+      "hospital": "한빛의료원",
+      "total_amount": 817968
+     },
+     "vendor_meta": {
+      "latency_ms": 7083.5,
+      "usage": {
+       "prompt_tokens": 2312,
+       "completion_tokens": 29,
+       "total_tokens": 2341
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00053-diagnosis",
+     "vendor": {
+      "insured_name": "박예은",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2026-01-29",
+      "admission_date": "2026-01-28",
+      "discharge_date": "2026-02-01",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "박예은",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2026-01-29",
+      "admission_date": "2026-01-28",
+      "discharge_date": "2026-02-01",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "박예은",
+      "diagnosis_name": "급성 심근경색",
+      "diagnosis_code": "I21.9",
+      "diagnosis_date": "2026-01-29",
+      "admission_date": "2026-01-28",
+      "discharge_date": "2026-02-01",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6454.0,
+      "usage": {
+       "prompt_tokens": 1922,
+       "completion_tokens": 77,
+       "total_tokens": 1999
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00053-receipt",
+     "vendor": {
+      "insured_name": "박예은",
+      "hospital": "한빛의료원",
+      "total_amount": 2289460
+     },
+     "grid_reader": {
+      "insured_name": "박예은",
+      "hospital": "한빛의료원",
+      "total_amount": 2289460
+     },
+     "truth": {
+      "insured_name": "박예은",
+      "hospital": "한빛의료원",
+      "total_amount": 2289460
+     },
+     "vendor_meta": {
+      "latency_ms": 7322.8,
+      "usage": {
+       "prompt_tokens": 2286,
+       "completion_tokens": 30,
+       "total_tokens": 2316
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00055-receipt",
+     "vendor": {
+      "insured_name": "윤수아",
+      "hospital": "한빛의료원",
+      "total_amount": 1127187
+     },
+     "grid_reader": {
+      "insured_name": "윤 수 아",
+      "hospital": "한빛의료원",
+      "total_amount": 1127187
+     },
+     "truth": {
+      "insured_name": "윤수아",
+      "hospital": "한빛의료원",
+      "total_amount": 1127187
+     },
+     "vendor_meta": {
+      "latency_ms": 7118.3,
+      "usage": {
+       "prompt_tokens": 2315,
+       "completion_tokens": 30,
+       "total_tokens": 2345
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00057-receipt",
+     "vendor": {
+      "insured_name": "이도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 1549296
+     },
+     "grid_reader": {
+      "insured_name": "이도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 1549296
+     },
+     "truth": {
+      "insured_name": "이도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 1549296
+     },
+     "vendor_meta": {
+      "latency_ms": 7142.2,
+      "usage": {
+       "prompt_tokens": 2273,
+       "completion_tokens": 31,
+       "total_tokens": 2304
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00059-receipt",
+     "vendor": {
+      "insured_name": "강예은",
+      "hospital": "한빛의료원",
+      "total_amount": 4008312
+     },
+     "grid_reader": {
+      "insured_name": "강예은",
+      "hospital": "하이료위",
+      "total_amount": 4008312
+     },
+     "truth": {
+      "insured_name": "강예은",
+      "hospital": "한빛의료원",
+      "total_amount": 4008312
+     },
+     "vendor_meta": {
+      "latency_ms": 6399.6,
+      "usage": {
+       "prompt_tokens": 2283,
+       "completion_tokens": 30,
+       "total_tokens": 2313
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00061-diagnosis",
+     "vendor": {
+      "insured_name": "정현우",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2027-04-30",
+      "admission_date": "2027-04-29",
+      "discharge_date": "2027-05-08",
+      "hospital": "미래대학교병원"
+     },
+     "grid_reader": {
+      "insured_name": "정현우",
+      "diagnosis_name": "경골원위부골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2027-04-30",
+      "admission_date": "2027-04-29",
+      "discharge_date": "2027-05-08",
+      "hospital": "미래대학교병원"
+     },
+     "truth": {
+      "insured_name": "정현우",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2027-04-30",
+      "admission_date": "2027-04-29",
+      "discharge_date": "2027-05-08",
+      "hospital": "미래대학교병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6546.7,
+      "usage": {
+       "prompt_tokens": 1933,
+       "completion_tokens": 78,
+       "total_tokens": 2011
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00061-receipt",
+     "vendor": {
+      "insured_name": "정현우",
+      "hospital": "미래대학교병원",
+      "total_amount": 3945291
+     },
+     "grid_reader": {
+      "insured_name": "정현우",
+      "hospital": "미래대학교병원",
+      "total_amount": 3945291
+     },
+     "truth": {
+      "insured_name": "정현우",
+      "hospital": "미래대학교병원",
+      "total_amount": 3945291
+     },
+     "vendor_meta": {
+      "latency_ms": 6525.4,
+      "usage": {
+       "prompt_tokens": 2295,
+       "completion_tokens": 30,
+       "total_tokens": 2325
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00063-diagnosis",
+     "vendor": {
+      "insured_name": "조수아",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2025-10-19",
+      "admission_date": "2025-10-19",
+      "discharge_date": "2025-10-20",
+      "hospital": "푸른내과의원"
+     },
+     "grid_reader": {
+      "insured_name": "조수아",
+      "diagnosis_name": "경골원위부골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2025-10-19",
+      "admission_date": "2025-10-19",
+      "discharge_date": "2025-10-20",
+      "hospital": "푸른내과의원"
+     },
+     "truth": {
+      "insured_name": "조수아",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2025-10-19",
+      "admission_date": "2025-10-19",
+      "discharge_date": "2025-10-20",
+      "hospital": "푸른내과의원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6482.1,
+      "usage": {
+       "prompt_tokens": 1927,
+       "completion_tokens": 79,
+       "total_tokens": 2006
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00063-receipt",
+     "vendor": {
+      "insured_name": "조수아",
+      "hospital": "푸른내과의원",
+      "total_amount": 1694704
+     },
+     "grid_reader": {
+      "insured_name": "조수아",
+      "hospital": "푸른내과의원",
+      "total_amount": 1694704
+     },
+     "truth": {
+      "insured_name": "조수아",
+      "hospital": "푸른내과의원",
+      "total_amount": 1694704
+     },
+     "vendor_meta": {
+      "latency_ms": 7211.0,
+      "usage": {
+       "prompt_tokens": 2258,
+       "completion_tokens": 31,
+       "total_tokens": 2289
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00065-diagnosis",
+     "vendor": {
+      "insured_name": "최예은",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-02-19",
+      "admission_date": "2026-02-19",
+      "discharge_date": "2026-02-22",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "최예은",
+      "diagnosis_name": "위의악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-02-19",
+      "admission_date": "2026-02-19",
+      "discharge_date": "2026-02-22",
+      "hospital": "한빚의료원"
+     },
+     "truth": {
+      "insured_name": "최예은",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2026-02-19",
+      "admission_date": "2026-02-19",
+      "discharge_date": "2026-02-22",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6435.2,
+      "usage": {
+       "prompt_tokens": 1936,
+       "completion_tokens": 78,
+       "total_tokens": 2014
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00065-receipt",
+     "vendor": {
+      "insured_name": "최예은",
+      "hospital": "한빛의료원",
+      "total_amount": 1005117
+     },
+     "grid_reader": {
+      "insured_name": "최예은",
+      "hospital": "한빛 의료원",
+      "total_amount": 1005117
+     },
+     "truth": {
+      "insured_name": "최예은",
+      "hospital": "한빛의료원",
+      "total_amount": 1005117
+     },
+     "vendor_meta": {
+      "latency_ms": 7503.5,
+      "usage": {
+       "prompt_tokens": 2255,
+       "completion_tokens": 30,
+       "total_tokens": 2285
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00067-diagnosis",
+     "vendor": {
+      "insured_name": "박도윤",
+      "diagnosis_name": "피부의 악성신생물",
+      "diagnosis_code": "C44.9",
+      "diagnosis_date": "2026-06-05",
+      "admission_date": "2026-06-04",
+      "discharge_date": "2026-06-10",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "박도윤",
+      "diagnosis_name": "피부의 악성신생물",
+      "diagnosis_code": null,
+      "diagnosis_date": "2026-06-05",
+      "admission_date": "2026-06-04",
+      "discharge_date": "2026-06-10",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "박도윤",
+      "diagnosis_name": "피부의 악성신생물",
+      "diagnosis_code": "C44.9",
+      "diagnosis_date": "2026-06-05",
+      "admission_date": "2026-06-04",
+      "discharge_date": "2026-06-10",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6633.2,
+      "usage": {
+       "prompt_tokens": 1926,
+       "completion_tokens": 80,
+       "total_tokens": 2006
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00067-receipt",
+     "vendor": {
+      "insured_name": "박도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 939732
+     },
+     "grid_reader": {
+      "insured_name": "박도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 939732
+     },
+     "truth": {
+      "insured_name": "박도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 939732
+     },
+     "vendor_meta": {
+      "latency_ms": 7360.4,
+      "usage": {
+       "prompt_tokens": 2305,
+       "completion_tokens": 30,
+       "total_tokens": 2335
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00069-diagnosis",
+     "vendor": {
+      "insured_name": "박지호",
+      "diagnosis_name": "서혜부 탈장",
+      "diagnosis_code": "K40.9",
+      "diagnosis_date": "2027-02-13",
+      "admission_date": "2027-02-13",
+      "discharge_date": "2027-02-17",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "박지호",
+      "diagnosis_name": "서 혜부 탈장",
+      "diagnosis_code": "K40.9",
+      "diagnosis_date": null,
+      "admission_date": "2027-02-13",
+      "discharge_date": "2027-02-17",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "박지호",
+      "diagnosis_name": "서혜부 탈장",
+      "diagnosis_code": "K40.9",
+      "diagnosis_date": "2027-02-13",
+      "admission_date": "2027-02-13",
+      "discharge_date": "2027-02-17",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6493.8,
+      "usage": {
+       "prompt_tokens": 1921,
+       "completion_tokens": 77,
+       "total_tokens": 1998
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00069-receipt",
+     "vendor": {
+      "insured_name": "박지호",
+      "hospital": "강남제일병원",
+      "total_amount": 2825116
+     },
+     "grid_reader": {
+      "insured_name": "박지호",
+      "hospital": "강남제일병원",
+      "total_amount": 2825116
+     },
+     "truth": {
+      "insured_name": "박지호",
+      "hospital": "강남제일병원",
+      "total_amount": 2825116
+     },
+     "vendor_meta": {
+      "latency_ms": 6122.4,
+      "usage": {
+       "prompt_tokens": 2259,
+       "completion_tokens": 31,
+       "total_tokens": 2290
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00071-diagnosis",
+     "vendor": {
+      "insured_name": "임서준",
+      "diagnosis_name": "피부의 악성신생물",
+      "diagnosis_code": "C44.9",
+      "diagnosis_date": "2026-07-16",
+      "admission_date": "2026-07-15",
+      "discharge_date": "2026-07-24",
+      "hospital": "미래대학교병원"
+     },
+     "grid_reader": {
+      "insured_name": "임서준",
+      "diagnosis_name": "피부의 악성신생물",
+      "diagnosis_code": "C44.9",
+      "diagnosis_date": "2026-07-16",
+      "admission_date": "2026-07-15",
+      "discharge_date": "2026-07-24",
+      "hospital": "미래대학교병원"
+     },
+     "truth": {
+      "insured_name": "임서준",
+      "diagnosis_name": "피부의 악성신생물",
+      "diagnosis_code": "C44.9",
+      "diagnosis_date": "2026-07-16",
+      "admission_date": "2026-07-15",
+      "discharge_date": "2026-07-24",
+      "hospital": "미래대학교병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6241.4,
+      "usage": {
+       "prompt_tokens": 1924,
+       "completion_tokens": 79,
+       "total_tokens": 2003
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00071-receipt",
+     "vendor": {
+      "insured_name": "임서준",
+      "hospital": "미래대학교병원",
+      "total_amount": 3326661
+     },
+     "grid_reader": {
+      "insured_name": "임 서준",
+      "hospital": "미래대학교 병원",
+      "total_amount": 3326661
+     },
+     "truth": {
+      "insured_name": "임서준",
+      "hospital": "미래대학교병원",
+      "total_amount": 3326661
+     },
+     "vendor_meta": {
+      "latency_ms": 6289.6,
+      "usage": {
+       "prompt_tokens": 2276,
+       "completion_tokens": 30,
+       "total_tokens": 2306
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00073-diagnosis",
+     "vendor": {
+      "insured_name": "임서연",
+      "diagnosis_name": "신장결석",
+      "diagnosis_code": "N20.0",
+      "diagnosis_date": "2026-03-31",
+      "admission_date": "2026-03-30",
+      "discharge_date": "2026-04-09",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "임서연",
+      "diagnosis_name": "신장결석",
+      "diagnosis_code": "N20.0",
+      "diagnosis_date": "2026-03-31",
+      "admission_date": "2026-03-30",
+      "discharge_date": "2026-04-09",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "임서연",
+      "diagnosis_name": "신장결석",
+      "diagnosis_code": "N20.0",
+      "diagnosis_date": "2026-03-31",
+      "admission_date": "2026-03-30",
+      "discharge_date": "2026-04-09",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 7246.5,
+      "usage": {
+       "prompt_tokens": 1918,
+       "completion_tokens": 75,
+       "total_tokens": 1993
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00073-receipt",
+     "vendor": {
+      "insured_name": "임서연",
+      "hospital": "한빛의료원",
+      "total_amount": 4260210
+     },
+     "grid_reader": {
+      "insured_name": "임서연",
+      "hospital": "한빛 의료원",
+      "total_amount": 4260210
+     },
+     "truth": {
+      "insured_name": "임서연",
+      "hospital": "한빛의료원",
+      "total_amount": 4260210
+     },
+     "vendor_meta": {
+      "latency_ms": 6974.9,
+      "usage": {
+       "prompt_tokens": 2312,
+       "completion_tokens": 30,
+       "total_tokens": 2342
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00075-diagnosis",
+     "vendor": {
+      "insured_name": "강수아",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-12-23",
+      "admission_date": "2025-12-22",
+      "discharge_date": "2025-12-26",
+      "hospital": "서울연합병원"
+     },
+     "grid_reader": {
+      "insured_name": "강수아",
+      "diagnosis_name": "유방의악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-12-23",
+      "admission_date": "2025-12-22",
+      "discharge_date": "2025-12-26",
+      "hospital": "서울연합병원"
+     },
+     "truth": {
+      "insured_name": "강수아",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-12-23",
+      "admission_date": "2025-12-22",
+      "discharge_date": "2025-12-26",
+      "hospital": "서울연합병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6735.4,
+      "usage": {
+       "prompt_tokens": 1923,
+       "completion_tokens": 79,
+       "total_tokens": 2002
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00075-receipt",
+     "vendor": {
+      "insured_name": "강수아",
+      "hospital": "서울연합병원",
+      "total_amount": 914496
+     },
+     "grid_reader": {
+      "insured_name": "수아",
+      "hospital": "서울연합병원",
+      "total_amount": 914496
+     },
+     "truth": {
+      "insured_name": "강수아",
+      "hospital": "서울연합병원",
+      "total_amount": 914496
+     },
+     "vendor_meta": {
+      "latency_ms": 7183.6,
+      "usage": {
+       "prompt_tokens": 2291,
+       "completion_tokens": 29,
+       "total_tokens": 2320
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00077-receipt",
+     "vendor": {
+      "insured_name": "이지호",
+      "hospital": "한빛의료원",
+      "total_amount": 3037572
+     },
+     "grid_reader": {
+      "insured_name": "이지호",
+      "hospital": "한빛의료원",
+      "total_amount": 3037572
+     },
+     "truth": {
+      "insured_name": "이지호",
+      "hospital": "한빛의료원",
+      "total_amount": 3037572
+     },
+     "vendor_meta": {
+      "latency_ms": 7083.0,
+      "usage": {
+       "prompt_tokens": 2284,
+       "completion_tokens": 29,
+       "total_tokens": 2313
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00079-diagnosis",
+     "vendor": {
+      "insured_name": "강예은",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-06-10",
+      "admission_date": "2025-06-10",
+      "discharge_date": "2025-06-14",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "강예은",
+      "diagnosis_name": "유방의악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-06-10",
+      "admission_date": "2025-06-10",
+      "discharge_date": "2025-06-14",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "강예은",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2025-06-10",
+      "admission_date": "2025-06-10",
+      "discharge_date": "2025-06-14",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6484.1,
+      "usage": {
+       "prompt_tokens": 1923,
+       "completion_tokens": 80,
+       "total_tokens": 2003
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00079-receipt",
+     "vendor": {
+      "insured_name": "강예은",
+      "hospital": "강남제일병원",
+      "total_amount": 1531936
+     },
+     "grid_reader": {
+      "insured_name": "강예은",
+      "hospital": "강남제일병원",
+      "total_amount": 1531936
+     },
+     "truth": {
+      "insured_name": "강예은",
+      "hospital": "강남제일병원",
+      "total_amount": 1531936
+     },
+     "vendor_meta": {
+      "latency_ms": 7429.9,
+      "usage": {
+       "prompt_tokens": 2239,
+       "completion_tokens": 31,
+       "total_tokens": 2270
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00081-diagnosis",
+     "vendor": {
+      "insured_name": "강수아",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-11-21",
+      "admission_date": "2025-11-21",
+      "discharge_date": "2025-11-24",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "강수아",
+      "diagnosis_name": "위의 악성신생",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": null,
+      "admission_date": "2025-11-21",
+      "discharge_date": "2025-11-24",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "강수아",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-11-21",
+      "admission_date": "2025-11-21",
+      "discharge_date": "2025-11-24",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6457.6,
+      "usage": {
+       "prompt_tokens": 1922,
+       "completion_tokens": 78,
+       "total_tokens": 2000
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00081-receipt",
+     "vendor": {
+      "insured_name": "강수아",
+      "hospital": "한빛의료원",
+      "total_amount": 464628
+     },
+     "grid_reader": {
+      "insured_name": "수아",
+      "hospital": "한빛의료원",
+      "total_amount": 464628
+     },
+     "truth": {
+      "insured_name": "강수아",
+      "hospital": "한빛의료원",
+      "total_amount": 464628
+     },
+     "vendor_meta": {
+      "latency_ms": 6073.3,
+      "usage": {
+       "prompt_tokens": 2311,
+       "completion_tokens": 29,
+       "total_tokens": 2340
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00083-diagnosis",
+     "vendor": {
+      "insured_name": "조하은",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-01-03",
+      "admission_date": "2026-01-02",
+      "discharge_date": "2026-01-07",
+      "hospital": "푸른내과의원"
+     },
+     "grid_reader": {
+      "insured_name": "조하은",
+      "diagnosis_name": "경골원위부골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-01-03",
+      "admission_date": "2026-01-02",
+      "discharge_date": null,
+      "hospital": "푸론내과의원"
+     },
+     "truth": {
+      "insured_name": "조하은",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-01-03",
+      "admission_date": "2026-01-02",
+      "discharge_date": "2026-01-07",
+      "hospital": "푸른내과의원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6326.8,
+      "usage": {
+       "prompt_tokens": 1925,
+       "completion_tokens": 79,
+       "total_tokens": 2004
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00083-receipt",
+     "vendor": {
+      "insured_name": "조하은",
+      "hospital": "푸른내과의원",
+      "total_amount": 2533910
+     },
+     "grid_reader": {
+      "insured_name": "조하은",
+      "hospital": "푸른내과의원",
+      "total_amount": 2533910
+     },
+     "truth": {
+      "insured_name": "조하은",
+      "hospital": "푸른내과의원",
+      "total_amount": 2533910
+     },
+     "vendor_meta": {
+      "latency_ms": 7322.2,
+      "usage": {
+       "prompt_tokens": 2283,
+       "completion_tokens": 31,
+       "total_tokens": 2314
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00085-receipt",
+     "vendor": {
+      "insured_name": "이민준",
+      "hospital": "서울연합병원",
+      "total_amount": 1980414
+     },
+     "grid_reader": {
+      "insured_name": "이민준",
+      "hospital": "서울연합병원",
+      "total_amount": 1980414
+     },
+     "truth": {
+      "insured_name": "이민준",
+      "hospital": "서울연합병원",
+      "total_amount": 1980414
+     },
+     "vendor_meta": {
+      "latency_ms": 7172.2,
+      "usage": {
+       "prompt_tokens": 2236,
+       "completion_tokens": 30,
+       "total_tokens": 2266
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00087-receipt",
+     "vendor": {
+      "insured_name": "조서준",
+      "hospital": "푸른내과의원",
+      "total_amount": 1857603
+     },
+     "grid_reader": {
+      "insured_name": "조서준",
+      "hospital": "푸 른내과의원",
+      "total_amount": 1857603
+     },
+     "truth": {
+      "insured_name": "조서준",
+      "hospital": "푸른내과의원",
+      "total_amount": 1857603
+     },
+     "vendor_meta": {
+      "latency_ms": 7096.0,
+      "usage": {
+       "prompt_tokens": 2259,
+       "completion_tokens": 31,
+       "total_tokens": 2290
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00089-diagnosis",
+     "vendor": {
+      "insured_name": "강예은",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-08-02",
+      "admission_date": "2025-08-02",
+      "discharge_date": "2025-08-03",
+      "hospital": "푸른내과의원"
+     },
+     "grid_reader": {
+      "insured_name": "강예은",
+      "diagnosis_name": "위의 악성신생울",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-08-02",
+      "admission_date": "2025-08-02",
+      "discharge_date": "2025-08-03",
+      "hospital": "푸른내과의원"
+     },
+     "truth": {
+      "insured_name": "강예은",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-08-02",
+      "admission_date": "2025-08-02",
+      "discharge_date": "2025-08-03",
+      "hospital": "푸른내과의원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6426.4,
+      "usage": {
+       "prompt_tokens": 1930,
+       "completion_tokens": 79,
+       "total_tokens": 2009
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00089-receipt",
+     "vendor": {
+      "insured_name": "강예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 150211
+     },
+     "grid_reader": {
+      "insured_name": "강예은",
+      "hospital": "푸 른내과의원",
+      "total_amount": 150211
+     },
+     "truth": {
+      "insured_name": "강예은",
+      "hospital": "푸른내과의원",
+      "total_amount": 150211
+     },
+     "vendor_meta": {
+      "latency_ms": 7084.1,
+      "usage": {
+       "prompt_tokens": 2294,
+       "completion_tokens": 30,
+       "total_tokens": 2324
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00091-diagnosis",
+     "vendor": {
+      "insured_name": "조지우",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2025-10-15",
+      "admission_date": "2025-10-15",
+      "discharge_date": "2025-10-24",
+      "hospital": "한빛의료원"
+     },
+     "grid_reader": {
+      "insured_name": "조지우",
+      "diagnosis_name": "경골원위부골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2025-10-15",
+      "admission_date": "2025-10-15",
+      "discharge_date": "2025-10-24",
+      "hospital": "한빛의료원"
+     },
+     "truth": {
+      "insured_name": "조지우",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2025-10-15",
+      "admission_date": "2025-10-15",
+      "discharge_date": "2025-10-24",
+      "hospital": "한빛의료원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6473.8,
+      "usage": {
+       "prompt_tokens": 1923,
+       "completion_tokens": 78,
+       "total_tokens": 2001
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00091-receipt",
+     "vendor": {
+      "insured_name": "조지우",
+      "hospital": "한빛의료원",
+      "total_amount": 3398334
+     },
+     "grid_reader": {
+      "insured_name": "조지우",
+      "hospital": "한빛의료원",
+      "total_amount": 3398334
+     },
+     "truth": {
+      "insured_name": "조지우",
+      "hospital": "한빛의료원",
+      "total_amount": 3398334
+     },
+     "vendor_meta": {
+      "latency_ms": 7319.1,
+      "usage": {
+       "prompt_tokens": 2303,
+       "completion_tokens": 30,
+       "total_tokens": 2333
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00093-receipt",
+     "vendor": {
+      "insured_name": "이수아",
+      "hospital": "미래대학교병원",
+      "total_amount": 623646
+     },
+     "grid_reader": {
+      "insured_name": "이수아",
+      "hospital": "미 래대학교병원",
+      "total_amount": 623646
+     },
+     "truth": {
+      "insured_name": "이수아",
+      "hospital": "미래대학교병원",
+      "total_amount": 623646
+     },
+     "vendor_meta": {
+      "latency_ms": 6406.3,
+      "usage": {
+       "prompt_tokens": 2307,
+       "completion_tokens": 29,
+       "total_tokens": 2336
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00095-receipt",
+     "vendor": {
+      "insured_name": "최지호",
+      "hospital": "푸른내과의원",
+      "total_amount": 1510360
+     },
+     "grid_reader": {
+      "insured_name": "최지호",
+      "hospital": "푸른 내과의원",
+      "total_amount": 1510360
+     },
+     "truth": {
+      "insured_name": "최지호",
+      "hospital": "푸른내과의원",
+      "total_amount": 1510360
+     },
+     "vendor_meta": {
+      "latency_ms": 9544.4,
+      "usage": {
+       "prompt_tokens": 2291,
+       "completion_tokens": 31,
+       "total_tokens": 2322
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00097-receipt",
+     "vendor": {
+      "insured_name": "이민준",
+      "hospital": "한빛의료원",
+      "total_amount": 691268
+     },
+     "grid_reader": {
+      "insured_name": "이민준",
+      "hospital": "한 빛의 료원",
+      "total_amount": 691268
+     },
+     "truth": {
+      "insured_name": "이민준",
+      "hospital": "한빛의료원",
+      "total_amount": 691268
+     },
+     "vendor_meta": {
+      "latency_ms": 7302.1,
+      "usage": {
+       "prompt_tokens": 2253,
+       "completion_tokens": 29,
+       "total_tokens": 2282
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00099-diagnosis",
+     "vendor": {
+      "insured_name": "강수아",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-10-12",
+      "admission_date": "2026-10-12",
+      "discharge_date": "2026-10-17",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "수아",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-10-12",
+      "admission_date": "2026-10-12",
+      "discharge_date": "2026-10-17",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "강수아",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-10-12",
+      "admission_date": "2026-10-12",
+      "discharge_date": "2026-10-17",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6251.0,
+      "usage": {
+       "prompt_tokens": 1921,
+       "completion_tokens": 79,
+       "total_tokens": 2000
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00099-receipt",
+     "vendor": {
+      "insured_name": "강수아",
+      "hospital": "강남제일병원",
+      "total_amount": 1726435
+     },
+     "grid_reader": {
+      "insured_name": "강수아",
+      "hospital": "강남제일병원",
+      "total_amount": 1726435
+     },
+     "truth": {
+      "insured_name": "강수아",
+      "hospital": "강남제일병원",
+      "total_amount": 1726435
+     },
+     "vendor_meta": {
+      "latency_ms": 8079.4,
+      "usage": {
+       "prompt_tokens": 2239,
+       "completion_tokens": 31,
+       "total_tokens": 2270
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00101-diagnosis",
+     "vendor": {
+      "insured_name": "정서준",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2027-04-19",
+      "admission_date": "2027-04-18",
+      "discharge_date": "2027-04-29",
+      "hospital": "미래대학교병원"
+     },
+     "grid_reader": {
+      "insured_name": "정서준",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2027-04-19",
+      "admission_date": "2027-04-18",
+      "discharge_date": "2027-04-29",
+      "hospital": "미래대학교병원"
+     },
+     "truth": {
+      "insured_name": "정서준",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2027-04-19",
+      "admission_date": "2027-04-18",
+      "discharge_date": "2027-04-29",
+      "hospital": "미래대학교병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6419.0,
+      "usage": {
+       "prompt_tokens": 1924,
+       "completion_tokens": 76,
+       "total_tokens": 2000
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00101-receipt",
+     "vendor": {
+      "insured_name": "정서준",
+      "hospital": "미래대학교병원",
+      "total_amount": 5827730
+     },
+     "grid_reader": {
+      "insured_name": "정서준",
+      "hospital": "미래대 학교병원",
+      "total_amount": 5827730
+     },
+     "truth": {
+      "insured_name": "정서준",
+      "hospital": "미래대학교병원",
+      "total_amount": 5827730
+     },
+     "vendor_meta": {
+      "latency_ms": 7115.3,
+      "usage": {
+       "prompt_tokens": 2299,
+       "completion_tokens": 30,
+       "total_tokens": 2329
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00103-diagnosis",
+     "vendor": {
+      "insured_name": "최수아",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-08-18",
+      "admission_date": "2026-08-17",
+      "discharge_date": "2026-08-24",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "최수아",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-08-18",
+      "admission_date": "2026-08-17",
+      "discharge_date": "2026-08-24",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "최수아",
+      "diagnosis_name": "유방 상피내암종",
+      "diagnosis_code": "D05.1",
+      "diagnosis_date": "2026-08-18",
+      "admission_date": "2026-08-17",
+      "discharge_date": "2026-08-24",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6789.7,
+      "usage": {
+       "prompt_tokens": 1936,
+       "completion_tokens": 79,
+       "total_tokens": 2015
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00103-receipt",
+     "vendor": {
+      "insured_name": "최수아",
+      "hospital": "강남제일병원",
+      "total_amount": 1757420
+     },
+     "grid_reader": {
+      "insured_name": "최수아",
+      "hospital": "강 남제일병원",
+      "total_amount": 1757420
+     },
+     "truth": {
+      "insured_name": "최수아",
+      "hospital": "강남제일병원",
+      "total_amount": 1757420
+     },
+     "vendor_meta": {
+      "latency_ms": 7263.9,
+      "usage": {
+       "prompt_tokens": 2274,
+       "completion_tokens": 31,
+       "total_tokens": 2305
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00105-diagnosis",
+     "vendor": {
+      "insured_name": "조도윤",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-03-20",
+      "admission_date": "2025-03-20",
+      "discharge_date": "2025-03-21",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "조도윤",
+      "diagnosis_name": "위의악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-03-20",
+      "admission_date": "2025-03-20",
+      "discharge_date": "2025-03-21",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "조도윤",
+      "diagnosis_name": "위의 악성신생물",
+      "diagnosis_code": "C16.9",
+      "diagnosis_date": "2025-03-20",
+      "admission_date": "2025-03-20",
+      "discharge_date": "2025-03-21",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 9303.4,
+      "usage": {
+       "prompt_tokens": 1927,
+       "completion_tokens": 79,
+       "total_tokens": 2006
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00105-receipt",
+     "vendor": {
+      "insured_name": "조도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 301472
+     },
+     "grid_reader": {
+      "insured_name": null,
+      "hospital": "강남제 일병원",
+      "total_amount": 301472
+     },
+     "truth": {
+      "insured_name": "조도윤",
+      "hospital": "강남제일병원",
+      "total_amount": 301472
+     },
+     "vendor_meta": {
+      "latency_ms": 6747.4,
+      "usage": {
+       "prompt_tokens": 2297,
+       "completion_tokens": 30,
+       "total_tokens": 2327
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00107-receipt",
+     "vendor": {
+      "insured_name": "김하은",
+      "hospital": "미래대학교병원",
+      "total_amount": 1890918
+     },
+     "grid_reader": {
+      "insured_name": "김하은",
+      "hospital": "미래대학교병원",
+      "total_amount": 1890918
+     },
+     "truth": {
+      "insured_name": "김하은",
+      "hospital": "미래대학교병원",
+      "total_amount": 1890918
+     },
+     "vendor_meta": {
+      "latency_ms": 6969.0,
+      "usage": {
+       "prompt_tokens": 2310,
+       "completion_tokens": 30,
+       "total_tokens": 2340
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00109-diagnosis",
+     "vendor": {
+      "insured_name": "윤예은",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-03-24",
+      "admission_date": "2026-03-24",
+      "discharge_date": "2026-03-27",
+      "hospital": "미래대학교병원"
+     },
+     "grid_reader": {
+      "insured_name": "윤예은",
+      "diagnosis_name": "경골원위부골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-03-24",
+      "admission_date": "2026-03-24",
+      "discharge_date": "2026-03-27",
+      "hospital": "미래대학교병원"
+     },
+     "truth": {
+      "insured_name": "윤예은",
+      "diagnosis_name": "경골 원위부 골절",
+      "diagnosis_code": "S82.3",
+      "diagnosis_date": "2026-03-24",
+      "admission_date": "2026-03-24",
+      "discharge_date": "2026-03-27",
+      "hospital": "미래대학교병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6455.6,
+      "usage": {
+       "prompt_tokens": 1949,
+       "completion_tokens": 78,
+       "total_tokens": 2027
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00109-receipt",
+     "vendor": {
+      "insured_name": "윤예은",
+      "hospital": "미래대학교병원",
+      "total_amount": 2393088
+     },
+     "grid_reader": {
+      "insured_name": "윤예은",
+      "hospital": "미래대학교병원",
+      "total_amount": 2393088
+     },
+     "truth": {
+      "insured_name": "윤예은",
+      "hospital": "미래대학교병원",
+      "total_amount": 2393088
+     },
+     "vendor_meta": {
+      "latency_ms": 9902.7,
+      "usage": {
+       "prompt_tokens": 2299,
+       "completion_tokens": 30,
+       "total_tokens": 2329
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00111-diagnosis",
+     "vendor": {
+      "insured_name": "조서연",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2026-05-29",
+      "admission_date": "2026-05-29",
+      "discharge_date": "2026-06-10",
+      "hospital": "서울연합병원"
+     },
+     "grid_reader": {
+      "insured_name": "조서연",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": null,
+      "admission_date": "2026-05-29",
+      "discharge_date": "2026-06-10",
+      "hospital": "서울연합병원"
+     },
+     "truth": {
+      "insured_name": "조서연",
+      "diagnosis_name": "담낭결석",
+      "diagnosis_code": "K80.2",
+      "diagnosis_date": "2026-05-29",
+      "admission_date": "2026-05-29",
+      "discharge_date": "2026-06-10",
+      "hospital": "서울연합병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6909.5,
+      "usage": {
+       "prompt_tokens": 1907,
+       "completion_tokens": 76,
+       "total_tokens": 1983
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00111-receipt",
+     "vendor": {
+      "insured_name": "조서연",
+      "hospital": "서울연합병원",
+      "total_amount": 5623080
+     },
+     "grid_reader": {
+      "insured_name": "조서연",
+      "hospital": "서 울연합병원",
+      "total_amount": 5623080
+     },
+     "truth": {
+      "insured_name": "조서연",
+      "hospital": "서울연합병원",
+      "total_amount": 5623080
+     },
+     "vendor_meta": {
+      "latency_ms": 9666.4,
+      "usage": {
+       "prompt_tokens": 2268,
+       "completion_tokens": 30,
+       "total_tokens": 2298
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00113-receipt",
+     "vendor": {
+      "insured_name": "이서연",
+      "hospital": "한빛의료원",
+      "total_amount": 2812264
+     },
+     "grid_reader": {
+      "insured_name": "져 변",
+      "hospital": "한빛의료원",
+      "total_amount": 2812264
+     },
+     "truth": {
+      "insured_name": "이서연",
+      "hospital": "한빛의료원",
+      "total_amount": 2812264
+     },
+     "vendor_meta": {
+      "latency_ms": 7510.0,
+      "usage": {
+       "prompt_tokens": 2304,
+       "completion_tokens": 30,
+       "total_tokens": 2334
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00115-receipt",
+     "vendor": {
+      "insured_name": "강민준",
+      "hospital": "서울연합병원",
+      "total_amount": 1597374
+     },
+     "grid_reader": {
+      "insured_name": "강민준",
+      "hospital": "서울연합병원",
+      "total_amount": 1597374
+     },
+     "truth": {
+      "insured_name": "강민준",
+      "hospital": "서울연합병원",
+      "total_amount": 1597374
+     },
+     "vendor_meta": {
+      "latency_ms": 6902.7,
+      "usage": {
+       "prompt_tokens": 2258,
+       "completion_tokens": 30,
+       "total_tokens": 2288
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00117-receipt",
+     "vendor": {
+      "insured_name": "장서연",
+      "hospital": "서울연합병원",
+      "total_amount": 3087216
+     },
+     "grid_reader": {
+      "insured_name": "장서연",
+      "hospital": "서울연합병원",
+      "total_amount": 3087216
+     },
+     "truth": {
+      "insured_name": "장서연",
+      "hospital": "서울연합병원",
+      "total_amount": 3087216
+     },
+     "vendor_meta": {
+      "latency_ms": 8072.7,
+      "usage": {
+       "prompt_tokens": 2284,
+       "completion_tokens": 30,
+       "total_tokens": 2314
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00119-diagnosis",
+     "vendor": {
+      "insured_name": "최하은",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2026-06-15",
+      "admission_date": "2026-06-15",
+      "discharge_date": "2026-06-16",
+      "hospital": "강남제일병원"
+     },
+     "grid_reader": {
+      "insured_name": "최하은",
+      "diagnosis_name": "유방의 악성선생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2026-06-15",
+      "admission_date": "2026-06-15",
+      "discharge_date": "2026-06-16",
+      "hospital": "강남제일병원"
+     },
+     "truth": {
+      "insured_name": "최하은",
+      "diagnosis_name": "유방의 악성신생물",
+      "diagnosis_code": "C50.9",
+      "diagnosis_date": "2026-06-15",
+      "admission_date": "2026-06-15",
+      "discharge_date": "2026-06-16",
+      "hospital": "강남제일병원"
+     },
+     "vendor_meta": {
+      "latency_ms": 6398.0,
+      "usage": {
+       "prompt_tokens": 1926,
+       "completion_tokens": 80,
+       "total_tokens": 2006
+      }
+     }
+    },
+    {
+     "doc_id": "CLM-00119-receipt",
+     "vendor": {
+      "insured_name": "최하은",
+      "hospital": "강남제일병원",
+      "total_amount": 1823968
+     },
+     "grid_reader": {
+      "insured_name": "최하은",
+      "hospital": "강남제잎병원",
+      "total_amount": 1823968
+     },
+     "truth": {
+      "insured_name": "최하은",
+      "hospital": "강남제일병원",
+      "total_amount": 1823968
+     },
+     "vendor_meta": {
+      "latency_ms": 8239.2,
+      "usage": {
+       "prompt_tokens": 2289,
+       "completion_tokens": 31,
+       "total_tokens": 2320
+      }
+     }
+    }
+   ]
+  }
+ },
+ "pages_sent_total": 298
 }

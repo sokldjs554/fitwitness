@@ -202,7 +202,7 @@ NIST PMI STEP 원본 SHA를 고정한 Actions `37313290927`에서 AP203/AP242 11
 
 - **OTel GenAI 의미 규약.** 내보내는 span에 `gen_ai.operation.name`(invoke_agent/chat/execute_tool), `gen_ai.agent.name`, `gen_ai.provider.name`, `gen_ai.request.model`, `gen_ai.usage.input_tokens`·`output_tokens`, `gen_ai.tool.name`을 고정된 규약 패키지의 상수로 달고, 요청에 schema URL(1.44.0)을 싣습니다. 모델 호출 span은 CLIENT입니다. 확인은 공식 protobuf 정의로 파싱한 요청을 보는 단위 테스트까지이고, 규약을 아는 백엔드의 화면에서 분류되는 것은 보지 못했습니다. [OBSERVABILITY.md](OBSERVABILITY.md#span-이름과-속성-genai-의미-규약)
 - **바깥 연결 없이 도는 범위.** 어느 구성 요소가 밖을 부르고 어느 것이 부르지 않는지, 막힌 망에서 켜는 순서를 코드와 CI 설정에서 읽어 [ONPREM.md](ONPREM.md)에 적었습니다. 실제 폐쇄망에서 돌려 본 기록은 없고, 사내 게이트웨이나 로컬 서빙으로 Claude·OpenAI를 대신하는 어댑터도 없습니다.
-- **상용 문서 AI와 나란히.** 스캔 서식 test 98쪽을 Upstage Information Extraction에 보내 격자 판독기와 같은 기준으로 채점했습니다. 벤더 446/446 필드(95% 구간 99.2%부터), 격자 판독기 431/446. 격자 판독기가 서식의 기하를 알고도 뒤처졌으니 이 그림에서는 상용 모델이 더 잘 읽습니다. 합성 서식이고, 병명 필드 설명은 test 4쪽을 본 뒤 고쳤으며, 비용은 어림 $4.08입니다. 격자 판독기는 바깥 연결 없이 돌고 모르는 값을 비워 담당자에게 넘기는 성질이 측정되어 있어 그대로 둡니다. [CLAIMS.md](CLAIMS.md#스캔-문서-읽기-ocr) · [vendor-ocr.json](evaluation/vendor-ocr.json)
+- **상용 문서 AI와 나란히.** 스캔 서식 test 98쪽을 Upstage Information Extraction에 보내 격자 판독기와 같은 기준으로 채점했습니다. medium에서 벤더 446/446 필드(95% 구간 99.2%부터), 격자 판독기 431/446이었고, 2026-10-24에 light와 heavy를 더해 세 단계로 넓혔습니다. 벤더는 light 446/446, heavy 444/446(틀린 값 둘: 진단코드의 I를 1로, 병명 칸에 부 질병 미끼), 격자 판독기는 light 413/446, heavy 399/446입니다. 격자 판독기가 서식의 기하를 알고도 뒤처졌으니 이 그림에서는 상용 모델이 더 잘 읽지만, heavy에서는 빈 값이 아니라 틀린 값을 낸 것이 생겼습니다. 합성 서식이고, 병명 필드 설명은 test 4쪽을 본 뒤 고쳤으며, 비용은 세 단계 어림 $11.92입니다. 격자 판독기는 바깥 연결 없이 돌고 모르는 값을 비워 담당자에게 넘기는 성질이 측정되어 있어 그대로 둡니다. [CLAIMS.md](CLAIMS.md#스캔-문서-읽기-ocr) · [vendor-ocr.json](evaluation/vendor-ocr.json)
 
 ## 후속 — 2026-10-23: 주입 판을 실제 모델의 추출 경로로
 
