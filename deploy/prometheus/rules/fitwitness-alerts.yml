@@ -1,0 +1,111 @@
+# Alert rules. Thresholds are starting values chosen from the measured numbers named in each annotation, not from
+# a production history: the service has not run with real traffic, and nothing has paged anyone yet.
+# severity=page wants someone now; severity=ticket can wait for working hours.
+#
+# The run-failure SLO: 99% of runs that end, complete (completed / (completed + failed + dead-lettered)).
+# The fast and slow burn alerts are the long windows of the usual multiwindow pattern (14.4x over 1h, 6x over 6h)
+# with a minimum number of ended runs, because at this traffic a short window is usually empty.
+groups:
+  - name: fitwitness-alerts
+    rules:
+      - alert: FitwitnessDown
+        expr: up{job="fitwitness"} == 0
+        for: 2m
+        labels: {severity: page}
+        annotations:
+          summary: "/metrics has not answered for 2 minutes"
+          check: "GET /health and /ready; the Render service log; a free instance that went to sleep also looks like this"
+
+      - alert: FitwitnessDatabaseMetricsMissing
+        expr: (up{job="fitwitness"} == 1) unless on(job, instance) fitwitness_cost_usd_total
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: "the app answers but the run metrics are missing: it cannot read the database"
+          check: "GET /ready (503 means the database); FITWITNESS_DATABASE_URL must be the direct connection, not the pooler"
+
+      - alert: FitwitnessQueueStalled
+        expr: fitwitness_queue_oldest_seconds > 300
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: "a run has waited {{ $value | humanizeDuration }} for a worker"
+          check: "the dispatcher in the app process (2 slots) and the worker pool; queue to worker start was 0.16 s measured locally, so minutes mean no worker is taking runs"
+
+      - alert: FitwitnessReviewsNotEscalated
+        expr: fitwitness_reviews_overdue > 0
+        for: 10m
+        labels: {severity: ticket}
+        annotations:
+          summary: "{{ $value }} reviews are past their deadline and were not moved to senior handling"
+          check: "the escalation sweep runs on every dispatcher pass (Jobs.escalate_overdue); if it stays, the dispatcher is not running"
+
+      - alert: FitwitnessDeadLetter
+        expr: increase(fitwitness_dead_letters_total[15m]) > 0
+        labels: {severity: ticket}
+        annotations:
+          summary: "a run used up its retries on a transient error and was put aside"
+          check: "the run's dead_lettered event has the error; three attempts with backoff failed, often a provider outage"
+
+      - alert: FitwitnessRunFailureFastBurn
+        expr: fitwitness:run_failure:ratio1h > (14.4 * 0.01) and fitwitness:runs_ended:increase1h >= 10
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: "{{ $value | humanizePercentage }} of the runs that ended in the last hour did not finish (SLO 99%)"
+          check: "failed and dead_lettered events of the last hour; a code change or a provider outage"
+
+      - alert: FitwitnessRunFailureSlowBurn
+        expr: fitwitness:run_failure:ratio6h > (6 * 0.01) and fitwitness:runs_ended:increase6h >= 20
+        for: 30m
+        labels: {severity: ticket}
+        annotations:
+          summary: "{{ $value | humanizePercentage }} of the runs that ended in 6 hours did not finish (SLO 99%)"
+          check: "failed and dead_lettered events of the last 6 hours, grouped by error"
+
+      - alert: FitwitnessModelErrors
+        expr: fitwitness:model_errors:increase15m >= 3
+        for: 5m
+        labels: {severity: ticket}
+        annotations:
+          summary: "{{ $value }} model errors or schema failures in 15 minutes"
+          check: "model_error and model_schema_error events: a refused key, an empty balance or a wrong model id refuses the first call; a schema failure keeps the raw output in the event"
+
+      - alert: FitwitnessBudgetStopsHigh
+        expr: fitwitness:budget_stops:ratio1h > 0.2 and fitwitness:runs_ended:increase1h >= 10
+        for: 15m
+        labels: {severity: ticket}
+        annotations:
+          summary: "{{ $value | humanizePercentage }} of the runs that ended stopped on their budget"
+          check: "budget_stop events say which limit (cost, tokens, calls, deadline); a prompt or model change that needs more calls shows here first"
+
+      - alert: FitwitnessSpendHigh
+        expr: fitwitness:cost_usd:increase1h > 0.5
+        labels: {severity: ticket}
+        annotations:
+          summary: "model spend was {{ $value | printf \"%.2f\" }} USD in the last hour"
+          check: "one run measured 0.0043 to 0.0097 USD (docs/COST.md), so 0.5 USD is 50 to 100 runs an hour; the public demo refuses paid calls and should spend nothing"
+
+      - alert: FitwitnessModelLatencyHigh
+        expr: fitwitness:model_latency_ms:p95_15m > 10000
+        for: 15m
+        labels: {severity: ticket}
+        annotations:
+          summary: "p95 model call latency for {{ $labels.role }} is {{ $value | printf \"%.0f\" }} ms"
+          check: "single model calls measured 0.7 to 2.4 s median and 0.9 to 1.9 s at p95 (docs/COST.md); the provider's status page"
+
+      - alert: FitwitnessApiSlow
+        expr: fitwitness:api_request_seconds:p95_5m > 2.5 and fitwitness:api_requests:rate5m > 0.05
+        for: 10m
+        labels: {severity: ticket}
+        annotations:
+          summary: "p95 API latency is {{ $value | printf \"%.1f\" }} s"
+          check: "the public server measured 1.1 s to open a workspace and 0.5 s for a run (docs/WORKFLOW.md); database round trips and the Neon region"
+
+      - alert: FitwitnessApi5xx
+        expr: fitwitness:api_5xx:ratio5m > 0.05 and fitwitness:api_requests:rate5m > 0.05
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: "{{ $value | humanizePercentage }} of API requests answer 5xx"
+          check: "the app log; 503 from /ready means the database"

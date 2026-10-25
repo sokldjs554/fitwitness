@@ -5,6 +5,13 @@ every model and tool call. The run/event tables are already the system of record
 those; this module aggregates them at scrape time into Prometheus text exposition.
 Latencies come from the ``latency_ms`` recorded on ``model`` and ``tool`` events, cost
 from the usage ledger saved on each run.
+
+Demo workspaces expire and their rows are deleted. The session sweep first adds what
+those rows counted to ``fw_metric_totals``, and the counters here are live rows plus
+those totals, so they do not go down when a workspace goes. The latency histograms are
+not carried over: they cover the workspaces that still exist.
+
+Alert and recording rules over these series are in ``deploy/prometheus``.
 """
 
 from __future__ import annotations
@@ -27,6 +34,9 @@ EVENT_COUNTERS = {
     "interrupted": "fitwitness_worker_interruptions_total",
     "resumed": "fitwitness_checkpoint_resumes_total",
     "stale": "fitwitness_stale_results_total",
+    "completed": "fitwitness_runs_completed_total",
+    "failed": "fitwitness_runs_failed_total",
+    "review_escalated": "fitwitness_review_escalations_total",
 }
 
 
@@ -58,19 +68,33 @@ def collect(dsn: str) -> str:
                            "WHERE kind='model' AND payload ? 'latency_ms'").fetchall()
         tools = c.execute("SELECT payload->>'name', (payload->>'latency_ms')::float FROM fw_events WHERE kind='tool' AND payload ? 'latency_ms'").fetchall()
         tool_counts = c.execute("SELECT COALESCE(payload->>'name','unknown'), count(*) FROM fw_events WHERE kind='tool' GROUP BY 1").fetchall()
+        # How long the oldest run that a worker should already have taken has been waiting: queued since it was
+        # created, or due for its retry since next_attempt_at. 0 when nothing waits.
+        oldest = c.execute("SELECT COALESCE(EXTRACT(EPOCH FROM now()-min(CASE WHEN state='queued' THEN created_at "
+                           "WHEN state='retry_wait' AND next_attempt_at<=now() THEN next_attempt_at END)),0) "
+                           "FROM fw_runs WHERE state IN ('queued','retry_wait')").fetchone()[0]
+        # Reviews past their deadline that the escalation sweep has not moved yet (it runs every dispatcher pass).
+        overdue = c.execute("SELECT count(*) FROM fw_review_due WHERE due_at<now()").fetchone()[0]
+        retained = dict(c.execute("SELECT name, value FROM fw_metric_totals").fetchall())
+    tool_counts = (Counter(dict(tool_counts)) + Counter({k[5:]: int(v) for k, v in retained.items() if k.startswith("tool:")})).items()
     lines: list[str] = ["# HELP fitwitness_runs_total Runs by current state", "# TYPE fitwitness_runs_total gauge"]
     lines += [f"fitwitness_runs_total{_labels(state=state)} {n}" for state, n in sorted(states)]
     lines += ["# HELP fitwitness_cost_usd_total Measured provider cost (usage x configured price), all runs", "# TYPE fitwitness_cost_usd_total counter",
-              f"fitwitness_cost_usd_total {float(cost[0]):g}",
+              f"fitwitness_cost_usd_total {float(cost[0]) + retained.get('usage:cost_usd', 0):g}",
               "# HELP fitwitness_tokens_total Provider tokens by direction", "# TYPE fitwitness_tokens_total counter",
-              f"fitwitness_tokens_total{_labels(direction='input')} {cost[1]}", f"fitwitness_tokens_total{_labels(direction='output')} {cost[2]}",
+              f"fitwitness_tokens_total{_labels(direction='input')} {cost[1] + int(retained.get('usage:input_tokens', 0))}",
+              f"fitwitness_tokens_total{_labels(direction='output')} {cost[2] + int(retained.get('usage:output_tokens', 0))}",
               "# HELP fitwitness_model_calls_total Model calls recorded in run usage", "# TYPE fitwitness_model_calls_total counter",
-              f"fitwitness_model_calls_total {cost[3]}",
+              f"fitwitness_model_calls_total {cost[3] + int(retained.get('usage:model_calls', 0))}",
               "# HELP fitwitness_tool_calls_total Tool calls by tool name", "# TYPE fitwitness_tool_calls_total counter"]
     lines += [f"fitwitness_tool_calls_total{_labels(tool=name)} {n}" for name, n in sorted(tool_counts)]
     kind_counts = Counter({k: n for k, n in kinds})
     for kind, metric in EVENT_COUNTERS.items():
-        lines += [f"# HELP {metric} Count of '{kind}' run events", f"# TYPE {metric} counter", f"{metric} {kind_counts.get(kind, 0)}"]
+        lines += [f"# HELP {metric} Count of '{kind}' run events", f"# TYPE {metric} counter", f"{metric} {kind_counts.get(kind, 0) + int(retained.get('event:' + kind, 0))}"]
+    lines += ["# HELP fitwitness_queue_oldest_seconds Age of the oldest run a worker should have taken (queued, or retry due)",
+              "# TYPE fitwitness_queue_oldest_seconds gauge", f"fitwitness_queue_oldest_seconds {float(oldest):g}",
+              "# HELP fitwitness_reviews_overdue Reviews past their deadline not yet escalated",
+              "# TYPE fitwitness_reviews_overdue gauge", f"fitwitness_reviews_overdue {overdue}"]
     model_samples: dict[str, list[float]] = defaultdict(list)
     for role, latency in models:
         model_samples[role].append(latency)

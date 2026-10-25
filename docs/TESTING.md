@@ -6,17 +6,18 @@
 
 | 구분 | 개수 | 확인 방법 |
 |---|---|---|
-| Python(pytest) | **437**: 단위 346 + 통합 91 | `uv run pytest --collect-only -q \| tail -1` |
-| 그 가운데 서로 다른 테스트 함수 | 363 | 같은 목록에서 `[...]`를 뗀 이름 |
+| Python(pytest) | **439**: 단위 346 + 통합 93 | `uv run pytest --collect-only -q \| tail -1` |
+| 그 가운데 서로 다른 테스트 함수 | 365 | 같은 목록에서 `[...]`를 뗀 이름 |
 | 파라미터를 바꿔 늘어난 사례 | 74(함수 15개가 89사례) | 한 함수가 45사례(허용 목록 밖 명령 거부)를 차지합니다 |
 | Playwright(브라우저) | **70**: 시나리오 35 × 데스크톱·모바일 두 화면 | `cd web && npx playwright test --list` |
 | 평가 게이트(pytest 밖) | 매 커밋 API 없이 실행해 커밋된 기준선과 비교 | [EVALUATION-GATE.md](EVALUATION-GATE.md) |
+| 알림 규칙 테스트(pytest 밖, promtool) | 알림 검사 26개(알림 13개가 울릴 때와 조용할 때) + 기록 규칙 값 검사 2개 | `promtool test rules deploy/prometheus/tests/*.test.yml`, [OBSERVABILITY.md](OBSERVABILITY.md#알림-규칙과-slo) |
 
-통합 테스트는 실제 PostgreSQL(권한이 제한된 역할, 행 단위 보안 포함)에서 돌고, CI는 매 커밋 전부 실행합니다. 개수는 2026-10-24의 `main`입니다(표제란 읽기 규칙 셋과 그 테스트 셋을 더한 뒤 434에서 437).
+통합 테스트는 실제 PostgreSQL(권한이 제한된 역할, 행 단위 보안 포함)에서 돌고, CI는 매 커밋 전부 실행합니다. 개수는 2026-10-25입니다(2026-10-24에 표제란 읽기 테스트 셋을 더해 434에서 437, 2026-10-25에 알림 규칙과 함께 지표 테스트 둘을 더해 439).
 
 ## 묶음별로 무엇을 막는가
 
-한 테스트가 둘 이상의 위험에 걸칠 수 있어서 가장 가까운 묶음에 한 번만 넣었습니다. 사례 수 합계가 437입니다.
+한 테스트가 둘 이상의 위험에 걸칠 수 있어서 가장 가까운 묶음에 한 번만 넣었습니다. 사례 수 합계가 439입니다.
 
 | 막으려는 고장 | 사례(함수) | 파일 | 실패로 바뀌는 사례의 예 |
 |---|---|---|---|
@@ -29,11 +30,11 @@
 | **스캔·OCR·표제란·이미지 읽기가 틀린 값을 사실로 올리는 것** | 83(67) | `test_ocr`, `test_ocr_scan`, `test_official`, `test_official_scan`, `test_title_block`, `test_vision`, `test_ingest` | `a_badly_degraded_scan_never_ends_in_a_wrong_payment`, `a_field_the_clerk_left_empty_is_not_invented`, `a_material_grade_is_not_taken_for_a_drawing_number_and_a_page_footer_is_not_either`, `unknown_or_invalid_vision_numbers_are_not_promoted_to_facts` |
 | **측정이 스스로를 속이는 것** | 49(48) | `test_evaluation`, `test_evaluation_api`, `test_evaluation_runner`, `test_gate`, `test_stats`, `test_retrieval_metrics`, `test_retrieval_ablation`, `test_dataset`, `test_prompt_experiment`, `test_claims_model_eval`, `test_vendor_ocr` | `model_input_never_contains_gold_or_prediction`, `gate_never_tolerates_a_wrong_payout`, `gate_requires_the_degraded_control_to_be_worse`, `editing_a_prompt_after_the_dev_run_voids_the_dev_report`, `family_splits_disjoint` |
 | **다른 고객의 데이터가 보이거나 지난 판이 바뀌는 것** | 17(17) | `test_storage`, `test_api`, `test_managed_role` | `foreign_tenant_cannot_read_revision_or_asset`, `immutable_revision`, `public_demo_cannot_spend_configured_provider_keys`, `migration_grants_set_to_non_superuser_owner` |
-| **관측이 비거나, 관측 때문에 실행이 깨지는 것** | 15(15) | `test_observability`, `test_otlp_export`, `test_otlp`, `test_trace` | `a_paused_run_is_not_exported_until_it_ends`, `an_unreachable_or_refusing_backend_never_fails_the_caller`, `metrics_endpoint_requires_token_and_includes_db_metrics` |
+| **관측이 비거나, 관측 때문에 실행이 깨지는 것** | 17(17) | `test_observability`, `test_otlp_export`, `test_otlp`, `test_trace` | `a_paused_run_is_not_exported_until_it_ends`, `an_unreachable_or_refusing_backend_never_fails_the_caller`, `counters_do_not_go_down_when_a_workspace_expires_and_waits_are_exported`, `an_unhandled_error_is_counted_as_a_500` |
 
 ## 이 표가 말하지 않는 것
 
 - 테스트가 통과한다는 것은 이 저장소의 합성 데이터와 스텁 모델 위에서 위 고장이 나지 않는다는 뜻입니다. 실제 서류, 실제 부하, 실제 장애에서의 동작은 보장하지 않습니다.
 - 모델을 실제로 부르는 측정은 pytest가 아니라 상한을 둔 수동 workflow에서 하고, 그 숫자는 [README의 측정표](../README.md)와 [evaluation/](evaluation/)에 있습니다. pytest는 모델을 부르지 않고 스텁을 씁니다(키 이름이 나오는 테스트는 가짜 키를 넣고 공개 데모가 그 키를 쓰지 못하는지만 봅니다).
-- 스캔 읽기와 합성 코퍼스에 기대는 테스트는 Tesseract(한국어)나 코퍼스가 없으면 건너뛰도록 되어 있습니다. CI는 둘을 설치하고 생성한 뒤 돌립니다([ci.yml](../.github/workflows/ci.yml)). 이 문서의 437은 수집된 사례 수이고, 환경에 따라 실제로 실행되는 수는 더 적을 수 있습니다.
+- 스캔 읽기와 합성 코퍼스에 기대는 테스트는 Tesseract(한국어)나 코퍼스가 없으면 건너뛰도록 되어 있습니다. CI는 둘을 설치하고 생성한 뒤 돌립니다([ci.yml](../.github/workflows/ci.yml)). 이 문서의 439는 수집된 사례 수이고, 환경에 따라 실제로 실행되는 수는 더 적을 수 있습니다.
 - 묶음은 파일 이름과 테스트 이름을 읽고 제가 나눈 것입니다. 테스트 하나가 한 묶음에만 속하는 것은 아닙니다.

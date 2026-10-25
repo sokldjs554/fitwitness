@@ -6,6 +6,14 @@
 # then run something in the app and open http://localhost:16686 (service "fitwitness").
 # Any OTLP/HTTP receiver works the same way (Grafana Tempo, an OpenTelemetry Collector,
 # Honeycomb, ...): point OTEL_EXPORTER_OTLP_ENDPOINT, and OTEL_EXPORTER_OTLP_HEADERS if it needs a key.
+#
+# Metrics and alerts (opt-in profile): Prometheus with the rules in deploy/prometheus, Grafana with the dashboard.
+#
+#   printf %s "$FITWITNESS_METRICS_TOKEN" > deploy/prometheus/metrics-token   # same value the app was started with
+#   docker compose -f deploy/observability/docker-compose.yml --profile metrics up -d
+#
+# then http://localhost:9090/alerts and http://localhost:3000 (dashboard "fitwitness", anonymous viewer).
+# No Alertmanager: firing alerts show on the Prometheus page and in the dashboard, nobody is notified.
 services:
   jaeger:
     image: jaegertracing/all-in-one:1.76.0
@@ -14,3 +22,25 @@ services:
     ports:
       - "16686:16686"   # UI
       - "4318:4318"     # OTLP over HTTP
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    profiles: [metrics]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    volumes:
+      - ../prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../prometheus/rules:/etc/prometheus/rules:ro
+      - ../prometheus/metrics-token:/etc/prometheus/metrics-token:ro
+    ports:
+      - "9090:9090"
+  grafana:
+    image: grafana/grafana:12.1.1
+    profiles: [metrics]
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ../grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3000:3000"
+    depends_on: [prometheus]

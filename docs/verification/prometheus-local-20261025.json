@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-25",
+  "what": "Prometheus 3.5.0 (release binary, sha256 e811827a...) scraping a local fitwitness (uvicorn, local PostgreSQL 16 via pgserver) every 5 s with deploy/prometheus/rules evaluated every 5 s",
+  "prometheus": {
+    "version": "3.5.0",
+    "revision": "8be3a9560fbdd18a94dedec4b747c35178177202"
+  },
+  "targets": [
+    {
+      "health": "up",
+      "lastError": "",
+      "scrapeUrl": "http://127.0.0.1:18787/metrics"
+    }
+  ],
+  "rules": {
+    "count": 27,
+    "health": {
+      "ok": 27
+    },
+    "errors": []
+  },
+  "induced": [
+    "15:34:16 UTC: a fw_runs row in state queued with created_at ten minutes back and no fw_dispatch row (a lost dispatch, no worker will take it)"
+  ],
+  "alerts_seen": [
+    {
+      "alertname": "FitwitnessQueueStalled",
+      "state": "firing",
+      "activeAt": "2026-10-25T15:34:22.056412765Z",
+      "summary": "a run has waited 22m 7s for a worker"
+    },
+    {
+      "alertname": "FitwitnessDeadLetter",
+      "state": "firing",
+      "activeAt": "2026-10-25T15:37:17.056412765Z",
+      "summary": "a run used up its retries on a transient error and was put aside"
+    }
+  ],
+  "alerts_note": "FitwitnessQueueStalled is the induced stall: pending at 15:34:22, firing after its 5 minutes. FitwitnessDeadLetter was not induced on purpose: the integration test suite ran against the same database at about 15:37 and its exhausted-retries test wrote a real dead_lettered event, which the next evaluation picked up.",
+  "dashboard_queries": {
+    "count": 23,
+    "errors": 0,
+    "empty": [
+      "fitwitness:api_5xx:ratio5m"
+    ]
+  },
+  "dashboard_queries_note": "Every expression of deploy/grafana/dashboards/fitwitness.json sent to the Prometheus query API. The one empty result is the 5xx ratio: no 5xx response had been served. The model latency panels have series because the integration tests, run against the same database, record stub model calls. Grafana itself was not run (dl.grafana.com is not reachable from this environment).",
+  "not_checked": [
+    "Grafana loading the provisioning files",
+    "docker compose --profile metrics (no Docker daemon here)",
+    "any notification: there is no Alertmanager",
+    "the public Render demo: no Prometheus scrapes it"
+  ]
+}
