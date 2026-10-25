@@ -45,7 +45,9 @@ SETS = {"holdout1": EVAL / "title-block-holdout-gold.json", "holdout2": EVAL / "
 TESSERACT = {"holdout1": {"before the change": EVAL / "title-block-holdout.json"},
              "holdout2": {"before the change": EVAL / "title-block-holdout2-before-the-change.json", "after the change": EVAL / "title-block-holdout2.json"}}
 MODEL = "claude-haiku-4-5-20251001"
-CALL_CAP = Decimal("0.02")
+# One reading: the call and, when its output fails the schema, the client's one repair. The repair is reserved at
+# its worst case before it is sent, and $0.02 was not enough for both (run 40208747697: four repairs blocked).
+CALL_CAP = Decimal("0.04")
 PROMPT_PAGE = (
     "This image is one page with a mechanical drawing, often from a Chinese textbook; title block cells may be labelled "
     "图号, 材料, 比例 or in Korean 도번, 재질, 척도. Find the drawing's title block: the bordered table of cells on the edge of "
