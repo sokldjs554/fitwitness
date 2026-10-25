@@ -1,6 +1,8 @@
 """The terminal-style search: what it accepts, what it refuses, and that nothing it is given is ever run by a shell."""
 from pathlib import Path
 
+import re
+
 import pytest
 
 from fitwitness.agents import shell_search as S
@@ -76,6 +78,17 @@ HOSTILE = [
 def test_everything_outside_the_closed_set_is_refused(command, workspace):
     with pytest.raises(S.ShellRefused):
         workspace.search(command)
+
+
+@pytest.mark.parametrize("command, hint", [
+    ("grep -L 'fact material' *.txt", "--include='*.txt'"),  # typed by Claude in run 40208075780
+    ("cat ./*.txt", "globs are not expanded"),
+    ("grep -L 'material' . | head -20", "add -r"),  # typed by Claude in run 40207958626
+])
+def test_a_command_that_would_fail_for_want_of_a_shell_is_refused_with_how_to_type_it(command, hint, workspace):
+    with pytest.raises(S.ShellRefused, match=re.escape(hint)):
+        workspace.search(command)
+    assert ids(workspace.search("grep -rL 'fact material' . --include='*.txt'")) == ["r3"]  # the way that works
 
 
 def test_there_is_no_shell_so_expansions_are_only_text(tmp_path, workspace):

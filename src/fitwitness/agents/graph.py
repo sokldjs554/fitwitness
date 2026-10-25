@@ -36,6 +36,7 @@ class State(TypedDict, total=False):
     usage: dict
     stop: bool
     human: dict
+    failed_plans: int
 
 
 _CHECKPOINTER_READY: set[str] = set()
@@ -225,6 +226,7 @@ def _execute_run(
             reqs = [Requirement.model_validate(r) for r in state["requirements"]]
             observations = list(state.get("observations", []))
             plan = None
+            failed_plan = False
             if model:
                 session = EvidenceSession(candidates, tools.available, restored=True)
                 # How many more plans this run may ask for after this one: none in the fixed structure, otherwise what
@@ -243,7 +245,7 @@ def _execute_run(
                     plan = SearchPlan(stop=True, stop_condition="resource budget exhausted")
                 emit("agent_plan", {"role": role, **plan.model_dump(mode="json")})
                 visited = {session.tool_key(ToolRequest.model_validate(x["tool"])) for x in observations}
-                executed = 0
+                executed = failed = 0
                 for op in plan.operations:
                     guard(False)
                     key = session.tool_key(op)
@@ -263,6 +265,7 @@ def _execute_run(
                         # A tool the model asked for that cannot run here (a saved search that does not exist, a tool this
                         # workspace lacks): the error is an observation for the next turn, not the end of the run.
                         visited.add(key)
+                        failed += 1
                         observations.append({"tool": op.model_dump(mode="json"), "result": [], "error": str(exc)[:300]})
                         emit("tool_error", {"role": role, "name": op.name, "arguments": op.arguments, "error": str(exc)[:300]})
                         continue
@@ -274,7 +277,11 @@ def _execute_run(
                                   "items": len(result), "latency_ms": (time.monotonic() - started) * 1000,
                                   "fact_ids": [f.id for c in session.candidates for f in c.facts]})
                 if plan.operations and not executed:
-                    plan.stop = True
+                    # A plan whose every tool failed gets one more turn, with the errors in its observations, to correct
+                    # itself (a command typed without -r, a saved search not yet defined). A second such plan, or a plan
+                    # of repeats only, ends the run as before.
+                    failed_plan = bool(failed)
+                    plan.stop = plan.stop or not failed or state.get("failed_plans", 0) >= 1
                 candidates = session.candidates
             else:
                 # Visible deterministic baseline, not a fabricated model execution.
@@ -328,6 +335,7 @@ def _execute_run(
                 "observations": observations,
                 "usage": budget.usage.model_dump(mode="json"),
                 "stop": plan.stop if plan else True,
+                "failed_plans": state.get("failed_plans", 0) + failed_plan,
             }
 
         def needs_review(state):

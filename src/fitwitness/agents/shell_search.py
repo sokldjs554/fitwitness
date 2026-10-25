@@ -116,6 +116,8 @@ def _path(text: str) -> str:
     parts = text.split("/")
     if not text or "\0" in text or "\n" in text or text.startswith(("/", "~")) or ".." in parts or len(text) > 200:
         raise ShellRefused(f"path {text!r} leaves the workspace")
+    if any(c in text for c in "*?["):  # no file name here has these; without a shell nothing expands them
+        raise ShellRefused(f"path {text!r}: globs are not expanded (there is no shell); use grep -r PATTERN . --include='*.txt' or find . -name '*.txt'")
     return text
 
 
@@ -207,6 +209,9 @@ def _check(command: str, args: list[str]) -> list[str]:
         out += ["-e", _value("pattern", operands.pop(0), f"{command} pattern")]
     if operands and not spec.paths:
         raise ShellRefused(f"{command}: takes no file operands")
+    if command == "grep" and not any(f.startswith("-") and not f.startswith("--") and set(f[1:]) & {"r", "R"} for f in out) \
+            and any(p in (".", "./") or p.endswith("/") for p in operands):
+        raise ShellRefused("grep: the workspace is a directory; add -r (grep -r PATTERN .)")
     return out + (["--"] + [_path(p) for p in operands] if operands else [])
 
 
