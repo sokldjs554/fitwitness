@@ -64,3 +64,11 @@ for mode, label in (("fixed", "단일 도구 계획"), ("react", "반복 계획"
     s = stats(by[mode])
     calls = st.mean(r["model_calls"] for r in by[mode])
     print(f"| 에이전트 실행 한 번, {label} | {s['n']}회 | ${s['cost']:.4f} | 중앙값 {s['p50']:.1f}초 (모델 호출 평균 {calls:.0f}회) |")
+
+shell = load("shell-search-model")["runs"]
+show("명령 검색 도구를 켠 에이전트 실행 한 번, 30장에서 집합 질의", [[r for r in run["rows"] if r["arm"] == "shell"] for run in shell], "질의 8·8·7개")
+show("같은 질의, 명령 검색 도구를 끈 실행", [[r for r in shell[0]["rows"] if r["arm"] == "ranked"]], "질의 8개")
+
+vlm = load("title-block-vlm")["runs"]
+calls = [c for run in vlm for c in run["calls"] if not c.get("error")]
+show("표제란 읽기 호출 한 번(쪽 전체 또는 자른 표제란, 이미지 한 장)", [calls], f"{len(calls)}회")

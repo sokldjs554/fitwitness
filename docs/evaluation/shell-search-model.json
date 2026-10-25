@@ -1,0 +1,3306 @@
+{
+ "what": "Claude Haiku 4.5 in the react structure, with and without search_shell, on set queries over one workspace of thirty synthetic drawings (scripts and harness: src/fitwitness/evaluation/shell_search_model.py, workflow shell-search-evaluation).",
+ "measured_on": "2026-10-25",
+ "runs": [
+  {
+   "label": "test split, both arms",
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/40207092943",
+   "cases": [
+    {
+     "id": "material_common",
+     "query": "SUS304 도면을 모두 찾아 주세요",
+     "answer": [
+      "0e89a61b-cd87-5107-9609-302c3bac7c80",
+      "12215a86-bd36-5043-b20b-12ce568ebf4f",
+      "39200b3a-1bea-5e02-8516-b84ce75af4e8",
+      "3c99195a-4984-56ae-81f3-f4df2d795376",
+      "5312e80a-dd37-58af-8b41-6c6ec85235e5",
+      "63b17fd6-1069-566a-af4b-18f6e0f60a3e",
+      "65edc4cb-fa00-5e6a-ae1e-01bc1258ab87",
+      "7367c1cc-7981-5b63-8a19-b8fb2e533124",
+      "90433978-1da6-5258-b5eb-a0101246a54c",
+      "b706aedc-a8b4-56b4-be49-2535aeb8f0cb",
+      "b91e9637-5729-5c5a-be95-7c4c1d29be00",
+      "c291a019-f483-50da-8f24-6002e6f4112e",
+      "d62aac46-ff43-5948-9161-f5c4415a18f0",
+      "e8c92937-1305-5268-bd9a-c870b13f6031",
+      "ec5f315f-a02e-594a-9130-12c27441a2ea",
+      "f486a712-46b6-58f6-854f-4c3ec2b8b855",
+      "f5e15d49-6a0c-56fb-a44d-9b0b062764b1",
+      "fca46086-1f8d-51c7-804a-547dc7a49c3a"
+     ],
+     "checkable": true
+    },
+    {
+     "id": "material_other",
+     "query": "AL6061 도면을 모두 찾아 주세요",
+     "answer": [
+      "0f656309-ed49-58c1-bd60-36fb76a4d685",
+      "741bb518-5dd0-59d0-b5f4-f774b78a0d46",
+      "854cde90-632e-5dd5-bfc1-1f2e81120743",
+      "9450b559-8998-5060-be3e-ab729f10cbc2",
+      "98cd91fd-8250-5317-ad3d-cebdef65816c",
+      "f1e26812-380a-5c28-8482-9bbfd8720c40"
+     ],
+     "checkable": true
+    },
+    {
+     "id": "material_missing",
+     "query": "재질이 적혀 있지 않은 도면을 모두 찾아 주세요",
+     "answer": [
+      "8729645f-03e3-50a2-b792-88f0ce0241d6",
+      "c1745b63-fc12-513f-8ce8-4ce3f1f82171",
+      "c7054229-e64e-58b5-835b-941dc1af57fc",
+      "cf29d949-59ae-5531-a7b6-a2a6934af2e0",
+      "d5e2c6f1-bfa1-5d0e-a151-4781e9a04ccc",
+      "e4a08990-36ec-5594-ac33-0ab6e9b64e3b"
+     ],
+     "checkable": false
+    },
+    {
+     "id": "kind_material_missing",
+     "query": "재질이 적혀 있지 않은 하우징 도면을 모두 찾아 주세요",
+     "answer": [
+      "8729645f-03e3-50a2-b792-88f0ce0241d6",
+      "c7054229-e64e-58b5-835b-941dc1af57fc"
+     ],
+     "checkable": false
+    },
+    {
+     "id": "kind_material_other",
+     "query": "AL6061 하우징 도면을 모두 찾아 주세요",
+     "answer": [
+      "9450b559-8998-5060-be3e-ab729f10cbc2",
+      "f1e26812-380a-5c28-8482-9bbfd8720c40"
+     ],
+     "checkable": true
+    },
+    {
+     "id": "width_value",
+     "query": "너비 101mm인 도면을 모두 찾아 주세요",
+     "answer": [
+      "741bb518-5dd0-59d0-b5f4-f774b78a0d46",
+      "d62aac46-ff43-5948-9161-f5c4415a18f0",
+      "e4a08990-36ec-5594-ac33-0ab6e9b64e3b",
+      "ec5f315f-a02e-594a-9130-12c27441a2ea"
+     ],
+     "checkable": true
+    },
+    {
+     "id": "hole_spacing_value",
+     "query": "구멍 간격 64mm인 도면을 모두 찾아 주세요",
+     "answer": [
+      "0f656309-ed49-58c1-bd60-36fb76a4d685",
+      "65edc4cb-fa00-5e6a-ae1e-01bc1258ab87",
+      "7367c1cc-7981-5b63-8a19-b8fb2e533124",
+      "c1745b63-fc12-513f-8ce8-4ce3f1f82171"
+     ],
+     "checkable": true
+    },
+    {
+     "id": "kind_control",
+     "query": "플랜지 도면을 모두 찾아 주세요",
+     "answer": [
+      "5312e80a-dd37-58af-8b41-6c6ec85235e5",
+      "63b17fd6-1069-566a-af4b-18f6e0f60a3e",
+      "98cd91fd-8250-5317-ad3d-cebdef65816c",
+      "b91e9637-5729-5c5a-be95-7c4c1d29be00",
+      "d5e2c6f1-bfa1-5d0e-a151-4781e9a04ccc"
+     ],
+     "checkable": true
+    }
+   ],
+   "summary": {
+    "rules": {
+     "runs": 8,
+     "completed": 8,
+     "found": 21,
+     "answer": 47,
+     "extra": 8,
+     "complete_sets": 4,
+     "confirmed": 19,
+     "confirmable": 39,
+     "false_matches": 0,
+     "shell_commands": 0,
+     "refused": 0,
+     "runs_using_shell": 0,
+     "model_calls": 0,
+     "tool_calls": 37,
+     "cost_usd": 0.0,
+     "latency_ms_p50": 60.5
+    },
+    "ranked": {
+     "runs": 8,
+     "completed": 8,
+     "found": 29,
+     "answer": 47,
+     "extra": 40,
+     "complete_sets": 6,
+     "confirmed": 24,
+     "confirmable": 39,
+     "false_matches": 0,
+     "shell_commands": 0,
+     "refused": 0,
+     "runs_using_shell": 0,
+     "model_calls": 11,
+     "tool_calls": 53,
+     "cost_usd": 0.047886,
+     "latency_ms_p50": 5420.6
+    },
+    "shell": {
+     "runs": 8,
+     "completed": 8,
+     "found": 35,
+     "answer": 47,
+     "extra": 21,
+     "complete_sets": 7,
+     "confirmed": 23,
+     "confirmable": 39,
+     "false_matches": 0,
+     "shell_commands": 2,
+     "refused": 0,
+     "runs_using_shell": 2,
+     "model_calls": 11,
+     "tool_calls": 52,
+     "cost_usd": 0.05068,
+     "latency_ms_p50": 5581.3
+    }
+   },
+   "rows": [
+    {
+     "arm": "rules",
+     "case": "material_common",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "SUS304",
+       "unit": null
+      }
+     ],
+     "answer": 18,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [
+      "39200b3a-1bea-5e02-8516-b84ce75af4e8",
+      "5312e80a-dd37-58af-8b41-6c6ec85235e5",
+      "63b17fd6-1069-566a-af4b-18f6e0f60a3e",
+      "65edc4cb-fa00-5e6a-ae1e-01bc1258ab87",
+      "7367c1cc-7981-5b63-8a19-b8fb2e533124",
+      "b91e9637-5729-5c5a-be95-7c4c1d29be00",
+      "d62aac46-ff43-5948-9161-f5c4415a18f0",
+      "e8c92937-1305-5268-bd9a-c870b13f6031",
+      "ec5f315f-a02e-594a-9130-12c27441a2ea",
+      "f486a712-46b6-58f6-854f-4c3ec2b8b855",
+      "f5e15d49-6a0c-56fb-a44d-9b0b062764b1",
+      "fca46086-1f8d-51c7-804a-547dc7a49c3a"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 7,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 101.8,
+     "actual": {
+      "0e89a61b-cd87-5107-9609-302c3bac7c80": "match",
+      "12215a86-bd36-5043-b20b-12ce568ebf4f": "match",
+      "3c99195a-4984-56ae-81f3-f4df2d795376": "match",
+      "90433978-1da6-5258-b5eb-a0101246a54c": "match",
+      "b706aedc-a8b4-56b4-be49-2535aeb8f0cb": "match",
+      "c291a019-f483-50da-8f24-6002e6f4112e": "match"
+     }
+    },
+    {
+     "arm": "rules",
+     "case": "material_other",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "AL6061",
+       "unit": null
+      }
+     ],
+     "answer": 6,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 7,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 65.2,
+     "actual": {
+      "0f656309-ed49-58c1-bd60-36fb76a4d685": "match",
+      "741bb518-5dd0-59d0-b5f4-f774b78a0d46": "match",
+      "854cde90-632e-5dd5-bfc1-1f2e81120743": "match",
+      "9450b559-8998-5060-be3e-ab729f10cbc2": "match",
+      "98cd91fd-8250-5317-ad3d-cebdef65816c": "match",
+      "f1e26812-380a-5c28-8482-9bbfd8720c40": "match"
+     }
+    },
+    {
+     "arm": "rules",
+     "case": "material_missing",
+     "state": "completed",
+     "error": null,
+     "requirements": [],
+     "answer": 6,
+     "found": 0,
+     "extra": 0,
+     "confirmed": null,
+     "false_matches": null,
+     "missed": [
+      "8729645f-03e3-50a2-b792-88f0ce0241d6",
+      "c1745b63-fc12-513f-8ce8-4ce3f1f82171",
+      "c7054229-e64e-58b5-835b-941dc1af57fc",
+      "cf29d949-59ae-5531-a7b6-a2a6934af2e0",
+      "d5e2c6f1-bfa1-5d0e-a151-4781e9a04ccc",
+      "e4a08990-36ec-5594-ac33-0ab6e9b64e3b"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 1,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 95.3,
+     "actual": {}
+    },
+    {
+     "arm": "rules",
+     "case": "kind_material_missing",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "housing",
+       "unit": null
+      }
+     ],
+     "answer": 2,
+     "found": 2,
+     "extra": 4,
+     "confirmed": null,
+     "false_matches": null,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 7,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 61.6,
+     "actual": {
+      "0e89a61b-cd87-5107-9609-302c3bac7c80": "match",
+      "3c99195a-4984-56ae-81f3-f4df2d795376": "match",
+      "8729645f-03e3-50a2-b792-88f0ce0241d6": "match",
+      "9450b559-8998-5060-be3e-ab729f10cbc2": "match",
+      "b706aedc-a8b4-56b4-be49-2535aeb8f0cb": "match",
+      "c7054229-e64e-58b5-835b-941dc1af57fc": "match"
+     }
+    },
+    {
+     "arm": "rules",
+     "case": "kind_material_other",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "housing",
+       "unit": null
+      },
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "AL6061",
+       "unit": null
+      }
+     ],
+     "answer": 2,
+     "found": 2,
+     "extra": 4,
+     "confirmed": 2,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 7,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 59.3,
+     "actual": {
+      "9450b559-8998-5060-be3e-ab729f10cbc2": "match",
+      "f1e26812-380a-5c28-8482-9bbfd8720c40": "match",
+      "8729645f-03e3-50a2-b792-88f0ce0241d6": "unknown",
+      "c7054229-e64e-58b5-835b-941dc1af57fc": "unknown",
+      "0e89a61b-cd87-5107-9609-302c3bac7c80": "mismatch",
+      "3c99195a-4984-56ae-81f3-f4df2d795376": "mismatch"
+     }
+    },
+    {
+     "arm": "rules",
+     "case": "width_value",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "width",
+       "operator": "eq",
+       "value": {
+        "low": "101",
+        "high": "101"
+       },
+       "unit": "mm"
+      }
+     ],
+     "answer": 4,
+     "found": 0,
+     "extra": 0,
+     "confirmed": 0,
+     "false_matches": 0,
+     "missed": [
+      "741bb518-5dd0-59d0-b5f4-f774b78a0d46",
+      "d62aac46-ff43-5948-9161-f5c4415a18f0",
+      "e4a08990-36ec-5594-ac33-0ab6e9b64e3b",
+      "ec5f315f-a02e-594a-9130-12c27441a2ea"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 1,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 47.6,
+     "actual": {}
+    },
+    {
+     "arm": "rules",
+     "case": "hole_spacing_value",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "hole_spacing",
+       "operator": "eq",
+       "value": {
+        "low": "64",
+        "high": "64"
+       },
+       "unit": "mm"
+      }
+     ],
+     "answer": 4,
+     "found": 0,
+     "extra": 0,
+     "confirmed": 0,
+     "false_matches": 0,
+     "missed": [
+      "0f656309-ed49-58c1-bd60-36fb76a4d685",
+      "65edc4cb-fa00-5e6a-ae1e-01bc1258ab87",
+      "7367c1cc-7981-5b63-8a19-b8fb2e533124",
+      "c1745b63-fc12-513f-8ce8-4ce3f1f82171"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 1,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 46.8,
+     "actual": {}
+    },
+    {
+     "arm": "rules",
+     "case": "kind_control",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "flange",
+       "unit": null
+      }
+     ],
+     "answer": 5,
+     "found": 5,
+     "extra": 0,
+     "confirmed": 5,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 6,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 59.2,
+     "actual": {
+      "5312e80a-dd37-58af-8b41-6c6ec85235e5": "match",
+      "63b17fd6-1069-566a-af4b-18f6e0f60a3e": "match",
+      "98cd91fd-8250-5317-ad3d-cebdef65816c": "match",
+      "b91e9637-5729-5c5a-be95-7c4c1d29be00": "match",
+      "d5e2c6f1-bfa1-5d0e-a151-4781e9a04ccc": "match"
+     }
+    },
+    {
+     "arm": "ranked",
+     "case": "material_common",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "SUS304",
+       "unit": null
+      }
+     ],
+     "answer": 18,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [
+      "39200b3a-1bea-5e02-8516-b84ce75af4e8",
+      "5312e80a-dd37-58af-8b41-6c6ec85235e5",
+      "63b17fd6-1069-566a-af4b-18f6e0f60a3e",
+      "65edc4cb-fa00-5e6a-ae1e-01bc1258ab87",
+      "7367c1cc-7981-5b63-8a19-b8fb2e533124",
+      "b91e9637-5729-5c5a-be95-7c4c1d29be00",
+      "d62aac46-ff43-5948-9161-f5c4415a18f0",
+      "e8c92937-1305-5268-bd9a-c870b13f6031",
+      "ec5f315f-a02e-594a-9130-12c27441a2ea",
+      "f486a712-46b6-58f6-854f-4c3ec2b8b855",
+      "f5e15d49-6a0c-56fb-a44d-9b0b062764b1",
+      "fca46086-1f8d-51c7-804a-547dc7a49c3a"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 7,
+     "input_tokens": 2803,
+     "output_tokens": 479,
+     "cost_usd": 0.005198,
+     "latency_ms": 7806.0,
+     "actual": {
+      "0e89a61b-cd87-5107-9609-302c3bac7c80": "match",
+      "12215a86-bd36-5043-b20b-12ce568ebf4f": "match",
+      "3c99195a-4984-56ae-81f3-f4df2d795376": "match",
+      "90433978-1da6-5258-b5eb-a0101246a54c": "match",
+      "b706aedc-a8b4-56b4-be49-2535aeb8f0cb": "match",
+      "c291a019-f483-50da-8f24-6002e6f4112e": "match"
+     }
+    },
+    {
+     "arm": "ranked",
+     "case": "material_other",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "AL6061",
+       "unit": null
+      }
+     ],
+     "answer": 6,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 7,
+     "input_tokens": 2799,
+     "output_tokens": 465,
+     "cost_usd": 0.005124,
+     "latency_ms": 5297.8,
+     "actual": {
+      "0f656309-ed49-58c1-bd60-36fb76a4d685": "match",
+      "741bb518-5dd0-59d0-b5f4-f774b78a0d46": "match",
+      "854cde90-632e-5dd5-bfc1-1f2e81120743": "match",
+      "9450b559-8998-5060-be3e-ab729f10cbc2": "match",
+      "98cd91fd-8250-5317-ad3d-cebdef65816c": "match",
+      "f1e26812-380a-5c28-8482-9bbfd8720c40": "match"
+     }
+    },
+    {
+     "arm": "ranked",
+     "case": "material_missing",
+     "state": "completed",
+     "error": null,
+     "requirements": [],
+     "answer": 6,
+     "found": 0,
+     "extra": 20,
+     "confirmed": null,
+     "false_matches": null,
+     "missed": [
+      "8729645f-03e3-50a2-b792-88f0ce0241d6",
+      "c1745b63-fc12-513f-8ce8-4ce3f1f82171",
+      "c7054229-e64e-58b5-835b-941dc1af57fc",
+      "cf29d949-59ae-5531-a7b6-a2a6934af2e0",
+      "d5e2c6f1-bfa1-5d0e-a151-4781e9a04ccc",
+      "e4a08990-36ec-5594-ac33-0ab6e9b64e3b"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "define_search_tool",
+      "search_keyword"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 3,
+     "input_tokens": 2237,
+     "output_tokens": 228,
+     "cost_usd": 0.003377,
+     "latency_ms": 2608.6,
+     "actual": {
+      "0e89a61b-cd87-5107-9609-302c3bac7c80": "unknown",
+      "12215a86-bd36-5043-b20b-12ce568ebf4f": "unknown",
+      "3c99195a-4984-56ae-81f3-f4df2d795376": "unknown",
+      "5312e80a-dd37-58af-8b41-6c6ec85235e5": "unknown",
+      "63b17fd6-1069-566a-af4b-18f6e0f60a3e": "unknown",
+      "741bb518-5dd0-59d0-b5f4-f774b78a0d46": "unknown",
+      "854cde90-632e-5dd5-bfc1-1f2e81120743": "unknown",
+      "90433978-1da6-5258-b5eb-a0101246a54c": "unknown",
+      "9450b559-8998-5060-be3e-ab729f10cbc2": "unknown",
+      "98cd91fd-8250-5317-ad3d-cebdef65816c": "unknown",
+      "b706aedc-a8b4-56b4-be49-2535aeb8f0cb": "unknown",
+      "b91e9637-5729-5c5a-be95-7c4c1d29be00": "unknown",
+      "c291a019-f483-50da-8f24-6002e6f4112e": "unknown",
+      "d62aac46-ff43-5948-9161-f5c4415a18f0": "unknown",
+      "e8c92937-1305-5268-bd9a-c870b13f6031": "unknown",
+      "ec5f315f-a02e-594a-9130-12c27441a2ea": "unknown",
+      "f1e26812-380a-5c28-8482-9bbfd8720c40": "unknown",
+      "f486a712-46b6-58f6-854f-4c3ec2b8b855": "unknown",
+      "f5e15d49-6a0c-56fb-a44d-9b0b062764b1": "unknown",
+      "fca46086-1f8d-51c7-804a-547dc7a49c3a": "unknown"
+     }
+    },
+    {
+     "arm": "ranked",
+     "case": "kind_material_missing",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "housing",
+       "unit": null
+      }
+     ],
+     "answer": 2,
+     "found": 2,
+     "extra": 4,
+     "confirmed": null,
+     "false_matches": null,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 7,
+     "input_tokens": 2816,
+     "output_tokens": 452,
+     "cost_usd": 0.005076,
+     "latency_ms": 5543.4,
+     "actual": {
+      "0e89a61b-cd87-5107-9609-302c3bac7c80": "match",
+      "3c99195a-4984-56ae-81f3-f4df2d795376": "match",
+      "8729645f-03e3-50a2-b792-88f0ce0241d6": "match",
+      "9450b559-8998-5060-be3e-ab729f10cbc2": "match",
+      "b706aedc-a8b4-56b4-be49-2535aeb8f0cb": "match",
+      "c7054229-e64e-58b5-835b-941dc1af57fc": "match"
+     }
+    },
+    {
+     "arm": "ranked",
+     "case": "kind_material_other",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "housing",
+       "unit": null
+      },
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "AL6061",
+       "unit": null
+      }
+     ],
+     "answer": 2,
+     "found": 2,
+     "extra": 4,
+     "confirmed": 2,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 7,
+     "input_tokens": 2849,
+     "output_tokens": 485,
+     "cost_usd": 0.005274,
+     "latency_ms": 5567.6,
+     "actual": {
+      "9450b559-8998-5060-be3e-ab729f10cbc2": "match",
+      "f1e26812-380a-5c28-8482-9bbfd8720c40": "match",
+      "8729645f-03e3-50a2-b792-88f0ce0241d6": "unknown",
+      "c7054229-e64e-58b5-835b-941dc1af57fc": "unknown",
+      "0e89a61b-cd87-5107-9609-302c3bac7c80": "mismatch",
+      "3c99195a-4984-56ae-81f3-f4df2d795376": "mismatch"
+     }
+    },
+    {
+     "arm": "ranked",
+     "case": "width_value",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "width",
+       "operator": "eq",
+       "value": {
+        "low": "101",
+        "high": "101"
+       },
+       "unit": "mm"
+      }
+     ],
+     "answer": 4,
+     "found": 4,
+     "extra": 6,
+     "confirmed": 1,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "define_search_tool",
+      "run_saved_search",
+      "run_saved_search",
+      "search_keyword"
+     ],
+     "tool_errors": 0,
+     "model_calls": 3,
+     "tool_calls": 5,
+     "input_tokens": 7087,
+     "output_tokens": 375,
+     "cost_usd": 0.008962,
+     "latency_ms": 4642.1,
+     "actual": {
+      "e4a08990-36ec-5594-ac33-0ab6e9b64e3b": "match",
+      "3c99195a-4984-56ae-81f3-f4df2d795376": "unknown",
+      "741bb518-5dd0-59d0-b5f4-f774b78a0d46": "unknown",
+      "d62aac46-ff43-5948-9161-f5c4415a18f0": "unknown",
+      "ec5f315f-a02e-594a-9130-12c27441a2ea": "unknown",
+      "0e89a61b-cd87-5107-9609-302c3bac7c80": "mismatch",
+      "12215a86-bd36-5043-b20b-12ce568ebf4f": "mismatch",
+      "8729645f-03e3-50a2-b792-88f0ce0241d6": "mismatch",
+      "c7054229-e64e-58b5-835b-941dc1af57fc": "mismatch",
+      "cf29d949-59ae-5531-a7b6-a2a6934af2e0": "mismatch"
+     }
+    },
+    {
+     "arm": "ranked",
+     "case": "hole_spacing_value",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "hole_spacing",
+       "operator": "eq",
+       "value": {
+        "low": "64",
+        "high": "64"
+       },
+       "unit": "mm"
+      }
+     ],
+     "answer": 4,
+     "found": 4,
+     "extra": 6,
+     "confirmed": 4,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "define_search_tool",
+      "search_keyword",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 2,
+     "tool_calls": 11,
+     "input_tokens": 5693,
+     "output_tokens": 874,
+     "cost_usd": 0.010063,
+     "latency_ms": 9861.3,
+     "actual": {
+      "0f656309-ed49-58c1-bd60-36fb76a4d685": "match",
+      "65edc4cb-fa00-5e6a-ae1e-01bc1258ab87": "match",
+      "7367c1cc-7981-5b63-8a19-b8fb2e533124": "match",
+      "c1745b63-fc12-513f-8ce8-4ce3f1f82171": "match",
+      "39200b3a-1bea-5e02-8516-b84ce75af4e8": "unknown",
+      "b91e9637-5729-5c5a-be95-7c4c1d29be00": "unknown",
+      "5312e80a-dd37-58af-8b41-6c6ec85235e5": "mismatch",
+      "63b17fd6-1069-566a-af4b-18f6e0f60a3e": "mismatch",
+      "98cd91fd-8250-5317-ad3d-cebdef65816c": "mismatch",
+      "d5e2c6f1-bfa1-5d0e-a151-4781e9a04ccc": "mismatch"
+     }
+    },
+    {
+     "arm": "ranked",
+     "case": "kind_control",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "flange",
+       "unit": null
+      }
+     ],
+     "answer": 5,
+     "found": 5,
+     "extra": 0,
+     "confirmed": 5,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2717,
+     "output_tokens": 419,
+     "cost_usd": 0.004812,
+     "latency_ms": 5107.7,
+     "actual": {
+      "5312e80a-dd37-58af-8b41-6c6ec85235e5": "match",
+      "63b17fd6-1069-566a-af4b-18f6e0f60a3e": "match",
+      "98cd91fd-8250-5317-ad3d-cebdef65816c": "match",
+      "b91e9637-5729-5c5a-be95-7c4c1d29be00": "match",
+      "d5e2c6f1-bfa1-5d0e-a151-4781e9a04ccc": "match"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "material_common",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "SUS304",
+       "unit": null
+      }
+     ],
+     "answer": 18,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [
+      "39200b3a-1bea-5e02-8516-b84ce75af4e8",
+      "5312e80a-dd37-58af-8b41-6c6ec85235e5",
+      "63b17fd6-1069-566a-af4b-18f6e0f60a3e",
+      "65edc4cb-fa00-5e6a-ae1e-01bc1258ab87",
+      "7367c1cc-7981-5b63-8a19-b8fb2e533124",
+      "b91e9637-5729-5c5a-be95-7c4c1d29be00",
+      "d62aac46-ff43-5948-9161-f5c4415a18f0",
+      "e8c92937-1305-5268-bd9a-c870b13f6031",
+      "ec5f315f-a02e-594a-9130-12c27441a2ea",
+      "f486a712-46b6-58f6-854f-4c3ec2b8b855",
+      "f5e15d49-6a0c-56fb-a44d-9b0b062764b1",
+      "fca46086-1f8d-51c7-804a-547dc7a49c3a"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 7,
+     "input_tokens": 3094,
+     "output_tokens": 476,
+     "cost_usd": 0.005474,
+     "latency_ms": 5501.6,
+     "actual": {
+      "0e89a61b-cd87-5107-9609-302c3bac7c80": "match",
+      "12215a86-bd36-5043-b20b-12ce568ebf4f": "match",
+      "3c99195a-4984-56ae-81f3-f4df2d795376": "match",
+      "90433978-1da6-5258-b5eb-a0101246a54c": "match",
+      "b706aedc-a8b4-56b4-be49-2535aeb8f0cb": "match",
+      "c291a019-f483-50da-8f24-6002e6f4112e": "match"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "material_other",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "AL6061",
+       "unit": null
+      }
+     ],
+     "answer": 6,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 7,
+     "input_tokens": 3090,
+     "output_tokens": 469,
+     "cost_usd": 0.005435,
+     "latency_ms": 5213.8,
+     "actual": {
+      "0f656309-ed49-58c1-bd60-36fb76a4d685": "match",
+      "741bb518-5dd0-59d0-b5f4-f774b78a0d46": "match",
+      "854cde90-632e-5dd5-bfc1-1f2e81120743": "match",
+      "9450b559-8998-5060-be3e-ab729f10cbc2": "match",
+      "98cd91fd-8250-5317-ad3d-cebdef65816c": "match",
+      "f1e26812-380a-5c28-8482-9bbfd8720c40": "match"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "material_missing",
+     "state": "completed",
+     "error": null,
+     "requirements": [],
+     "answer": 6,
+     "found": 6,
+     "extra": 0,
+     "confirmed": null,
+     "false_matches": null,
+     "missed": [],
+     "commands": [
+      "grep -r -L 'fact material' . --include='*.txt'"
+     ],
+     "command_items": [
+      6
+     ],
+     "refused": [],
+     "tools": [
+      "search_shell"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 2,
+     "input_tokens": 2528,
+     "output_tokens": 132,
+     "cost_usd": 0.003188,
+     "latency_ms": 1662.5,
+     "actual": {
+      "8729645f-03e3-50a2-b792-88f0ce0241d6": "unknown",
+      "c1745b63-fc12-513f-8ce8-4ce3f1f82171": "unknown",
+      "c7054229-e64e-58b5-835b-941dc1af57fc": "unknown",
+      "cf29d949-59ae-5531-a7b6-a2a6934af2e0": "unknown",
+      "d5e2c6f1-bfa1-5d0e-a151-4781e9a04ccc": "unknown",
+      "e4a08990-36ec-5594-ac33-0ab6e9b64e3b": "unknown"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "kind_material_missing",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "housing",
+       "unit": null
+      }
+     ],
+     "answer": 2,
+     "found": 2,
+     "extra": 4,
+     "confirmed": null,
+     "false_matches": null,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 7,
+     "input_tokens": 3107,
+     "output_tokens": 492,
+     "cost_usd": 0.005567,
+     "latency_ms": 5839.7,
+     "actual": {
+      "0e89a61b-cd87-5107-9609-302c3bac7c80": "match",
+      "3c99195a-4984-56ae-81f3-f4df2d795376": "match",
+      "8729645f-03e3-50a2-b792-88f0ce0241d6": "match",
+      "9450b559-8998-5060-be3e-ab729f10cbc2": "match",
+      "b706aedc-a8b4-56b4-be49-2535aeb8f0cb": "match",
+      "c7054229-e64e-58b5-835b-941dc1af57fc": "match"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "kind_material_other",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "housing",
+       "unit": null
+      },
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "AL6061",
+       "unit": null
+      }
+     ],
+     "answer": 2,
+     "found": 2,
+     "extra": 4,
+     "confirmed": 2,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 7,
+     "input_tokens": 3140,
+     "output_tokens": 494,
+     "cost_usd": 0.00561,
+     "latency_ms": 5661.0,
+     "actual": {
+      "9450b559-8998-5060-be3e-ab729f10cbc2": "match",
+      "f1e26812-380a-5c28-8482-9bbfd8720c40": "match",
+      "8729645f-03e3-50a2-b792-88f0ce0241d6": "unknown",
+      "c7054229-e64e-58b5-835b-941dc1af57fc": "unknown",
+      "0e89a61b-cd87-5107-9609-302c3bac7c80": "mismatch",
+      "3c99195a-4984-56ae-81f3-f4df2d795376": "mismatch"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "width_value",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "width",
+       "operator": "eq",
+       "value": {
+        "low": "101",
+        "high": "101"
+       },
+       "unit": "mm"
+      }
+     ],
+     "answer": 4,
+     "found": 4,
+     "extra": 7,
+     "confirmed": 4,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [
+      "grep -r \"width\" . | grep -i \"101\""
+     ],
+     "command_items": [
+      5
+     ],
+     "refused": [],
+     "tools": [
+      "search_keyword",
+      "search_shell",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 2,
+     "tool_calls": 11,
+     "input_tokens": 6190,
+     "output_tokens": 747,
+     "cost_usd": 0.009925,
+     "latency_ms": 8580.8,
+     "actual": {
+      "741bb518-5dd0-59d0-b5f4-f774b78a0d46": "match",
+      "d62aac46-ff43-5948-9161-f5c4415a18f0": "match",
+      "e4a08990-36ec-5594-ac33-0ab6e9b64e3b": "match",
+      "ec5f315f-a02e-594a-9130-12c27441a2ea": "match",
+      "12215a86-bd36-5043-b20b-12ce568ebf4f": "unknown",
+      "3c99195a-4984-56ae-81f3-f4df2d795376": "unknown",
+      "90433978-1da6-5258-b5eb-a0101246a54c": "unknown",
+      "0e89a61b-cd87-5107-9609-302c3bac7c80": "mismatch",
+      "8729645f-03e3-50a2-b792-88f0ce0241d6": "mismatch",
+      "c7054229-e64e-58b5-835b-941dc1af57fc": "mismatch",
+      "cf29d949-59ae-5531-a7b6-a2a6934af2e0": "mismatch"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "hole_spacing_value",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "hole_spacing",
+       "operator": "eq",
+       "value": {
+        "low": "64",
+        "high": "64"
+       },
+       "unit": "mm"
+      }
+     ],
+     "answer": 4,
+     "found": 4,
+     "extra": 6,
+     "confirmed": 0,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "define_search_tool",
+      "run_saved_search",
+      "search_keyword",
+      "search_keyword"
+     ],
+     "tool_errors": 0,
+     "model_calls": 3,
+     "tool_calls": 5,
+     "input_tokens": 8018,
+     "output_tokens": 477,
+     "cost_usd": 0.010403,
+     "latency_ms": 5691.5,
+     "actual": {
+      "0f656309-ed49-58c1-bd60-36fb76a4d685": "unknown",
+      "39200b3a-1bea-5e02-8516-b84ce75af4e8": "unknown",
+      "5312e80a-dd37-58af-8b41-6c6ec85235e5": "unknown",
+      "63b17fd6-1069-566a-af4b-18f6e0f60a3e": "unknown",
+      "65edc4cb-fa00-5e6a-ae1e-01bc1258ab87": "unknown",
+      "7367c1cc-7981-5b63-8a19-b8fb2e533124": "unknown",
+      "98cd91fd-8250-5317-ad3d-cebdef65816c": "unknown",
+      "b91e9637-5729-5c5a-be95-7c4c1d29be00": "unknown",
+      "c1745b63-fc12-513f-8ce8-4ce3f1f82171": "unknown",
+      "d5e2c6f1-bfa1-5d0e-a151-4781e9a04ccc": "unknown"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "kind_control",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "flange",
+       "unit": null
+      }
+     ],
+     "answer": 5,
+     "found": 5,
+     "extra": 0,
+     "confirmed": 5,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 3008,
+     "output_tokens": 414,
+     "cost_usd": 0.005078,
+     "latency_ms": 4815.7,
+     "actual": {
+      "5312e80a-dd37-58af-8b41-6c6ec85235e5": "match",
+      "63b17fd6-1069-566a-af4b-18f6e0f60a3e": "match",
+      "98cd91fd-8250-5317-ad3d-cebdef65816c": "match",
+      "b91e9637-5729-5c5a-be95-7c4c1d29be00": "match",
+      "d5e2c6f1-bfa1-5d0e-a151-4781e9a04ccc": "match"
+     }
+    }
+   ],
+   "model_errors": [],
+   "protocol": {
+    "code_sha": "421e1bebe9b195acb500fafa26b88bec927c27c7",
+    "model": "claude-haiku-4-5-20251001",
+    "mode": "react",
+    "arms": [
+     "ranked",
+     "shell"
+    ],
+    "ceiling_usd": "0.3",
+    "per_run_cap_usd": "0.03",
+    "budget": {
+     "max_model_calls": 4,
+     "max_tool_calls": 24,
+     "max_tokens": 64000,
+     "deadline_seconds": 240
+    }
+   },
+   "spent_usd": 0.098566,
+   "skipped": []
+  },
+  {
+   "label": "dev split, shell arm, before the retrieval-reach context",
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/40207958626",
+   "cases": [
+    {
+     "id": "material_common",
+     "query": "SUS304 도면을 모두 찾아 주세요",
+     "answer": [
+      "0d022a80-55eb-5704-b116-8e3890e623f6",
+      "0ed01a4b-19ae-5577-93ea-de98446f07ec",
+      "20192a96-fff8-5825-a035-d45e2293131c",
+      "3bcbf23e-0fd6-54b0-9cba-687130ab6311",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c",
+      "662ae3bd-2c10-503a-9709-fb1d117ae135",
+      "791b8830-3f07-5235-951f-dc521afd83ac",
+      "825fd47b-f59c-51f0-adbf-4918582aadba",
+      "85a7bf25-75d9-55b9-b725-5c7af284f138",
+      "9e836b2e-286e-5416-9d67-07c19065cf66",
+      "a5a249d2-4d40-5041-b108-ded52d46395b",
+      "a981b001-ed69-593f-919e-d528e5dd7170",
+      "ab5fc625-eeaa-5281-8900-af5b79dd165c",
+      "aeb8a90a-b9c1-5087-9763-2be1d3eed3be",
+      "d399b866-3558-5a30-989f-fd4ecaef037b",
+      "df50d392-e238-5dbe-86ff-1f27a0ef261b",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+     ],
+     "checkable": true
+    },
+    {
+     "id": "material_other",
+     "query": "AL6061 도면을 모두 찾아 주세요",
+     "answer": [
+      "22e0d1bb-7492-5303-9c1d-e79370488cd4",
+      "262f4ed0-061c-5026-aef0-416a64cc2115",
+      "60c1596b-e066-5ca8-80a9-99f2f1983fad",
+      "6ebbb218-69d6-5223-958d-4787661b869d",
+      "715ede7c-6176-55ef-9e2f-dd59383740f7",
+      "bd0241fe-4b12-5b7f-a779-5e1f9cc4de7d"
+     ],
+     "checkable": true
+    },
+    {
+     "id": "material_missing",
+     "query": "재질이 적혀 있지 않은 도면을 모두 찾아 주세요",
+     "answer": [
+      "1e677348-93bd-5cb2-80c3-5ed2aaecd1bf",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7",
+      "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f",
+      "f51c166b-cf95-524b-a40d-9fac315fa717",
+      "fd27b829-918c-514f-abd2-67e03d50194f"
+     ],
+     "checkable": false
+    },
+    {
+     "id": "kind_material_missing",
+     "query": "재질이 적혀 있지 않은 플랜지 도면을 모두 찾아 주세요",
+     "answer": [
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7"
+     ],
+     "checkable": false
+    },
+    {
+     "id": "kind_material_other",
+     "query": "AL6061 플랜지 도면을 모두 찾아 주세요",
+     "answer": [
+      "262f4ed0-061c-5026-aef0-416a64cc2115",
+      "6ebbb218-69d6-5223-958d-4787661b869d"
+     ],
+     "checkable": true
+    },
+    {
+     "id": "width_value",
+     "query": "너비 109mm인 도면을 모두 찾아 주세요",
+     "answer": [
+      "3bcbf23e-0fd6-54b0-9cba-687130ab6311",
+      "85a7bf25-75d9-55b9-b725-5c7af284f138",
+      "bd0241fe-4b12-5b7f-a779-5e1f9cc4de7d",
+      "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f"
+     ],
+     "checkable": true
+    },
+    {
+     "id": "hole_spacing_value",
+     "query": "구멍 간격 42mm인 도면을 모두 찾아 주세요",
+     "answer": [
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c",
+      "6ebbb218-69d6-5223-958d-4787661b869d",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+     ],
+     "checkable": true
+    },
+    {
+     "id": "kind_control",
+     "query": "플랜지 도면을 모두 찾아 주세요",
+     "answer": [
+      "20192a96-fff8-5825-a035-d45e2293131c",
+      "262f4ed0-061c-5026-aef0-416a64cc2115",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c",
+      "6ebbb218-69d6-5223-958d-4787661b869d",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d",
+      "791b8830-3f07-5235-951f-dc521afd83ac",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7",
+      "a5a249d2-4d40-5041-b108-ded52d46395b",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+     ],
+     "checkable": true
+    }
+   ],
+   "summary": {
+    "rules": {
+     "runs": 8,
+     "completed": 8,
+     "found": 22,
+     "answer": 52,
+     "extra": 8,
+     "complete_sets": 3,
+     "confirmed": 20,
+     "confirmable": 44,
+     "false_matches": 0,
+     "shell_commands": 0,
+     "refused": 0,
+     "runs_using_shell": 0,
+     "model_calls": 0,
+     "tool_calls": 38,
+     "cost_usd": 0.0,
+     "latency_ms_p50": 69.4
+    },
+    "shell": {
+     "runs": 8,
+     "completed": 8,
+     "found": 30,
+     "answer": 52,
+     "extra": 35,
+     "complete_sets": 5,
+     "confirmed": 24,
+     "confirmable": 44,
+     "false_matches": 0,
+     "shell_commands": 0,
+     "refused": 1,
+     "runs_using_shell": 0,
+     "model_calls": 10,
+     "tool_calls": 59,
+     "cost_usd": 0.052064,
+     "latency_ms_p50": 5595.2
+    }
+   },
+   "rows": [
+    {
+     "arm": "rules",
+     "case": "material_common",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "SUS304",
+       "unit": null
+      }
+     ],
+     "answer": 18,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [
+      "0ed01a4b-19ae-5577-93ea-de98446f07ec",
+      "20192a96-fff8-5825-a035-d45e2293131c",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c",
+      "791b8830-3f07-5235-951f-dc521afd83ac",
+      "825fd47b-f59c-51f0-adbf-4918582aadba",
+      "a5a249d2-4d40-5041-b108-ded52d46395b",
+      "a981b001-ed69-593f-919e-d528e5dd7170",
+      "aeb8a90a-b9c1-5087-9763-2be1d3eed3be",
+      "d399b866-3558-5a30-989f-fd4ecaef037b",
+      "df50d392-e238-5dbe-86ff-1f27a0ef261b",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 7,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 110.7,
+     "actual": {
+      "0d022a80-55eb-5704-b116-8e3890e623f6": "match",
+      "3bcbf23e-0fd6-54b0-9cba-687130ab6311": "match",
+      "662ae3bd-2c10-503a-9709-fb1d117ae135": "match",
+      "85a7bf25-75d9-55b9-b725-5c7af284f138": "match",
+      "9e836b2e-286e-5416-9d67-07c19065cf66": "match",
+      "ab5fc625-eeaa-5281-8900-af5b79dd165c": "match"
+     }
+    },
+    {
+     "arm": "rules",
+     "case": "material_other",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "AL6061",
+       "unit": null
+      }
+     ],
+     "answer": 6,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 7,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 73.9,
+     "actual": {
+      "22e0d1bb-7492-5303-9c1d-e79370488cd4": "match",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "match",
+      "60c1596b-e066-5ca8-80a9-99f2f1983fad": "match",
+      "6ebbb218-69d6-5223-958d-4787661b869d": "match",
+      "715ede7c-6176-55ef-9e2f-dd59383740f7": "match",
+      "bd0241fe-4b12-5b7f-a779-5e1f9cc4de7d": "match"
+     }
+    },
+    {
+     "arm": "rules",
+     "case": "material_missing",
+     "state": "completed",
+     "error": null,
+     "requirements": [],
+     "answer": 6,
+     "found": 0,
+     "extra": 0,
+     "confirmed": null,
+     "false_matches": null,
+     "missed": [
+      "1e677348-93bd-5cb2-80c3-5ed2aaecd1bf",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7",
+      "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f",
+      "f51c166b-cf95-524b-a40d-9fac315fa717",
+      "fd27b829-918c-514f-abd2-67e03d50194f"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 1,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 53.5,
+     "actual": {}
+    },
+    {
+     "arm": "rules",
+     "case": "kind_material_missing",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "flange",
+       "unit": null
+      }
+     ],
+     "answer": 2,
+     "found": 2,
+     "extra": 4,
+     "confirmed": null,
+     "false_matches": null,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 7,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 114.0,
+     "actual": {
+      "20192a96-fff8-5825-a035-d45e2293131c": "match",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "match",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56": "match",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c": "match",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d": "match",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7": "match"
+     }
+    },
+    {
+     "arm": "rules",
+     "case": "kind_material_other",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "flange",
+       "unit": null
+      },
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "AL6061",
+       "unit": null
+      }
+     ],
+     "answer": 2,
+     "found": 2,
+     "extra": 4,
+     "confirmed": 2,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 7,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 64.9,
+     "actual": {
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "match",
+      "6ebbb218-69d6-5223-958d-4787661b869d": "match",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d": "unknown",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7": "unknown",
+      "20192a96-fff8-5825-a035-d45e2293131c": "mismatch",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56": "mismatch"
+     }
+    },
+    {
+     "arm": "rules",
+     "case": "width_value",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "width",
+       "operator": "eq",
+       "value": {
+        "low": "109",
+        "high": "109"
+       },
+       "unit": "mm"
+      }
+     ],
+     "answer": 4,
+     "found": 0,
+     "extra": 0,
+     "confirmed": 0,
+     "false_matches": 0,
+     "missed": [
+      "3bcbf23e-0fd6-54b0-9cba-687130ab6311",
+      "85a7bf25-75d9-55b9-b725-5c7af284f138",
+      "bd0241fe-4b12-5b7f-a779-5e1f9cc4de7d",
+      "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 1,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 50.2,
+     "actual": {}
+    },
+    {
+     "arm": "rules",
+     "case": "hole_spacing_value",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "hole_spacing",
+       "operator": "eq",
+       "value": {
+        "low": "42",
+        "high": "42"
+       },
+       "unit": "mm"
+      }
+     ],
+     "answer": 4,
+     "found": 0,
+     "extra": 0,
+     "confirmed": 0,
+     "false_matches": 0,
+     "missed": [
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c",
+      "6ebbb218-69d6-5223-958d-4787661b869d",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 1,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 49.5,
+     "actual": {}
+    },
+    {
+     "arm": "rules",
+     "case": "kind_control",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "flange",
+       "unit": null
+      }
+     ],
+     "answer": 10,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [
+      "6ebbb218-69d6-5223-958d-4787661b869d",
+      "791b8830-3f07-5235-951f-dc521afd83ac",
+      "a5a249d2-4d40-5041-b108-ded52d46395b",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 7,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 104.8,
+     "actual": {
+      "20192a96-fff8-5825-a035-d45e2293131c": "match",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "match",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56": "match",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c": "match",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d": "match",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7": "match"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "material_common",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "SUS304",
+       "unit": null
+      }
+     ],
+     "answer": 18,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [
+      "0ed01a4b-19ae-5577-93ea-de98446f07ec",
+      "20192a96-fff8-5825-a035-d45e2293131c",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c",
+      "791b8830-3f07-5235-951f-dc521afd83ac",
+      "825fd47b-f59c-51f0-adbf-4918582aadba",
+      "a5a249d2-4d40-5041-b108-ded52d46395b",
+      "a981b001-ed69-593f-919e-d528e5dd7170",
+      "aeb8a90a-b9c1-5087-9763-2be1d3eed3be",
+      "d399b866-3558-5a30-989f-fd4ecaef037b",
+      "df50d392-e238-5dbe-86ff-1f27a0ef261b",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 7,
+     "input_tokens": 3091,
+     "output_tokens": 441,
+     "cost_usd": 0.005296,
+     "latency_ms": 7074.9,
+     "actual": {
+      "0d022a80-55eb-5704-b116-8e3890e623f6": "match",
+      "3bcbf23e-0fd6-54b0-9cba-687130ab6311": "match",
+      "662ae3bd-2c10-503a-9709-fb1d117ae135": "match",
+      "85a7bf25-75d9-55b9-b725-5c7af284f138": "match",
+      "9e836b2e-286e-5416-9d67-07c19065cf66": "match",
+      "ab5fc625-eeaa-5281-8900-af5b79dd165c": "match"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "material_other",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "AL6061",
+       "unit": null
+      }
+     ],
+     "answer": 6,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 7,
+     "input_tokens": 3094,
+     "output_tokens": 477,
+     "cost_usd": 0.005479,
+     "latency_ms": 5511.3,
+     "actual": {
+      "22e0d1bb-7492-5303-9c1d-e79370488cd4": "match",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "match",
+      "60c1596b-e066-5ca8-80a9-99f2f1983fad": "match",
+      "6ebbb218-69d6-5223-958d-4787661b869d": "match",
+      "715ede7c-6176-55ef-9e2f-dd59383740f7": "match",
+      "bd0241fe-4b12-5b7f-a779-5e1f9cc4de7d": "match"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "material_missing",
+     "state": "completed",
+     "error": null,
+     "requirements": [],
+     "answer": 6,
+     "found": 0,
+     "extra": 0,
+     "confirmed": null,
+     "false_matches": null,
+     "missed": [
+      "1e677348-93bd-5cb2-80c3-5ed2aaecd1bf",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7",
+      "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f",
+      "f51c166b-cf95-524b-a40d-9fac315fa717",
+      "fd27b829-918c-514f-abd2-67e03d50194f"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [
+      {
+       "command": "grep -L 'material' . | head -20",
+       "error": "grep: /usr/bin/grep: .: Is a directory"
+      }
+     ],
+     "tools": [],
+     "tool_errors": 1,
+     "model_calls": 1,
+     "tool_calls": 2,
+     "input_tokens": 2528,
+     "output_tokens": 112,
+     "cost_usd": 0.003088,
+     "latency_ms": 1548.3,
+     "actual": {}
+    },
+    {
+     "arm": "shell",
+     "case": "kind_material_missing",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "flange",
+       "unit": null
+      }
+     ],
+     "answer": 2,
+     "found": 2,
+     "extra": 4,
+     "confirmed": null,
+     "false_matches": null,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 7,
+     "input_tokens": 3111,
+     "output_tokens": 478,
+     "cost_usd": 0.005501,
+     "latency_ms": 5668.5,
+     "actual": {
+      "20192a96-fff8-5825-a035-d45e2293131c": "match",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "match",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56": "match",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c": "match",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d": "match",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7": "match"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "kind_material_other",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "flange",
+       "unit": null
+      },
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "AL6061",
+       "unit": null
+      }
+     ],
+     "answer": 2,
+     "found": 2,
+     "extra": 4,
+     "confirmed": 2,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 7,
+     "input_tokens": 3145,
+     "output_tokens": 491,
+     "cost_usd": 0.0056,
+     "latency_ms": 5522.0,
+     "actual": {
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "match",
+      "6ebbb218-69d6-5223-958d-4787661b869d": "match",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d": "unknown",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7": "unknown",
+      "20192a96-fff8-5825-a035-d45e2293131c": "mismatch",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56": "mismatch"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "width_value",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "width",
+       "operator": "eq",
+       "value": {
+        "low": "109",
+        "high": "109"
+       },
+       "unit": "mm"
+      }
+     ],
+     "answer": 4,
+     "found": 4,
+     "extra": 16,
+     "confirmed": 2,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "search_keyword",
+      "define_search_tool",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 2,
+     "tool_calls": 11,
+     "input_tokens": 7123,
+     "output_tokens": 800,
+     "cost_usd": 0.011123,
+     "latency_ms": 9067.5,
+     "actual": {
+      "3bcbf23e-0fd6-54b0-9cba-687130ab6311": "match",
+      "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f": "match",
+      "20192a96-fff8-5825-a035-d45e2293131c": "unknown",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "unknown",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d": "unknown",
+      "85a7bf25-75d9-55b9-b725-5c7af284f138": "unknown",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7": "unknown",
+      "9e836b2e-286e-5416-9d67-07c19065cf66": "unknown",
+      "ab5fc625-eeaa-5281-8900-af5b79dd165c": "unknown",
+      "aeb8a90a-b9c1-5087-9763-2be1d3eed3be": "unknown",
+      "bd0241fe-4b12-5b7f-a779-5e1f9cc4de7d": "unknown",
+      "d399b866-3558-5a30-989f-fd4ecaef037b": "unknown",
+      "df50d392-e238-5dbe-86ff-1f27a0ef261b": "unknown",
+      "fd27b829-918c-514f-abd2-67e03d50194f": "unknown",
+      "0d022a80-55eb-5704-b116-8e3890e623f6": "mismatch",
+      "1e677348-93bd-5cb2-80c3-5ed2aaecd1bf": "mismatch",
+      "22e0d1bb-7492-5303-9c1d-e79370488cd4": "mismatch",
+      "662ae3bd-2c10-503a-9709-fb1d117ae135": "mismatch",
+      "715ede7c-6176-55ef-9e2f-dd59383740f7": "mismatch",
+      "f51c166b-cf95-524b-a40d-9fac315fa717": "mismatch"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "hole_spacing_value",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "hole_spacing",
+       "operator": "eq",
+       "value": {
+        "low": "42",
+        "high": "42"
+       },
+       "unit": "mm"
+      }
+     ],
+     "answer": 4,
+     "found": 4,
+     "extra": 11,
+     "confirmed": 2,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "define_search_tool",
+      "search_keyword",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 2,
+     "tool_calls": 11,
+     "input_tokens": 6625,
+     "output_tokens": 777,
+     "cost_usd": 0.01051,
+     "latency_ms": 8686.7,
+     "actual": {
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c": "match",
+      "6ebbb218-69d6-5223-958d-4787661b869d": "match",
+      "791b8830-3f07-5235-951f-dc521afd83ac": "unknown",
+      "825fd47b-f59c-51f0-adbf-4918582aadba": "unknown",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7": "unknown",
+      "a5a249d2-4d40-5041-b108-ded52d46395b": "unknown",
+      "a981b001-ed69-593f-919e-d528e5dd7170": "unknown",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832": "unknown",
+      "fd27b829-918c-514f-abd2-67e03d50194f": "unknown",
+      "0ed01a4b-19ae-5577-93ea-de98446f07ec": "mismatch",
+      "20192a96-fff8-5825-a035-d45e2293131c": "mismatch",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "mismatch",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56": "mismatch",
+      "60c1596b-e066-5ca8-80a9-99f2f1983fad": "mismatch",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d": "mismatch"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "kind_control",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "flange",
+       "unit": null
+      }
+     ],
+     "answer": 10,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [
+      "6ebbb218-69d6-5223-958d-4787661b869d",
+      "791b8830-3f07-5235-951f-dc521afd83ac",
+      "a5a249d2-4d40-5041-b108-ded52d46395b",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 7,
+     "input_tokens": 3097,
+     "output_tokens": 474,
+     "cost_usd": 0.005467,
+     "latency_ms": 5403.9,
+     "actual": {
+      "20192a96-fff8-5825-a035-d45e2293131c": "match",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "match",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56": "match",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c": "match",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d": "match",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7": "match"
+     }
+    }
+   ],
+   "model_errors": [],
+   "protocol": {
+    "code_sha": "40881dfb9d53b28ee4bb3a970931b43150af9305",
+    "split": "dev",
+    "model": "claude-haiku-4-5-20251001",
+    "mode": "react",
+    "arms": [
+     "shell"
+    ],
+    "ceiling_usd": "0.1",
+    "per_run_cap_usd": "0.03",
+    "budget": {
+     "max_model_calls": 4,
+     "max_tool_calls": 24,
+     "max_tokens": 64000,
+     "deadline_seconds": 240
+    }
+   },
+   "spent_usd": 0.052064,
+   "skipped": []
+  },
+  {
+   "label": "dev split, shell arm, after the retrieval-reach context",
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/40208075780",
+   "cases": [
+    {
+     "id": "material_common",
+     "query": "SUS304 도면을 모두 찾아 주세요",
+     "answer": [
+      "0d022a80-55eb-5704-b116-8e3890e623f6",
+      "0ed01a4b-19ae-5577-93ea-de98446f07ec",
+      "20192a96-fff8-5825-a035-d45e2293131c",
+      "3bcbf23e-0fd6-54b0-9cba-687130ab6311",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c",
+      "662ae3bd-2c10-503a-9709-fb1d117ae135",
+      "791b8830-3f07-5235-951f-dc521afd83ac",
+      "825fd47b-f59c-51f0-adbf-4918582aadba",
+      "85a7bf25-75d9-55b9-b725-5c7af284f138",
+      "9e836b2e-286e-5416-9d67-07c19065cf66",
+      "a5a249d2-4d40-5041-b108-ded52d46395b",
+      "a981b001-ed69-593f-919e-d528e5dd7170",
+      "ab5fc625-eeaa-5281-8900-af5b79dd165c",
+      "aeb8a90a-b9c1-5087-9763-2be1d3eed3be",
+      "d399b866-3558-5a30-989f-fd4ecaef037b",
+      "df50d392-e238-5dbe-86ff-1f27a0ef261b",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+     ],
+     "checkable": true
+    },
+    {
+     "id": "material_other",
+     "query": "AL6061 도면을 모두 찾아 주세요",
+     "answer": [
+      "22e0d1bb-7492-5303-9c1d-e79370488cd4",
+      "262f4ed0-061c-5026-aef0-416a64cc2115",
+      "60c1596b-e066-5ca8-80a9-99f2f1983fad",
+      "6ebbb218-69d6-5223-958d-4787661b869d",
+      "715ede7c-6176-55ef-9e2f-dd59383740f7",
+      "bd0241fe-4b12-5b7f-a779-5e1f9cc4de7d"
+     ],
+     "checkable": true
+    },
+    {
+     "id": "material_missing",
+     "query": "재질이 적혀 있지 않은 도면을 모두 찾아 주세요",
+     "answer": [
+      "1e677348-93bd-5cb2-80c3-5ed2aaecd1bf",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7",
+      "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f",
+      "f51c166b-cf95-524b-a40d-9fac315fa717",
+      "fd27b829-918c-514f-abd2-67e03d50194f"
+     ],
+     "checkable": false
+    },
+    {
+     "id": "kind_material_missing",
+     "query": "재질이 적혀 있지 않은 플랜지 도면을 모두 찾아 주세요",
+     "answer": [
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7"
+     ],
+     "checkable": false
+    },
+    {
+     "id": "kind_material_other",
+     "query": "AL6061 플랜지 도면을 모두 찾아 주세요",
+     "answer": [
+      "262f4ed0-061c-5026-aef0-416a64cc2115",
+      "6ebbb218-69d6-5223-958d-4787661b869d"
+     ],
+     "checkable": true
+    },
+    {
+     "id": "width_value",
+     "query": "너비 109mm인 도면을 모두 찾아 주세요",
+     "answer": [
+      "3bcbf23e-0fd6-54b0-9cba-687130ab6311",
+      "85a7bf25-75d9-55b9-b725-5c7af284f138",
+      "bd0241fe-4b12-5b7f-a779-5e1f9cc4de7d",
+      "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f"
+     ],
+     "checkable": true
+    },
+    {
+     "id": "hole_spacing_value",
+     "query": "구멍 간격 42mm인 도면을 모두 찾아 주세요",
+     "answer": [
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c",
+      "6ebbb218-69d6-5223-958d-4787661b869d",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+     ],
+     "checkable": true
+    },
+    {
+     "id": "kind_control",
+     "query": "플랜지 도면을 모두 찾아 주세요",
+     "answer": [
+      "20192a96-fff8-5825-a035-d45e2293131c",
+      "262f4ed0-061c-5026-aef0-416a64cc2115",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c",
+      "6ebbb218-69d6-5223-958d-4787661b869d",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d",
+      "791b8830-3f07-5235-951f-dc521afd83ac",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7",
+      "a5a249d2-4d40-5041-b108-ded52d46395b",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+     ],
+     "checkable": true
+    }
+   ],
+   "summary": {
+    "rules": {
+     "runs": 8,
+     "completed": 8,
+     "found": 22,
+     "answer": 52,
+     "extra": 8,
+     "complete_sets": 3,
+     "confirmed": 20,
+     "confirmable": 44,
+     "false_matches": 0,
+     "shell_commands": 0,
+     "refused": 0,
+     "runs_using_shell": 0,
+     "model_calls": 0,
+     "tool_calls": 38,
+     "cost_usd": 0.0,
+     "latency_ms_p50": 53.7
+    },
+    "shell": {
+     "runs": 7,
+     "completed": 7,
+     "found": 36,
+     "answer": 42,
+     "extra": 63,
+     "complete_sets": 6,
+     "confirmed": 24,
+     "confirmable": 34,
+     "false_matches": 0,
+     "shell_commands": 2,
+     "refused": 2,
+     "runs_using_shell": 2,
+     "model_calls": 15,
+     "tool_calls": 72,
+     "cost_usd": 0.077601,
+     "latency_ms_p50": 8678.1
+    }
+   },
+   "rows": [
+    {
+     "arm": "rules",
+     "case": "material_common",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "SUS304",
+       "unit": null
+      }
+     ],
+     "answer": 18,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [
+      "0ed01a4b-19ae-5577-93ea-de98446f07ec",
+      "20192a96-fff8-5825-a035-d45e2293131c",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c",
+      "791b8830-3f07-5235-951f-dc521afd83ac",
+      "825fd47b-f59c-51f0-adbf-4918582aadba",
+      "a5a249d2-4d40-5041-b108-ded52d46395b",
+      "a981b001-ed69-593f-919e-d528e5dd7170",
+      "aeb8a90a-b9c1-5087-9763-2be1d3eed3be",
+      "d399b866-3558-5a30-989f-fd4ecaef037b",
+      "df50d392-e238-5dbe-86ff-1f27a0ef261b",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 7,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 64.8,
+     "actual": {
+      "0d022a80-55eb-5704-b116-8e3890e623f6": "match",
+      "3bcbf23e-0fd6-54b0-9cba-687130ab6311": "match",
+      "662ae3bd-2c10-503a-9709-fb1d117ae135": "match",
+      "85a7bf25-75d9-55b9-b725-5c7af284f138": "match",
+      "9e836b2e-286e-5416-9d67-07c19065cf66": "match",
+      "ab5fc625-eeaa-5281-8900-af5b79dd165c": "match"
+     }
+    },
+    {
+     "arm": "rules",
+     "case": "material_other",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "AL6061",
+       "unit": null
+      }
+     ],
+     "answer": 6,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 7,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 42.6,
+     "actual": {
+      "22e0d1bb-7492-5303-9c1d-e79370488cd4": "match",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "match",
+      "60c1596b-e066-5ca8-80a9-99f2f1983fad": "match",
+      "6ebbb218-69d6-5223-958d-4787661b869d": "match",
+      "715ede7c-6176-55ef-9e2f-dd59383740f7": "match",
+      "bd0241fe-4b12-5b7f-a779-5e1f9cc4de7d": "match"
+     }
+    },
+    {
+     "arm": "rules",
+     "case": "material_missing",
+     "state": "completed",
+     "error": null,
+     "requirements": [],
+     "answer": 6,
+     "found": 0,
+     "extra": 0,
+     "confirmed": null,
+     "false_matches": null,
+     "missed": [
+      "1e677348-93bd-5cb2-80c3-5ed2aaecd1bf",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7",
+      "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f",
+      "f51c166b-cf95-524b-a40d-9fac315fa717",
+      "fd27b829-918c-514f-abd2-67e03d50194f"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 1,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 30.0,
+     "actual": {}
+    },
+    {
+     "arm": "rules",
+     "case": "kind_material_missing",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "flange",
+       "unit": null
+      }
+     ],
+     "answer": 2,
+     "found": 2,
+     "extra": 4,
+     "confirmed": null,
+     "false_matches": null,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 7,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 83.8,
+     "actual": {
+      "20192a96-fff8-5825-a035-d45e2293131c": "match",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "match",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56": "match",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c": "match",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d": "match",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7": "match"
+     }
+    },
+    {
+     "arm": "rules",
+     "case": "kind_material_other",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "flange",
+       "unit": null
+      },
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "AL6061",
+       "unit": null
+      }
+     ],
+     "answer": 2,
+     "found": 2,
+     "extra": 4,
+     "confirmed": 2,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 7,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 124.0,
+     "actual": {
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "match",
+      "6ebbb218-69d6-5223-958d-4787661b869d": "match",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d": "unknown",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7": "unknown",
+      "20192a96-fff8-5825-a035-d45e2293131c": "mismatch",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56": "mismatch"
+     }
+    },
+    {
+     "arm": "rules",
+     "case": "width_value",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "width",
+       "operator": "eq",
+       "value": {
+        "low": "109",
+        "high": "109"
+       },
+       "unit": "mm"
+      }
+     ],
+     "answer": 4,
+     "found": 0,
+     "extra": 0,
+     "confirmed": 0,
+     "false_matches": 0,
+     "missed": [
+      "3bcbf23e-0fd6-54b0-9cba-687130ab6311",
+      "85a7bf25-75d9-55b9-b725-5c7af284f138",
+      "bd0241fe-4b12-5b7f-a779-5e1f9cc4de7d",
+      "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 1,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 28.8,
+     "actual": {}
+    },
+    {
+     "arm": "rules",
+     "case": "hole_spacing_value",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "hole_spacing",
+       "operator": "eq",
+       "value": {
+        "low": "42",
+        "high": "42"
+       },
+       "unit": "mm"
+      }
+     ],
+     "answer": 4,
+     "found": 0,
+     "extra": 0,
+     "confirmed": 0,
+     "false_matches": 0,
+     "missed": [
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c",
+      "6ebbb218-69d6-5223-958d-4787661b869d",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 1,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 29.2,
+     "actual": {}
+    },
+    {
+     "arm": "rules",
+     "case": "kind_control",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "flange",
+       "unit": null
+      }
+     ],
+     "answer": 10,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [
+      "6ebbb218-69d6-5223-958d-4787661b869d",
+      "791b8830-3f07-5235-951f-dc521afd83ac",
+      "a5a249d2-4d40-5041-b108-ded52d46395b",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832"
+     ],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 0,
+     "tool_calls": 7,
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "cost_usd": 0.0,
+     "latency_ms": 90.6,
+     "actual": {
+      "20192a96-fff8-5825-a035-d45e2293131c": "match",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "match",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56": "match",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c": "match",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d": "match",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7": "match"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "material_common",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "SUS304",
+       "unit": null
+      }
+     ],
+     "answer": 18,
+     "found": 18,
+     "extra": 0,
+     "confirmed": 14,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "search_keyword",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 2,
+     "tool_calls": 16,
+     "input_tokens": 8183,
+     "output_tokens": 1079,
+     "cost_usd": 0.013578,
+     "latency_ms": 13590.1,
+     "actual": {
+      "0d022a80-55eb-5704-b116-8e3890e623f6": "match",
+      "20192a96-fff8-5825-a035-d45e2293131c": "match",
+      "3bcbf23e-0fd6-54b0-9cba-687130ab6311": "match",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56": "match",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c": "match",
+      "662ae3bd-2c10-503a-9709-fb1d117ae135": "match",
+      "791b8830-3f07-5235-951f-dc521afd83ac": "match",
+      "85a7bf25-75d9-55b9-b725-5c7af284f138": "match",
+      "9e836b2e-286e-5416-9d67-07c19065cf66": "match",
+      "a5a249d2-4d40-5041-b108-ded52d46395b": "match",
+      "ab5fc625-eeaa-5281-8900-af5b79dd165c": "match",
+      "aeb8a90a-b9c1-5087-9763-2be1d3eed3be": "match",
+      "d399b866-3558-5a30-989f-fd4ecaef037b": "match",
+      "df50d392-e238-5dbe-86ff-1f27a0ef261b": "match",
+      "0ed01a4b-19ae-5577-93ea-de98446f07ec": "unknown",
+      "825fd47b-f59c-51f0-adbf-4918582aadba": "unknown",
+      "a981b001-ed69-593f-919e-d528e5dd7170": "unknown",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832": "unknown"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "material_other",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "AL6061",
+       "unit": null
+      }
+     ],
+     "answer": 6,
+     "found": 6,
+     "extra": 0,
+     "confirmed": 6,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 8,
+     "input_tokens": 3184,
+     "output_tokens": 499,
+     "cost_usd": 0.005679,
+     "latency_ms": 5638.6,
+     "actual": {
+      "22e0d1bb-7492-5303-9c1d-e79370488cd4": "match",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "match",
+      "60c1596b-e066-5ca8-80a9-99f2f1983fad": "match",
+      "6ebbb218-69d6-5223-958d-4787661b869d": "match",
+      "715ede7c-6176-55ef-9e2f-dd59383740f7": "match",
+      "bd0241fe-4b12-5b7f-a779-5e1f9cc4de7d": "match"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "material_missing",
+     "state": "completed",
+     "error": null,
+     "requirements": [],
+     "answer": 6,
+     "found": 0,
+     "extra": 20,
+     "confirmed": null,
+     "false_matches": null,
+     "missed": [
+      "1e677348-93bd-5cb2-80c3-5ed2aaecd1bf",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7",
+      "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f",
+      "f51c166b-cf95-524b-a40d-9fac315fa717",
+      "fd27b829-918c-514f-abd2-67e03d50194f"
+     ],
+     "commands": [
+      "grep -r 'material = ' . | grep -v 'fact material' | wc -l"
+     ],
+     "command_items": [
+      0
+     ],
+     "refused": [
+      {
+       "command": "find . -name '*.txt' -type f | xargs grep -L 'fact material'",
+       "error": "'xargs' is not an allowed command"
+      },
+      {
+       "command": "grep -L 'fact material' *.txt",
+       "error": "grep: /usr/bin/grep: *.txt: No such file or directory"
+      }
+     ],
+     "tools": [
+      "define_search_tool",
+      "run_saved_search",
+      "search_shell",
+      "run_saved_search",
+      "search_keyword"
+     ],
+     "tool_errors": 2,
+     "model_calls": 4,
+     "tool_calls": 8,
+     "input_tokens": 11200,
+     "output_tokens": 805,
+     "cost_usd": 0.015225,
+     "latency_ms": 8678.1,
+     "actual": {
+      "0d022a80-55eb-5704-b116-8e3890e623f6": "unknown",
+      "20192a96-fff8-5825-a035-d45e2293131c": "unknown",
+      "22e0d1bb-7492-5303-9c1d-e79370488cd4": "unknown",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "unknown",
+      "3bcbf23e-0fd6-54b0-9cba-687130ab6311": "unknown",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56": "unknown",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c": "unknown",
+      "662ae3bd-2c10-503a-9709-fb1d117ae135": "unknown",
+      "6ebbb218-69d6-5223-958d-4787661b869d": "unknown",
+      "715ede7c-6176-55ef-9e2f-dd59383740f7": "unknown",
+      "791b8830-3f07-5235-951f-dc521afd83ac": "unknown",
+      "85a7bf25-75d9-55b9-b725-5c7af284f138": "unknown",
+      "9e836b2e-286e-5416-9d67-07c19065cf66": "unknown",
+      "a5a249d2-4d40-5041-b108-ded52d46395b": "unknown",
+      "ab5fc625-eeaa-5281-8900-af5b79dd165c": "unknown",
+      "aeb8a90a-b9c1-5087-9763-2be1d3eed3be": "unknown",
+      "bd0241fe-4b12-5b7f-a779-5e1f9cc4de7d": "unknown",
+      "d399b866-3558-5a30-989f-fd4ecaef037b": "unknown",
+      "df50d392-e238-5dbe-86ff-1f27a0ef261b": "unknown",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832": "unknown"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "kind_material_missing",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "flange",
+       "unit": null
+      }
+     ],
+     "answer": 2,
+     "found": 2,
+     "extra": 4,
+     "confirmed": null,
+     "false_matches": null,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 1,
+     "tool_calls": 7,
+     "input_tokens": 3201,
+     "output_tokens": 497,
+     "cost_usd": 0.005686,
+     "latency_ms": 5626.6,
+     "actual": {
+      "20192a96-fff8-5825-a035-d45e2293131c": "match",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "match",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56": "match",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c": "match",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d": "match",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7": "match"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "kind_material_other",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "kind",
+       "operator": "eq",
+       "value": "flange",
+       "unit": null
+      },
+      {
+       "field": "material",
+       "operator": "eq",
+       "value": "AL6061",
+       "unit": null
+      }
+     ],
+     "answer": 2,
+     "found": 2,
+     "extra": 12,
+     "confirmed": 2,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "search_keyword",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 2,
+     "tool_calls": 16,
+     "input_tokens": 8194,
+     "output_tokens": 1196,
+     "cost_usd": 0.014174,
+     "latency_ms": 13383.9,
+     "actual": {
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "match",
+      "6ebbb218-69d6-5223-958d-4787661b869d": "match",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d": "unknown",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7": "unknown",
+      "a5a249d2-4d40-5041-b108-ded52d46395b": "unknown",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832": "unknown",
+      "20192a96-fff8-5825-a035-d45e2293131c": "mismatch",
+      "22e0d1bb-7492-5303-9c1d-e79370488cd4": "mismatch",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56": "mismatch",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c": "mismatch",
+      "60c1596b-e066-5ca8-80a9-99f2f1983fad": "mismatch",
+      "715ede7c-6176-55ef-9e2f-dd59383740f7": "mismatch",
+      "791b8830-3f07-5235-951f-dc521afd83ac": "mismatch",
+      "bd0241fe-4b12-5b7f-a779-5e1f9cc4de7d": "mismatch"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "width_value",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "width",
+       "operator": "eq",
+       "value": {
+        "low": "109",
+        "high": "109"
+       },
+       "unit": "mm"
+      }
+     ],
+     "answer": 4,
+     "found": 4,
+     "extra": 16,
+     "confirmed": 2,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [],
+     "command_items": [],
+     "refused": [],
+     "tools": [
+      "search_keyword",
+      "define_search_tool",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions",
+      "query_dimensions"
+     ],
+     "tool_errors": 0,
+     "model_calls": 2,
+     "tool_calls": 11,
+     "input_tokens": 7296,
+     "output_tokens": 801,
+     "cost_usd": 0.011301,
+     "latency_ms": 9071.6,
+     "actual": {
+      "3bcbf23e-0fd6-54b0-9cba-687130ab6311": "match",
+      "e6cd9861-3d7c-5b7a-ab9f-21e030664e1f": "match",
+      "20192a96-fff8-5825-a035-d45e2293131c": "unknown",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "unknown",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d": "unknown",
+      "85a7bf25-75d9-55b9-b725-5c7af284f138": "unknown",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7": "unknown",
+      "9e836b2e-286e-5416-9d67-07c19065cf66": "unknown",
+      "ab5fc625-eeaa-5281-8900-af5b79dd165c": "unknown",
+      "aeb8a90a-b9c1-5087-9763-2be1d3eed3be": "unknown",
+      "bd0241fe-4b12-5b7f-a779-5e1f9cc4de7d": "unknown",
+      "d399b866-3558-5a30-989f-fd4ecaef037b": "unknown",
+      "df50d392-e238-5dbe-86ff-1f27a0ef261b": "unknown",
+      "fd27b829-918c-514f-abd2-67e03d50194f": "unknown",
+      "0d022a80-55eb-5704-b116-8e3890e623f6": "mismatch",
+      "1e677348-93bd-5cb2-80c3-5ed2aaecd1bf": "mismatch",
+      "22e0d1bb-7492-5303-9c1d-e79370488cd4": "mismatch",
+      "662ae3bd-2c10-503a-9709-fb1d117ae135": "mismatch",
+      "715ede7c-6176-55ef-9e2f-dd59383740f7": "mismatch",
+      "f51c166b-cf95-524b-a40d-9fac315fa717": "mismatch"
+     }
+    },
+    {
+     "arm": "shell",
+     "case": "hole_spacing_value",
+     "state": "completed",
+     "error": null,
+     "requirements": [
+      {
+       "field": "hole_spacing",
+       "operator": "eq",
+       "value": {
+        "low": "42",
+        "high": "42"
+       },
+       "unit": "mm"
+      }
+     ],
+     "answer": 4,
+     "found": 4,
+     "extra": 11,
+     "confirmed": 0,
+     "false_matches": 0,
+     "missed": [],
+     "commands": [
+      "grep -r 'hole_spacing.*42' . --include='*.txt'"
+     ],
+     "command_items": [
+      4
+     ],
+     "refused": [],
+     "tools": [
+      "search_keyword",
+      "define_search_tool",
+      "search_keyword",
+      "search_keyword",
+      "search_shell"
+     ],
+     "tool_errors": 0,
+     "model_calls": 3,
+     "tool_calls": 6,
+     "input_tokens": 8393,
+     "output_tokens": 713,
+     "cost_usd": 0.011958,
+     "latency_ms": 7239.7,
+     "actual": {
+      "0ed01a4b-19ae-5577-93ea-de98446f07ec": "unknown",
+      "20192a96-fff8-5825-a035-d45e2293131c": "unknown",
+      "262f4ed0-061c-5026-aef0-416a64cc2115": "unknown",
+      "40f8d1bd-ffd1-5d69-ac70-a2da92fc6a56": "unknown",
+      "4a603787-cbe7-5db6-a39f-b64384eb4c1c": "unknown",
+      "60c1596b-e066-5ca8-80a9-99f2f1983fad": "unknown",
+      "6ebbb218-69d6-5223-958d-4787661b869d": "unknown",
+      "7534bac7-2481-51d9-9753-3bfbeade1a6d": "unknown",
+      "791b8830-3f07-5235-951f-dc521afd83ac": "unknown",
+      "825fd47b-f59c-51f0-adbf-4918582aadba": "unknown",
+      "984eab3a-66d6-510f-8c45-ba70019d61c7": "unknown",
+      "a5a249d2-4d40-5041-b108-ded52d46395b": "unknown",
+      "a981b001-ed69-593f-919e-d528e5dd7170": "unknown",
+      "ece43c0a-13a8-5bb6-8a10-1215d0557832": "unknown",
+      "fd27b829-918c-514f-abd2-67e03d50194f": "unknown"
+     }
+    }
+   ],
+   "model_errors": [
+    "shell material_missing {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": \"tool_use\", \"parse_error\": \"1 validation error for SearchPlan\\noperations.0\\n  Value error, query_template must contain {query} [type=value_error, input_value={'name': 'no_material_dra... 'fields': ['material']}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error\", \"raw_output\": \"[{\\\"id\\\": \\\"toolu_01C8gdnfZerVFLHWbqp3M16w\\\", \\\"caller\\\": {\\\"type\\\": \\\"direct\\\"}, \\\"input\\\": {\\\"operations\\\": [{\\\"name\\\": \\\"define_search_tool\\\", \\\"arguments\\\": {\\\"name\\\": \\\"no_material_drawings\\\", \\\"description\\\": \\\"Find all drawings that lack material specification\\\", \\\"channels\\\": [\\\"bm25\\\"], \\\"query_template\\\": \\\"material NOT material: NOT SUS NOT steel NOT aluminum NOT copper NOT brass NOT plastic NOT rubber NOT glass\\\", \\\"top_k\\\": 20, \\\"fields\\\": [\\\"material\\\"]}}], \\\"stop\\\": false, \\\"stop_condition\\\": \\\"Until saved tool executes and all candidates without material are identified\\\"}, \\\"name\\\": \\\"SearchPlan\\\", \\\"type\\\": \\\"tool_use\\\", \\\"toolset_name\\\": null}]\"}",
+    "shell hole_spacing_value {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": \"tool_use\", \"parse_error\": \"1 validation error for SearchPlan\\noperations.0.top_k\\n  Input should be less than or equal to 20 [type=less_than_equal, input_value=30, input_type=int]\\n    For further information visit https://errors.pydantic.dev/2.13/v/less_than_equal\", \"raw_output\": \"[{\\\"id\\\": \\\"toolu_0156GaqbRfE5WxoZzypndjbF\\\", \\\"caller\\\": {\\\"type\\\": \\\"direct\\\"}, \\\"input\\\": {\\\"operations\\\": [{\\\"name\\\": \\\"define_search_tool\\\", \\\"arguments\\\": {\\\"name\\\": \\\"hole_spacing_search\\\", \\\"description\\\": \\\"Search for drawings with hole_spacing dimension specification\\\", \\\"channels\\\": [\\\"bm25\\\"], \\\"query_template\\\": \\\"구멍 간격 {query}\\\", \\\"top_k\\\": 30, \\\"fields\\\": [\\\"hole_spacing\\\"]}}, {\\\"name\\\": \\\"search_keyword\\\", \\\"arguments\\\": {\\\"query\\\": \\\"hole spacing 42mm\\\", \\\"top_k\\\": 30}}, {\\\"name\\\": \\\"search_keyword\\\", \\\"arguments\\\": {\\\"query\\\": \\\"hole pitch 42\\\", \\\"top_k\\\": 30}}, {\\\"name\\\": \\\"search_shell\\\", \\\"arguments\\\": {\\\"command\\\": \\\"grep -r '42' . --include='*.txt'\\\", \\\"top_k\\\": 30}}], \\\"stop\\\": false, \\\"stop_condition\\\": \\\"Retrieve all drawings with hole_spacing=42mm; query_dimensions for unexamined\\\"}, \\\"name\\\": \\\"SearchPlan\\\", \\\"type\\\": \\\"tool_use\\\", \\\"toolset_name\\\": null}]\"}"
+   ],
+   "protocol": {
+    "code_sha": "8f10f5be0243793a0ee6c243dff6871540d4170e",
+    "split": "dev",
+    "model": "claude-haiku-4-5-20251001",
+    "mode": "react",
+    "arms": [
+     "shell"
+    ],
+    "ceiling_usd": "0.1",
+    "per_run_cap_usd": "0.03",
+    "budget": {
+     "max_model_calls": 4,
+     "max_tool_calls": 24,
+     "max_tokens": 64000,
+     "deadline_seconds": 240
+    }
+   },
+   "spent_usd": 0.077601,
+   "skipped": [
+    {
+     "case": "kind_control",
+     "arm": "shell",
+     "reason": "ceiling: spent 0.077601 + cap 0.03 > 0.1"
+    }
+   ]
+  }
+ ],
+ "spent_usd_total": 0.228231,
+ "limitations": [
+  "합성 도면 30장 한 작업 공간, 질의 8개, 질의마다 한 번 실행입니다. 반복이 없어 모델의 변동은 보지 못했습니다.",
+  "질의와 정답 집합은 생성기의 라벨에서 정해진 규칙으로 만들었고, 셸 도구가 유리한 질의(열거, 부정)를 일부러 골랐습니다.",
+  "첫 실행(test)의 실패를 보고 문맥을 고쳤고, 고친 것은 이 하네스가 재지 않았던 dev 분할에서 전후로 한 번씩 쟀습니다. dev 수정 후 실행은 상한에 걸려 플랜지 대조군 한 질의를 건너뛰었습니다.",
+  "모든 도구가 실패한 계획에 한 번 더 기회를 주는 변경과, glob·-r 없는 grep을 고치는 법과 함께 거부하는 변경은 단위 테스트로만 확인했고 모델로 재지 않았습니다."
+ ]
+}

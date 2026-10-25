@@ -1,6 +1,6 @@
 # 건당 모델 비용과 지연
 
-모델 호출이 한 건에 얼마나 들고 얼마나 걸리는지를, 이미 커밋된 측정 기록에서 다시 계산한 표입니다. 새로 호출하지 않았고, 아래 값은 모두 `docs/evaluation/*.json`의 행별 기록(`cost_usd`, `latency_ms`)을 평균·중앙값·95번째 백분위로 줄인 것입니다. 표의 줄은 `python scripts/cost-table.py`가 그대로 찍습니다(2026-10-24 계산).
+모델 호출이 한 건에 얼마나 들고 얼마나 걸리는지를, 이미 커밋된 측정 기록에서 다시 계산한 표입니다. 새로 호출하지 않았고, 아래 값은 모두 `docs/evaluation/*.json`의 행별 기록(`cost_usd`, `latency_ms`)을 평균·중앙값·95번째 백분위로 줄인 것입니다. 표의 줄은 `python scripts/cost-table.py`가 그대로 찍습니다(2026-10-24 계산, 마지막 세 줄은 2026-10-25에 더함).
 
 모델은 모두 Claude Haiku 4.5(`claude-haiku-4-5-20251001`)이고, 단가는 기록에 적힌 입력 $1/M·출력 $5/M 토큰입니다. 응답의 토큰 수로 계산한 값이라 청구서 결산액이 아닙니다. 캐시 할인과 세금은 넣지 않았습니다.
 
@@ -18,6 +18,9 @@
 | 에이전트 실행 한 번, 단일 도구 계획 | 6회 | $0.0050 | 중앙값 5.1초 | [agent-trajectory.json](evaluation/agent-trajectory.json) |
 | 에이전트 실행 한 번, 반복 계획 | 6회 | $0.0050 | 중앙값 4.9초 | [agent-trajectory.json](evaluation/agent-trajectory.json) |
 | 에이전트 실행 한 번, planner+challenger | 6회 | $0.0097 | 중앙값 6.4초 | [agent-trajectory.json](evaluation/agent-trajectory.json) |
+| 명령 검색 도구를 켠 에이전트 실행 한 번, 30장에서 집합 질의 | 질의 8·8·7개(세 묶음) | $0.0063~0.0111 | 5.6~8.7 / 5.8~13.4초 | [shell-search-model.json](evaluation/shell-search-model.json) |
+| 같은 질의, 명령 검색 도구를 끈 실행 | 질의 8개 | $0.0060 | 5.4 / 7.8초 | [shell-search-model.json](evaluation/shell-search-model.json) |
+| 표제란 읽기 호출 한 번(쪽 전체 또는 자른 표제란, 이미지 한 장) | 133회 | $0.0032 | 1.6 / 2.0초 | [title-block-vlm.json](evaluation/title-block-vlm.json) |
 
 ## 읽는 법
 
