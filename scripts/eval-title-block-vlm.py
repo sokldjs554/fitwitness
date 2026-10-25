@@ -97,7 +97,9 @@ def box(bbox, margin=0.03):
 
 
 def read(image_bytes: bytes, prompt: str):
-    tracker = BudgetTracker(Budget(max_model_calls=1, max_tokens=64000, max_cost_usd=CALL_CAP))
+    # two model calls: the client sends an output that fails the schema back once (run 40207800589 allowed one, and
+    # 13 of 118 readings ended at that block instead of the repair)
+    tracker = BudgetTracker(Budget(max_model_calls=2, max_tokens=64000, max_cost_usd=CALL_CAP))
     model = create_model("anthropic", MODEL, tracker)
     events = []
     model.emit = lambda kind, data: events.append({"kind": kind, "payload": data})
@@ -110,7 +112,8 @@ def read(image_bytes: bytes, prompt: str):
     return reading, {"error": error, "latency_ms": round((time.perf_counter() - started) * 1000, 1),
                      "input_tokens": usage.input_tokens, "output_tokens": usage.output_tokens,
                      "cost_usd": float(usage.cost_usd or 0), "reserved_left_usd": float(usage.reserved_cost_usd),
-                     "image_sha256": sha256(image_bytes).hexdigest(), "events": events}
+                     "image_sha256": sha256(image_bytes).hexdigest(), "events": events,
+                     "schema_errors": [e["payload"] for e in events if e["kind"] in ("model_error", "model_schema_error")]}
 
 
 def values(reading):
@@ -138,6 +141,7 @@ def main() -> int:
     ap.add_argument("--images", required=True, type=Path, help="a directory holding images/<xx>/<sha1>.png")
     ap.add_argument("--max-cost-usd", type=float, required=True)
     ap.add_argument("--output", required=True, type=Path)
+    ap.add_argument("--only", nargs="*", default=None, help="read only these 8-character image keys (a rerun of pages a run could not read)")
     args = ap.parse_args()
     assert 0 < args.max_cost_usd <= 1.0
     ceiling = Decimal(str(args.max_cost_usd))
@@ -151,11 +155,13 @@ def main() -> int:
             if g.get("unclear") or g.get("title_block") == "no" or g.get("duplicate_of"):
                 continue
             assert g.get("human_check"), (name, key)
+            if args.only is not None and key not in args.only:
+                continue
             todo.append((name, key, {f: g.get(f) for f in FIELDS}))
     missing = sorted(k for _, k, _ in todo if k not in files)
     if missing:
         raise SystemExit(f"missing images: {missing}")
-    protocol = {"model": MODEL, "pages": len(todo), "sets": {n: sum(1 for s, _, _ in todo if s == n) for n in SETS},
+    protocol = {"model": MODEL, "pages": len(todo), "only": args.only, "sets": {n: sum(1 for s, _, _ in todo if s == n) for n in SETS},
                 "prompt_page": PROMPT_PAGE, "prompt_crop": PROMPT_CROP, "schema": TitleBlock.model_json_schema(),
                 "page_long_edge_px": 1600, "crop_margin": 0.03, "call_cap_usd": str(CALL_CAP), "ceiling_usd": str(ceiling),
                 "code_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),

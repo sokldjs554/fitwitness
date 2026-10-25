@@ -9,6 +9,10 @@ on:
         description: hard ceiling for the whole run in USD (at most 1.0)
         default: '0.6'
         required: true
+      only:
+        description: space separated 8-character image keys to read (empty reads all 61)
+        default: ''
+        required: false
 permissions:
   contents: read
 concurrency:
@@ -51,7 +55,8 @@ jobs:
       - name: Read the title blocks
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: uv run python scripts/eval-title-block-vlm.py --images "$RUNNER_TEMP/mechvqa" --max-cost-usd "${{ inputs.max_usd }}" --output artifacts/title-block-vlm
+          ONLY: ${{ inputs.only }}
+        run: uv run python scripts/eval-title-block-vlm.py --images "$RUNNER_TEMP/mechvqa" --max-cost-usd "${{ inputs.max_usd }}" --output artifacts/title-block-vlm ${ONLY:+--only $ONLY}
       - name: Summary
         if: always()
         run: |
@@ -62,7 +67,7 @@ jobs:
           if not f.exists():
               print('no report'); raise SystemExit(0)
           r = json.loads(f.read_text())
-          print('== protocol', json.dumps({k: r['protocol'][k] for k in ('code_sha', 'model', 'pages', 'sets', 'ceiling_usd', 'call_cap_usd')}))
+          print('== protocol', json.dumps({k: r['protocol'][k] for k in ('code_sha', 'model', 'pages', 'only', 'sets', 'ceiling_usd', 'call_cap_usd')}))
           for name, s in r['summary'].items():
               print('== summary', name, json.dumps(s, ensure_ascii=False))
           print('== tesseract', json.dumps(r['tesseract_records'], ensure_ascii=False))
