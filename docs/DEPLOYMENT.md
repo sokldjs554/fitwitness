@@ -2,8 +2,9 @@
 
 - 데모: https://fitwitness.onrender.com/
 - 저장소: https://github.com/sokldjs554/fitwitness
-- 배포 브랜치: `feat/fitwitness-foundation` (자동 배포 꺼짐)
-- 초안 PR: https://github.com/sokldjs554/fitwitness/pull/1
+- 배포 브랜치: `main` (`render.yaml`, 자동 배포 꺼짐, Render 대시보드에서 수동 배포)
+- 처음 배포한 `feat/fitwitness-foundation`은 PR [#1](https://github.com/sokldjs554/fitwitness/pull/1)로 2026-10-05에 main에 병합했습니다
+- 공개 데모가 돌리는 코드: `0e60d3c`(2026-10-08). 2026-10-25에 `/health`로 확인했고, 그 뒤 main의 커밋 70개는 아직 배포하지 않았습니다. [아래](#공개-데모와-main의-차이-2026-10-25-확인)
 
 
 바깥 연결 없이 돌리는 범위와 켜는 순서는 [ONPREM.md](ONPREM.md)에 따로 적었습니다.
@@ -101,3 +102,13 @@ Render 배포 `dep-db13nve0tbcc739c69t0`, 코드 `8a1d8b065399bff657bde1db4a25e9
 앱 SHA `e2a1dbd921aa5cb214cf9a583415d60b71db8fb0`, Render deploy `dep-db1ma0dg1s2s73as94gg`가 live입니다. 두 PostgreSQL 환경 각각140Python+12E2E, 컨테이너 검증 후 배포했습니다. 공개 보고서 JSON은 검산한 재정렬/VLM 파일과 일치합니다. [공개 HTTPS 검증](verification/hosted-research-20261005.json)은 worker 복구·단일 완료·개정판 무효화/재검증·tenant·origin·유료API·metrics 경계를 통과했습니다. 배포 이후 확인 구간의 app error 로그는0건이었습니다.
 
 공개 무료 환경은 lexical/rules 체험과 저장된 연구 결과를 제공합니다. E5/OpenCLIP/BGE와 Claude VLM은 격리된 연구 환경에서 실행했습니다. 새 영상·캡처·문서만 추가한 후속 커밋은 재배포하지 않습니다.
+
+## 공개 데모와 main의 차이 (2026-10-25 확인)
+
+`/health`가 돌려준 sha는 `0e60d3ce0600cb1f6885a02b353d863a09b1e2bb`입니다. 그 뒤 앱 코드가 바뀐 커밋은 다음과 같고, 공개 데모에는 아직 없습니다.
+
+- 사용자 테스트 뒤 화면 네 곳(`3922482`): 적용된 조건 칩과 "조건 비우기", "검색 제외" 목록의 설명, 도면 패널 한 줄 설명, 후보 카드의 제목·승인 상태. 같은 커밋에서 `브라켓`을 종류 낱말로 더했습니다
+- 명령으로 검색하는 도구 `search_shell`(`49ff361`), 스캔한 법정 서식의 격자 읽기(`2830fe2`·`79fa576`·`a74b798`), 표제란 읽기 규칙(`e6b0a98`)
+- 모델이 질의를 읽는 단계, 모델 추출·감사 경로(운영자 선택 기능이고, 공개 익명 API는 유료 모델을 부르지 않습니다)
+
+의존성(`pyproject.toml`·`uv.lock`·`web/package-lock.json`)과 스키마 마이그레이션은 바뀌지 않았고, 저장소 코드는 벡터 검사 한 줄(`image_dino` 채널 허용)만 바뀌었습니다. 다음 수동 배포 뒤 `scripts/verify_hosted.py`로 다시 검증하고 이 절을 고칩니다.
