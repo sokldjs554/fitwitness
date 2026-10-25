@@ -1,0 +1,105 @@
+name: shell-search-evaluation
+# Does Claude search better with the terminal-style tool than without it? Thirty test drawings in one workspace,
+# eight set queries, the same model with and without search_shell, under a hard ceiling. Manual only.
+on:
+  workflow_dispatch:
+    inputs:
+      max_usd:
+        description: hard ceiling for the whole run in USD (at most 0.5)
+        default: '0.3'
+        required: true
+      per_run_usd:
+        description: budget of one graph run, reserved before it starts (at most 0.05)
+        default: '0.03'
+        required: true
+      arms:
+        description: comma separated arms (ranked = usual tools, shell = search_shell switched on)
+        default: 'ranked,shell'
+        required: true
+      mode:
+        description: graph structure for the model runs
+        default: 'react'
+        required: true
+        type: choice
+        options: [react, fixed, fitwitness]
+permissions:
+  contents: read
+concurrency:
+  group: shell-search-evaluation
+  cancel-in-progress: false
+jobs:
+  measure:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: fitwitness
+          POSTGRES_PASSWORD: test-only
+          POSTGRES_DB: fitwitness
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U fitwitness"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PYTHONPATH: src
+      FITWITNESS_DATABASE_URL: postgresql://fitwitness:test-only@localhost:5432/fitwitness
+      FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION: '1'
+      FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION: '5'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require a privately configured credential and a sane ceiling
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os
+          if not os.getenv('ANTHROPIC_API_KEY'):
+              raise SystemExit('missing ANTHROPIC_API_KEY (a repository secret). Nothing was called.')
+          ceiling, cap = float('${{ inputs.max_usd }}'), float('${{ inputs.per_run_usd }}')
+          assert 0 < ceiling <= 0.5, ceiling
+          assert 0 < cap <= 0.05, cap
+          print('configuration present (values not printed)')
+          PY
+      - uses: astral-sh/setup-uv@v6
+      - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
+      - run: uv sync --frozen --no-dev
+      - run: uv run python scripts/setup.py
+      - name: Rules reference, then the model with and without the terminal-style tool
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: >-
+          uv run python -m fitwitness.evaluation.shell_search_model
+          --arms "${{ inputs.arms }}" --mode "${{ inputs.mode }}"
+          --max-cost-usd "${{ inputs.max_usd }}" --per-run-usd "${{ inputs.per_run_usd }}"
+          --output artifacts/shell-search
+      - name: Summary
+        if: always()
+        run: |
+          uv run python - <<'PY'
+          import json
+          from pathlib import Path
+          f = Path('artifacts/shell-search/report.json')
+          if not f.exists():
+              print('no report'); raise SystemExit(0)
+          r = json.loads(f.read_text())
+          print('== protocol', json.dumps({k: r['protocol'][k] for k in ('code_sha', 'model', 'mode', 'arms', 'ceiling_usd', 'per_run_cap_usd', 'budget')}))
+          for c in r['protocol']['cases']:
+              print('== case', json.dumps(c, ensure_ascii=False))
+          for arm, m in r['summary'].items():
+              print('== arm', arm, json.dumps(m, ensure_ascii=False))
+          print('== spent', r['spent_usd'], 'skipped', json.dumps(r['skipped']))
+          for row in r['rows']:
+              print('== row', json.dumps({k: row[k] for k in ('arm', 'case', 'state', 'error', 'requirements', 'answer', 'found', 'extra', 'confirmed', 'false_matches', 'missed', 'commands', 'command_items', 'refused', 'tools', 'tool_errors', 'model_calls', 'tool_calls', 'input_tokens', 'output_tokens', 'cost_usd', 'latency_ms', 'actual')}, ensure_ascii=False, default=str))
+          for row in r['rows']:
+              for e in row.get('model_errors', []):
+                  print('== model_error', row['arm'], row['case'], json.dumps({k: e.get(k) for k in ('role', 'attempt', 'error_type', 'status_code', 'stop_reason', 'parse_error', 'raw_output')}, ensure_ascii=False, default=str)[:6000])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shell-search-${{ github.run_id }}
+          path: artifacts/shell-search/
+          if-no-files-found: warn
