@@ -32,7 +32,7 @@ def test_graph_does_not_approve_uninspected_search_results(monkeypatch):
     monkeypatch.setattr(mod,'checkpointer',lambda dsn:nullcontext(saver))
     monkeypatch.setattr(mod,'search',lambda *args:[candidate()])
     monkeypatch.setattr(mod,'create_model',lambda *args:Model())
-    repo=SimpleNamespace(dsn='unused',snapshot=lambda s:SimpleNamespace(id='snap'),corpus=lambda s:(SimpleNamespace(id='snap'),[],{}))
+    repo=SimpleNamespace(dsn='unused',snapshot=lambda s:SimpleNamespace(id='snap',revision_ids=['r']),corpus=lambda s:(SimpleNamespace(id='snap',revision_ids=['r']),[],{}))
     mod._execute_run(repo,TenantScope(tenant_id='t',user_id='u'),'run')
     assert [d.verdict for d in output]==['unknown']
     assert roles==['planner','challenger']
