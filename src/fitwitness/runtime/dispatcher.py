@@ -72,8 +72,9 @@ class Dispatcher:
                             bool(raw["request"].get("demo_fault", False)) and not raw.get("fault_consumed"),
                         )
                         # A slot that frees up takes the next queued run now. Without this a finished run
-                        # woke nobody and its slot idled until the next enqueue or the one-second poll: a
-                        # local load test pushed 200 runs of about 0.1 s through the two slots at 1.5 a second.
+                        # woke nobody and its slot idled until the next enqueue or the one-second poll: in a
+                        # local load test (docs/LOAD.md) 200 runs whose work takes about 0.1 s waited 43 s in
+                        # the queue at the median.
                         future.add_done_callback(lambda _: self.wake.set())
                         active[(tenant, run_id)] = future
                 except Exception:
