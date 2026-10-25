@@ -5,7 +5,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Korean-style sheet whose bottom-right block has only the unlabelled left cell filled with '1 : 1' (scale position); all other cells, including number and material, are empty; the circled 150 and R2 lie outside the block."
+  "note": "Korean-style sheet whose bottom-right block has only the unlabelled left cell filled with '1 : 1' (scale position); all other cells, including number and material, are empty; the circled 150 and R2 lie outside the block.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "0ebc8986": {
   "drawing_number": null,
@@ -21,7 +22,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "Left half is a valve-body drawing (合肥工业大学, 阀体) with block showing HT200 and LJT06.17; the scale (比例) cell is empty; right half is only a photo grid."
+  "note": "Left half is a valve-body drawing (合肥工业大学, 阀体) with block showing HT200 and LJT06.17; the scale (比例) cell is empty; right half is only a photo grid.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "117935d0": {
   "drawing_number": "LJT04.05",
@@ -29,7 +31,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "Wavy handwheel drawing (合肥工业大学, 波纹手轮) with block HT200 / LJT04.05; scale (比例) cell is empty, the 2:1 is only a view scale; right half is a photo grid."
+  "note": "Wavy handwheel drawing (合肥工业大学, 波纹手轮) with block HT200 / LJT04.05; scale (比例) cell is empty, the 2:1 is only a view scale; right half is a photo grid.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "15931066": {
   "drawing_number": null,
@@ -53,7 +56,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Connecting flange (连接法兰) drawing with block showing 比例 1:1, 材料 ZL102 and number WLJSQ475-008."
+  "note": "Connecting flange (连接法兰) drawing with block showing 比例 1:1, 材料 ZL102 and number WLJSQ475-008.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "1dbf2e58": {
   "drawing_number": null,
@@ -69,7 +73,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Gear oil pump assembly (齿轮油泵) with own block CLYB-00 and 比例 1:1; its 材料 cell is empty (materials listed in the parts table above belong to the items, not the block)."
+  "note": "Gear oil pump assembly (齿轮油泵) with own block CLYB-00 and 比例 1:1; its 材料 cell is empty (materials listed in the parts table above belong to the items, not the block).",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "1fc1a890": {
   "drawing_number": null,
@@ -85,7 +90,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "Slide valve (滑阀) drawing, 合肥工业大学 block with material 45 and number LJT03.04; the 比例 cell is empty."
+  "note": "Slide valve (滑阀) drawing, 合肥工业大学 block with material 45 and number LJT03.04; the 比例 cell is empty.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "24e69581": {
   "drawing_number": null,
@@ -93,7 +99,8 @@
   "scale": "0.5",
   "title_block": "yes",
   "unclear": false,
-  "note": "Korean-style sheet where only the unlabelled left cell (scale position, same as on the 1:1 sheets) reads '0.5'; number and material cells are empty; circled 303 lies outside the block."
+  "note": "Korean-style sheet where only the unlabelled left cell (scale position, same as on the 1:1 sheets) reads '0.5'; number and material cells are empty; circled 303 lies outside the block.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "29104542": {
   "drawing_number": null,
@@ -101,7 +108,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Korean-style sheet with only the unlabelled left cell filled with '1 : 1' (scale position); other cells including number and material are empty; circled 269 lies outside the block."
+  "note": "Korean-style sheet with only the unlabelled left cell filled with '1 : 1' (scale position); other cells including number and material are empty; circled 269 lies outside the block.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "33013876": {
   "drawing_number": null,
@@ -125,7 +133,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Worm wheel (蜗轮) drawing with block 比例 1:1, 材料 ZCuZn25Al6 and number WLJSQ475-007; the gear parameter table above the block is separate."
+  "note": "Worm wheel (蜗轮) drawing with block 比例 1:1, 材料 ZCuZn25Al6 and number WLJSQ475-007; the gear parameter table above the block is separate.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "3aa4ad5a": {
   "drawing_number": "LJT01.05",
@@ -133,7 +142,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "Double gear (双联齿轮) drawing, 合肥工业大学 block with material 40Cr and number LJT01.05; the 比例 cell is empty; gear data tables above the block are separate."
+  "note": "Double gear (双联齿轮) drawing, 合肥工业大学 block with material 40Cr and number LJT01.05; the 比例 cell is empty; gear data tables above the block are separate.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "5011c029": {
   "drawing_number": null,
@@ -157,7 +167,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "Bracket (托架) drawing, 合肥工业大学 block with material HT200 and number LJT05.09; the 比例 cell is empty."
+  "note": "Bracket (托架) drawing, 合肥工业大学 block with material HT200 and number LJT05.09; the 比例 cell is empty.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "5d062453": {
   "drawing_number": null,
@@ -165,7 +176,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Framed sheet with a mostly empty block; only the scale cell holds 1:1, the circled 56 is an item number outside the block."
+  "note": "Framed sheet with a mostly empty block; only the scale cell holds 1:1, the circled 56 is an item number outside the block.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "5dd3943d": {
   "drawing_number": null,
@@ -181,7 +193,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Framed sheet with a mostly empty block; only the scale cell holds 1:1, the circled 270 is an item number outside the block."
+  "note": "Framed sheet with a mostly empty block; only the scale cell holds 1:1, the circled 270 is an item number outside the block.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "6fd592f8": {
   "drawing_number": "LJT04.25",
@@ -189,7 +202,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "Right half is a drawing sheet (school 合肥工业大学, part 定位盘) with LJT04.25 and HT200; the scale cell under 比例 is empty, left half is a photo grid."
+  "note": "Right half is a drawing sheet (school 合肥工业大学, part 定位盘) with LJT04.25 and HT200; the scale cell under 比例 is empty, left half is a photo grid.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "71ca1069": {
   "drawing_number": null,
@@ -205,7 +219,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Framed sheet with a mostly empty block; only the scale cell holds 1:1, the circled 53 is an item number outside the block."
+  "note": "Framed sheet with a mostly empty block; only the scale cell holds 1:1, the circled 53 is an item number outside the block.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "8083b95d": {
   "drawing_number": null,
@@ -213,7 +228,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Framed sheet with a mostly empty block; only the scale cell holds 1:1, the circled 82 is an item number outside the block."
+  "note": "Framed sheet with a mostly empty block; only the scale cell holds 1:1, the circled 82 is an item number outside the block.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "85063ec9": {
   "drawing_number": null,
@@ -221,7 +237,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Framed sheet with a mostly empty block; only the scale cell holds 1:1, the circled 94 is an item number outside the block."
+  "note": "Framed sheet with a mostly empty block; only the scale cell holds 1:1, the circled 94 is an item number outside the block.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "86faf945": {
   "drawing_number": null,
@@ -269,7 +286,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "Left half is a drawing sheet (合肥工业大学, part 泵盖) with LJT04.40 and HT200; the scale cell under 比例 is empty, right half is a photo grid."
+  "note": "Left half is a drawing sheet (合肥工业大学, part 泵盖) with LJT04.40 and HT200; the scale cell under 比例 is empty, right half is a photo grid.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "96c1e777": {
   "drawing_number": null,
@@ -293,7 +311,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Framed isometric sheet with a mostly empty block; only the scale cell holds 1:1."
+  "note": "Framed isometric sheet with a mostly empty block; only the scale cell holds 1:1.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "9ca41a93": {
   "drawing_number": "LJT04.08",
@@ -301,7 +320,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "Left half is a drawing sheet (合肥工业大学, part 盘形凸轮) with LJT04.08 and HT200; the scale cell under 比例 is empty, right half is a photo grid."
+  "note": "Left half is a drawing sheet (合肥工业大学, part 盘形凸轮) with LJT04.08 and HT200; the scale cell under 比例 is empty, right half is a photo grid.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "9d913c58": {
   "drawing_number": null,
@@ -317,7 +337,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "Chinese block with only the part name 连杆 filled in; drawing number, material and scale cells are all empty."
+  "note": "Chinese block with only the part name 连杆 filled in; drawing number, material and scale cells are all empty.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "a1ff0589": {
   "drawing_number": null,
@@ -325,7 +346,8 @@
   "scale": "1:2",
   "title_block": "yes",
   "unclear": false,
-  "note": "Textbook page (text above, figure 4-35 below) whose box drawing has a small block with part name, scale 1:2 and material HT200; the block has no drawing-number cell, and the figure caption number is outside the block."
+  "note": "Textbook page (text above, figure 4-35 below) whose box drawing has a small block with part name, scale 1:2 and material HT200; the block has no drawing-number cell, and the figure caption number is outside the block.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "a5ab0f8d": {
   "drawing_number": null,
@@ -333,7 +355,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Blank Korean-style sheet with a gear-like plate; the block only has 1:1 in the scale cell, the drawing-number, material and name cells are empty."
+  "note": "Blank Korean-style sheet with a gear-like plate; the block only has 1:1 in the scale cell, the drawing-number, material and name cells are empty.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "a937a1b9": {
   "drawing_number": null,
@@ -349,7 +372,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "Hefei University of Technology block for the filler gland (title and LJT04.34 also printed above the frame); material HT150 in the large cell; the scale (比例) cell is empty."
+  "note": "Hefei University of Technology block for the filler gland (title and LJT04.34 also printed above the frame); material HT150 in the large cell; the scale (比例) cell is empty.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "b6f1dcad": {
   "drawing_number": "ZD10-001",
@@ -357,7 +381,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Textbook page showing the gear box body drawing (fig 5-199) with its own block: scale 1:1, HT200, drawing number ZD10-001."
+  "note": "Textbook page showing the gear box body drawing (fig 5-199) with its own block: scale 1:1, HT200, drawing number ZD10-001.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "bd23fb87": {
   "drawing_number": null,
@@ -365,7 +390,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Blank Korean-style sheet; only the scale cell holds 1:1, the circled 159 is an exercise number outside the block, other cells empty."
+  "note": "Blank Korean-style sheet; only the scale cell holds 1:1, the circled 159 is an exercise number outside the block, other cells empty.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "c0cc1e38": {
   "drawing_number": null,
@@ -373,7 +399,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Blank Korean-style sheet with a wrench-like plate; the block holds only 1:1 in the scale cell, the circled 153 is outside the block, other cells empty."
+  "note": "Blank Korean-style sheet with a wrench-like plate; the block holds only 1:1 in the scale cell, the circled 153 is outside the block, other cells empty.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "c0fe4668": {
   "drawing_number": null,
@@ -381,7 +408,8 @@
   "scale": "1:3",
   "title_block": "yes",
   "unclear": false,
-  "note": "Textbook figure 4-32 upper frame with its own block: scale 1:3, material HT200, quantity 2; no drawing-number cell."
+  "note": "Textbook figure 4-32 upper frame with its own block: scale 1:3, material HT200, quantity 2; no drawing-number cell.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "c6be3457": {
   "drawing_number": "LJT04.46",
@@ -389,7 +417,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "Hefei University of Technology block for the pump cover; drawing number LJT04.46, material HT200 in the large cell, scale cell empty."
+  "note": "Hefei University of Technology block for the pump cover; drawing number LJT04.46, material HT200 in the large cell, scale cell empty.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "cb953b7b": {
   "drawing_number": null,
@@ -397,7 +426,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Blank Korean-style sheet with an isometric bracket; only the scale cell holds 1:1, the circled 204 is outside the block, other cells empty."
+  "note": "Blank Korean-style sheet with an isometric bracket; only the scale cell holds 1:1, the circled 204 is outside the block, other cells empty.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "cd5f2845": {
   "drawing_number": "LJT03.12",
@@ -405,7 +435,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "Hefei University of Technology block for the crankshaft; drawing number LJT03.12, material 45 in the large cell, scale cell empty."
+  "note": "Hefei University of Technology block for the crankshaft; drawing number LJT03.12, material 45 in the large cell, scale cell empty.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "d44658f6": {
   "drawing_number": null,
@@ -446,7 +477,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Page is rotated 90 degrees; CAD DESIGNS block at upper right has SCALE 1:1, SIZE A3, WEIGHT 0.00, SHEET 1/1; drawing-number and title cells are empty and there is no material cell."
+  "note": "Page is rotated 90 degrees; CAD DESIGNS block at upper right has SCALE 1:1, SIZE A3, WEIGHT 0.00, SHEET 1/1; drawing-number and title cells are empty and there is no material cell.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "f7fb605d": {
   "drawing_number": "JF-08",
@@ -470,7 +502,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Blank Korean-style sheet with a lever plate; only the scale cell holds 1:1, the circled 146 is outside the block, other cells empty."
+  "note": "Blank Korean-style sheet with a lever plate; only the scale cell holds 1:1, the circled 146 is outside the block, other cells empty.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  },
  "fabee21f": {
   "drawing_number": "LJT04.30",
@@ -478,6 +511,7 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "Hefei University of Technology block for the half coupling; drawing number LJT04.30, material HT200 in the large cell, scale cell empty."
+  "note": "Hefei University of Technology block for the half coupling; drawing number LJT04.30, material HT200 in the large cell, scale cell empty.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout2-label-check.csv)"
  }
 }
