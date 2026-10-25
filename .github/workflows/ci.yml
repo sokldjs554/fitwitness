@@ -58,6 +58,27 @@ jobs:
           path: |
             artifacts/
             web/test-results/
+  prometheus-rules:
+    # The alert and recording rules in deploy/prometheus, checked and unit-tested with a pinned promtool.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: promtool from Prometheus 3.5.0 (sha256 pinned)
+        run: |
+          curl -sSfL -o /tmp/prometheus.tgz https://github.com/prometheus/prometheus/releases/download/v3.5.0/prometheus-3.5.0.linux-amd64.tar.gz
+          echo "e811827af26d822afb09a4f28314f61b618b12cff5369835a67f674d8b46f39a  /tmp/prometheus.tgz" | sha256sum -c -
+          tar -xzf /tmp/prometheus.tgz -C /tmp
+      - name: Check the rules, run their unit tests, check the config and the dashboard JSON
+        run: |
+          P=/tmp/prometheus-3.5.0.linux-amd64/promtool
+          $P check rules deploy/prometheus/rules/*.yml
+          $P test rules deploy/prometheus/tests/*.test.yml
+          # the config as the container reads it, with its paths pointed at the checkout
+          printf ci > /tmp/metrics-token
+          sed -e "s|/etc/prometheus/rules/|$PWD/deploy/prometheus/rules/|; s|/etc/prometheus/metrics-token|/tmp/metrics-token|" deploy/prometheus/prometheus.yml > /tmp/prometheus.yml
+          $P check config /tmp/prometheus.yml
+          python3 -c "import json; json.load(open('deploy/grafana/dashboards/fitwitness.json'))"
   credential-readiness:
     if: github.event_name == 'push' && github.ref == 'refs/heads/feat/fitwitness-foundation'
     runs-on: ubuntu-latest

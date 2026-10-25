@@ -1,0 +1,53 @@
+# Recording rules: the service levels the alerts and the dashboard read.
+#
+# Every series comes from GET /metrics (src/fitwitness/runtime/metrics.py and the HTTP counters in api/app.py).
+# The run counters are computed from the event table at scrape time, so they move only when a scrape sees a new
+# row; a quiet service has flat counters and these ratios are empty (0/0), which is why every ratio alert also
+# asks for a minimum number of runs or requests.
+groups:
+  - name: fitwitness-sli
+    interval: 1m
+    rules:
+      # Runs that ended, by how. A dead-lettered run used up its retries on a transient error; a failed run hit
+      # an error that is not retried. Both are runs that did not finish.
+      - record: fitwitness:runs_completed:increase1h
+        expr: increase(fitwitness_runs_completed_total[1h])
+      - record: fitwitness:runs_not_finished:increase1h
+        expr: increase(fitwitness_runs_failed_total[1h]) + increase(fitwitness_dead_letters_total[1h])
+      - record: fitwitness:runs_ended:increase1h
+        expr: fitwitness:runs_completed:increase1h + fitwitness:runs_not_finished:increase1h
+      - record: fitwitness:run_failure:ratio1h
+        expr: fitwitness:runs_not_finished:increase1h / fitwitness:runs_ended:increase1h
+
+      - record: fitwitness:runs_ended:increase6h
+        expr: increase(fitwitness_runs_completed_total[6h]) + increase(fitwitness_runs_failed_total[6h]) + increase(fitwitness_dead_letters_total[6h])
+      - record: fitwitness:run_failure:ratio6h
+        expr: >-
+          (increase(fitwitness_runs_failed_total[6h]) + increase(fitwitness_dead_letters_total[6h]))
+          / fitwitness:runs_ended:increase6h
+
+      # Runs that stopped on their budget (cost, tokens, calls or deadline) per run that ended. A budget stop is
+      # not a failure: the run ends with what it found and the missing evidence stays unknown.
+      - record: fitwitness:budget_stops:ratio1h
+        expr: increase(fitwitness_budget_stops_total[1h]) / fitwitness:runs_ended:increase1h
+
+      # Provider trouble: model errors (refused or failed calls) and outputs that failed the schema.
+      - record: fitwitness:model_errors:increase15m
+        expr: increase(fitwitness_model_errors_total[15m]) + increase(fitwitness_model_schema_errors_total[15m])
+
+      # Measured spend (usage x configured price).
+      - record: fitwitness:cost_usd:increase1h
+        expr: increase(fitwitness_cost_usd_total[1h])
+
+      # Latency. Model and tool latency come from the latency_ms on the events (milliseconds); API latency from
+      # the request histogram of the process that serves /metrics (seconds).
+      - record: fitwitness:model_latency_ms:p95_15m
+        expr: histogram_quantile(0.95, sum by (le, role) (rate(fitwitness_model_latency_ms_bucket[15m])))
+      - record: fitwitness:tool_latency_ms:p95_15m
+        expr: histogram_quantile(0.95, sum by (le, tool) (rate(fitwitness_tool_latency_ms_bucket[15m])))
+      - record: fitwitness:api_request_seconds:p95_5m
+        expr: histogram_quantile(0.95, sum by (le) (rate(fitwitness_request_seconds_bucket[5m])))
+      - record: fitwitness:api_requests:rate5m
+        expr: sum(rate(fitwitness_requests_total[5m]))
+      - record: fitwitness:api_5xx:ratio5m
+        expr: sum(rate(fitwitness_requests_total{status=~"5.."}[5m])) / fitwitness:api_requests:rate5m

@@ -10,6 +10,24 @@ from psycopg.types.json import Jsonb
 from fitwitness.contracts import RunRequest, RunView, Usage, Decision, uid, now
 
 
+# Run before an expired workspace's events and runs are deleted, inside the same tenant-scoped transaction:
+# the counts the metrics endpoint reads from those rows move into fw_metric_totals (see runtime/metrics.py).
+RETAIN_EVENT_TOTALS = (
+    "INSERT INTO fw_metric_totals(name,value) "
+    "SELECT 'event:'||kind, count(*) FROM fw_events WHERE tenant_id=%s GROUP BY kind "
+    "UNION ALL SELECT 'tool:'||COALESCE(payload->>'name','unknown'), count(*) FROM fw_events WHERE tenant_id=%s AND kind='tool' GROUP BY 1 "
+    "ON CONFLICT(name) DO UPDATE SET value=fw_metric_totals.value+excluded.value"
+)
+RETAIN_USAGE_TOTALS = (
+    "INSERT INTO fw_metric_totals(name,value) "
+    "SELECT t.name, t.value FROM (SELECT COALESCE(SUM((usage->>'cost_usd')::numeric),0)::float8 AS cost, "
+    "COALESCE(SUM((usage->>'input_tokens')::bigint),0)::float8 AS input, COALESCE(SUM((usage->>'output_tokens')::bigint),0)::float8 AS output, "
+    "COALESCE(SUM((usage->>'model_calls')::bigint),0)::float8 AS calls FROM fw_runs WHERE tenant_id=%s) s, "
+    "LATERAL (VALUES ('usage:cost_usd',s.cost),('usage:input_tokens',s.input),('usage:output_tokens',s.output),('usage:model_calls',s.calls)) AS t(name,value) "
+    "ON CONFLICT(name) DO UPDATE SET value=fw_metric_totals.value+excluded.value"
+)
+
+
 def backoff_seconds(attempt: int, base: int = 5, cap: int = 300) -> int:
     """Exponential delay before retry number ``attempt`` (0-based), capped."""
     return int(min(cap, base * 2**attempt))
@@ -86,6 +104,12 @@ class Jobs:
             c.execute(
                 "CREATE TABLE IF NOT EXISTS fw_admission (bucket text PRIMARY KEY,used integer NOT NULL,created_at timestamptz NOT NULL DEFAULT now())"
             )
+            # What expired workspaces had counted before their rows were deleted. The Prometheus counters are
+            # computed from the event and run tables, so without this a session sweep would make them go down,
+            # and a counter that goes down is read by Prometheus as a restart that counted everything again.
+            # Totals over every tenant, nothing tenant-specific in it, so no row-level security.
+            c.execute("CREATE TABLE IF NOT EXISTS fw_metric_totals (name text PRIMARY KEY,value double precision NOT NULL)")
+            c.execute("GRANT SELECT,INSERT,UPDATE ON fw_metric_totals TO fitwitness_app")
             for name in ["fw_runs", "fw_events"]:
                 c.execute(f"ALTER TABLE {name} ENABLE ROW LEVEL SECURITY")
                 c.execute(f"ALTER TABLE {name} FORCE ROW LEVEL SECURITY")
@@ -561,6 +585,8 @@ class Jobs:
             for tenant in expired:
                 c.execute("SELECT set_config('app.tenant',%s,true)", (tenant,))
                 self.repo.lock(c, tenant)
+                c.execute(RETAIN_EVENT_TOTALS, (tenant, tenant))
+                c.execute(RETAIN_USAGE_TOTALS, (tenant,))
                 for table in (
                     "fw_dispatch",
                     "fw_events",

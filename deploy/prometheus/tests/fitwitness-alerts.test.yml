@@ -1,0 +1,343 @@
+# promtool test rules deploy/prometheus/tests/fitwitness-alerts.test.yml
+#
+# Synthetic series, one minute apart, for every alert: a case where it must fire and a case where it must stay
+# quiet. Series notation: "a+bxN" starts at a and adds b N times; "_" is a missing sample; "stale" ends a series.
+rule_files:
+  - ../rules/fitwitness-sli.yml
+  - ../rules/fitwitness-alerts.yml
+evaluation_interval: 1m
+
+tests:
+  # --- the service and its database -------------------------------------------------------------------------
+  - interval: 1m
+    input_series:
+      - series: 'up{job="fitwitness",instance="app:8787"}'
+        values: '1 1 1 0x8'
+      - series: 'up{job="fitwitness",instance="spare:8787"}'
+        values: '1x10'
+    alert_rule_test:
+      - eval_time: 4m           # down since 3m: pending, the rule waits 2 minutes
+        alertname: FitwitnessDown
+        exp_alerts: []
+      - eval_time: 6m
+        alertname: FitwitnessDown
+        exp_alerts:
+          - exp_labels: {severity: page, job: fitwitness, instance: "app:8787"}
+            exp_annotations:
+              summary: "/metrics has not answered for 2 minutes"
+              check: "GET /health and /ready; the Render service log; a free instance that went to sleep also looks like this"
+
+  - interval: 1m
+    input_series:
+      - series: 'up{job="fitwitness",instance="app:8787"}'
+        values: '1x15'
+      # The database stopped answering after minute 2: the HTTP counters still serve, the run metrics are gone.
+      - series: 'fitwitness_cost_usd_total{job="fitwitness",instance="app:8787"}'
+        values: '0 0 0 stale'
+      - series: 'up{job="fitwitness",instance="healthy:8787"}'
+        values: '1x15'
+      - series: 'fitwitness_cost_usd_total{job="fitwitness",instance="healthy:8787"}'
+        values: '0x15'
+    alert_rule_test:
+      - eval_time: 6m
+        alertname: FitwitnessDatabaseMetricsMissing
+        exp_alerts: []
+      - eval_time: 9m
+        alertname: FitwitnessDatabaseMetricsMissing
+        exp_alerts:
+          - exp_labels: {severity: page, job: fitwitness, instance: "app:8787"}
+            exp_annotations:
+              summary: "the app answers but the run metrics are missing: it cannot read the database"
+              check: "GET /ready (503 means the database); FITWITNESS_DATABASE_URL must be the direct connection, not the pooler"
+
+  # --- the queue and the reviews ----------------------------------------------------------------------------
+  - interval: 1m
+    input_series:
+      - series: 'fitwitness_queue_oldest_seconds{job="fitwitness",instance="app:8787"}'
+        values: '0 0 400x10'
+      # A run that waits a few minutes for its turn is not stalled.
+      - series: 'fitwitness_queue_oldest_seconds{job="fitwitness",instance="busy:8787"}'
+        values: '0 0 200x10'
+    alert_rule_test:
+      - eval_time: 6m
+        alertname: FitwitnessQueueStalled
+        exp_alerts: []
+      - eval_time: 8m
+        alertname: FitwitnessQueueStalled
+        exp_alerts:
+          - exp_labels: {severity: page, job: fitwitness, instance: "app:8787"}
+            exp_annotations:
+              summary: "a run has waited 6m 40s for a worker"
+              check: "the dispatcher in the app process (2 slots) and the worker pool; queue to worker start was 0.16 s measured locally, so minutes mean no worker is taking runs"
+
+  - interval: 1m
+    input_series:
+      - series: 'fitwitness_reviews_overdue{job="fitwitness",instance="app:8787"}'
+        values: '0 1x15'
+      # Overdue for one scrape, then the sweep moved it: nothing to say.
+      - series: 'fitwitness_reviews_overdue{job="fitwitness",instance="swept:8787"}'
+        values: '0 1 0x14'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: FitwitnessReviewsNotEscalated
+        exp_alerts: []
+      - eval_time: 12m
+        alertname: FitwitnessReviewsNotEscalated
+        exp_alerts:
+          - exp_labels: {severity: ticket, job: fitwitness, instance: "app:8787"}
+            exp_annotations:
+              summary: "1 reviews are past their deadline and were not moved to senior handling"
+              check: "the escalation sweep runs on every dispatcher pass (Jobs.escalate_overdue); if it stays, the dispatcher is not running"
+
+  # --- runs that did not finish -----------------------------------------------------------------------------
+  - interval: 1m
+    input_series:
+      - series: 'fitwitness_dead_letters_total{job="fitwitness",instance="app:8787"}'
+        values: '0 0 0 1x20'
+      - series: 'fitwitness_dead_letters_total{job="fitwitness",instance="calm:8787"}'
+        values: '2x23'
+    alert_rule_test:
+      - eval_time: 2m
+        alertname: FitwitnessDeadLetter
+        exp_alerts: []
+      - eval_time: 4m
+        alertname: FitwitnessDeadLetter
+        exp_alerts:
+          - exp_labels: {severity: ticket, job: fitwitness, instance: "app:8787"}
+            exp_annotations:
+              summary: "a run used up its retries on a transient error and was put aside"
+              check: "the run's dead_lettered event has the error; three attempts with backoff failed, often a provider outage"
+      - eval_time: 20m          # the 15-minute window has moved past it
+        alertname: FitwitnessDeadLetter
+        exp_alerts: []
+
+  # Four services over 90 minutes, all ending one run a minute or so:
+  #   burning     20% of ended runs fail             -> fast and slow burn
+  #   simmering   10% fail                           -> slow burn only (14.4x of 1% is 14.4%, 6x is 6%)
+  #   fine        about 5% fail                      -> neither
+  #   tiny        half fail, but 6 runs an hour      -> neither: too few runs to judge
+  - interval: 1m
+    input_series:
+      - series: 'fitwitness_runs_completed_total{job="fitwitness",instance="burning"}'
+        values: '0+1x90'
+      - series: 'fitwitness_runs_failed_total{job="fitwitness",instance="burning"}'
+        values: '0+0.15x90'
+      - series: 'fitwitness_dead_letters_total{job="fitwitness",instance="burning"}'
+        values: '0+0.1x90'
+      - series: 'fitwitness_runs_completed_total{job="fitwitness",instance="simmering"}'
+        values: '0+0.9x90'
+      - series: 'fitwitness_runs_failed_total{job="fitwitness",instance="simmering"}'
+        values: '0+0.1x90'
+      - series: 'fitwitness_dead_letters_total{job="fitwitness",instance="simmering"}'
+        values: '0x90'
+      - series: 'fitwitness_runs_completed_total{job="fitwitness",instance="fine"}'
+        values: '0+1x90'
+      - series: 'fitwitness_runs_failed_total{job="fitwitness",instance="fine"}'
+        values: '0+0.05x90'
+      - series: 'fitwitness_dead_letters_total{job="fitwitness",instance="fine"}'
+        values: '0x90'
+      - series: 'fitwitness_runs_completed_total{job="fitwitness",instance="tiny"}'
+        values: '0+0.05x90'
+      - series: 'fitwitness_runs_failed_total{job="fitwitness",instance="tiny"}'
+        values: '0+0.05x90'
+      - series: 'fitwitness_dead_letters_total{job="fitwitness",instance="tiny"}'
+        values: '0x90'
+    promql_expr_test:
+      # rounded: increase() extrapolates, so the raw values are 0.2 and 6 only to the 15th digit
+      - expr: round(fitwitness:run_failure:ratio1h{instance="burning"}, 0.001)
+        eval_time: 80m
+        exp_samples:
+          - labels: '{job="fitwitness",instance="burning"}'
+            value: 0.2
+      - expr: round(fitwitness:runs_ended:increase1h{instance="tiny"}, 0.001)
+        eval_time: 80m
+        exp_samples:
+          - labels: '{job="fitwitness",instance="tiny"}'
+            value: 6
+    alert_rule_test:
+      - eval_time: 80m
+        alertname: FitwitnessRunFailureFastBurn
+        exp_alerts:
+          - exp_labels: {severity: page, job: fitwitness, instance: burning}
+            exp_annotations:
+              summary: "20% of the runs that ended in the last hour did not finish (SLO 99%)"
+              check: "failed and dead_lettered events of the last hour; a code change or a provider outage"
+      - eval_time: 80m
+        alertname: FitwitnessRunFailureSlowBurn
+        exp_alerts:
+          - exp_labels: {severity: ticket, job: fitwitness, instance: burning}
+            exp_annotations:
+              summary: "20% of the runs that ended in 6 hours did not finish (SLO 99%)"
+              check: "failed and dead_lettered events of the last 6 hours, grouped by error"
+          - exp_labels: {severity: ticket, job: fitwitness, instance: simmering}
+            exp_annotations:
+              summary: "10% of the runs that ended in 6 hours did not finish (SLO 99%)"
+              check: "failed and dead_lettered events of the last 6 hours, grouped by error"
+
+  # --- the model --------------------------------------------------------------------------------------------
+  - interval: 1m
+    input_series:
+      # Three errors in a row after twenty quiet minutes.
+      - series: 'fitwitness_model_errors_total{job="fitwitness",instance="app:8787"}'
+        values: '0x20 1 2 3x20'
+      - series: 'fitwitness_model_schema_errors_total{job="fitwitness",instance="app:8787"}'
+        values: '0x43'
+      # One error and one schema failure: below the threshold.
+      - series: 'fitwitness_model_errors_total{job="fitwitness",instance="calm:8787"}'
+        values: '0x20 1x22'
+      - series: 'fitwitness_model_schema_errors_total{job="fitwitness",instance="calm:8787"}'
+        values: '0x21 1x21'
+    alert_rule_test:
+      - eval_time: 24m
+        alertname: FitwitnessModelErrors
+        exp_alerts: []
+      - eval_time: 28m
+        alertname: FitwitnessModelErrors
+        exp_alerts:
+          - exp_labels: {severity: ticket, job: fitwitness, instance: "app:8787"}
+            exp_annotations:
+              summary: "3 model errors or schema failures in 15 minutes"
+              check: "model_error and model_schema_error events: a refused key, an empty balance or a wrong model id refuses the first call; a schema failure keeps the raw output in the event"
+
+  - interval: 1m
+    input_series:
+      # 30% of ended runs stopped on their budget; the second service 10%.
+      - series: 'fitwitness_budget_stops_total{job="fitwitness",instance="app:8787"}'
+        values: '0+0.3x90'
+      - series: 'fitwitness_runs_completed_total{job="fitwitness",instance="app:8787"}'
+        values: '0+1x90'
+      - series: 'fitwitness_runs_failed_total{job="fitwitness",instance="app:8787"}'
+        values: '0x90'
+      - series: 'fitwitness_dead_letters_total{job="fitwitness",instance="app:8787"}'
+        values: '0x90'
+      - series: 'fitwitness_budget_stops_total{job="fitwitness",instance="calm:8787"}'
+        values: '0+0.1x90'
+      - series: 'fitwitness_runs_completed_total{job="fitwitness",instance="calm:8787"}'
+        values: '0+1x90'
+      - series: 'fitwitness_runs_failed_total{job="fitwitness",instance="calm:8787"}'
+        values: '0x90'
+      - series: 'fitwitness_dead_letters_total{job="fitwitness",instance="calm:8787"}'
+        values: '0x90'
+    alert_rule_test:
+      - eval_time: 80m
+        alertname: FitwitnessBudgetStopsHigh
+        exp_alerts:
+          - exp_labels: {severity: ticket, job: fitwitness, instance: "app:8787"}
+            exp_annotations:
+              summary: "30% of the runs that ended stopped on their budget"
+              check: "budget_stop events say which limit (cost, tokens, calls, deadline); a prompt or model change that needs more calls shows here first"
+
+  - interval: 1m
+    input_series:
+      # 0.01 USD a minute is 0.6 USD an hour; half of that stays quiet.
+      - series: 'fitwitness_cost_usd_total{job="fitwitness",instance="app:8787"}'
+        values: '0+0.01x90'
+      - series: 'fitwitness_cost_usd_total{job="fitwitness",instance="calm:8787"}'
+        values: '0+0.005x90'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: FitwitnessSpendHigh
+        exp_alerts: []
+      - eval_time: 80m
+        alertname: FitwitnessSpendHigh
+        exp_alerts:
+          - exp_labels: {severity: ticket, job: fitwitness, instance: "app:8787"}
+            exp_annotations:
+              summary: "model spend was 0.60 USD in the last hour"
+              check: "one run measured 0.0043 to 0.0097 USD (docs/COST.md), so 0.5 USD is 50 to 100 runs an hour; the public demo refuses paid calls and should spend nothing"
+
+  - interval: 1m
+    input_series:
+      # Every planner call lands between 10 and 30 s; every challenger call under 1 s.
+      - series: 'fitwitness_model_latency_ms_bucket{job="fitwitness",instance="app:8787",role="planner",le="10000"}'
+        values: '0x40'
+      - series: 'fitwitness_model_latency_ms_bucket{job="fitwitness",instance="app:8787",role="planner",le="30000"}'
+        values: '0+1x40'
+      - series: 'fitwitness_model_latency_ms_bucket{job="fitwitness",instance="app:8787",role="planner",le="+Inf"}'
+        values: '0+1x40'
+      - series: 'fitwitness_model_latency_ms_bucket{job="fitwitness",instance="app:8787",role="challenger",le="1000"}'
+        values: '0+1x40'
+      - series: 'fitwitness_model_latency_ms_bucket{job="fitwitness",instance="app:8787",role="challenger",le="+Inf"}'
+        values: '0+1x40'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: FitwitnessModelLatencyHigh
+        exp_alerts: []
+      - eval_time: 35m
+        alertname: FitwitnessModelLatencyHigh
+        exp_alerts:
+          - exp_labels: {severity: ticket, role: planner}
+            exp_annotations:
+              summary: "p95 model call latency for planner is 29000 ms"
+              check: "single model calls measured 0.7 to 2.4 s median and 0.9 to 1.9 s at p95 (docs/COST.md); the provider's status page"
+
+  # --- the API ----------------------------------------------------------------------------------------------
+  - interval: 1m
+    input_series:
+      # Ten requests a minute, every one between 2.5 and 5 s.
+      - series: 'fitwitness_request_seconds_bucket{job="fitwitness",instance="app:8787",le="2.5"}'
+        values: '0x40'
+      - series: 'fitwitness_request_seconds_bucket{job="fitwitness",instance="app:8787",le="5.0"}'
+        values: '0+10x40'
+      - series: 'fitwitness_request_seconds_bucket{job="fitwitness",instance="app:8787",le="+Inf"}'
+        values: '0+10x40'
+      - series: 'fitwitness_requests_total{job="fitwitness",instance="app:8787",method="GET",status="200"}'
+        values: '0+10x40'
+    alert_rule_test:
+      - eval_time: 8m
+        alertname: FitwitnessApiSlow
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: FitwitnessApiSlow
+        exp_alerts:
+          - exp_labels: {severity: ticket}
+            exp_annotations:
+              summary: "p95 API latency is 4.9 s"
+              check: "the public server measured 1.1 s to open a workspace and 0.5 s for a run (docs/WORKFLOW.md); database round trips and the Neon region"
+
+  - interval: 1m
+    input_series:
+      # The same slow requests, but one every 50 minutes: too few to judge.
+      - series: 'fitwitness_request_seconds_bucket{job="fitwitness",instance="app:8787",le="2.5"}'
+        values: '0x40'
+      - series: 'fitwitness_request_seconds_bucket{job="fitwitness",instance="app:8787",le="5.0"}'
+        values: '0+0.02x40'
+      - series: 'fitwitness_request_seconds_bucket{job="fitwitness",instance="app:8787",le="+Inf"}'
+        values: '0+0.02x40'
+      - series: 'fitwitness_requests_total{job="fitwitness",instance="app:8787",method="GET",status="200"}'
+        values: '0+0.02x40'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: FitwitnessApiSlow
+        exp_alerts: []
+
+  - interval: 1m
+    input_series:
+      # One request in ten answers 500.
+      - series: 'fitwitness_requests_total{job="fitwitness",instance="app:8787",method="POST",status="500"}'
+        values: '0+1x30'
+      - series: 'fitwitness_requests_total{job="fitwitness",instance="app:8787",method="GET",status="200"}'
+        values: '0+9x30'
+    alert_rule_test:
+      - eval_time: 4m
+        alertname: FitwitnessApi5xx
+        exp_alerts: []
+      - eval_time: 20m
+        alertname: FitwitnessApi5xx
+        exp_alerts:
+          - exp_labels: {severity: page}
+            exp_annotations:
+              summary: "10% of API requests answer 5xx"
+              check: "the app log; 503 from /ready means the database"
+
+  - interval: 1m
+    input_series:
+      # One in fifty: below 5%.
+      - series: 'fitwitness_requests_total{job="fitwitness",instance="app:8787",method="POST",status="500"}'
+        values: '0+0.2x30'
+      - series: 'fitwitness_requests_total{job="fitwitness",instance="app:8787",method="GET",status="200"}'
+        values: '0+9.8x30'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: FitwitnessApi5xx
+        exp_alerts: []

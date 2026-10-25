@@ -39,7 +39,7 @@
 | 건당 모델 비용과 지연 (Claude Haiku 4.5, 커밋된 측정 기록에서 `scripts/cost-table.py`로 다시 계산, 새 호출 없음) | 청구 한 건의 실행 $0.0043·중앙값 3.3초(스캔 25.5초, 모델 시간만이 아니라 검증·기록 포함), 지급 직전 감사 한 건 $0.003·0.8초(사실 절이 빈 고장 $0.0038·2.4초), 검색 질의 읽기 한 문장 $0.0021·1.5초, 에이전트 실행 한 번 $0.005~0.0097 | [docs/COST.md](docs/COST.md) |
 | 누적 API 비용 | $0.255248, 미확정 예약 0. 프롬프트 비교 실험의 Claude 호출 $0.34355와 실제 모델 경로 측정 네 번의 $0.402162, 청구 주입 판의 모델 경로 세 묶음 $0.169556, 지급 직전 모델 감사 일곱 묶음 $0.92333, test 60건 모델 추출 네 묶음 $1.014931, 검색 질의 모델 읽기 열한 묶음 $0.837106, Upstage 정보 추출 세 단계 298쪽의 어림 $11.92(벤더 콘솔 청구액 미확인)은 이 합계에 넣지 않았고 [prompts-claude.json](docs/evaluation/prompts-claude.json)·[agent-trajectory.json](docs/evaluation/agent-trajectory.json)·[claims-injection-model.json](docs/evaluation/claims-injection-model.json)·[claims-audit.json](docs/evaluation/claims-audit.json)·[claims-model.json](docs/evaluation/claims-model.json)·[query-understanding.json](docs/evaluation/query-understanding.json)에 따로 있음 | [EVIDENCE.md](docs/EVIDENCE.md) |
 | 위 수치들의 95% 구간과 pass^k | 72/72는 94.9%부터, 0/120 잘못 지급은 3.1% 아래, 복합 검색 Recall@5 33.3%는 17~49%, 18/18 실행은 61%부터. 측정을 다시 하지 않고 커밋된 기록에서 계산 | [evaluation/README](docs/evaluation/README.md#표본-크기와-95-구간--2026-10-23) · [statistics.json](docs/evaluation/statistics.json) |
-| 현재 브랜치 자동 검증 | Python 437개(서로 다른 테스트 함수 363개, 파라미터로 늘어난 사례 74개), Playwright 70개(시나리오 35개 × 데스크톱·모바일), API 없는 평가 게이트 통과. 무엇을 막는 테스트인지는 묶음별 표로 정리 | [CI](.github/workflows/ci.yml) · [TESTING.md](docs/TESTING.md) |
+| 현재 브랜치 자동 검증 | Python 439개(서로 다른 테스트 함수 365개, 파라미터로 늘어난 사례 74개), Playwright 70개(시나리오 35개 × 데스크톱·모바일), API 없는 평가 게이트, 알림 규칙의 promtool 테스트 통과. 무엇을 막는 테스트인지는 묶음별 표로 정리 | [CI](.github/workflows/ci.yml) · [TESTING.md](docs/TESTING.md) |
 
 ## 구현된 기능
 
@@ -55,6 +55,7 @@
 - 방문자별 세션·RLS, typed tools, OpenAI·Claude 어댑터, 실행 예산
 - 에이전트가 스스로 정의해 재사용하는 저장 검색 도구(`define_search_tool` / `run_saved_search`), 테넌트별 격리·개수 제한
 - 실행·이벤트 테이블에서 계산하는 Prometheus 지표, 실행별 span tree(`/api/runs/{id}/trace`), 환경 변수 하나로 켜는 OpenTelemetry(OTLP) 전송. Jaeger에서 중단 후 복구된 실행까지 한 trace로 확인했습니다 ([docs/OBSERVABILITY.md](docs/OBSERVABILITY.md)). 내보내는 span은 OTel GenAI 의미 규약의 이름(`gen_ai.operation.name`, `gen_ai.agent.name`, `gen_ai.tool.name`, `gen_ai.usage.*`)을 달고 schema URL을 고정합니다
+- Prometheus 알림 규칙 13개와 기록 규칙 14개, Grafana 대시보드(`deploy/prometheus`, `deploy/grafana`). SLO는 끝난 실행의 99%가 완료이고, 큐 정지·보류함·실패 소진·모델 오류·비용·지연·5xx를 봅니다. promtool 단위 테스트가 알림마다 울릴 때와 조용할 때를 확인하고, 실제 Prometheus 3.5.0이 로컬 앱을 긁어 큐 정지 알림이 울리는 것을 보았습니다. 받는 곳(Alertmanager)은 없고 실제로 받은 알림도, 공개 데모를 긁는 Prometheus도 없습니다 ([docs/OBSERVABILITY.md](docs/OBSERVABILITY.md#알림-규칙과-slo))
 - 바깥 연결 없이 도는 범위(규칙 경로, 로컬 Tesseract, 미리 옮긴 인코더 가중치, 같은 망의 Jaeger)와 켜는 순서는 [docs/ONPREM.md](docs/ONPREM.md)에 적었습니다. 실제 폐쇄망에서 돌려 본 기록은 없습니다
 - React·Three.js 도면 검토대: 후보 필터, 근거 위치, 실제 CAD 3D, 개정판·실행 기록 검사, 담당자 확인 입력
 - LLM 실험실: Qwen/Claude 모델 선택, 오류 사례·반복 실행별 원시 출력, 실제 Agent 호출 기록, 평가 프로토콜

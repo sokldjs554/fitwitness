@@ -7,6 +7,7 @@ __pycache__/
 !.env.example
 .superpowers/
 artifacts/
+deploy/prometheus/metrics-token
 var/
 node_modules/
 web/dist/

@@ -1,0 +1,7 @@
+apiVersion: 1
+providers:
+  - name: fitwitness
+    folder: fitwitness
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards

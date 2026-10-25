@@ -101,7 +101,13 @@ def create_app():
             and request.headers["origin"] not in allowed
         ):
             return Response("Origin not allowed", status_code=403)
-        response = await call_next(request)
+        try:
+            response = await call_next(request)
+        except Exception:
+            # An unhandled error becomes a 500 outside this middleware; count it here, or the 5xx alert never sees it.
+            requests.labels(request.method, "500").inc()
+            latency.observe(time.monotonic() - start)
+            raise
         requests.labels(request.method, str(response.status_code)).inc()
         latency.observe(time.monotonic() - start)
         response.headers["X-Content-Type-Options"] = "nosniff"
