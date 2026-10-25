@@ -57,6 +57,9 @@ class ModelClient:
             "run_saved_search runs one by name and returns candidates with those fields already read. Reuse saved_tools before defining a new one. "
             "planning_turns_left is how many more plans you may return after this one: when it is 0, inspect every candidate in this plan, "
             "since a saved tool defined now can only run in a later plan. unexamined_fields are the required fields not yet queried for that candidate. "
+            "retrieval says how many active drawings the workspace holds and how many the first ranked search could return (ranked_top_k): "
+            "when the query asks for every drawing with some property and the workspace holds more than ranked_top_k, the candidates may be "
+            "cut short, so search again in this plan for the ones not yet listed. "
             + (
                 "Look for a fact that would disprove the proposed candidate."
                 if role == "challenger"

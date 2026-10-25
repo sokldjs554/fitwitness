@@ -82,7 +82,7 @@ class EvidenceSession:
                     return False
         return True
 
-    def context(self, query, requirements, observations, decisions=(), saved_tools=(), turns_left=None):
+    def context(self, query, requirements, observations, decisions=(), saved_tools=(), turns_left=None, retrieval=None):
         required = {r['field'] for r in requirements}
         tools = {k: SCHEMAS[k].model_json_schema() for k in sorted(self.available)}
         if 'define_search_tool' in tools:
@@ -102,6 +102,8 @@ class EvidenceSession:
             'saved_tools': [{k: t[k] for k in ('name', 'description', 'channels', 'query_template', 'fields', 'top_k') if k in t}
                             for t in saved_tools],
             **({'planning_turns_left': turns_left} if turns_left is not None else {}),
+            # how many drawings the workspace holds and how many the first ranked search could return
+            **({'retrieval': retrieval} if retrieval is not None else {}),
         }
 
     @staticmethod

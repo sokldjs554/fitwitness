@@ -232,7 +232,8 @@ def _execute_run(
                 turns_left = 0 if request.mode == "fixed" else max(0, min(2 - state.get("iterations", 0), budget.budget.max_model_calls - budget.usage.model_calls - 1))
                 context = session.context(request.search.text, state["requirements"], observations,
                                           state.get("decisions", []) if role == "challenger" else [],
-                                          saved_tools=tools.saved_tools(), turns_left=turns_left)
+                                          saved_tools=tools.saved_tools(), turns_left=turns_left,
+                                          retrieval={"ranked_top_k": request.search.top_k, "active_drawings": len(snapshot.revision_ids)})
                 try:
                     plan, metadata = model.plan(context, role=role)
                     emit("model", metadata)

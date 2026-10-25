@@ -81,3 +81,10 @@ def test_context_lists_what_is_still_unexamined_and_how_many_plans_remain():
     # a definition may only name channels this workspace can run: no semantic search is connected here
     assert context['tools']['define_search_tool']['properties']['channels']['items']['enum']==['exact','bm25']
     assert 'planning_turns_left' not in s.context('x',[],[])
+
+
+def test_context_says_how_far_the_ranked_search_could_reach():
+    s=session()([candidate()],available={'query_dimensions'})
+    context=s.context('SUS304 도면을 모두',[{'field':'material'}],[],retrieval={'ranked_top_k':6,'active_drawings':30})
+    assert context['retrieval']=={'ranked_top_k':6,'active_drawings':30}
+    assert 'retrieval' not in s.context('x',[],[])
