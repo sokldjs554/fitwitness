@@ -110,6 +110,8 @@ Render 배포 `dep-db13nve0tbcc739c69t0`, 코드 `8a1d8b065399bff657bde1db4a25e9
 - 사용자 테스트 뒤 화면 네 곳(`3922482`): 적용된 조건 칩과 "조건 비우기", "검색 제외" 목록의 설명, 도면 패널 한 줄 설명, 후보 카드의 제목·승인 상태. 같은 커밋에서 `브라켓`을 종류 낱말로 더했습니다
 - 명령으로 검색하는 도구 `search_shell`(`49ff361`), 스캔한 법정 서식의 격자 읽기(`2830fe2`·`79fa576`·`a74b798`), 표제란 읽기 규칙(`e6b0a98`)
 - 모델이 질의를 읽는 단계, 모델 추출·감사 경로(운영자 선택 기능이고, 공개 익명 API는 유료 모델을 부르지 않습니다)
-- 2026-10-25: 플래너 문맥의 `retrieval`(작업 공간 크기와 순위 검색 상한), 도구가 모두 실패한 계획의 한 번 더 기회, 셸이 있어야 되는 명령의 거부 메시지, 세션 정리 때 지표 누계를 보존하는 표 `fw_metric_totals`, 요청 미들웨어의 500 집계
+- 2026-10-25: 플래너 문맥의 `retrieval`(작업 공간 크기와 순위 검색 상한), 도구가 모두 실패한 계획의 한 번 더 기회, 셸이 있어야 되는 명령의 거부 메시지, 세션 정리 때 지표 누계를 보존하는 표 `fw_metric_totals`, 요청 미들웨어의 500 집계, 끝난 실행이 디스패처의 빈 칸을 바로 넘기는 것(로컬 부하 시험에서 100명일 때 대기 중앙값 43.2초 → 11.3초, [LOAD.md](LOAD.md))
 
 의존성(`pyproject.toml`·`uv.lock`·`web/package-lock.json`)은 바뀌지 않았습니다. 스키마는 표 하나(`fw_metric_totals`, 테넌트 데이터 없는 이름·값 두 칸)가 더해졌고, 시작 명령의 `scripts/setup.py`가 `CREATE TABLE IF NOT EXISTS`로 만듭니다. 저장소 코드의 다른 변경은 벡터 검사 한 줄(`image_dino` 채널 허용)입니다. 다음 수동 배포 뒤 `scripts/verify_hosted.py`로 다시 검증하고 이 절을 고칩니다.
+
+**배포 뒤 확인할 것: 방문자 주소.** 체험 공간은 시간당 100개, 주소당 20개까지 만듭니다(`/api/demo-sessions`). 주소는 `request.client.host`인데, uvicorn은 `--forwarded-allow-ips`가 없으면 127.0.0.1에서 온 `X-Forwarded-For`만 믿고 `render.yaml`은 그 값을 주지 않습니다. 그래서 Render 프록시 뒤에서는 모든 방문자가 프록시 주소 하나로 세어져, 한 시간에 20개를 넘기면 다른 방문자가 429를 받을 수 있습니다. 확인하지 않은 위험이라 코드는 바꾸지 않았습니다. 확인은 Neon 콘솔에서 `SELECT bucket, used FROM fw_admission WHERE bucket LIKE 'sessions:%:%' ORDER BY created_at DESC LIMIT 20;`로 합니다. 서로 다른 곳에서 들어온 방문이 있었는데 시간마다 주소 칸이 하나뿐이면 위험이 맞습니다. 그때 고치는 법은 Render 프록시가 덧붙이는 `X-Forwarded-For`의 마지막 값을 주소로 쓰는 것이고(앞쪽 값은 방문자가 꾸밀 수 있음), `--forwarded-allow-ips='*'`는 맨 앞 값을 믿게 될 수 있어 쓰지 않습니다.
