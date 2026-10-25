@@ -13,7 +13,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Korean-style block, all cells empty except scale 1:1. Circled '99' is a sheet label outside the block, not a drawing-number cell."
+  "note": "Korean-style block, all cells empty except scale 1:1. Circled '99' is a sheet label outside the block, not a drawing-number cell.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "163376fc": {
   "drawing_number": null,
@@ -21,7 +22,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Block empty except scale 1:1. Circled '267' is a sheet label outside the block."
+  "note": "Block empty except scale 1:1. Circled '267' is a sheet label outside the block.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "1663097e": {
   "drawing_number": "LJT02.04",
@@ -29,7 +31,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "GB block, scale (比例) cell empty. Page also has a 3D render."
+  "note": "GB block, scale (比例) cell empty. Page also has a 3D render.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "1b808e30": {
   "drawing_number": null,
@@ -37,7 +40,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "No drawing-number cell; 比例 cell empty (the '2:1' on the page is for view B)."
+  "note": "No drawing-number cell; 比例 cell empty (the '2:1' on the page is for view B).",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "1c92b3c7": {
   "drawing_number": null,
@@ -45,7 +49,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Block empty except scale 1:1. Circled '191' is a sheet label outside the block."
+  "note": "Block empty except scale 1:1. Circled '191' is a sheet label outside the block.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "1ecf6cee": {
   "drawing_number": null,
@@ -53,7 +58,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Block empty except scale 1:1. Circled '127' is a sheet label outside the block."
+  "note": "Block empty except scale 1:1. Circled '127' is a sheet label outside the block.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "2900dd75": {
   "drawing_number": null,
@@ -69,7 +75,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Block empty except scale 1:1; no number label on page."
+  "note": "Block empty except scale 1:1; no number label on page.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "33f79704": {
   "drawing_number": "PKQ1-03",
@@ -77,7 +84,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Book page with three drawings; this is the bottom one (活动钳口, bottom-right block). Others on page are PKQ1-02 and PKQ1-06."
+  "note": "Book page with three drawings; this is the bottom one (活动钳口, bottom-right block). Others on page are PKQ1-02 and PKQ1-06.",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "3525bce5": {
   "drawing_number": null,
@@ -93,7 +101,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "scale cell empty"
+  "note": "scale cell empty",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "37a8294b": {
   "drawing_number": null,
@@ -125,7 +134,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "scale cell empty"
+  "note": "scale cell empty",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "615c96ae": {
   "drawing_number": "LJT06.41",
@@ -133,7 +143,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "scale cell empty; left half of page is render images only"
+  "note": "scale cell empty; left half of page is render images only",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "62167669": {
   "drawing_number": null,
@@ -157,7 +168,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "nearly empty title block; 1:1 is printed in its lower-left cell; no drawing number or material"
+  "note": "nearly empty title block; 1:1 is printed in its lower-left cell; no drawing number or material",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "6fb5ebb8": {
   "drawing_number": "YBL-003",
@@ -165,7 +177,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": ""
+  "note": "",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "7989ade1": {
   "drawing_number": null,
@@ -173,7 +186,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "drawing-number cell (right of scale/material) is empty"
+  "note": "drawing-number cell (right of scale/material) is empty",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "7b2aa775": {
   "drawing_number": null,
@@ -181,7 +195,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Korean-style blank title block; only scale 1:1 filled; circled 218 is an item number outside the block"
+  "note": "Korean-style blank title block; only scale 1:1 filled; circled 218 is an item number outside the block",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "7f5a2eea": {
   "drawing_number": "DJZ-21",
@@ -189,7 +204,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "page has four drawings (DJZ-18..21); bottom-right one is DJZ-21 handle"
+  "note": "page has four drawings (DJZ-18..21); bottom-right one is DJZ-21 handle",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "85f3208f": {
   "drawing_number": "LJT05.36",
@@ -197,7 +213,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "HU-style block; material printed in the large cell; scale (比例) cell empty"
+  "note": "HU-style block; material printed in the large cell; scale (比例) cell empty",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "903c8afe": {
   "drawing_number": null,
@@ -205,7 +222,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "assembly with BOM; 代号 cells and main number cell empty"
+  "note": "assembly with BOM; 代号 cells and main number cell empty",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "963ff1c0": {
   "drawing_number": "LJT01.06",
@@ -213,7 +231,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "scale (比例) cell empty"
+  "note": "scale (比例) cell empty",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "9a35186c": {
   "drawing_number": "HKQ-001",
@@ -221,7 +240,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": ""
+  "note": "",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "a4f4025d": {
   "drawing_number": "LJT05.34",
@@ -229,7 +249,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "scale (比例) cell empty"
+  "note": "scale (比例) cell empty",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "ad4c7cf0": {
   "drawing_number": null,
@@ -245,7 +266,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "scale cell empty"
+  "note": "scale cell empty",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "ba17c354": {
   "drawing_number": null,
@@ -253,7 +275,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "Korean-style block, number/material cells empty; circled 220 is an item number outside the block"
+  "note": "Korean-style block, number/material cells empty; circled 220 is an item number outside the block",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "bfeb3824": {
   "drawing_number": null,
@@ -269,7 +292,8 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "number/material cells empty; circled 86 is an item number outside the block"
+  "note": "number/material cells empty; circled 86 is an item number outside the block",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "d552059f": {
   "drawing_number": null,
@@ -293,7 +317,8 @@
   "scale": "4:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "title block is small on a book page (spring drawing, fig 5-126); read from full page at low resolution, fairly confident"
+  "note": "title block is small on a book page (spring drawing, fig 5-126); read from full page at low resolution, fairly confident",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "f1c47bfa": {
   "drawing_number": "LJT04.47",
@@ -301,7 +326,8 @@
   "scale": null,
   "title_block": "yes",
   "unclear": false,
-  "note": "ZL107 is the centre cell above the stage marks (material); scale cell empty"
+  "note": "ZL107 is the centre cell above the stage marks (material); scale cell empty",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  },
  "f34c2d3e": {
   "drawing_number": null,
@@ -317,6 +343,7 @@
   "scale": "1:1",
   "title_block": "yes",
   "unclear": false,
-  "note": "number/material cells empty; circled 87 is an item number outside the block"
+  "note": "number/material cells empty; circled 87 is an item number outside the block",
+  "human_check": "2026-10-25: correct (docs/evaluation/title-block-holdout-label-check.csv)"
  }
 }
