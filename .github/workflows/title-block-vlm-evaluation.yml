@@ -1,0 +1,83 @@
+name: title-block-vlm-evaluation
+# Claude reads the 61 human-checked title blocks of the two MechVQA hold-outs (page, then the block it found cut
+# from the full page), scored like the Tesseract reader's records. Manual only, under a hard ceiling. The pages are
+# third-party drawings: fetched here and checked against the committed hashes, never committed or uploaded.
+on:
+  workflow_dispatch:
+    inputs:
+      max_usd:
+        description: hard ceiling for the whole run in USD (at most 1.0)
+        default: '0.6'
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: title-block-vlm-evaluation
+  cancel-in-progress: false
+jobs:
+  measure:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PYTHONPATH: src
+      FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION: '1'
+      FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION: '5'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require a privately configured credential and a sane ceiling
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os
+          if not os.getenv('ANTHROPIC_API_KEY'):
+              raise SystemExit('missing ANTHROPIC_API_KEY (a repository secret). Nothing was called.')
+          ceiling = float('${{ inputs.max_usd }}')
+          assert 0 < ceiling <= 1.0, ceiling
+          print('configuration present (values not printed)')
+          PY
+      - name: Fetch the hold-out pages from MechVQA and check them against the committed hashes
+        run: |
+          mkdir -p "$RUNNER_TEMP/mechvqa" && cd "$RUNNER_TEMP/mechvqa"
+          cat "$GITHUB_WORKSPACE/docs/evaluation/title-block-holdout-images.sha256" "$GITHUB_WORKSPACE/docs/evaluation/title-block-holdout2-images.sha256" > pages.sha256
+          while read -r sum p; do
+            mkdir -p "$(dirname "$p")"
+            curl -sSf --retry 3 -o "$p" "https://raw.githubusercontent.com/xiaofengShi/MechVQA/main/benchmark_data/$p"
+          done < pages.sha256
+          sha256sum -c --quiet pages.sha256 && echo "all $(wc -l < pages.sha256) pages match"
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen --no-dev
+      - name: Read the title blocks
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: uv run python scripts/eval-title-block-vlm.py --images "$RUNNER_TEMP/mechvqa" --max-cost-usd "${{ inputs.max_usd }}" --output artifacts/title-block-vlm
+      - name: Summary
+        if: always()
+        run: |
+          uv run python - <<'PY'
+          import json
+          from pathlib import Path
+          f = Path('artifacts/title-block-vlm/report.json')
+          if not f.exists():
+              print('no report'); raise SystemExit(0)
+          r = json.loads(f.read_text())
+          print('== protocol', json.dumps({k: r['protocol'][k] for k in ('code_sha', 'model', 'pages', 'sets', 'ceiling_usd', 'call_cap_usd')}))
+          for name, s in r['summary'].items():
+              print('== summary', name, json.dumps(s, ensure_ascii=False))
+          print('== tesseract', json.dumps(r['tesseract_records'], ensure_ascii=False))
+          print('== spent', r['spent_usd'], 'calls', r['calls'], 'errors', r['call_errors'], 'latency_ms_median', r['latency_ms_median'], 'skipped', json.dumps(r['skipped']))
+          for row in r['rows']:
+              print('== row', json.dumps({k: row[k] for k in ('set', 'image', 'page_px', 'expected', 'bbox', 'crop_box', 'page', 'crop', 'visible_text')}, ensure_ascii=False))
+              for c in row['calls']:
+                  print('== call', row['image'], json.dumps(c, ensure_ascii=False))
+          PY
+      # Only the report (readings, labels, hashes, usage) is kept; no page or crop image is uploaded.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: title-block-vlm-${{ github.run_id }}
+          path: |
+            artifacts/title-block-vlm/report.json
+            artifacts/title-block-vlm/protocol.json
+          if-no-files-found: warn
