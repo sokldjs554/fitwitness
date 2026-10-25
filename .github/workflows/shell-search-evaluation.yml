@@ -16,6 +16,12 @@ on:
         description: comma separated arms (ranked = usual tools, shell = search_shell switched on)
         default: 'ranked,shell'
         required: true
+      split:
+        description: which family split fills the workspace (test was measured first; dev is unseen by this harness until it is run)
+        default: 'test'
+        required: true
+        type: choice
+        options: [test, dev]
       mode:
         description: graph structure for the model runs
         default: 'react'
@@ -72,7 +78,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: >-
           uv run python -m fitwitness.evaluation.shell_search_model
-          --arms "${{ inputs.arms }}" --mode "${{ inputs.mode }}"
+          --arms "${{ inputs.arms }}" --mode "${{ inputs.mode }}" --split "${{ inputs.split }}"
           --max-cost-usd "${{ inputs.max_usd }}" --per-run-usd "${{ inputs.per_run_usd }}"
           --output artifacts/shell-search
       - name: Summary
@@ -85,7 +91,7 @@ jobs:
           if not f.exists():
               print('no report'); raise SystemExit(0)
           r = json.loads(f.read_text())
-          print('== protocol', json.dumps({k: r['protocol'][k] for k in ('code_sha', 'model', 'mode', 'arms', 'ceiling_usd', 'per_run_cap_usd', 'budget')}))
+          print('== protocol', json.dumps({k: r['protocol'][k] for k in ('code_sha', 'split', 'model', 'mode', 'arms', 'ceiling_usd', 'per_run_cap_usd', 'budget')}))
           for c in r['protocol']['cases']:
               print('== case', json.dumps(c, ensure_ascii=False))
           for arm, m in r['summary'].items():
