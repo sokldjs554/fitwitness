@@ -631,7 +631,8 @@ main {
 .drawing-stage {
   position: relative;
   display: flex;
-  align-items: center;
+  /* top, not centre: the stage grows with the candidate list (20 drawings), and a centred sheet sat below the fold */
+  align-items: flex-start;
   justify-content: center;
   min-height: 375px;
   flex: 1;
