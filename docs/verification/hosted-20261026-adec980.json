@@ -1,0 +1,262 @@
+{
+  "url": "https://fitwitness.onrender.com",
+  "sha": "adec9800f4ff3f9d31d8a4b7b877f11c6707fa6d",
+  "verified_at": "2026-10-26T15:15:33.807467+00:00",
+  "status": "passed",
+  "before": {
+    "match": 2,
+    "unknown": 1,
+    "mismatch": 3
+  },
+  "after": {
+    "match": 1,
+    "unknown": 1,
+    "mismatch": 4
+  },
+  "events": {
+    "queued": 1,
+    "started": 2,
+    "intent": 1,
+    "retrieved": 1,
+    "interrupted": 1,
+    "resumed": 1,
+    "tool": 6,
+    "verified": 1,
+    "completed": 1
+  },
+  "assets": [
+    {
+      "drawing": "FW-002-2",
+      "revision": "A",
+      "hashes": {
+        "pdf": "bf9efa0cfdefcf3b9164774ae2ac8c86b38db5c0f0c1653771dcf55a8bc64d5b",
+        "png": "400d86019dae076da641d110322fabb44f4358cd4a547c9f6079e939af78572f",
+        "step": "27b1d4c9018dc51ed6b0a9d5648388362b67d51dcf7b726a2d07496da15c8a4d"
+      },
+      "vertices": 1012,
+      "faces": 1004
+    },
+    {
+      "drawing": "FW-002-4",
+      "revision": "A",
+      "hashes": {
+        "pdf": "b02ebb428d17b0eac6b42ae6e5d4d265b8b5dad983361cb2af10afaebce8555d",
+        "png": "1e9e8109fba3ecf4e844a0a3478e201e4464f4a0c51faf15109fcf41b70f547d",
+        "step": "f8e6a55b526c75b5b7b30a5932f8326265423d48fbf89f384c5cf976bc90b53b"
+      },
+      "vertices": 1012,
+      "faces": 1004
+    },
+    {
+      "drawing": "FW-003-1",
+      "revision": "A",
+      "hashes": {
+        "pdf": "45375bd7f734d81ab6e5728b0ca7282bbc4f9ba4796979304af7ed67635b3c34",
+        "png": "488c95991154dfe3dce0b6c09f97c6d89580ae164f0787286deee37a6c392da4",
+        "step": "0eb32c7d45a119c782627a37c2a0ef0c37248588578e349fcbd6959eedc6f3dc"
+      },
+      "vertices": 48,
+      "faces": 28
+    },
+    {
+      "drawing": "FW-001-1",
+      "revision": "A",
+      "hashes": {
+        "pdf": "27583ce9198d17a979867817280faae9c6709575e86f5bc147095d7248e94936",
+        "png": "0e85c332a5ce045b69adada73fa12ed4c7ab86b156ed74ca7b8dff1938738079",
+        "step": "08359188f3e5585756f9cf0aa23f85c51d52fcaa25f584ed5650ff7db293b932"
+      },
+      "vertices": 1518,
+      "faces": 1516
+    },
+    {
+      "drawing": "FW-001-4",
+      "revision": "A",
+      "hashes": {
+        "pdf": "3a994ba81285d1892e509604f15e964cbc67015f07cdc9808d23721f0a1014e0",
+        "png": "e4b202030ef357e1ce7cf62abae6c2dd5aca20268f2855ca98b40260918fab4b",
+        "step": "a9d596bba1e275a8042f7e01ab9e2130c3d62809729a3c39e44a859b1514549c"
+      },
+      "vertices": 1518,
+      "faces": 1516
+    },
+    {
+      "drawing": "FW-000-4",
+      "revision": "A",
+      "hashes": {
+        "pdf": "b5e945edde8325a7936e67b374f63979f474ccaf2907231338d21386426e23cf",
+        "png": "b2149795f7c34602003cb83caa41e5efebc447524e2d73ea97d982d97456444d",
+        "step": "ef630b3e92b166784aeed39ed38736e76b3418b70a1dece8d54176a53882958f"
+      },
+      "vertices": 1036,
+      "faces": 1028
+    },
+    {
+      "drawing": "FW-001-2",
+      "revision": "A",
+      "hashes": {
+        "pdf": "5e293fb28e2dd515f5597b39ba19af17fe091430affd19cf64713d370bf793f2",
+        "png": "4b37f7d787e1b478255d45e0bfbd2f64827c502e5d60ff712d6fb29f86b223d2",
+        "step": "0f27bfd4adf5c8801dd71e296ff4742b2f895e0b2a0ccb7ad5814ec2c936bdfd"
+      },
+      "vertices": 1518,
+      "faces": 1516
+    },
+    {
+      "drawing": "FW-000-3",
+      "revision": "A",
+      "hashes": {
+        "pdf": "35338fdcf59748a8f2985c74fbe3271ddb323c3588a804a5070f0779faad6671",
+        "png": "7eac607b3b909896bd3a800c435571c6b722aa677a53b78aa59353e2acf723c3",
+        "step": "32c30dd41c6fdbb4f3230ebfcebe474f958ae907468ee9fa91b07e9b67dca4da"
+      },
+      "vertices": 1036,
+      "faces": 1028
+    },
+    {
+      "drawing": "FW-003-3",
+      "revision": "A",
+      "hashes": {
+        "pdf": "e6e2cbb17d16e55e52502978a698c06fea9153ad434d10589372c745eaee4809",
+        "png": "c64db2d18ac7c994b7415bd73c7e0f2bc31eb7fea2853c488f7480e50ff61a25",
+        "step": "a6705e409a286c06ed3cc7feff70a0aa0bc4c7a0ed5e35e011f35aa768641783"
+      },
+      "vertices": 48,
+      "faces": 28
+    },
+    {
+      "drawing": "FW-000-2",
+      "revision": "A",
+      "hashes": {
+        "pdf": "dc62f462aa708e3bdee719c10a002baf7c13f331b395f628161a38700d121cf7",
+        "png": "4cc9892839e04a1d95229af303545101262b9bd46d9eacc44d20cd4525142654",
+        "step": "823d206c56f5474bf8d96a45886b156bf3efb8b0a04f241abf7669dbb2cfc771"
+      },
+      "vertices": 1036,
+      "faces": 1028
+    },
+    {
+      "drawing": "FW-003-2",
+      "revision": "A",
+      "hashes": {
+        "pdf": "b98775edced3550a24d98e09d747024ceea0d32b31250b4c4f3f720506acf9c5",
+        "png": "23224b271cb082744861ba155b21fe9e41b79eb334294f6b93ba42c333fec2bf",
+        "step": "5142fa3566383d1c1a6c283f5d83556b893f680b474a9325a16df7b7a0b30422"
+      },
+      "vertices": 48,
+      "faces": 28
+    },
+    {
+      "drawing": "FW-001-3",
+      "revision": "A",
+      "hashes": {
+        "pdf": "9cce61ab5df9fa9cc98b2ce0b30d7203f8dfb0c01b6f795fb5c2e7ebe9fb2364",
+        "png": "4b0d4b46fbb0c7c25a1a3a8ff2bcbfc2f67d643e0cdaeea9abea9142fa3d475b",
+        "step": "67cf11b0b450d3bb4d0b5fb0b05efed69964a195d6be8bfda5e019cd8c187f6f"
+      },
+      "vertices": 1518,
+      "faces": 1516
+    },
+    {
+      "drawing": "FW-003-0",
+      "revision": "A",
+      "hashes": {
+        "pdf": "f2f426d59b03523cb5f39679d3c4d2632a1d37e4c8aa254afbbc13ae3d5e2e66",
+        "png": "7f34cdcea89204964e511a7dce8808a6005f521157ea4cb5d850f52aa3500949",
+        "step": "f528e10fb3ec192bdc20e243795b746b52f96b8abee0e3765d7df0ac3ab08f46"
+      },
+      "vertices": 48,
+      "faces": 28
+    },
+    {
+      "drawing": "FW-002-0",
+      "revision": "A",
+      "hashes": {
+        "pdf": "9b66db30cd07d72050c41ab52185e3309a0ceb26d3715e53a8341504f2aadb8c",
+        "png": "4c69a325016fac006838b47206540036e8623a9cfc446dfbd9823bdd578cf353",
+        "step": "84676a5362e65c802d16c571d1811a22bd796639dda82bec54a024a681c192c3"
+      },
+      "vertices": 1012,
+      "faces": 1004
+    },
+    {
+      "drawing": "FW-000-1",
+      "revision": "A",
+      "hashes": {
+        "pdf": "dfeb1c3a8a62c7a37ea3204e5a94faed3e90922599b99bd67324d0c8814dfc8b",
+        "png": "612bc47b17bf4687ddcd5d5a0f5bbee68d79f6c8824eb004f47280efd2ff6368",
+        "step": "de2f4a97a9f9cdbc021b0c5cc57ff80c73ec6491dbb63de82eb3f06e295e4c9b"
+      },
+      "vertices": 1036,
+      "faces": 1028
+    },
+    {
+      "drawing": "FW-002-1",
+      "revision": "A",
+      "hashes": {
+        "pdf": "a3edd6a4986c058e6a8a8633a4f716a72a9e1cf46fdaf1e5642478307db3a3bb",
+        "png": "aec67bc3056329e3a50818a25cfee86a4ee22a80aee13aa36d544f477cce8fd7",
+        "step": "2559c0b65fea1b05ef7ea1075a0ad212483e5eb27cbe79ff1481c9209ca3ebf0"
+      },
+      "vertices": 1012,
+      "faces": 1004
+    },
+    {
+      "drawing": "FW-001-0",
+      "revision": "A",
+      "hashes": {
+        "pdf": "485b3261fc6f66f6e5faf6c41ee6b8301b047e67481cb186e071c32d8f93a781",
+        "png": "f465e4f0e0bb6f5409ca69c49b87875d67b7f8b8fb0e40f1c973eeb8ae1ff5c6",
+        "step": "3739270dc652fe9ef69158062e1e0ef7476817f2c303c765389380485bd8c8c7"
+      },
+      "vertices": 1518,
+      "faces": 1516
+    },
+    {
+      "drawing": "FW-000-0",
+      "revision": "A",
+      "hashes": {
+        "pdf": "7c45f4e11e2a90eb996d775698ae6761c19c25c76d74c95ca29c5481e9925c33",
+        "png": "64b5940e71fd83168539084078dce5da9f51379089c58f2f145e64c737192262",
+        "step": "1c9b9a337d86701fb1b93794e8f36fd628491848a6dc815ea70f430e07ee13fd"
+      },
+      "vertices": 1036,
+      "faces": 1028
+    },
+    {
+      "drawing": "FW-002-3",
+      "revision": "A",
+      "hashes": {
+        "pdf": "0a362d9a72f714d228296d784840456cc9526547b837ab9c74b9742202c7790e",
+        "png": "b45663dbffd46aab9b55c5b0c2140ec985b54214d90eb69850b954302a6b56e3",
+        "step": "e2e506b33518c9abe1b664cf8241daf48fd504674d8b9c0334ea4a9b445a0416"
+      },
+      "vertices": 1012,
+      "faces": 1004
+    },
+    {
+      "drawing": "FW-003-4",
+      "revision": "A",
+      "hashes": {
+        "pdf": "d6d0a14ef674f4cbaf7cbbf9b7e8781f0621618ad83c3cb7400aaa8fbc477034",
+        "png": "babf3df791767540f1b8cfc74e0555e651accc4be8afd449b9c6cba147dcc5b1",
+        "step": "ef60dced265dff2a84b4b98a13755639ee2fc623479742a935320b70097d12d9"
+      },
+      "vertices": 48,
+      "faces": 28
+    }
+  ],
+  "checks": [
+    "readiness",
+    "secure cookie",
+    "all 20 PDF/PNG/STEP/mesh assets and exact-ID search",
+    "idempotency",
+    "worker recovery",
+    "revision invalidation",
+    "reverification",
+    "tenant isolation",
+    "origin rejection",
+    "paid API disabled",
+    "private metrics"
+  ]
+}

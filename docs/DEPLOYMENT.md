@@ -4,7 +4,7 @@
 - 저장소: https://github.com/sokldjs554/fitwitness
 - 배포 브랜치: `main` (`render.yaml`, 자동 배포 꺼짐, Render 대시보드에서 수동 배포)
 - 처음 배포한 `feat/fitwitness-foundation`은 PR [#1](https://github.com/sokldjs554/fitwitness/pull/1)로 2026-10-05에 main에 병합했습니다
-- 공개 데모가 돌리는 코드: `1f4b06f`(2026-10-26 배포). 같은 날 `scripts/verify_hosted.py`가 공개 HTTPS에서 전체 통과했습니다. 그 뒤 화면 배치 수정 하나가 다음 배포를 기다립니다. [아래](#2026-10-26-배포)
+- 공개 데모가 돌리는 코드: `adec980`(2026-10-26 배포). 같은 날 `scripts/verify_hosted.py`가 공개 HTTPS에서 전체 통과했습니다. [아래](#2026-10-26-배포)
 
 
 바깥 연결 없이 돌리는 범위와 켜는 순서는 [ONPREM.md](ONPREM.md)에 따로 적었습니다.
@@ -105,10 +105,10 @@ Render 배포 `dep-db13nve0tbcc739c69t0`, 코드 `8a1d8b065399bff657bde1db4a25e9
 
 ## 2026-10-26 배포
 
-`/health`가 `1f4b06faac9cfded913cac71cde650f5c17ac21f`를 돌려줍니다. 10-08 배포(`0e60d3c`) 뒤 바뀐 앱 코드, 곧 사용자 테스트 뒤 화면 네 곳(`3922482`), `search_shell`(`49ff361`), 스캔 서식 격자 읽기, 표제란 읽기 규칙, 플래너 문맥의 `retrieval`, 실패한 계획의 한 번 더 기회, 지표 누계 표 `fw_metric_totals`, 요청 미들웨어의 500 집계, 디스패처 수정([LOAD.md](LOAD.md))이 모두 들어갔습니다. 새 표 `fw_metric_totals`는 시작 명령의 `scripts/setup.py`가 `CREATE TABLE IF NOT EXISTS`로 만들고, 배포 뒤 `/ready`가 통과합니다.
+첫 배포의 `/health`는 `1f4b06faac9cfded913cac71cde650f5c17ac21f`였습니다. 10-08 배포(`0e60d3c`) 뒤 바뀐 앱 코드, 곧 사용자 테스트 뒤 화면 네 곳(`3922482`), `search_shell`(`49ff361`), 스캔 서식 격자 읽기, 표제란 읽기 규칙, 플래너 문맥의 `retrieval`, 실패한 계획의 한 번 더 기회, 지표 누계 표 `fw_metric_totals`, 요청 미들웨어의 500 집계, 디스패처 수정([LOAD.md](LOAD.md))이 모두 들어갔습니다. 새 표 `fw_metric_totals`는 시작 명령의 `scripts/setup.py`가 `CREATE TABLE IF NOT EXISTS`로 만들고, 배포 뒤 `/ready`가 통과합니다.
 
 [공개 HTTPS 검증](verification/hosted-20261026.json)은 2026-10-26 09:28 UTC에 전체 통과했습니다. 도면이 20장으로 늘어 검사 스크립트가 문서 수를 세션 응답에서 읽도록 고쳤고, 판정 개수는 같은 커밋을 띄운 로컬 서버에서 먼저 확인했습니다(`--local`). 통과한 항목은 health·ready, 401, Secure 쿠키, 20장 전부의 PDF/PNG/STEP/메시 자산과 정확한 ID 검색, 멱등 키, worker 중단 뒤 재개와 단일 완료, 개정판 무효화와 재검증(일치 2·불일치 3·미확인 1 → 1·4·1), origin 403, 유료 모델 409, 세션 격리입니다. 브라우저(Chromium)로 두 화면을 열어 사용자 테스트 뒤 바꾼 문구가 실제 번들에 있고 콘솔 오류가 없는 것도 확인했습니다.
 
-**다음 배포를 기다리는 것: 도면 위치.** 같은 브라우저 확인에서 1440×1000 화면의 도면이 y=1128에 그려져 첫 화면 밖에 있었습니다. 후보 목록(20장)과 같은 높이로 늘어난 칸의 세로 가운데에 도면을 놓았기 때문입니다. `web/src/style.css`의 `.drawing-stage`를 위쪽 정렬로 바꿔 로컬에서 y≈575로 올라온 것과 E2E 70개 통과를 확인했습니다. 다음 수동 배포 뒤 화면에서 다시 봅니다.
+**같은 날 두 번째 배포: 도면 위치.** 같은 브라우저 확인에서 1440×1000 화면의 도면이 y=1128에 그려져 첫 화면 밖에 있었습니다. 후보 목록(20장)과 같은 높이로 늘어난 칸의 세로 가운데에 도면을 놓았기 때문입니다. `web/src/style.css`의 `.drawing-stage`를 위쪽 정렬로 바꿔(`adec980`, 로컬 E2E 70개 통과) 다시 배포했습니다. 공개 데모에서 도면이 y=575로 첫 화면 안에 들어왔고 콘솔 오류는 없었습니다. 모바일 폭(390×844)에서는 화면이 한 줄로 쌓여 도면이 검색 칸 아래(y≈906)에서 시작합니다. 앱 코드는 이 CSS 한 줄만 바뀌었지만 [공개 HTTPS 검증](verification/hosted-20261026-adec980.json)을 15:15 UTC에 다시 돌려 같은 항목이 모두 통과했습니다.
 
 **배포 뒤 확인할 것: 방문자 주소.** 체험 공간은 시간당 100개, 주소당 20개까지 만듭니다(`/api/demo-sessions`). 주소는 `request.client.host`인데, uvicorn은 `--forwarded-allow-ips`가 없으면 127.0.0.1에서 온 `X-Forwarded-For`만 믿고 `render.yaml`은 그 값을 주지 않습니다. 그래서 Render 프록시 뒤에서는 모든 방문자가 프록시 주소 하나로 세어져, 한 시간에 20개를 넘기면 다른 방문자가 429를 받을 수 있습니다. 확인하지 않은 위험이라 코드는 바꾸지 않았습니다. 확인은 Neon 콘솔에서 `SELECT bucket, used FROM fw_admission WHERE bucket LIKE 'sessions:%:%' ORDER BY created_at DESC LIMIT 20;`로 합니다. 서로 다른 곳에서 들어온 방문이 있었는데 시간마다 주소 칸이 하나뿐이면 위험이 맞습니다. 그때 고치는 법은 Render 프록시가 덧붙이는 `X-Forwarded-For`의 마지막 값을 주소로 쓰는 것이고(앞쪽 값은 방문자가 꾸밀 수 있음), `--forwarded-allow-ips='*'`는 맨 앞 값을 믿게 될 수 있어 쓰지 않습니다.
