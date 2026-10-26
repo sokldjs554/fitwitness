@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from typing import Literal
-import functools, hashlib, json, os, secrets, subprocess, sys, threading, time
+import functools, hashlib, hmac, json, os, secrets, subprocess, sys, threading, time
 from contextlib import asynccontextmanager
 from fitwitness.runtime.dispatcher import Dispatcher
 from fitwitness.runtime.pool import WarmWorkers
@@ -46,6 +46,9 @@ def create_app():
             path.chmod(0o600)
         key = path.read_text().strip()
     signer = URLSafeTimedSerializer(key, salt="fitwitness-session-v1")
+    # The per-address session count is stored under a keyed hash of the address: a bare SHA-256 of an IPv4
+    # address is undone by trying every address.
+    peer_key = hmac.new(key.encode(), b"fitwitness-peer-v1", hashlib.sha256).digest()
 
     # Runs execute in their own process; warm ones have already paid the interpreter and
     # import cost (seconds on a shared CPU) before a job arrives. Without the lifespan
@@ -204,8 +207,8 @@ def create_app():
     @app.post("/api/demo-sessions")
     def session(response: Response, request: Request):
         bucket = "sessions:" + str(int(time.time() // 3600))
-        peer = hashlib.sha256(
-            (request.client.host if request.client else "unknown").encode()
+        peer = hmac.new(
+            peer_key, (request.client.host if request.client else "unknown").encode(), hashlib.sha256
         ).hexdigest()[:16]
         per_peer = int(os.getenv("FITWITNESS_SESSION_LIMIT_PER_PEER", "20"))
         if not jobs.admit(bucket, 100) or not jobs.admit(bucket + ":" + peer, per_peer):

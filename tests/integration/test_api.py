@@ -15,8 +15,20 @@ def clients():
 def test_session_scope_and_csrf(clients):
     a, b = clients
     assert a.get("/api/documents").status_code == 401
+    import hashlib
+    import psycopg
+
+    def counts():  # per-address session counts by bucket
+        with psycopg.connect(a.app.state.repo.dsn) as c:
+            return dict(c.execute("SELECT bucket, used FROM fw_admission WHERE bucket LIKE 'sessions:%:%'").fetchall())
+
+    before = counts()
     assert a.post("/api/demo-sessions").status_code == 200
     assert b.post("/api/demo-sessions").status_code == 200
+    # Both clients share one address: its count grows by two, under a keyed hash of it rather than the bare SHA-256.
+    grown = {k: v - before.get(k, 0) for k, v in counts().items() if v != before.get(k, 0)}
+    peers = {k.split(":")[2] for k in grown}
+    assert sum(grown.values()) == 2 and len(peers) == 1 and hashlib.sha256(b"testclient").hexdigest()[:16] not in peers
     docs = a.get("/api/documents").json()
     assert len(docs) >= 5
     rid = docs[0]["id"]
