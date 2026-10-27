@@ -66,3 +66,6 @@ assert g['visual_calls']==1 and g['run']['state']=='completed' and all(x['verdic
 assert (E/'reranking.json').read_bytes()==(E/'reranking-37206750470/report.json').read_bytes()
 assert (E/'vision.json').read_bytes()==(v/'report.json').read_bytes()
 print(json.dumps({'reranking_rows':216,'vision_attempts':18,'vision_correct_fields':sum(y for x in vr for y in x['fields'].values()),'vision_cost_usd':str(known),'aggregate_cost_usd':str(known+Decimal('.187841')),'unresolved_usd':str(reserved),'graph':'completed, one visual call, unknown verdict','source_hashes':'match frozen archive'},indent=2))
+import sys;sys.path.insert(0,str(E.parents[1]/'src'))
+from fitwitness.evaluation import model_records
+assert (E/'model-records.json').read_text()==model_records.render(),'model-records.json is stale: python -m fitwitness.evaluation.model_records'

@@ -468,6 +468,11 @@ def create_app():
             ) if (ROOT / "docs/evaluation" / file).exists()
         ]}
 
+    @app.get("/api/evaluations/models")
+    def model_records():
+        p = ROOT / "docs/evaluation/model-records.json"
+        return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
+
     @app.get("/api/evaluations/agent")
     def agent_evaluation(version: Literal["latest", "v1"] = "latest"):
         p = ROOT / "docs/evaluation" / ("agent-v1.json" if version == "v1" else "agent.json")

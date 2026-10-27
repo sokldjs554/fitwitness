@@ -2,6 +2,7 @@ import { CadTrials } from "./CadTrials";
 import { RetrievalTrials } from "./RetrievalTrials";
 import { VisionTrials } from "./VisionTrials";
 import { AgentTrials } from "./AgentTrials";
+import { ModelRecords } from "./ModelRecords";
 import { useEffect, useState } from "react";
 import {
   ArrowDownToLine,
@@ -197,6 +198,15 @@ export function ExperimentLab() {
           <ArrowDownToLine size={14} /> 원시 결과 JSON
         </a>
       </div>
+      <nav className="lab-section-nav" aria-label="실험실 빠른 이동">
+        <a href="#lab-models">최신 모델 측정</a>
+        <a href="#lab-llm">LLM 판정</a>
+        <a href="#lab-agent">Agent</a>
+        <a href="#lab-retrieval">Retrieval</a>
+        <a href="#lab-vision">Vision</a>
+        <a href="#lab-cad">외부 CAD</a>
+      </nav>
+      <div id="lab-models" className="lab-anchor"><ModelRecords /></div>
       <div className="experiment-meta">
         {experimentPicker}
         {report?.status === "measured" && <>
@@ -212,13 +222,6 @@ export function ExperimentLab() {
         <time>{new Date(report.created_at).toLocaleDateString("ko-KR")}</time>
         </>}
       </div>
-      <nav className="lab-section-nav" aria-label="실험실 빠른 이동">
-        <a href="#lab-llm">LLM 판정</a>
-        <a href="#lab-agent">Agent</a>
-        <a href="#lab-retrieval">Retrieval</a>
-        <a href="#lab-vision">Vision</a>
-        <a href="#lab-cad">외부 CAD</a>
-      </nav>
       {error ? <div role="alert" className="notice danger">평가 결과를 불러오지 못했습니다. {error}</div> :
         !report || report.status !== "measured" ?
           <section className="loading-panel" role="status"><FlaskConical size={28} />
@@ -495,7 +498,7 @@ export function ExperimentLab() {
               .join(" / ")}
           </p>
           <a
-            href="https://github.com/sokldjs554/fitwitness/tree/feat/fitwitness-foundation/docs/evaluation"
+            href="https://github.com/sokldjs554/fitwitness/tree/main/docs/evaluation"
             target="_blank"
             rel="noreferrer"
           >

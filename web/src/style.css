@@ -2765,3 +2765,28 @@ footer button {
 .candidate-info .approval.draft { background: rgba(217, 119, 6, 0.12); color: #b45309; }
 .candidate-info .approval.withdrawn { background: rgba(220, 38, 38, 0.12); color: #b91c1c; }
 .sheet-caption { margin: 0 0 6px; font-size: 12px; line-height: 1.45; color: var(--muted, #6b7280); }
+
+/* Latest model measurements: first section of the laboratory, read from committed records. */
+.model-records{margin-top:0;padding-top:0;border-top:0}
+#lab-models+.experiment-meta{margin-top:36px;padding-top:24px;border-top:1px solid var(--line)}
+.record-picker{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 14px}
+.record-picker button{padding:7px 11px;border:1px solid #d9ddd4;border-radius:3px;background:#fff;color:#55605a;font-size:11px;font-weight:600}
+.record-picker button.selected{border-color:#33423c;background:#33423c;color:#fff}
+.record-card{border:1px solid #dfe1db;background:#fff;padding:20px 22px}
+.record-posting{font-size:10px;font-weight:700;letter-spacing:.4px;color:var(--accent)}
+.record-head h3{font-size:18px;margin:4px 0 6px}.record-head p{margin:0;font-size:13px;line-height:1.7;color:#626b69}
+.record-head .retrieval-meta{margin:10px 0 0}
+.record-headline{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;margin:18px 0;background:#e3e6df;border:1px solid #e3e6df}
+.record-headline>div{display:flex;flex-direction:column;gap:4px;padding:14px;background:#fafbf8}
+.record-headline strong{font-size:20px;font-variant-numeric:tabular-nums;letter-spacing:-.3px;color:#263c38;overflow-wrap:anywhere}
+.record-headline span{font-size:11px;color:#55605a}.record-headline small{font-size:10px;line-height:1.5;color:#858a84}
+.record-card caption{caption-side:top;text-align:left;font-size:11px;color:#63746c;padding:0 0 8px}
+.record-quote{margin:0 0 16px;padding:14px 16px;border-left:3px solid var(--accent);background:#fbf6f2;font-size:14px;line-height:1.7;color:#4c4743}
+.record-quote span{display:block;margin-top:6px;font-size:10px;color:#8d8580}
+.record-path{margin:16px 0;font-size:12px}.record-path>span{font-size:11px;color:#63746c}
+.record-path ol{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:8px 0 0;padding:0}
+.record-path li{padding:7px 10px;border:1px solid #dce0d9;background:#f6f7f3}.record-path li+li::before{content:"→ ";color:#9aa197}
+.record-path code{margin-left:4px;font-size:11px}
+.record-caveats{margin:14px 0 0;padding-left:18px;font-size:12px;line-height:1.7;color:#626b69}
+.record-links{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:12px}.record-links a{display:inline-flex;align-items:center;gap:3px;color:#2f5f52}
+@media(max-width:600px){.record-card{padding:14px}.record-headline{grid-template-columns:1fr}.record-headline strong{font-size:17px}.record-picker button{font-size:10px;padding:6px 8px}}

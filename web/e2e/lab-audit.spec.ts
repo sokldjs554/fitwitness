@@ -9,7 +9,7 @@ test.beforeEach(async ({page}) => {
   await page.route(/\/api\/evaluations/, route => {
     const url = new URL(route.request().url());
     if (url.pathname.endsWith('/catalog')) return route.fulfill({json:{experiments:[{id:'qwen',label:'Qwen3 · 로컬'},{id:'claude',label:'Claude Haiku 4.5 · API'}]}});
-    const file = url.pathname.endsWith('/cad') ? 'nist-cad' : url.pathname.endsWith('/retrieval') ? (url.searchParams.get('experiment') === 'reranking' ? 'reranking' : 'retrieval') : url.pathname.endsWith('/vision') ? 'vision' : url.pathname.endsWith('/agent') ? (url.searchParams.get('version') === 'v1' ? 'agent-v1' : 'agent') : url.searchParams.get('experiment') === 'claude' ? 'claude' : 'latest';
+    const file = url.pathname.endsWith('/models') ? 'model-records' : url.pathname.endsWith('/cad') ? 'nist-cad' : url.pathname.endsWith('/retrieval') ? (url.searchParams.get('experiment') === 'reranking' ? 'reranking' : 'retrieval') : url.pathname.endsWith('/vision') ? 'vision' : url.pathname.endsWith('/agent') ? (url.searchParams.get('version') === 'v1' ? 'agent-v1' : 'agent') : url.searchParams.get('experiment') === 'claude' ? 'claude' : 'latest';
     return route.fulfill({json:fixture(file)});
   });
 });
@@ -18,7 +18,8 @@ async function openLab(page: Page) {
   await page.getByRole('button', { name: '실험실', exact: true }).click();
   await expect(page.getByRole('heading', { name: '평가 결과 비교', exact: true })).toBeVisible();
   const nav=page.getByRole('navigation',{name:'실험실 빠른 이동'});
-  await expect(nav.getByRole('link')).toHaveCount(5);
+  await expect(nav.getByRole('link')).toHaveCount(6);
+  await expect(nav).toContainText('최신 모델 측정');
   await expect(nav).toContainText('Agent');
   await expect(nav).toContainText('외부 CAD');
 }
@@ -73,6 +74,15 @@ test('every recorded model, query, vision repetition and agent run can be inspec
       if (row.status === 'error') await expect(vision.getByRole('status')).toContainText('실패 사례 · 평가에 포함');
       else await expect(vision.getByRole('table')).toBeVisible();
     }
+  }
+  const records = page.getByRole('region', {name:'최신 모델 측정', exact:true});
+  const picker = records.getByRole('group', {name:'측정 고르기'});
+  for (const card of fixture('model-records').cards) {
+    await picker.getByRole('button', {name:card.title, exact:true}).click();
+    await expect(picker.getByRole('button', {name:card.title, exact:true})).toHaveAttribute('aria-pressed', 'true');
+    const article = records.getByRole('article', {name:card.title, exact:true});
+    for (const h of card.headline) await expect(article).toContainText(h.value);
+    if (card.table) await expect(article.getByRole('table', {name:card.table.caption, exact:true}).locator('tbody tr')).toHaveCount(card.table.rows.length);
   }
   const agent = page.getByRole('region', {name:'실제 Agent 실행 비교', exact:true});
   for (const [version, file] of [['latest', 'agent'], ['v1', 'agent-v1']]) {
