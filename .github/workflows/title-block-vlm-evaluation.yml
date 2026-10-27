@@ -13,6 +13,18 @@ on:
         description: space separated 8-character image keys to read (empty reads all 61)
         default: ''
         required: false
+      variant:
+        description: prompt variant (baseline = the 2026-10-25 prompts, label = cite each cell's label with its value)
+        default: 'baseline'
+        required: true
+        type: choice
+        options: [baseline, label]
+      sets:
+        description: which hold-out to read (holdout1 is the prompt experiment's dev split, holdout2 its test)
+        default: 'all'
+        required: true
+        type: choice
+        options: [all, holdout1, holdout2]
 permissions:
   contents: read
 concurrency:
@@ -56,7 +68,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ONLY: ${{ inputs.only }}
-        run: uv run python scripts/eval-title-block-vlm.py --images "$RUNNER_TEMP/mechvqa" --max-cost-usd "${{ inputs.max_usd }}" --output artifacts/title-block-vlm ${ONLY:+--only $ONLY}
+        run: uv run python scripts/eval-title-block-vlm.py --images "$RUNNER_TEMP/mechvqa" --max-cost-usd "${{ inputs.max_usd }}" --output artifacts/title-block-vlm --variant "${{ inputs.variant }}" --sets "${{ inputs.sets }}" ${ONLY:+--only $ONLY}
       - name: Summary
         if: always()
         run: |
@@ -67,13 +79,13 @@ jobs:
           if not f.exists():
               print('no report'); raise SystemExit(0)
           r = json.loads(f.read_text())
-          print('== protocol', json.dumps({k: r['protocol'][k] for k in ('code_sha', 'model', 'pages', 'only', 'sets', 'ceiling_usd', 'call_cap_usd')}))
+          print('== protocol', json.dumps({k: r['protocol'][k] for k in ('code_sha', 'model', 'pages', 'only', 'sets', 'variant', 'ceiling_usd', 'call_cap_usd') if k in r['protocol']}))
           for name, s in r['summary'].items():
               print('== summary', name, json.dumps(s, ensure_ascii=False))
           print('== tesseract', json.dumps(r['tesseract_records'], ensure_ascii=False))
           print('== spent', r['spent_usd'], 'calls', r['calls'], 'errors', r['call_errors'], 'latency_ms_median', r['latency_ms_median'], 'skipped', json.dumps(r['skipped']))
           for row in r['rows']:
-              print('== row', json.dumps({k: row[k] for k in ('set', 'image', 'page_px', 'expected', 'bbox', 'crop_box', 'page', 'crop', 'visible_text')}, ensure_ascii=False))
+              print('== row', json.dumps({k: row.get(k) for k in ('set', 'image', 'page_px', 'expected', 'bbox', 'crop_box', 'page', 'crop', 'page_grounded', 'crop_grounded', 'visible_text')}, ensure_ascii=False))
               for c in row['calls']:
                   print('== call', row['image'], json.dumps(c, ensure_ascii=False))
           PY

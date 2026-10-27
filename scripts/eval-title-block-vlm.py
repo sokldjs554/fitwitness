@@ -18,6 +18,15 @@ one is a wrong value when it differs; a value read where the label has none (the
 empty) is counted apart. The Tesseract numbers beside them are copied from the committed records, not re-run:
 hold-out 1 with the reader before the change (the change was developed on those pages), hold-out 2 before and
 after. A call is reserved its cap before it starts, so the ceiling cannot be overrun.
+
+Prompt experiment (2026-10-27). ``--variant label`` asks for each cell's printed label with its value in
+visible_text (e.g. "比例 1:2"), says how to tell O from 0 and I from 1, and to leave a cell null when the block has
+no labelled cell for it. Every run also scores two derived arms, ``page_grounded`` and ``crop_grounded``: a value is
+kept only when its visible_text holds a label word for that field and the value itself, the same rule the query
+reader uses for its citations. The variants were written from the errors of hold-out 1 only. Pre-registered rule:
+on hold-out 1 (dev) the (variant, arm) with the highest correct - 2 x (wrong + read where no cell) is chosen, ties
+going to fewer wrong values; hold-out 2 (test) is then read once with the chosen variant and compared with the
+recorded baseline on the same pages. If the baseline wins on dev, test is not read.
 """
 import argparse
 import glob
@@ -78,6 +87,38 @@ class TitleBlock(Strict):
     scale: Cell
 
 
+PROMPT_PAGE_LABEL = (
+    "This image is one page with a mechanical drawing, often from a Chinese textbook. Find the drawing's title block: the "
+    "bordered table of cells on the edge of the drawing frame, usually at the bottom right, that names the part and gives its "
+    "drawing number, material and scale. A parts list (明细栏 or 부품표, rows of part names next to or above the title block) "
+    "is not the title block. Return title_block_bbox as [left, top, right, bottom] normalized to this image, or null when the "
+    "page has no title block. For each of drawing_number, material and scale, find the cell inside the title block whose "
+    "printed label names it (图号 or 代号, 材料, 比例; in Korean 도번, 재질, 척도; in English DWG NO., MATERIAL, SCALE) and read "
+    "the value printed in that cell or in the cell right beside or below the label. Put in visible_text the label and the "
+    "value exactly as printed, for example '比例 1:2' or '图号 LJT04.25', and in value only the value, copying its characters "
+    "as printed. Drawing numbers mix letters and digits: tell O from 0 and I from 1 by their place (a run of digits stays "
+    "digits) and keep '.', '-' and '/' as printed. Use null for the value and an empty visible_text when the title block has "
+    "no labelled cell for it, or the cell is empty or unreadable. A ratio beside a view or a detail (such as 2:1 under a "
+    "detail view) is not the scale; a value from the parts list, the views or the notes is not a title block value; a guess "
+    "is worse than null.")
+PROMPT_CROP_LABEL = (
+    "This image is the title block cut from a mechanical drawing page, often from a Chinese textbook. For each of "
+    "drawing_number, material and scale, find the cell whose printed label names it (图号 or 代号, 材料, 比例; in Korean 도번, "
+    "재질, 척도; in English DWG NO., MATERIAL, SCALE) and read the value printed in that cell or in the cell right beside or "
+    "below the label. Put in visible_text the label and the value exactly as printed, for example '比例 1:2' or '图号 "
+    "LJT04.25', and in value only the value, copying its characters as printed. Drawing numbers mix letters and digits: tell "
+    "O from 0 and I from 1 by their place (a run of digits stays digits) and keep '.', '-' and '/' as printed. Use null for "
+    "the value and an empty visible_text when there is no labelled cell for it, or the cell is empty or unreadable. A value "
+    "from a parts list (明细栏 or 부품표) or from the drawing is not a title block value; a guess is worse than null. Return "
+    "title_block_bbox as null.")
+VARIANTS = {"baseline": (PROMPT_PAGE, PROMPT_CROP), "label": (PROMPT_PAGE_LABEL, PROMPT_CROP_LABEL)}
+# Label words a grounded value's visible_text must hold (after removing spaces and upper-casing).
+LABELS = {"drawing_number": ("图号", "圖號", "代号", "도번", "도면번호", "DWGNO", "DRAWINGNO"),
+          "material": ("材料", "材质", "재질", "재료", "MATERIAL"),
+          "scale": ("比例", "척도", "축척", "SCALE")}
+ARMS = ("page", "crop", "page_grounded", "crop_grounded")
+
+
 def norm(value):
     return None if value is None else str(value).replace(" ", "").replace("：", ":").upper()
 
@@ -122,6 +163,22 @@ def values(reading):
     return {f: (getattr(reading, f).value if reading else None) for f in FIELDS}
 
 
+def grounded(reading):
+    """The reading's values, keeping one only when its visible_text names the field's label and holds the value."""
+    out = {}
+    for f in FIELDS:
+        cell = getattr(reading, f) if reading else None
+        text = norm(cell.visible_text) if cell and cell.visible_text else ""
+        keep = cell is not None and cell.value is not None and any(w in text for w in LABELS[f]) and norm(cell.value) in text
+        out[f] = cell.value if keep else None
+    return out
+
+
+def merit(s):
+    """The pre-registered selection score of one arm's summary."""
+    return sum(s["correct"].values()) - 2 * (s["wrong_values_reported"] + s["readings_where_the_block_has_no_such_cell"])
+
+
 def score(rows, arm):
     correct, expected = dict.fromkeys(FIELDS, 0), dict.fromkeys(FIELDS, 0)
     wrong, none_but_read = 0, 0
@@ -144,13 +201,18 @@ def main() -> int:
     ap.add_argument("--max-cost-usd", type=float, required=True)
     ap.add_argument("--output", required=True, type=Path)
     ap.add_argument("--only", nargs="*", default=None, help="read only these 8-character image keys (a rerun of pages a run could not read)")
+    ap.add_argument("--variant", choices=sorted(VARIANTS), default="baseline")
+    ap.add_argument("--sets", choices=["all", *SETS], default="all", help="holdout1 is the prompt experiment's dev split, holdout2 its test")
     args = ap.parse_args()
+    prompt_page, prompt_crop = VARIANTS[args.variant]
     assert 0 < args.max_cost_usd <= 1.0
     ceiling = Decimal(str(args.max_cost_usd))
     args.output.mkdir(parents=True, exist_ok=False)
     files = {Path(f).name[:8]: f for f in sorted(glob.glob(str(args.images / "images" / "*" / "*.png")))}
     todo = []
     for name, path in SETS.items():
+        if args.sets not in ("all", name):
+            continue
         gold = json.loads(path.read_text(encoding="utf-8"))
         for key in sorted(gold):
             g = gold[key]
@@ -164,7 +226,7 @@ def main() -> int:
     if missing:
         raise SystemExit(f"missing images: {missing}")
     protocol = {"model": MODEL, "pages": len(todo), "only": args.only, "sets": {n: sum(1 for s, _, _ in todo if s == n) for n in SETS},
-                "prompt_page": PROMPT_PAGE, "prompt_crop": PROMPT_CROP, "schema": TitleBlock.model_json_schema(),
+                "variant": args.variant, "prompt_page": prompt_page, "prompt_crop": prompt_crop, "labels": LABELS, "schema": TitleBlock.model_json_schema(),
                 "page_long_edge_px": 1600, "crop_margin": 0.03, "call_cap_usd": str(CALL_CAP), "ceiling_usd": str(ceiling),
                 "code_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
                 "script_sha256": sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -178,20 +240,21 @@ def main() -> int:
         page = Image.open(files[key]).convert("RGB")
         small = page.copy()
         small.thumbnail((1600, 1600))
-        first, first_meta = read(validated_png(png(small)), PROMPT_PAGE)
+        first, first_meta = read(validated_png(png(small)), prompt_page)
         spent += Decimal(str(first_meta["cost_usd"])) + Decimal(str(first_meta["reserved_left_usd"]))
         crop_box = box(first.title_block_bbox if first else None)
         if crop_box:
             w, h = page.size
             cut = page.crop((int(crop_box[0] * w), int(crop_box[1] * h), int(crop_box[2] * w), int(crop_box[3] * h)))
             cut.thumbnail((1600, 1600))  # the model gets at most 1600 px either way; a whole-page box would exceed the pixel limit
-            second, second_meta = read(validated_png(png(cut)), PROMPT_CROP)
+            second, second_meta = read(validated_png(png(cut)), prompt_crop)
             spent += Decimal(str(second_meta["cost_usd"])) + Decimal(str(second_meta["reserved_left_usd"]))
         else:
             second, second_meta = first, None
         row = {"set": name, "image": key, "page_px": list(page.size), "expected": expected,
                "bbox": list(first.title_block_bbox) if first and first.title_block_bbox else None, "crop_box": list(crop_box) if crop_box else None,
                "page": values(first), "crop": values(second),
+               "page_grounded": grounded(first), "crop_grounded": grounded(second),
                "visible_text": {"page": {f: getattr(first, f).visible_text for f in FIELDS} if first else None,
                                 "crop": {f: getattr(second, f).visible_text for f in FIELDS} if second else None},
                "calls": [m for m in (first_meta, second_meta) if m]}
@@ -200,9 +263,11 @@ def main() -> int:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
         print(name, key, {f: (row["crop"][f], expected[f]) for f in FIELDS}, "spent", spent, flush=True)
     calls = [c for r in rows for c in r["calls"]]
-    summary = {n: {arm: score([r for r in rows if r["set"] == n], arm) for arm in ("page", "crop")} | {"drawings": sum(r["set"] == n for r in rows)}
+    summary = {n: {arm: score([r for r in rows if r["set"] == n], arm) for arm in ARMS} | {"drawings": sum(r["set"] == n for r in rows)}
                for n in SETS}
-    summary["all"] = {arm: score(rows, arm) for arm in ("page", "crop")} | {"drawings": len(rows)}
+    summary["all"] = {arm: score(rows, arm) for arm in ARMS} | {"drawings": len(rows)}
+    for s in summary.values():
+        s["merit"] = {arm: merit(s[arm]) for arm in ARMS}
     tesseract = {n: {k: json.loads(p.read_text())["summary"] for k, p in v.items()} for n, v in TESSERACT.items()}
     report = {"status": "measured" if rows else "not measured", "protocol": protocol, "summary": summary,
               "tesseract_records": tesseract, "spent_usd": float(spent), "skipped": skipped,
