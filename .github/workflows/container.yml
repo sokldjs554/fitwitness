@@ -5,7 +5,7 @@ permissions:
 jobs:
   package:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t fitwitness-package .
@@ -28,3 +28,47 @@ jobs:
               assert client.get(path).json()['status']=='measured'
           print('Built container serves UI and reproducible measured evaluation.')
           PY
+      # The same image on a Docker network with no route out (--internal: no NAT, no outside DNS), beside its
+      # PostgreSQL: the closed-network claim of docs/ONPREM.md, run rather than read.
+      - name: Run the image on a network with no way out, beside its PostgreSQL
+        run: |
+          set -eu
+          docker pull -q pgvector/pgvector:pg16
+          docker network create --internal fw-offline
+          docker run -d --name db --network fw-offline -e POSTGRES_USER=fitwitness -e POSTGRES_PASSWORD=offline-only -e POSTGRES_DB=fitwitness pgvector/pgvector:pg16
+          for i in $(seq 1 60); do docker exec db pg_isready -U fitwitness -q && break; sleep 1; done
+          docker run -d --name app --network fw-offline \
+            -e FITWITNESS_DATABASE_URL=postgresql://fitwitness:offline-only@db:5432/fitwitness \
+            -e FITWITNESS_SESSION_SECRET=offline-check -e FITWITNESS_ALLOWED_ORIGINS=http://app:8787 \
+            -e HF_HUB_OFFLINE=1 -e TRANSFORMERS_OFFLINE=1 fitwitness-package
+          probe() { docker run --rm --network fw-offline --entrypoint python fitwitness-package -c "import urllib.request; urllib.request.urlopen('http://app:8787/ready', timeout=3)" >/dev/null 2>&1; }
+          for i in $(seq 1 60); do probe && break; sleep 2; done
+          probe || { docker logs app; exit 1; }
+          echo "the server answers /ready on the internal network"
+      - name: Nothing leaves the network
+        run: |
+          docker exec -i app python - <<'PY'
+          import socket, urllib.request
+          for host in ("pypi.org", "api.anthropic.com", "api.openai.com", "huggingface.co"):
+              try:
+                  urllib.request.urlopen(f"https://{host}", timeout=5)
+              except Exception as exc:
+                  print(host, "unreachable:", type(exc).__name__)
+              else:
+                  raise SystemExit(f"{host} answered from inside the closed network")
+          try:
+              socket.create_connection(("1.1.1.1", 443), timeout=5)
+          except OSError as exc:
+              print("1.1.1.1:443 unreachable:", exc)
+          else:
+              raise SystemExit("an outside address answered from inside the closed network")
+          PY
+      - name: The demo checks and every claim case, from a sibling container on the same network
+        run: |
+          set -euo pipefail
+          check() { docker run --rm --network fw-offline --entrypoint python fitwitness-package "$@"; }
+          check scripts/verify_hosted.py --url http://app:8787 --local --output /tmp/offline.json | grep -v '"assets"'
+          check scripts/check_claims.py --url http://app:8787
+      - name: Server log
+        if: always()
+        run: docker logs app 2>&1 | tail -40 || true
