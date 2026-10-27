@@ -1,0 +1,29 @@
+name: uptime
+# Keeps the public demo awake and records whether it answers. The free Render instance sleeps after 15 idle
+# minutes and the first visitor then waits about 90 s (measured 2026-10-27). /health does not touch the
+# database, so the probe does not keep Neon's compute running. GitHub can start a scheduled run late, so an
+# external monitor every 5 minutes is the dependable layer (docs/DEPLOYMENT.md); this one also leaves a record:
+# a failed run means the demo did not answer, and GitHub mails the failure.
+on:
+  schedule:
+    - cron: '4,14,24,34,44,54 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: GET /health on the public demo (a reply over 20 s means it had been asleep)
+        run: |
+          set -u
+          result=$(curl -sS -o /tmp/health.json --max-time 180 -w '%{http_code} %{time_total}' https://fitwitness.onrender.com/health) || result="000 $?"
+          code=${result%% *}; seconds=${result#* }
+          sha=$(python3 -c "import json;print(json.load(open('/tmp/health.json')).get('sha','')[:7])" 2>/dev/null || echo "-")
+          state=awake; awk "BEGIN{exit !($seconds > 20)}" 2>/dev/null && state=woken
+          echo "uptime $(date -u +%FT%TZ) code=$code seconds=$seconds sha=$sha state=$state" | tee -a "$GITHUB_STEP_SUMMARY"
+          test "$code" = 200

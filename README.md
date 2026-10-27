@@ -58,6 +58,7 @@
 - 방문자별 세션·RLS, typed tools, OpenAI·Claude 어댑터, 실행 예산
 - 에이전트가 스스로 정의해 재사용하는 저장 검색 도구(`define_search_tool` / `run_saved_search`), 테넌트별 격리·개수 제한
 - 실행·이벤트 테이블에서 계산하는 Prometheus 지표, 실행별 span tree(`/api/runs/{id}/trace`), 환경 변수 하나로 켜는 OpenTelemetry(OTLP) 전송. Jaeger에서 중단 후 복구된 실행까지 한 trace로 확인했습니다 ([docs/OBSERVABILITY.md](docs/OBSERVABILITY.md)). 내보내는 span은 OTel GenAI 의미 규약의 이름(`gen_ai.operation.name`, `gen_ai.agent.name`, `gen_ai.tool.name`, `gen_ai.usage.*`)을 달고 schema URL을 고정합니다
+- 공개 데모는 10분마다 `/health`를 확인하는 GitHub Actions(`uptime.yml`)로 깨워 두고 응답 코드·시간을 기록합니다. 응답이 없으면 실행이 실패해 메일로 알립니다 ([docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#깨워-두기-2026-10-27))
 - Prometheus 알림 규칙 13개와 기록 규칙 14개, Grafana 대시보드(`deploy/prometheus`, `deploy/grafana`). SLO는 끝난 실행의 99%가 완료이고, 큐 정지·보류함·실패 소진·모델 오류·비용·지연·5xx를 봅니다. promtool 단위 테스트가 알림마다 울릴 때와 조용할 때를 확인하고, 실제 Prometheus 3.5.0이 로컬 앱을 긁어 큐 정지 알림이 울리는 것을 보았습니다. 받는 곳(Alertmanager)은 없고 실제로 받은 알림도, 공개 데모를 긁는 Prometheus도 없습니다 ([docs/OBSERVABILITY.md](docs/OBSERVABILITY.md#알림-규칙과-slo))
 - 바깥 연결 없이 도는 범위(규칙 경로, 로컬 Tesseract, 미리 옮긴 인코더 가중치, 같은 망의 Jaeger)와 켜는 순서는 [docs/ONPREM.md](docs/ONPREM.md)에 적었습니다. 실제 폐쇄망에서 돌려 본 기록은 없습니다
 - React·Three.js 도면 검토대: 후보 필터, 근거 위치, 실제 CAD 3D, 개정판·실행 기록 검사, 담당자 확인 입력

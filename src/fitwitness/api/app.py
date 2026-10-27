@@ -493,7 +493,8 @@ def create_app():
         p = ROOT / 'docs/evaluation/nist-cad.json'
         return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
 
-    @app.get("/health")
+    # HEAD too: uptime monitors that keep the free instance awake may probe with it.
+    @app.api_route("/health", methods=["GET", "HEAD"])
     def health():
         return {
             "status": "ok",

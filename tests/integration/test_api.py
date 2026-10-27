@@ -77,6 +77,7 @@ def test_unknown_document_is_404(clients):
     a, _ = clients
     a.post("/api/demo-sessions")
     assert a.get("/api/documents/nonexistent/assets/png").status_code == 404
+    assert a.head("/health").status_code == 200  # the uptime monitor's probe, which may come as HEAD
 
 def test_public_demo_cannot_spend_configured_provider_keys(clients,monkeypatch):
     a,_=clients

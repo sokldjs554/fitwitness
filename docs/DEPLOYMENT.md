@@ -4,7 +4,8 @@
 - 저장소: https://github.com/sokldjs554/fitwitness
 - 배포 브랜치: `main` (`render.yaml`, 자동 배포 꺼짐, Render 대시보드에서 수동 배포)
 - 처음 배포한 `feat/fitwitness-foundation`은 PR [#1](https://github.com/sokldjs554/fitwitness/pull/1)로 2026-10-05에 main에 병합했습니다
-- 공개 데모가 돌리는 코드: `cc48904`(2026-10-27 두 번째 배포). 실험실 맨 위에 "최신 모델 측정"(2026-10-22~25 측정과 사용자 테스트를 커밋된 기록에서 보여 줌)이 들어갔습니다. 공개 데모의 `/api/evaluations/models`가 저장소의 `docs/evaluation/model-records.json`과 같고, 브라우저(데스크톱 1440×1000, 모바일 390×844)에서 일곱 측정이 콘솔 오류나 가로 넘침 없이 보였으며, `scripts/verify_hosted.py`가 14:51 UTC에 전체 통과했습니다([기록](verification/hosted-20261027-cc48904.json)). [아래](#2026-10-26-배포)
+- 공개 데모가 돌리는 코드: `cc48904`(2026-10-27 두 번째 배포). 실험실 맨 위에 "최신 모델 측정"(2026-10-22~25 측정과 사용자 테스트를 커밋된 기록에서 보여 줌)이 들어갔습니다. 공개 데모의 `/api/evaluations/models`가 저장소의 `docs/evaluation/model-records.json`과 같고, 브라우저(데스크톱 1440×1000, 모바일 390×844)에서 일곱 측정이 콘솔 오류나 가로 넘침 없이 보였으며, `scripts/verify_hosted.py`가 14:51 UTC에 전체 통과했습니다([기록](verification/hosted-20261027-cc48904.json)). [아래](#2026-10-26-배포) 그 뒤 main에는 `/health`가 HEAD에도 200을 주는 변경이 다음 배포를 기다립니다.
+- 깨워 두기: 무료 인스턴스는 15분 동안 요청이 없으면 잠들고, 그 뒤 첫 화면은 89.5초 걸렸습니다(2026-10-27). [아래](#깨워-두기-2026-10-27)
 
 
 바깥 연결 없이 돌리는 범위와 켜는 순서는 [ONPREM.md](ONPREM.md)에 따로 적었습니다.
@@ -102,6 +103,14 @@ Render 배포 `dep-db13nve0tbcc739c69t0`, 코드 `8a1d8b065399bff657bde1db4a25e9
 앱 SHA `e2a1dbd921aa5cb214cf9a583415d60b71db8fb0`, Render deploy `dep-db1ma0dg1s2s73as94gg`가 live입니다. 두 PostgreSQL 환경 각각140Python+12E2E, 컨테이너 검증 후 배포했습니다. 공개 보고서 JSON은 검산한 재정렬/VLM 파일과 일치합니다. [공개 HTTPS 검증](verification/hosted-research-20261005.json)은 worker 복구·단일 완료·개정판 무효화/재검증·tenant·origin·유료API·metrics 경계를 통과했습니다. 배포 이후 확인 구간의 app error 로그는0건이었습니다.
 
 공개 무료 환경은 lexical/rules 체험과 저장된 연구 결과를 제공합니다. E5/OpenCLIP/BGE와 Claude VLM은 격리된 연구 환경에서 실행했습니다. 새 영상·캡처·문서만 추가한 후속 커밋은 재배포하지 않습니다.
+
+## 깨워 두기 (2026-10-27)
+
+무료 Render 인스턴스는 15분 동안 요청이 없으면 잠듭니다. 2026-10-27에 18분 동안 아무 요청도 보내지 않은 뒤 첫 화면을 여니 89.5초가 걸렸고, 바로 다음 요청은 1.3초였습니다. 면접관이 링크를 처음 여는 순간이 바로 이 경우라 두 겹으로 깨워 둡니다.
+
+- `.github/workflows/uptime.yml`: 10분마다(:04, :14, …) `/health`를 GET합니다. 응답 코드·시간·배포 sha를 실행 요약에 남기고, 20초가 넘으면 잠들어 있던 것으로 보고 `woken`으로 적습니다. 200이 아니면 실행이 실패하고 GitHub가 메일로 알립니다. GitHub의 예약 실행은 늦게 시작할 때가 있어 이것만으로는 15분을 못 지킬 수 있습니다.
+- 외부 모니터(지원자 계정): UptimeRobot이나 cron-job.org 같은 무료 서비스에 `https://fitwitness.onrender.com/health`를 5분 간격으로 등록합니다. `/health`는 DB를 건드리지 않아 Neon 컴퓨트를 깨우지 않습니다. DB를 조회하는 `/ready`는 모니터에 쓰지 않습니다. HEAD로 확인하는 모니터를 위해 `/health`가 HEAD에도 200을 주게 했습니다(다음 배포부터).
+- Render 무료 플랜은 워크스페이스당 한 달 750 인스턴스 시간입니다. 이 서비스 하나를 계속 깨워 두면 최대 744시간이라 다른 무료 서비스를 함께 돌릴 여유는 없습니다. 배포 직후의 첫 기동은 깨워 두기와 상관없이 기다려야 합니다.
 
 ## 2026-10-26 배포
 
