@@ -4,7 +4,7 @@
 - 저장소: https://github.com/sokldjs554/fitwitness
 - 배포 브랜치: `main` (`render.yaml`, 자동 배포 꺼짐, Render 대시보드에서 수동 배포)
 - 처음 배포한 `feat/fitwitness-foundation`은 PR [#1](https://github.com/sokldjs554/fitwitness/pull/1)로 2026-10-05에 main에 병합했습니다
-- 공개 데모가 돌리는 코드: `908e733`(2026-10-27 배포). 같은 날 `scripts/verify_hosted.py`가 공개 HTTPS에서 전체 통과했습니다([기록](verification/hosted-20261027-908e733.json)). [아래](#2026-10-26-배포) 그 뒤 main에는 실험실 맨 위의 "최신 모델 측정"(2026-10-22~25 측정과 사용자 테스트를 커밋된 기록에서 보여 줌)이 다음 배포를 기다립니다.
+- 공개 데모가 돌리는 코드: `cc48904`(2026-10-27 두 번째 배포). 실험실 맨 위에 "최신 모델 측정"(2026-10-22~25 측정과 사용자 테스트를 커밋된 기록에서 보여 줌)이 들어갔습니다. 공개 데모의 `/api/evaluations/models`가 저장소의 `docs/evaluation/model-records.json`과 같고, 브라우저(데스크톱 1440×1000, 모바일 390×844)에서 일곱 측정이 콘솔 오류나 가로 넘침 없이 보였으며, `scripts/verify_hosted.py`가 14:51 UTC에 전체 통과했습니다([기록](verification/hosted-20261027-cc48904.json)). [아래](#2026-10-26-배포)
 
 
 바깥 연결 없이 돌리는 범위와 켜는 순서는 [ONPREM.md](ONPREM.md)에 따로 적었습니다.
