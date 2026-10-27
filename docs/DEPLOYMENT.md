@@ -112,6 +112,14 @@ Render 배포 `dep-db13nve0tbcc739c69t0`, 코드 `8a1d8b065399bff657bde1db4a25e9
 - 외부 모니터(지원자 계정): UptimeRobot이나 cron-job.org 같은 무료 서비스에 `https://fitwitness.onrender.com/health`를 5분 간격으로 등록합니다. `/health`는 DB를 건드리지 않아 Neon 컴퓨트를 깨우지 않습니다. DB를 조회하는 `/ready`는 모니터에 쓰지 않습니다. HEAD로 확인하는 모니터를 위해 `/health`가 HEAD에도 200을 주게 했습니다(다음 배포부터).
 - Render 무료 플랜은 워크스페이스당 한 달 750 인스턴스 시간입니다. 이 서비스 하나를 계속 깨워 두면 최대 744시간이라 다른 무료 서비스를 함께 돌릴 여유는 없습니다. 배포 직후의 첫 기동은 깨워 두기와 상관없이 기다려야 합니다.
 
+**89.5초 중 앱의 몫 (2026-10-27, 로컬 측정).** 시작 명령이 하는 일을 이 개발 기계(4코어)에서 CPU 시간으로 쟀습니다.
+
+- `scripts/setup.py`(이미 만든 스키마 확인과 checkpoint 표): 0.66초
+- uvicorn이 앱을 올리고 `/health`에 답할 때까지: 1.36초(그중 import가 0.87초: FastAPI·pydantic, 계약 모델, psycopg, pdfplumber, BM25)
+- 그 뒤 20초 동안: 데모 도면 20장의 사실을 미리 뽑는 스레드 0.7초, 실행용 worker 한 개를 미리 띄우는 데 2.15초
+
+첫 응답 전에 앱이 쓰는 CPU는 2초 남짓입니다. Render 무료 인스턴스의 CPU 몫이 작다는 것을 감안해도 89.5초의 대부분은 플랫폼이 인스턴스를 다시 올리는 시간으로 봅니다. 다만 Render에서 단계별로 잰 값은 아닙니다. import를 늦추거나 checkpoint 확인을 건너뛰어 줄일 수 있는 것은 0.3~0.5초로, 깨워 두기에 비하면 작아 코드는 바꾸지 않았습니다. 실제로 잠들었다 깬 경우는 `uptime` 실행 요약에 `woken`과 걸린 초로 쌓입니다.
+
 ## 2026-10-26 배포
 
 첫 배포의 `/health`는 `1f4b06faac9cfded913cac71cde650f5c17ac21f`였습니다. 10-08 배포(`0e60d3c`) 뒤 바뀐 앱 코드, 곧 사용자 테스트 뒤 화면 네 곳(`3922482`), `search_shell`(`49ff361`), 스캔 서식 격자 읽기, 표제란 읽기 규칙, 플래너 문맥의 `retrieval`, 실패한 계획의 한 번 더 기회, 지표 누계 표 `fw_metric_totals`, 요청 미들웨어의 500 집계, 디스패처 수정([LOAD.md](LOAD.md))이 모두 들어갔습니다. 새 표 `fw_metric_totals`는 시작 명령의 `scripts/setup.py`가 `CREATE TABLE IF NOT EXISTS`로 만들고, 배포 뒤 `/ready`가 통과합니다.

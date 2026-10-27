@@ -15,7 +15,8 @@ ROOT = Path(__file__).resolve().parents[3]
 E = ROOT / "docs/evaluation"
 OUT = E / "model-records.json"
 REPO = "https://github.com/sokldjs554/fitwitness/blob/main/"
-SOURCES = ["agent-trajectory", "claims-model", "claims-audit", "query-understanding", "shell-search-model", "title-block-vlm"]
+SOURCES = ["agent-trajectory", "claims-model", "claims-audit", "query-understanding", "shell-search-model", "title-block-vlm",
+           "title-block-vlm-prompts"]
 MODES = {"fixed": "단일 계획", "react": "반복 계획", "fitwitness": "탐색 + 반례 검토"}
 
 
@@ -222,6 +223,10 @@ def shell_search():
 
 def title_block_vlm():
     t = _load("title-block-vlm")
+    prompts = _load("title-block-vlm-prompts")
+    dev = prompts["dev_scores"]
+    best_label = max(dev["label"].values(), key=lambda s: s["merit"])["merit"]
+    recorded = prompts["recorded_baseline_on_dev_2026_10_25"]["crop"]["merit"]
     page, crop = t["summary"]["all"]["page"], t["summary"]["all"]["crop"]
     tess = [t["tesseract_records"]["holdout1"]["before the change"], t["tesseract_records"]["holdout2"]["after the change"]]
     fields = {"drawing_number": "도번", "material": "재질", "scale": "비례"}
@@ -253,10 +258,15 @@ def title_block_vlm():
         ],
         "table": {"caption": f"실제 도면 {t['summary']['all']['drawings']}장 (공개 교재 쪽, 라벨은 사람이 하나씩 확인)",
                   "columns": ["칸", "쪽 전체", "찾은 표제란을 잘라서", "Tesseract"], "rows": rows},
-        "caveats": ["한 공개 벤치마크(중국 기계 교재)의 쪽을 한 번씩 읽은 것입니다.",
+        "caveats": [f"{prompts['measured_on']} 프롬프트 실험: 칸의 라벨을 값과 함께 인용하게 한 변형이 dev 27장에서 기준선을 못 이겨"
+                    f"(점수 {best_label} 대 {prompts['chosen']['merit']}) 규칙대로 test는 읽지 않았습니다. 같은 기준선 프롬프트의 자른 표제란"
+                    f" 점수가 이틀 사이 {recorded}에서 {dev['baseline']['crop']['merit']}로 흔들려, 한 번씩 돌려서는 프롬프트 순위를 매길 수 없습니다"
+                    f"(${prompts['spent_usd_total']:.2f}).",
+                    "한 공개 벤치마크(중국 기계 교재)의 쪽을 한 번씩 읽은 것입니다.",
                     "더 많이 읽는 만큼 틀린 값도 늘어, 읽은 값은 확정된 사실이 아니라 '확인 필요'로만 씁니다.",
                     "도면 이미지는 저장소에 넣지 않았고, 해시만 커밋했습니다."],
-        "links": [_link("기록 JSON", "docs/evaluation/title-block-vlm.json"), _link("설명", "docs/TITLE-BLOCK.md")],
+        "links": [_link("기록 JSON", "docs/evaluation/title-block-vlm.json"), _link("프롬프트 실험", "docs/evaluation/title-block-vlm-prompts.json"),
+                  _link("설명", "docs/TITLE-BLOCK.md")],
     }
 
 

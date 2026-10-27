@@ -7,7 +7,8 @@
   "claims-audit": "d7ce26911c17c1d4",
   "query-understanding": "76051f1048f2bbb6",
   "shell-search-model": "467ab331fbf7af83",
-  "title-block-vlm": "9a14e5b43854f508"
+  "title-block-vlm": "9a14e5b43854f508",
+  "title-block-vlm-prompts": "de01d310dcc51d67"
  },
  "spent_usd": 3.883934,
  "cards": [
@@ -445,6 +446,7 @@
     ]
    },
    "caveats": [
+    "2026-10-27 프롬프트 실험: 칸의 라벨을 값과 함께 인용하게 한 변형이 dev 27장에서 기준선을 못 이겨(점수 15 대 17) 규칙대로 test는 읽지 않았습니다. 같은 기준선 프롬프트의 자른 표제란 점수가 이틀 사이 25에서 14로 흔들려, 한 번씩 돌려서는 프롬프트 순위를 매길 수 없습니다($0.40).",
     "한 공개 벤치마크(중국 기계 교재)의 쪽을 한 번씩 읽은 것입니다.",
     "더 많이 읽는 만큼 틀린 값도 늘어, 읽은 값은 확정된 사실이 아니라 '확인 필요'로만 씁니다.",
     "도면 이미지는 저장소에 넣지 않았고, 해시만 커밋했습니다."
@@ -453,6 +455,10 @@
     {
      "label": "기록 JSON",
      "href": "https://github.com/sokldjs554/fitwitness/blob/main/docs/evaluation/title-block-vlm.json"
+    },
+    {
+     "label": "프롬프트 실험",
+     "href": "https://github.com/sokldjs554/fitwitness/blob/main/docs/evaluation/title-block-vlm-prompts.json"
     },
     {
      "label": "설명",

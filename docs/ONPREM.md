@@ -31,8 +31,19 @@
 4. 스캔 서류를 읽으려면 Tesseract와 `kor` 데이터를 설치하고 `FITWITNESS_TESSERACT`로 경로를 줍니다.
 5. 추적을 보려면 `deploy/observability`의 compose로 Jaeger를 같은 망에 띄우고 `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`를 그쪽으로 둡니다.
 
+## 바깥 연결 없이 실제로 돌린 것 (2026-10-27부터 매 커밋)
+
+`container-evaluation` workflow가 빌드한 이미지를 Docker의 `--internal` 네트워크(바깥으로 가는 경로와 바깥 DNS가 없음)에 PostgreSQL(pgvector)과 함께 띄웁니다. 그다음 세 가지를 확인합니다.
+
+- 앱 컨테이너 안에서 pypi.org·api.anthropic.com·api.openai.com·huggingface.co가 모두 풀리지 않고, 1.1.1.1:443은 "Network is unreachable"입니다.
+- 같은 망의 다른 컨테이너에서 `scripts/verify_hosted.py --local`이 통과합니다. 체험 공간, 도면 20장의 자산과 도번 검색, 같은 요청의 반복, worker 중단 뒤 재개, 개정판 무효화와 재검증, 세션 격리, origin 거부, 유료 모델 거부, 지표 비공개를 봅니다.
+- `scripts/check_claims.py`로 데모 청구 8건을 모두 돌립니다. 4건은 완료, 4건은 담당자 확인 대기로 정리됩니다.
+
+첫 실행은 [40529491099](https://github.com/sokldjs554/fitwitness/actions/runs/40529491099)(`849ad92`)입니다.
+
 ## 하지 않은 것
 
-- 실제로 바깥 연결을 끊은 기계에서 전체를 돌려 본 적은 없습니다. 위 표는 코드와 CI 설정에서 읽은 것입니다.
+- 이미지는 연결된 기계(GitHub 러너)에서 빌드했고, 끊긴 망에서는 실행만 했습니다. 실제 고객의 폐쇄망 기계에서 돌린 적은 없습니다.
+- 이 이미지에는 Tesseract와 의미·이미지 인코더 가중치가 없어 스캔 서류 읽기와 E5·OpenCLIP·DINOv2 검색은 끊긴 망 시험에 들어가지 않았습니다. 위 표의 그 줄들은 여전히 코드와 workflow에서 읽은 것입니다.
 - 사내 LLM 게이트웨이나 로컬 모델 서빙(vLLM 등)으로 Claude·OpenAI를 대신하는 어댑터는 없습니다. 판정 프롬프트 비교에서 로컬 Qwen3-1.7B를 쓴 기록은 [evaluation/README](evaluation/README.md)에 있지만, 그것은 평가 스크립트였지 서버의 provider가 아닙니다.
 - 폐쇄망의 운영 요건(감사 로그 보존, 계정·권한, 백업)은 이 프로젝트의 범위 밖입니다.
