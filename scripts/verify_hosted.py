@@ -46,6 +46,12 @@ def verify(base, local=False):
     assert call("/ready")["status"] == "ready"
     call("/api/documents", expected=401)
     call("/metrics", expected=401)
+    examples = call("/api/evaluations/scan-examples")  # pre-rendered scan readings: the page pictures are served files, not OCR output
+    assert examples["status"] == "measured" and examples["examples"], examples
+    for example in examples["examples"]:
+        picture = call("/api/evaluations/scan-examples/" + example["page"]["image"].split("/")[-1])
+        assert picture[:3] == b"\xff\xd8\xff" and len(picture) > 5000, example["id"]
+    print(f"Scan examples served: {len(examples['examples'])} pages", flush=True)
     session = call("/api/demo-sessions", {})
     count = session["documents"]  # the demo's drawings: five in October's first demo, four families of five since
     assert count >= 5, session
@@ -98,7 +104,8 @@ def verify(base, local=False):
             "status": "passed", "before": dict(before),
             "after": dict(after), "events": dict(kinds), "assets":assets, "checks": ["readiness", "secure cookie",
             f"all {count} PDF/PNG/STEP/mesh assets and exact-ID search", "idempotency", "worker recovery", "revision invalidation",
-            "reverification", "tenant isolation", "origin rejection", "paid API disabled", "private metrics"]}
+            "reverification", "tenant isolation", "origin rejection", "paid API disabled", "private metrics",
+            "scan examples and their page pictures"]}
 
 
 if __name__ == "__main__":
