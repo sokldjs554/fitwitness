@@ -2,7 +2,7 @@
 import numpy as np
 from PIL import Image
 from fitwitness.claims import ocr
-from fitwitness.claims.extract import LABELS, _kind
+from fitwitness.claims.extract import LABELS, _kind, normalise_date
 from fitwitness.claims.scan import LEVELS, degrade
 
 LABEL_KINDS = {label: _kind(field) for label, field in LABELS.items()}
@@ -106,6 +106,7 @@ def test_an_amount_is_refused_when_it_is_not_written_like_an_amount():
 
 def test_a_two_read_as_the_letter_z_at_the_head_of_a_code():
     assert ocr.repair_code("241.1") == "Z41.1"
+    assert ocr.repair_code("$82.3") == "S82.3"  # a dollar sign looks like an S and like nothing else a code starts with
 
 
 def test_a_receipt_total_is_accepted_only_when_the_lines_above_it_add_up():
@@ -117,6 +118,57 @@ def test_a_receipt_total_is_accepted_only_when_the_lines_above_it_add_up():
     assert ocr.checked_amount("2,909,191원", []) == (2909191, False)  # nothing to check against: written like an amount is enough
     assert ocr.checked_amount("2,909,1912!", []) == (None, False)  # ... but a number with a smudge is not
     assert ocr.checked_amount("원", lines) == (None, False)
+
+
+def test_a_comma_read_as_a_full_stop_or_doubled_does_not_break_an_amount_but_a_broken_group_still_does():
+    for text in ("2,.608,900원", "1.745.514원", "4.108,488", "금2.342,028원정"):
+        assert ocr.amount_value(ocr.repair_amount(text)) is not None, text
+    assert ocr.amount_value("2,.608,900원") == 2608900 and ocr.amount_value("4.108,488") == 4108488
+    assert ocr.amount_value("12.5") is None and ocr.amount_value("2.34") is None  # not groups of three
+    assert ocr.amount_value("2,909,1912!") is None  # a smudge read as a digit still breaks the groups
+    assert ocr.checked_amount("2,.608,900원", ["1,565,340#", "1,043,560원"]) == (2608900, True)
+    assert ocr.checked_amount("2,909,1912", ["1.745.514원", "1,163,677원"]) == (2909191, True)
+    assert ocr.checked_amount("2,.608,900원", ["1,565,340#", "1,043,561원"]) == (None, False)  # the sum is the witness
+
+
+def test_unit_marks_read_as_digits_or_letters_are_cut_out_only_when_one_cut_gives_a_real_date():
+    for text, iso in (("2026년1829일", "2026-01-29"), ("2027년186일", "2027-01-06"), ("2025년11825일", "2025-11-25"),
+                      ("202647H15일", "2026-07-15"), ("202643월15일", "2026-03-15"), ("2026년7월15일-", "2026-07-15")):
+        assert normalise_date(ocr.repair_date(text)) == iso, text
+    assert normalise_date(ocr.repair_date("2026년1229일")) is None  # January 29 or December 9: no guess
+    assert normalise_date(ocr.repair_date("20260715")) is None  # a bare run of digits has no mark to cut around
+    assert normalise_date(ocr.repair_date("2026년13월40일")) is None  # no such date
+    assert normalise_date(ocr.repair_date("2026.7.15.")) == "2026-07-15"
+
+
+def test_a_second_reading_replaces_an_unshaped_first_one_and_confirms_a_shaped_one_but_never_overrules_it(monkeypatch):
+    import pytest
+
+    box = [tok("650.9", 300, conf=72.0)]
+
+    def second(text, conf=88.0):
+        monkeypatch.setattr(ocr, "reread", lambda image, tokens, kind: (text, conf))
+
+    second("C50.9")
+    assert ocr.settle(None, "code", "650.9", box) == ("C50.9", 88.0)  # not a code: the zoomed reading is
+    assert ocr.settle(None, "code", "C50.9", [tok("C50.9", 300, conf=60.0)]) == ("C50.9", 88.0)  # agreeing lifts the confidence
+    second("C16.9")
+    assert ocr.settle(None, "code", "C50.9", [tok("C50.9", 300, conf=60.0)]) == ("C50.9", 60.0)  # disagreeing keeps the low one
+    second("ans")
+    assert ocr.settle(None, "code", "650.9", box) == ("650.9", 72.0)  # a second reading that is no code changes nothing
+    assert ocr.settle(None, "code", "C50.9", [tok("C50.9", 300, conf=95.0)]) == ("C50.9", 95.0)  # settled: not read again
+    second("2026/02/15")
+    assert ocr.settle(None, "date", "2026/02715", [tok("2026/02715", 300, conf=80.0)]) == ("2026/02/15", 88.0)
+    monkeypatch.setattr(ocr, "reread", lambda *a: pytest.fail("a settled value was read again"))
+    assert ocr.settle(None, "date", "2026-02-15", [tok("2026-02-15", 300, conf=95.0)]) == ("2026-02-15", 95.0)
+
+
+def test_pairs_settle_a_code_only_when_given_the_page_image(monkeypatch):
+    page = syllables("질병분류기호", 50, conf=90.0) + [tok(":", 185, width=6, conf=90.0), tok("650.9", 400, conf=72.0)]
+    monkeypatch.setattr(ocr, "reread", lambda image, tokens, kind: ("C50.9", 88.0))
+    without = [(v, round(c, 2)) for _, v, _, c in ocr.pairs(page, "d1", 1, (1000, 1400), LABEL_KINDS)]
+    with_image = [(v, round(c, 2)) for _, v, _, c in ocr.pairs(page, "d1", 1, (1000, 1400), LABEL_KINDS, image=object())]
+    assert without == [("650.9", 0.72)] and with_image == [("C50.9", 0.88)]
 
 
 def test_a_grade_whose_syllable_was_read_as_a_digit():

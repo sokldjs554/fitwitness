@@ -25,6 +25,7 @@ import shutil
 import subprocess
 import tempfile
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 
 DPI = 200
@@ -133,8 +134,10 @@ def _same_line(a: list[Token], b: list[Token]) -> bool:
     return abs(min(t.top for t in a) - min(t.top for t in b)) < height
 
 
-def pairs(tokens: list[Token], doc_id: str, page_no: int, size: tuple[int, int], labels: dict[str, str]):
-    """(label with colon, value text, evidence box, confidence 0..1) for every known label on the page."""
+def pairs(tokens: list[Token], doc_id: str, page_no: int, size: tuple[int, int], labels: dict[str, str], image=None):
+    """(label with colon, value text, evidence box, confidence 0..1) for every known label on the page.
+
+    With the page ``image``, a diagnosis code or a date the first reading could not settle is read once more (``settle``)."""
     from fitwitness.claims.models import EvidenceRef
 
     words = chunks(tokens)
@@ -172,10 +175,15 @@ def pairs(tokens: list[Token], doc_id: str, page_no: int, size: tuple[int, int],
             continue
         used = [t for chunk in words[first:last + 1] + values for t in chunk]
         value = " ".join(_text(c, spaced=True) for c in values)
+        label_conf = min(t.conf for chunk in words[first:last + 1] for t in chunk)
+        value_tokens = [t for chunk in values for t in chunk]
+        value_conf = min(t.conf for t in value_tokens)
+        if image is not None and labels[label] in REREAD:
+            value, value_conf = settle(image, labels[label], value, value_tokens)
         width, height = size
         box = (min(t.x0 for t in used) / width, min(t.top for t in used) / height,
                max(t.x1 for t in used) / width, max(t.bottom for t in used) / height)
-        out.append((label, value, EvidenceRef(doc_id=doc_id, page=page_no, bbox=box, snippet=f"{label} {value}"), min(t.conf for t in used) / 100.0))
+        out.append((label, value, EvidenceRef(doc_id=doc_id, page=page_no, bbox=box, snippet=f"{label} {value}"), min(label_conf, value_conf) / 100.0))
     return out
 
 
@@ -183,7 +191,63 @@ def read_pairs_ocr(pdf: bytes, doc_id: str, page_index: int, labels: dict[str, s
     if not available():
         return []
     image = render(pdf, page_index)
-    return pairs(recognise(image), doc_id, page_index + 1, image.size, labels)
+    return pairs(recognise(image), doc_id, page_index + 1, image.size, labels, image=image)
+
+
+# --- a second reading of a value the first one could not settle ---------------------------
+SETTLE_BELOW = 70.0  # a code or date read below this confidence, or not shaped like its field, is read once more
+ZOOM = 3
+REREAD = {"code": ("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.", "eng"), "date": ("0123456789-./년월일", "kor+eng")}
+_CODE_SHAPE = re.compile(r"^[A-Z]\d{2}(\.\d{1,2})?$")
+
+
+def _canonical(kind: str, text: str) -> str | None:
+    """The value as the extractor will read it, or None when it is not shaped like a code / a real date."""
+    if kind == "code":
+        code = repair_code(text)
+        return code.upper() if _CODE_SHAPE.match(code.upper()) else None
+    from fitwitness.claims.extract import normalise_date  # lazy: extract imports this module
+
+    return normalise_date(repair_date(text))
+
+
+def reread(image, tokens: list[Token], kind: str) -> tuple[str, float]:
+    """A value's own box read again on its own: contrast stretched, enlarged, one line of text, English only for a code,
+    and only the characters its field can hold. The first reading of a whole page is made at page scale with every
+    character allowed; this is what a clerk does with a cell that is hard to read, look at it alone and closer."""
+    from PIL import Image, ImageOps
+
+    whitelist, lang = REREAD[kind]
+    pad = 6
+    left, top = max(0, int(min(t.x0 for t in tokens)) - pad), max(0, int(min(t.top for t in tokens)) - pad)
+    right, bottom = min(image.width, int(max(t.x1 for t in tokens)) + pad), min(image.height, int(max(t.bottom for t in tokens)) + pad)
+    crop = ImageOps.autocontrast(image.crop((left, top, right, bottom)).convert("L"), cutoff=2)
+    big = crop.resize((crop.width * ZOOM, crop.height * ZOOM), Image.LANCZOS)
+    page = Image.new("L", (big.width + 60, big.height + 60), 255)
+    page.paste(big, (30, 30))
+    out = recognise(page, psm=7, whitelist=whitelist, lang=lang)
+    return "".join(t.text for t in sorted(out, key=lambda t: t.x0)).strip(), min((t.conf for t in out), default=0.0)
+
+
+def settle(image, kind: str, text: str, tokens: list[Token]) -> tuple[str, float]:
+    """(value, confidence 0..100) of a diagnosis code or a date.
+
+    The first reading stands when it is shaped like the field and was read with enough confidence. Otherwise the box is
+    read again, and the second reading counts only if it is shaped like the field (a code of one letter and digits, a
+    date that exists): it replaces a first reading that was not, and when both are shaped and say the same thing the
+    better confidence of the two is kept. Two readings that say different things leave the first one, with its low
+    confidence, so the claim goes to a person. A second reading that is not a code or a date changes nothing."""
+    first = min(t.conf for t in tokens)
+    shaped = _canonical(kind, text)
+    if shaped and first >= SETTLE_BELOW:
+        return text, first
+    second, conf = reread(image, tokens, kind)
+    again = _canonical(kind, second)
+    if not again:
+        return text, first
+    if not shaped:
+        return second, conf
+    return (text, max(first, conf)) if again == shaped else (text, first)
 
 
 # --- value repair: only where the field's shape says what a character must be -------------
@@ -191,13 +255,40 @@ _DIGITS = "0-9OoQDIil|SsBZzg"
 _DATE = re.compile(rf"^([{_DIGITS}]{{4}})\s*([-./,년])\s*([{_DIGITS}]{{1,2}})\s*([-./,월])\s*([{_DIGITS}]{{1,2}})\s*(일?)$")
 # A zero at the head of a code could be an O, a D or a Q, so it is not repaired: "005.1" stays as read, fails the
 # code's shape, and a person looks at it. (Reading it as "O05.1" turned a covered D05.1 into "not covered".)
-LEADING_LETTER = str.maketrans({"1": "I", "5": "S", "8": "B", "2": "Z", "|": "I"})
+# "$" is an S with its strokes: no other letter looks like it, so the place and the glyph agree.
+LEADING_LETTER = str.maketrans({"1": "I", "5": "S", "8": "B", "2": "Z", "|": "I", "$": "S"})
+
+
+def _marked_date(text: str) -> str | None:
+    """"2026년1829일" for 2026년 1월 29일: a scan reads the unit marks 년 and 월 as a digit or a letter (월 as 8 or H, 년 as 4).
+    The marks stand at fixed places between the numbers, so the numbers can be cut out around them. The cut is accepted
+    only when exactly one way of cutting gives a date that exists, and a letter or a correct mark shows the string is such a
+    date and not a bare run of digits ("20260715" is not read as July 5)."""
+    t = re.sub(r"\s+", "", text)
+    if not t.endswith("일") or len(t) < 9 or not t[:4].isdigit():
+        return None
+    year, c1, rest = t[:4], t[4], t[5:-1]
+    found = set()
+    for month_len in (1, 2):
+        for day_len in (1, 2):
+            if len(rest) != month_len + 1 + day_len:
+                continue
+            month, c2, day = rest[:month_len], rest[month_len], rest[month_len + 1:]
+            if not (month.isdigit() and day.isdigit()) or not (c1.isalpha() or c2.isalpha()):
+                continue
+            try:
+                date(int(year), int(month), int(day))
+            except ValueError:
+                continue
+            found.add(f"{year}-{int(month):02d}-{int(day):02d}")
+    return found.pop() if len(found) == 1 else None
 
 
 def repair_date(text: str) -> str:
-    m = _DATE.match(text.strip())
+    stripped = text.strip().strip("-.,:;|_ ")  # a speck or a rule next to the date is not part of it
+    m = _DATE.match(stripped)
     if not m:
-        return text
+        return _marked_date(stripped) or text
     y, s1, mo, s2, d, tail = m.groups()
     sep = lambda c: "." if c == "," else c  # noqa: E731 - a comma between date parts is a misread full stop
     return f"{y.translate(DIGIT_FIX)}{sep(s1)}{mo.translate(DIGIT_FIX)}{sep(s2)}{d.translate(DIGIT_FIX)}{tail}"
@@ -206,7 +297,7 @@ def repair_date(text: str) -> str:
 def repair_code(text: str) -> str:
     """A KCD code is one letter, two digits, optionally a point and more digits."""
     t = text.strip().replace(",", ".").replace(" ", "")
-    m = re.match(rf"^([A-Za-z{{1}}0-9|])([{_DIGITS}]{{2}})(\.?)([{_DIGITS}]*)$", t)
+    m = re.match(rf"^([A-Za-z{{1}}0-9|$])([{_DIGITS}]{{2}})(\.?)([{_DIGITS}]*)$", t)
     if not m:
         return text
     head, num, dot, tail = m.groups()
@@ -229,9 +320,12 @@ def repair_amount(text: str) -> str:
     return t.translate(DIGIT_FIX) if re.fullmatch(r"[0-9OoIlSBZ|,.\s금원정]+", t) else t
 
 
-_AMOUNT = re.compile(r"^(?:금\s*)?(\d{1,3}(?:,\d{3})+|\d+)\s*(?:원\s*정?)?$")
+# Between the groups of three digits a scan leaves a comma, a full stop, or both ("2,.608,900", "1.745.514"). Won has no
+# decimals, so a point there is a misread comma; the groups themselves (one to three digits, then threes) still have to hold.
+_SEP = r"[,.]+"
+_AMOUNT = re.compile(rf"^(?:금\s*)?(\d{{1,3}}(?:{_SEP}\d{{3}})+|\d+)\s*(?:원\s*정?)?$")
 # A number the scanner finished with something that is probably the unit: "2,909,191" then "원" read as "2!".
-_GROUPED_THEN_NOISE = re.compile(r"^(?:금\s*)?(\d{1,3}(?:,\d{3})+)([^,.]{1,3})$")
+_GROUPED_THEN_NOISE = re.compile(rf"^(?:금\s*)?(\d{{1,3}}(?:{_SEP}\d{{3}})+)([^,.]{{1,3}})$")
 _PLAIN_THEN_NOISE = re.compile(r"^(?:금\s*)?(\d{4,})([^\d,.]{1,3})$")
 
 
@@ -240,7 +334,7 @@ def amount_value(text: str) -> int | None:
     three digits, or no groups at all, with the unit (원) at the end. A digit that was really a
     smudge ("2,909,1912!") breaks the grouping, so the amount is refused instead of paid."""
     m = _AMOUNT.match(text.strip())
-    return int(m.group(1).replace(",", "")) if m else None
+    return int(re.sub(_SEP, "", m.group(1))) if m else None
 
 
 def amount_guess(text: str) -> int | None:
@@ -250,7 +344,7 @@ def amount_guess(text: str) -> int | None:
     read as a digit would be added to it."""
     t = text.strip()
     m = _GROUPED_THEN_NOISE.match(t) or _PLAIN_THEN_NOISE.match(t)
-    return int(m.group(1).replace(",", "")) if m else None
+    return int(re.sub(_SEP, "", m.group(1))) if m else None
 
 
 PART_LABELS = ("급여본인부담금:", "비급여:")  # the two lines of a receipt that add up to its total

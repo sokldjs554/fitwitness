@@ -291,5 +291,6 @@ if __name__ == "__main__":
 
     target = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("var/claims")
     n = int(sys.argv[2]) if len(sys.argv) > 2 else 120
-    out = generate_cases(target, n)
+    seed = int(sys.argv[3]) if len(sys.argv) > 3 else 7  # a different seed makes claims no rule or constant was fitted on
+    out = generate_cases(target, n, seed)
     print(f"generated {len(out)} claim cases under {target}")

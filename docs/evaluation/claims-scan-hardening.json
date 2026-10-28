@@ -1,0 +1,305 @@
+{
+ "what": "Scanned claim documents read through OCR: three changes to the reader, measured on a fresh 120-claim set that no rule was designed on, and on the design/test split.",
+ "measured_at": "2026-10-28",
+ "base_sha": "20dbb89e9c9716660d729d14440cd5bb342d8b21",
+ "reader": "Tesseract kor+eng via claims/ocr.py, simulated scans from claims/scan.py (clean, light, medium, heavy)",
+ "changes": [
+  "amount separators: a comma read as a full stop, or doubled, no longer breaks an amount; the thousands-group structure is still required",
+  "second reading: a code or date that is not shaped like its field, or read below 70 confidence, is cropped, enlarged 3x and read again with a field-specific alphabet; accepted only when it is shaped like the field",
+  "date unit marks: 년/월 read as a digit or letter are cut out only when exactly one cut gives a real calendar date",
+  "leading code letter: '$' is repaired to S (only an S looks like it)"
+ ],
+ "fresh_heldout": {
+  "claims": 120,
+  "generator_seed": 20261028,
+  "claims_seed_of_dev_test": 7,
+  "truth_overlap_with_dev_test": 0,
+  "note": "new claims from the same generator, font, layout and degradation; unseen claims, not an unseen distribution",
+  "levels": {
+   "clean": {
+    "before": {
+     "cases": 120,
+     "field_accuracy": 0.9498,
+     "decision_accuracy": 0.825,
+     "auto_rate": 0.8696,
+     "review_rate": 0.6083,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 0.9438,
+     "total_amount": 0.8917
+    },
+    "after": {
+     "cases": 120,
+     "field_accuracy": 0.9599,
+     "decision_accuracy": 0.8417,
+     "auto_rate": 0.8696,
+     "review_rate": 0.6083,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 0.9438,
+     "total_amount": 0.9583
+    },
+    "audit": {
+     "cases": 120,
+     "decision_or_amount_changed": 2,
+     "wrong_to_right": 2,
+     "right_to_wrong": 0
+    }
+   },
+   "medium": {
+    "before": {
+     "cases": 120,
+     "field_accuracy": 0.9579,
+     "decision_accuracy": 0.7833,
+     "auto_rate": 0.8913,
+     "review_rate": 0.6,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 0.8202,
+     "total_amount": 0.9167
+    },
+    "after": {
+     "cases": 120,
+     "field_accuracy": 0.9809,
+     "decision_accuracy": 0.8333,
+     "auto_rate": 0.913,
+     "review_rate": 0.5917,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 0.9663,
+     "total_amount": 0.975
+    },
+    "audit": {
+     "cases": 120,
+     "decision_or_amount_changed": 7,
+     "wrong_to_right": 6,
+     "right_to_wrong": 0
+    }
+   },
+   "heavy": {
+    "before": {
+     "cases": 120,
+     "field_accuracy": 0.9137,
+     "decision_accuracy": 0.7083,
+     "auto_rate": 0.6522,
+     "review_rate": 0.6917,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 0.7528,
+     "total_amount": 0.7167
+    },
+    "after": {
+     "cases": 120,
+     "field_accuracy": 0.9579,
+     "decision_accuracy": 0.8167,
+     "auto_rate": 0.8478,
+     "review_rate": 0.6167,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 0.9438,
+     "total_amount": 0.9417
+    },
+    "audit": {
+     "cases": 120,
+     "decision_or_amount_changed": 14,
+     "wrong_to_right": 13,
+     "right_to_wrong": 0
+    }
+   }
+  }
+ },
+ "design_and_test_split": {
+  "note": "dev (even manifest index) was used for design; test (odd) was opened for one failing case earlier, so it is not a pure holdout",
+  "cells": {
+   "clean/dev": {
+    "before_documented": {
+     "field_accuracy": 0.958,
+     "auto_rate": 0.875,
+     "review_rate": 0.55
+    },
+    "after": {
+     "cases": 60,
+     "field_accuracy": 0.9626,
+     "decision_accuracy": 0.7833,
+     "auto_rate": 0.9167,
+     "review_rate": 0.5333,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 1.0,
+     "total_amount": 0.95
+    }
+   },
+   "clean/test": {
+    "before_documented": {
+     "field_accuracy": 0.936,
+     "auto_rate": 0.786,
+     "review_rate": 0.583
+    },
+    "after": {
+     "cases": 60,
+     "field_accuracy": 0.9464,
+     "decision_accuracy": 0.8,
+     "auto_rate": 0.7857,
+     "review_rate": 0.5833,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 0.9,
+     "total_amount": 1.0
+    }
+   },
+   "light/dev": {
+    "before_documented": {
+     "field_accuracy": 0.942,
+     "auto_rate": 0.875,
+     "review_rate": 0.55
+    },
+    "after": {
+     "cases": 60,
+     "field_accuracy": 0.9667,
+     "decision_accuracy": 0.75,
+     "auto_rate": 0.875,
+     "review_rate": 0.55,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 0.975,
+     "total_amount": 0.9333
+    }
+   },
+   "light/test": {
+    "before_documented": {
+     "field_accuracy": 0.94,
+     "auto_rate": 0.786,
+     "review_rate": 0.583
+    },
+    "after": {
+     "cases": 60,
+     "field_accuracy": 0.9592,
+     "decision_accuracy": 0.7833,
+     "auto_rate": 0.7857,
+     "review_rate": 0.5833,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 0.925,
+     "total_amount": 0.9833
+    }
+   },
+   "medium/dev": {
+    "before_documented": {
+     "field_accuracy": 0.944,
+     "auto_rate": 0.917,
+     "review_rate": 0.533
+    },
+    "after": {
+     "cases": 60,
+     "field_accuracy": 0.973,
+     "decision_accuracy": 0.7833,
+     "auto_rate": 0.9583,
+     "review_rate": 0.5167,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 0.975,
+     "total_amount": 0.9667
+    },
+    "before_rerun": {
+     "cases": 60,
+     "field_accuracy": 0.9439,
+     "decision_accuracy": 0.7167,
+     "auto_rate": 0.9167,
+     "review_rate": 0.5333,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 0.825,
+     "total_amount": 0.9
+    },
+    "audit": {
+     "cases": 60,
+     "decision_or_amount_changed": 4,
+     "wrong_to_right": 4,
+     "right_to_wrong": 0
+    }
+   },
+   "medium/test": {
+    "before_documented": {
+     "field_accuracy": 0.944,
+     "auto_rate": 0.786,
+     "review_rate": 0.583
+    },
+    "after": {
+     "cases": 60,
+     "field_accuracy": 0.9635,
+     "decision_accuracy": 0.8,
+     "auto_rate": 0.8214,
+     "review_rate": 0.5667,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 0.9,
+     "total_amount": 1.0
+    }
+   },
+   "heavy/dev": {
+    "before_documented": {
+     "field_accuracy": 0.906,
+     "auto_rate": 0.708,
+     "review_rate": 0.617
+    },
+    "after": {
+     "cases": 60,
+     "field_accuracy": 0.9688,
+     "decision_accuracy": 0.7333,
+     "auto_rate": 0.8333,
+     "review_rate": 0.5667,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 1.0,
+     "total_amount": 0.9667
+    },
+    "before_rerun": {
+     "cases": 60,
+     "field_accuracy": 0.9064,
+     "decision_accuracy": 0.65,
+     "auto_rate": 0.7083,
+     "review_rate": 0.6167,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 0.75,
+     "total_amount": 0.7333
+    },
+    "audit": {
+     "cases": 60,
+     "decision_or_amount_changed": 5,
+     "wrong_to_right": 5,
+     "right_to_wrong": 0
+    }
+   },
+   "heavy/test": {
+    "before_documented": {
+     "field_accuracy": 0.929,
+     "auto_rate": 0.679,
+     "review_rate": 0.633
+    },
+    "after": {
+     "cases": 60,
+     "field_accuracy": 0.9614,
+     "decision_accuracy": 0.7667,
+     "auto_rate": 0.7857,
+     "review_rate": 0.5833,
+     "wrong_pay": 0,
+     "wrong_deny": 0,
+     "diagnosis_code": 0.875,
+     "total_amount": 0.9833
+    }
+   }
+  }
+ },
+ "remaining_weak_points": [
+  "D05.1 read as 005.1 (O, D and Q look alike): not guessed; goes to a person",
+  "a leading C read as 6 when the second reading also fails: stays low confidence and goes to a person",
+  "total amount cell unreadable under heavy degradation (blank): goes to a person",
+  "surgery name and hospital name are still misread often; neither moves money, so they are shown to the reviewer only"
+ ],
+ "caveats": [
+  "synthetic documents rendered by the same generator, simulated degradation, one font and layout",
+  "no real scanner, handwriting, stamp or fax noise",
+  "the fresh set was opened once after the first measurement to list what was still misread; the '$' to S rule came from that listing (and from a dev case), so the fresh set is not a held-out set for that rule. It changed one fresh-set field."
+ ]
+}
