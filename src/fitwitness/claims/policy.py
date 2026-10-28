@@ -261,7 +261,8 @@ def explain(decision: ClaimDecision) -> str:
     """A deterministic Korean summary for the customer-facing notice."""
     head = {"APPROVE": f"보험금 {decision.total_amount:,}원을 지급합니다.",
             "DENY": "보험금을 지급할 수 없습니다.",
-            "REVIEW": "담당자 확인이 필요하여 심사 중입니다."}[decision.outcome]
+            "REVIEW": "서류 보완이 필요하여 심사를 보류합니다." if any(r.code == "info_requested" for r in decision.reasons)
+            else "담당자 확인이 필요하여 심사 중입니다."}[decision.outcome]
     lines = [head]
     for li in decision.line_items:
         lines.append(f"- {li.basis} [{li.rule_id}]")

@@ -100,7 +100,7 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
       setBusy(false);
     }
   }
-  async function decide(outcome: "APPROVE" | "DENY") {
+  async function decide(outcome: "APPROVE" | "DENY" | "REQUEST_INFO") {
     if (!run) return;
     setBusy(true);
     setError("");
@@ -133,6 +133,7 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
   const needsNote = senior && reviewNote.trim().length < 10;
   const approveBlocked = busy || !reviewer.trim() || sameAsFirst || needsNote;
   const outcome = run?.claim ?? null;
+  const held = outcome?.human?.outcome === "REQUEST_INFO"; // a reviewer asked for documents: nothing paid, nothing refused
   const extraction = outcome?.extraction;
   const evidence = extraction?.evidence ?? {};
   const docEvidence = Object.entries(evidence).filter(([, ref]) => ref.doc_id === doc);
@@ -221,14 +222,17 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
                       {pending.reasons.map((r) => <li key={r.rule_id + r.message}><code>{r.rule_id}</code><small>{r.message}</small></li>)}
                     </ul>
                     <input className="review-reviewer" aria-label="담당자 이름" placeholder="담당자 이름" value={reviewer} onChange={(e) => setReviewer(e.target.value)} />
-                    <input className="review-note" aria-label="검토 메모" placeholder={senior ? "승인 사유 (10자 이상)" : "검토 메모 (선택)"} value={reviewNote} onChange={(e) => setReviewNote(e.target.value)} />
+                    <input className="review-note" aria-label="검토 메모" placeholder={senior ? "승인 사유 (10자 이상)" : "검토 메모 (선택) · 보완 요청에는 필수"} value={reviewNote} onChange={(e) => setReviewNote(e.target.value)} />
                     {sameAsFirst && <small className="review-hint" data-testid="claim-same-person">2차 승인은 1차 승인자와 다른 담당자여야 합니다.</small>}
+                    <small className="review-aside" data-testid="claim-reviewer-note">데모에서는 담당자 이름을 입력값으로 받고 계정 인증은 하지 않습니다. 실제 운영에서는 로그인한 계정과 승인 권한으로 확인하고, 누가 어떤 근거로 승인했는지 남겨야 합니다.</small>
                   </span>
                   <div className="review-buttons">
                     <button onClick={() => decide("APPROVE")} disabled={approveBlocked} title={needsNote ? "승인 사유를 10자 이상 적어 주세요" : sameAsFirst ? "다른 담당자 이름이 필요합니다" : undefined}>
                       {secondStep ? "2차 승인 · 지급" : senior ? "1차 승인" : "승인 · 지급"} <ArrowRight size={13} />
                     </button>
                     <button onClick={() => decide("DENY")} disabled={busy || !reviewer.trim()}>부지급</button>
+                    <button onClick={() => decide("REQUEST_INFO")} disabled={busy || !reviewer.trim() || !reviewNote.trim()}
+                      title={!reviewNote.trim() ? "무엇을 보완해야 하는지 검토 메모에 적어 주세요" : "지급도 부지급도 하지 않고 서류를 요청합니다"}>보완 요청</button>
                   </div>
                 </div>
               )}
@@ -239,13 +243,13 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
                 <div className={`claims-decision ${outcome.decision.outcome}`} data-testid="claim-decision">
                   <div>
                     <span className="eyebrow">결정</span>
-                    <strong>{claimLabels[outcome.decision.outcome]}</strong>
-                    <b>{won(outcome.decision.total_amount)}</b>
+                    <strong>{held ? "심사 보류 · 보완 요청" : claimLabels[outcome.decision.outcome]}</strong>
+                    <b>{held ? "지급 없음" : won(outcome.decision.total_amount)}</b>
                   </div>
                   <div>
                     <span className="eyebrow">지급 원장</span>
                     <strong data-testid="claim-payout">{claimLabels[outcome.payout.status] || outcome.payout.status}</strong>
-                    <small>{outcome.payout.paid_at ? new Date(outcome.payout.paid_at).toLocaleString("ko-KR") : "기록 없음"}</small>
+                    <small>{outcome.payout.paid_at ? `${new Date(outcome.payout.paid_at).toLocaleString("ko-KR")} · 송금은 이 시스템 밖` : "기록 없음"}</small>
                   </div>
                   <div>
                     <span className="eyebrow">사람 개입</span>

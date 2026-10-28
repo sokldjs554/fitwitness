@@ -225,11 +225,11 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                     "line_items": [li.model_dump() for li in decision.line_items],
                     "tier": need["tier"], "approvals_required": need["approvals_required"], "note_required": need["note_required"],
                     "threshold": need["threshold"], "step": step,
-                    "accepts": {"outcome": "APPROVE|DENY", "reviewer": "string", "note": "string", "total_amount": "int, optional adjustment"},
+                    "accepts": {"outcome": "APPROVE|DENY|REQUEST_INFO", "reviewer": "string", "note": "string", "total_amount": "int, optional adjustment"},
                     **(extra or {}),
                 }
 
-            answer = interrupt(question(1, f"청구 {claim.claim_id}: 자동 심사 결과 {decision.outcome}, 제안 지급액 {decision.total_amount:,}원. 승인 또는 부지급을 결정해 주세요."
+            answer = interrupt(question(1, f"청구 {claim.claim_id}: 자동 심사 결과 {decision.outcome}, 제안 지급액 {decision.total_amount:,}원. 승인, 부지급 또는 서류 보완 요청을 결정해 주세요."
                                         + (" 상급 검토 건이므로 승인에는 사유와 다른 담당자의 2차 승인이 필요합니다." if need["tier"] == "senior" else "")))
             guard()
             first = ClaimReview.model_validate(answer)
@@ -247,12 +247,12 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                 if same_person(second.reviewer, first.reviewer):  # resume() refuses this first; the graph does not rely on it
                     raise ReviewRuleError("2차 승인은 1차 승인자와 다른 담당자여야 합니다")
                 approvers.append(second.reviewer)
-                if second.outcome == "DENY":
-                    final_review = decisive = second  # one refusal is final
+                if second.outcome in ("DENY", "REQUEST_INFO"):
+                    final_review = decisive = second  # one refusal, or one request for documents, is final
             reasons = list(decision.reasons)
             for r in ([first] if decisive is first else [first, decisive]):
                 reasons.append(Reason(rule_id="R-HUMAN-01", code="reviewer_decision", severity="info",
-                                      message=f"담당자({r.reviewer}) 결정: {r.outcome}. {r.note}".strip()))
+                                      message=f"담당자({r.reviewer}) 결정: {'보완 요청' if r.outcome == 'REQUEST_INFO' else r.outcome}. {r.note}".strip()))
             if decisive.outcome == "APPROVE":
                 items, total = decision.line_items, decision.total_amount
                 if first.total_amount is not None and first.total_amount != total:
@@ -260,12 +260,18 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                     items = [LineItem(coverage=items[0].coverage if items else "hospitalization_daily", rule_id="R-HUMAN-01",
                                       amount=total, basis=f"담당자 조정 지급액 {total:,}원")]
                 final = ClaimDecision(outcome="APPROVE", line_items=items, total_amount=total, reasons=reasons)
+            elif decisive.outcome == "REQUEST_INFO":
+                # Held, not decided: no payment, no refusal, and the reason says what is missing. Re-submitting
+                # documents to the same claim is not built; a new run on the claim starts the review again.
+                reasons.append(Reason(rule_id="R-HUMAN-02", code="info_requested", severity="review",
+                                      message=f"서류 보완 요청({decisive.reviewer}): {decisive.note.strip()}"))
+                final = ClaimDecision(outcome="REVIEW", line_items=[], total_amount=0, reasons=reasons, needs_human=True)
             else:
                 final = ClaimDecision(outcome="DENY", line_items=[], total_amount=0, reasons=reasons)
             emit("human_review", {"reviewer": final_review.reviewer, "approvers": approvers, "tier": need["tier"], "outcome": final.outcome,
-                                  "total_amount": final.total_amount, "note": final_review.note})
+                                  "answer": decisive.outcome, "total_amount": final.total_amount, "note": final_review.note})
             return {"decision": final.model_dump(), "human": final_review.model_dump(), "approvers": approvers,
-                    "audit": _audit(state, f"human_review: {final.outcome} by {', '.join(approvers)}")}
+                    "audit": _audit(state, f"human_review: {decisive.outcome} by {', '.join(approvers)}")}
 
         def payout(state: State):
             guard()

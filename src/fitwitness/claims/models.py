@@ -125,7 +125,7 @@ class ClaimRequest(Strict):
 class ClaimReview(Strict):
     """A reviewer's answer for a claim parked in waiting_input."""
 
-    outcome: Literal["APPROVE", "DENY"]
+    outcome: Literal["APPROVE", "DENY", "REQUEST_INFO"]  # REQUEST_INFO: hold the claim and ask for documents; nothing is paid or refused
     reviewer: str = Field(min_length=1, max_length=100)
     note: str = Field(default="", max_length=500)
     total_amount: int | None = Field(None, ge=0)  # an adjusted amount when approving

@@ -2748,6 +2748,7 @@ footer button {
 .review-tier mark { background: #f3e2c7; color: #7a5516; padding: 0 5px; border-radius: 2px; font-size: 10px; font-weight: 600; }
 .review-due { color: #8a8984; font-size: 10px; }
 .review-hint { display: block; margin-top: 4px; color: #a5563b; font-size: 10px; }
+.review-aside { display: block; margin-top: 6px; color: #6f6e69; font-size: 10px; line-height: 1.6; }
 .review-buttons button:disabled { opacity: .45; cursor: not-allowed; }
 @media (max-width: 900px) {
   .claims-layout, .claims-board, .claims-decision { grid-template-columns: 1fr; }

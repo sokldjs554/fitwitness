@@ -57,3 +57,15 @@ def test_the_second_approver_is_a_different_person():
     # a refusal does not need a different person to be valid
     with pytest.raises(ReviewRuleError):
         check_answer(waiting, answer("DENY", reviewer="김심사"))
+
+
+def test_a_request_for_documents_needs_to_say_what_is_missing_and_is_final_at_either_step():
+    for waiting in ({"tier": "standard", "step": 1}, {"tier": "senior", "step": 1}):
+        with pytest.raises(ReviewRuleError):
+            check_answer(waiting, answer("REQUEST_INFO", note="  "))  # a blank is not a list of missing documents
+        check_answer(waiting, answer("REQUEST_INFO", note="진단서 원본 필요"))  # no 10-character reason, no second person
+    second = {"tier": "senior", "step": 2, "first_reviewer": "김심사"}
+    check_answer(second, answer("REQUEST_INFO", reviewer="박팀장", note="수술기록 보완"))
+    with pytest.raises(ReviewRuleError):  # the second answer still has to come from a different person
+        check_answer(second, answer("REQUEST_INFO", reviewer="김심사", note="수술기록 보완"))
+

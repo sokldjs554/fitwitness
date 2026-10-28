@@ -119,6 +119,32 @@ def test_review_cases_wait_for_a_person_and_follow_the_answer(env, claim_corpus)
     assert view.claim["payout"]["status"] == "paid" and view.claim["payout"]["amount"] == pending["total_amount"]
 
 
+def test_a_reviewer_can_hold_a_claim_for_documents_without_paying_or_refusing_it(env, claim_corpus):
+    from fitwitness.agents.graph import execute_run
+    from fitwitness.claims.review import ReviewRuleError
+
+    r, j, s = env
+    root, manifest, gold = claim_corpus
+    case = by_scenario(manifest, "missing_doc")
+    seed_case(r, s, root, case)
+    run = j.enqueue(s, request_for(case), "claim-hold")
+    execute_run(r, s, run.id)
+    assert j.get(s, run.id).state == "waiting_input"
+    with pytest.raises(ReviewRuleError):  # the request has to name what is missing
+        j.resume(s, run.id, {"outcome": "REQUEST_INFO", "reviewer": "심사역 김", "note": " "})
+    assert j.get(s, run.id).state == "waiting_input"
+    j.resume(s, run.id, {"outcome": "REQUEST_INFO", "reviewer": "심사역 김", "note": "수술확인서 사본을 보내 달라고 안내"})
+    execute_run(r, s, run.id)
+    view = j.get(s, run.id)
+    assert view.state == "completed"
+    claim = view.claim
+    assert claim["decision"]["outcome"] == "REVIEW" and claim["decision"]["total_amount"] == 0
+    assert claim["human"]["outcome"] == "REQUEST_INFO" and claim["payout"]["status"] == "skipped" and claim["payout"]["amount"] == 0
+    assert any(x["rule_id"] == "R-HUMAN-02" and "수술확인서" in x["message"] for x in claim["decision"]["reasons"])
+    assert "보류" in claim["explanation"] and "지급합니다" not in claim["explanation"]
+    assert [p for p in r.payouts(s) if p["claim_id"] == case["claim_id"]] == []  # nothing reached the ledger
+
+
 def test_denials_and_reviews_match_gold_and_never_pay(env, claim_corpus):
     from fitwitness.agents.graph import execute_run
 

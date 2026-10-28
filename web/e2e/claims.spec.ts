@@ -16,7 +16,7 @@ test("a clean claim is adjudicated, explained and paid exactly once", async ({ p
   await page.getByRole("button", { name: "자동 심사 시작", exact: true }).click();
   await expect(page.getByTestId("claim-state")).toHaveText("심사 완료", { timeout: 90000 });
   await expect(page.getByTestId("claim-decision")).toContainText("지급");
-  await expect(page.getByTestId("claim-payout")).toHaveText("지급 완료");
+  await expect(page.getByTestId("claim-payout")).toHaveText("원장에 지급 기록");
   await expect(page.getByTestId("claim-rules")).toContainText("R-");
   await expect(page.getByTestId("claim-fields").locator("tr").first()).toBeVisible();
   await expect(page.getByTestId("claim-explain")).toContainText("지급합니다");
@@ -48,7 +48,7 @@ test("a claim above the auto-approve limit needs a reason and two different peop
   await page.getByRole("button", { name: /2차 승인/ }).click();
   await expect(page.getByTestId("claim-state")).toHaveText("심사 완료", { timeout: 90000 });
   await expect(page.getByTestId("claim-decision")).toContainText("심사대 사용자 · 상급 검토자");
-  await expect(page.getByTestId("claim-payout")).toHaveText("지급 완료");
+  await expect(page.getByTestId("claim-payout")).toHaveText("원장에 지급 기록");
   await expect(page.getByTestId("claims-ledger")).toContainText("1건");
 });
 
@@ -108,4 +108,28 @@ test("the scan examples show what was read, how, and where the claim went, from 
   // a box on the page selects its row in the table
   await section.getByRole("button", { name: `${doubtful.label} 읽은 위치` }).click();
   await expect(section.locator(`tr[data-field="${doubtful.field}"]`)).toHaveClass(/chosen/);
+});
+
+test("a reviewer can hold a claim for documents: nothing is paid and nothing is refused", async ({ page }) => {
+  test.setTimeout(120000);
+  await openDesk(page);
+  const ledger = (await page.getByTestId("claims-ledger").textContent()) ?? ""; // textContent, as toHaveText compares it
+  await page.getByTestId("claim-case").filter({ hasText: "서류 누락" }).first().click();
+  await page.getByRole("button", { name: "자동 심사 시작", exact: true }).click();
+  await expect(page.getByTestId("claim-review")).toBeVisible({ timeout: 90000 });
+  // the demo says its reviewer names are not accounts
+  await expect(page.getByTestId("claim-reviewer-note")).toContainText("계정 인증은 하지 않습니다");
+  // a request for documents has to say what is missing
+  const hold = page.getByRole("button", { name: "보완 요청", exact: true });
+  await expect(hold).toBeDisabled();
+  await page.getByLabel("검토 메모").fill("수술확인서 사본 요청");
+  await expect(hold).toBeEnabled();
+  await hold.click();
+  await expect(page.getByTestId("claim-state")).toHaveText("심사 완료", { timeout: 90000 });
+  await expect(page.getByTestId("claim-decision")).toContainText("심사 보류 · 보완 요청");
+  await expect(page.getByTestId("claim-decision")).toContainText("지급 없음");
+  await expect(page.getByTestId("claim-payout")).toHaveText("지급 없음");
+  await expect(page.getByTestId("claim-rules")).toContainText("R-HUMAN-02");
+  await expect(page.getByTestId("claim-explain")).toContainText("보류");
+  await expect(page.getByTestId("claims-ledger")).toHaveText(ledger);
 });

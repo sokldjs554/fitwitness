@@ -7,6 +7,8 @@ Two rules, both stated as data on the product (a virtual authority matrix, not a
 * a **senior** claim, or any claim whose reviewer did not answer in time (the run is *escalated*), is paid
   only when the approver gives a written reason and a second, different person approves too.
   A denial from either person is final: one "no" is enough, two "yes" are needed.
+* a reviewer may also **ask for documents** (``REQUEST_INFO``) at either step: the claim is held, nothing is
+  paid or refused, and the answer must say what is missing. Like a denial, it from either person is final.
 
 The checks run when an answer arrives (``Jobs.resume``), so a malformed answer is refused at the door and
 never stored, and again in the graph, which is the part that actually moves money.
@@ -45,6 +47,8 @@ def check_answer(waiting: dict, answer: ClaimReview, *, escalated: bool = False)
     """Refuse an answer that breaks the rules for the question it answers. ``waiting`` is the question's payload."""
     senior = waiting.get("tier") == "senior" or escalated
     step = int(waiting.get("step") or 1)
+    if answer.outcome == "REQUEST_INFO" and not answer.note.strip():
+        raise ReviewRuleError("보완 요청에는 무엇을 보완해야 하는지 적어 주세요")
     if answer.outcome == "APPROVE" and senior and len(answer.note.strip()) < NOTE_MIN_CHARS:
         raise ReviewRuleError(f"상급 검토 건의 승인에는 사유({NOTE_MIN_CHARS}자 이상)가 필요합니다")
     if step >= 2 and same_person(answer.reviewer, str(waiting.get("first_reviewer") or "")):
