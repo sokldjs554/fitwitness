@@ -53,7 +53,7 @@ const ClaimsDesk = lazy(() =>
   import("./components/ClaimsDesk").then((m) => ({ default: m.ClaimsDesk })),
 );
 
-const TAB_FROM_HASH: Record<string, "work" | "eval" | "claims"> = { "#claims": "claims", "#lab": "eval", "#work": "work" };
+const TAB_FROM_HASH: Record<string, "work" | "eval" | "claims"> = { "#claims": "claims", "#claims-scan": "claims", "#lab": "eval", "#work": "work" };
 const HASH_FROM_TAB = { work: "", eval: "#lab", claims: "#claims" } as const;
 
 function App() {
@@ -135,7 +135,8 @@ function App() {
   }, [tab]);
   useEffect(() => {
     const wanted = HASH_FROM_TAB[tab];
-    if (window.location.hash !== wanted) {
+    // "#claims-scan" is an address inside the claims tab: keep it, the section scrolls itself into view
+    if (window.location.hash !== wanted && TAB_FROM_HASH[window.location.hash] !== tab) {
       window.history.replaceState(null, "", wanted || window.location.pathname + window.location.search);
     }
   }, [tab]);

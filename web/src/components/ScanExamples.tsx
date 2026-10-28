@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api, docKindLabels } from "../types";
 
 type Field = {
@@ -35,17 +35,20 @@ export function ScanExamples() {
   const [error, setError] = useState(false);
   const [selected, setSelected] = useState("");
   const [field, setField] = useState("");
+  const section = useRef<HTMLElement>(null);
   useEffect(() => {
     let alive = true;
     api<Report>("/evaluations/scan-examples").then((r) => alive && setReport(r)).catch(() => alive && setError(true));
     return () => { alive = false; };
   }, []);
+  // opened from "#claims-scan" (a link into this section): the browser's own scroll ran before the page was tall enough
+  useEffect(() => { if (report && window.location.hash === "#claims-scan") section.current?.scrollIntoView(); }, [report]);
   const ex = report?.examples?.find((e) => e.id === selected) || report?.examples?.[0];
   const pick = (id: string) => { setSelected(id); setField(""); };
   const onPage = ex ? ex.fields.filter((f) => f.bbox && f.doc_id === ex.page.doc_id) : [];
   const chosen = ex?.fields.find((f) => f.field === field);
   return (
-    <section className="retrieval-trials scan-examples" id="claims-scan" aria-label="스캔 읽기 예시" data-testid="scan-examples">
+    <section ref={section} className="retrieval-trials scan-examples" id="claims-scan" aria-label="스캔 읽기 예시" data-testid="scan-examples">
       <div className="section-heading">
         <div>
           <span className="kicker">SCANNED PAGES / PRE-RENDERED</span>

@@ -77,9 +77,11 @@ test("the claims desk has its own address", async ({ page }) => {
 test("the scan examples show what was read, how, and where the claim went, from the committed record", async ({ page, request }) => {
   const record = await (await request.get("/api/evaluations/scan-examples")).json();
   const byId = (id: string) => record.examples.find((e: { id: string }) => e.id === id);
-  await page.goto("/#claims");
+  await page.goto("/#claims-scan"); // an address into the section: the claims tab opens and scrolls to it
   const section = page.getByTestId("scan-examples");
   await expect(section.getByRole("heading", { name: "스캔한 서류는 이렇게 읽습니다" })).toBeVisible({ timeout: 60000 });
+  await expect(section.getByRole("heading", { name: "스캔한 서류는 이렇게 읽습니다" })).toBeInViewport();
+  await expect(page.getByRole("heading", { name: "청구 심사대", exact: true })).toBeAttached();
   // the page picture really loaded, and the page does not scroll sideways at this width
   const image = section.locator(".doc-image img");
   await expect(image).toBeVisible();
