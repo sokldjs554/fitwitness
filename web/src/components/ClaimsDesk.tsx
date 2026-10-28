@@ -9,6 +9,7 @@ import {
   type Run,
   type RunEvent,
 } from "../types";
+import { ScanExamples } from "./ScanExamples";
 
 const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
 const ACTIVE = ["queued", "running", "retry_wait"];
@@ -150,6 +151,7 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
           <p className="eyebrow">INSURANCE / CLAIM ADJUDICATION</p>
           <h1>청구 심사대</h1>
           <p className="subtitle">서류에서 필요한 값만 위치와 함께 읽고, 사내 지급 기준을 적용해 지급·부지급·담당자 확인으로 나눕니다. 모든 서류와 계약은 합성 데이터입니다.</p>
+          <a className="text-button" href="#claims-scan">스캔한 서류 읽기 예시 보기 ↓</a>
         </div>
         <div className="claims-ledger" data-testid="claims-ledger">
           <span>지급 원장</span>
@@ -333,6 +335,7 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
           )}
         </section>
       </div>
+      <ScanExamples />
     </div>
   );
 }

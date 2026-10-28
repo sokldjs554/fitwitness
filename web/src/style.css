@@ -2790,3 +2790,33 @@ footer button {
 .record-caveats{margin:14px 0 0;padding-left:18px;font-size:12px;line-height:1.7;color:#626b69}
 .record-links{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:12px}.record-links a{display:inline-flex;align-items:center;gap:3px;color:#2f5f52}
 @media(max-width:600px){.record-card{padding:14px}.record-headline{grid-template-columns:1fr}.record-headline strong{font-size:17px}.record-picker button{font-size:10px;padding:6px 8px}}
+
+/* ---- scanned-page examples on the claims desk ---- */
+.scan-examples{margin-top:24px}
+.scan-example{border:1px solid #dfe1db;background:#fff;padding:18px 20px}
+.scan-meta{display:flex;flex-wrap:wrap;gap:8px;font-size:11px;color:#626b69}.scan-meta span{padding:2px 8px;border:1px solid #dce0d9;border-radius:3px;background:#f6f7f3}
+.scan-note{margin:12px 0 16px;font-size:13px;line-height:1.75;color:#3f4745;max-width:78ch}
+.scan-board{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(0,1.2fr);gap:22px;align-items:start}
+.scan-page .doc-image{max-width:540px}
+.scan-box{position:absolute;padding:0;border-width:2px;border-style:solid;border-radius:2px;background:transparent;cursor:pointer}
+.scan-box.ok{border-color:rgba(40,122,99,.75);background:rgba(40,122,99,.08)}
+.scan-box.flag{border-color:rgba(152,109,36,.9);background:rgba(152,109,36,.14)}
+.scan-box.wrong{border-color:rgba(178,71,57,.9);background:rgba(178,71,57,.16)}
+.scan-box.chosen{box-shadow:0 0 0 2px #fff,0 0 0 4px #33423c}
+.scan-legend{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin:8px 0 0;font-size:11px;color:#626b69}
+.scan-legend i{display:inline-block;width:12px;height:12px;border:2px solid;border-radius:2px;margin-right:-6px}
+.scan-legend i.ok{border-color:#287a63}.scan-legend i.flag{border-color:#986d24}.scan-legend i.wrong{border-color:#b24739}
+.scan-fields{white-space:normal!important}
+.scan-fields th,.scan-fields td{vertical-align:top;white-space:normal!important;overflow-wrap:anywhere}
+.scan-fields tbody tr{cursor:pointer}.scan-fields tbody tr.chosen{background:#f4f6f1}
+.scan-fields th small,.scan-fields td small{display:block;margin-top:3px;font-size:10px;font-weight:400;line-height:1.45;color:#7a827c}
+.scan-fields td small.scan-how{display:inline-block;margin:3px 4px 0 0;padding:1px 6px;border:1px solid #d3dccf;border-radius:3px;background:#f3f7f1;color:#3d6355}
+.scan-fields td small.scan-first code{color:#986d24}
+.scan-verdict{font-size:12px;font-weight:600}
+.scan-verdict.ok{color:#287a63}.scan-verdict.flag{color:#986d24}.scan-verdict.wrong{color:#b24739}
+.scan-result{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0 0;padding:12px 14px;border:1px solid #dfe1db;border-left-width:4px;background:#fafbf8}
+.scan-result.APPROVE{border-left-color:#287a63}.scan-result.DENY{border-left-color:#b24739}.scan-result.REVIEW{border-left-color:#986d24}
+.scan-result>div{display:grid;gap:2px;align-content:start}.scan-result strong{font-size:15px}.scan-result b{font-size:13px;font-variant-numeric:tabular-nums}.scan-result small{font-size:10px;color:#858a84}
+.scan-reasons{margin:10px 0 0}
+.scan-picked{margin:12px 0 0;font-size:11px;line-height:1.6;color:#858a84}
+@media(max-width:860px){.scan-board{grid-template-columns:1fr}.scan-page .doc-image{max-width:100%}.scan-example{padding:14px}.scan-result{grid-template-columns:1fr}}

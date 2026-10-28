@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from typing import Literal
-import functools, hashlib, hmac, json, os, secrets, subprocess, sys, threading, time
+import functools, hashlib, hmac, json, os, re, secrets, subprocess, sys, threading, time
 from contextlib import asynccontextmanager
 from fitwitness.runtime.dispatcher import Dispatcher
 from fitwitness.runtime.pool import WarmWorkers
@@ -472,6 +472,21 @@ def create_app():
     def model_records():
         p = ROOT / "docs/evaluation/model-records.json"
         return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
+
+    @app.get("/api/evaluations/scan-examples")
+    def scan_examples():
+        # Pre-rendered pages and what the scan reader read on them (scripts/build-scan-examples.py). The public demo has
+        # no OCR engine and reads nothing here.
+        p = ROOT / "docs/evaluation/scan-examples.json"
+        return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
+
+    @app.get("/api/evaluations/scan-examples/{name}")
+    def scan_example_image(name: str):
+        folder = ROOT / "docs/evaluation/scan-examples"
+        path = folder / name
+        if not re.fullmatch(r"[a-z0-9-]+\.jpg", name) or not path.is_file():
+            raise HTTPException(404, "no such example page")
+        return FileResponse(path, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=3600"})
 
     @app.get("/api/evaluations/agent")
     def agent_evaluation(version: Literal["latest", "v1"] = "latest"):

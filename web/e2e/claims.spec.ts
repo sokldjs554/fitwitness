@@ -73,3 +73,37 @@ test("the claims desk has its own address", async ({ page }) => {
   await page.getByRole("button", { name: "청구 심사", exact: true }).click();
   await expect(page).toHaveURL(/#claims$/);
 });
+
+test("the scan examples show what was read, how, and where the claim went, from the committed record", async ({ page, request }) => {
+  const record = await (await request.get("/api/evaluations/scan-examples")).json();
+  const byId = (id: string) => record.examples.find((e: { id: string }) => e.id === id);
+  await page.goto("/#claims");
+  const section = page.getByTestId("scan-examples");
+  await expect(section.getByRole("heading", { name: "스캔한 서류는 이렇게 읽습니다" })).toBeVisible({ timeout: 60000 });
+  // the page picture really loaded, and the page does not scroll sideways at this width
+  const image = section.locator(".doc-image img");
+  await expect(image).toBeVisible();
+  expect(await image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+
+  // a value the second reading rescued: the first reading, the final value and the way are all on screen
+  const rescued = byId("second-read");
+  const code = rescued.fields.find((f: { how: string[] }) => f.how.includes("second_read"));
+  await section.getByRole("button", { name: rescued.title }).click();
+  const row = section.locator(`tr[data-field="${code.field}"]`);
+  await expect(row).toContainText(code.value);
+  await expect(row).toContainText(code.first_read);
+  await expect(row).toContainText("확대해 다시 읽음");
+  await expect(section.getByTestId("scan-result")).toContainText(rescued.outcome === "APPROVE" ? "지급" : "담당자 확인");
+
+  // a value it could not read sends the claim to a person, and says so
+  const unread = byId("unread");
+  const doubtful = unread.fields.find((f: { decisive: boolean; correct: boolean }) => f.decisive && !f.correct);
+  await section.getByRole("button", { name: unread.title }).click();
+  await expect(section.locator(`tr[data-field="${doubtful.field}"]`)).toContainText("담당자 확인");
+  await expect(section.getByTestId("scan-result")).toContainText("담당자 확인");
+
+  // a box on the page selects its row in the table
+  await section.getByRole("button", { name: `${doubtful.label} 읽은 위치` }).click();
+  await expect(section.locator(`tr[data-field="${doubtful.field}"]`)).toHaveClass(/chosen/);
+});

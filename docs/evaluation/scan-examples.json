@@ -1,0 +1,1126 @@
+{
+ "status": "measured",
+ "what": "스캔한 청구 서류 페이지를 읽은 예시. 합성 서류를 시뮬레이션 스캔(clean·light·medium·heavy 중 heavy)으로 만들어 Tesseract로 읽은 결과를 미리 계산해 둔 것입니다.",
+ "generated_at": "2026-10-28T08:47:42.949658+00:00",
+ "base_sha": "77f23c16f7d06c542ec36df109965bbeaa890a0f",
+ "corpus": {
+  "claims": 120,
+  "level": "heavy"
+ },
+ "caveats": [
+  "서류는 모두 합성이고 스캔은 시뮬레이션입니다. 실제 스캐너·손글씨·도장은 읽어 본 적이 없습니다.",
+  "이름·병명은 띄어쓰기를 무시하고 비교합니다(스캔은 띄어쓰기를 보존하라고 요구할 수 없는 유일한 것입니다). 금액·날짜·코드는 글자 그대로 비교합니다.",
+  "예시는 규칙으로 고른 것입니다(각 예시의 picked_by). 측정이 아니며, 측정은 claims-scan-hardening.json에 있습니다.",
+  "공개 데모에는 OCR 엔진이 없어 이 화면은 미리 계산한 기록을 보여 주고, 요청 때 아무것도 읽지 않습니다."
+ ],
+ "examples": [
+  {
+   "id": "plain",
+   "title": "스캔을 그대로 읽어 자동 지급",
+   "picked_by": "읽은 값이 모두 정답이고 결정도 정답(지급)인 첫 건",
+   "note": "지급에 쓰는 값을 모두 맞게 읽었고 신뢰도가 기준(0.7) 이상이라 사람 없이 지급됩니다. 합계는 영수증의 두 줄이 더해져 맞을 때만 확정합니다.",
+   "case_id": "CLM-00000",
+   "scenario": "clean",
+   "level": "heavy",
+   "page": {
+    "doc_id": "CLM-00000-ADM",
+    "doc_kind": "admission",
+    "image": "scan-examples/plain.jpg",
+    "width": 760,
+    "height": 1075
+   },
+   "fields": [
+    {
+     "field": "admission_date",
+     "label": "입원일",
+     "decisive": true,
+     "truth": "2025-12-07",
+     "value": "2025-12-07",
+     "printed": true,
+     "doc_id": "CLM-00000-ADM",
+     "doc_kind": "admission",
+     "bbox": [
+      0.11,
+      0.1975,
+      0.4057,
+      0.2129
+     ],
+     "first_read": "2025-12-07",
+     "first_conf": 0.871,
+     "read": "2025-12-07",
+     "read_conf": 0.871,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "discharge_date",
+     "label": "퇴원일",
+     "decisive": true,
+     "truth": "2025-12-17",
+     "value": "2025-12-17",
+     "printed": true,
+     "doc_id": "CLM-00000-ADM",
+     "doc_kind": "admission",
+     "bbox": [
+      0.1112,
+      0.2356,
+      0.4069,
+      0.251
+     ],
+     "first_read": "2025-12-17",
+     "first_conf": 0.895,
+     "read": "2025-12-17",
+     "read_conf": 0.895,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "hospital",
+     "label": "병원",
+     "decisive": false,
+     "truth": "푸른내과의원",
+     "value": "푸른내과의원",
+     "printed": true,
+     "doc_id": "CLM-00000-REC",
+     "doc_kind": "receipt",
+     "bbox": [
+      0.1197,
+      0.4613,
+      0.4214,
+      0.4793
+     ],
+     "first_read": "푸른내과의원",
+     "first_conf": 0.931,
+     "read": "푸른내과의원",
+     "read_conf": 0.931,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "insured_name",
+     "label": "환자 이름",
+     "decisive": false,
+     "truth": "박지우",
+     "value": "박지우",
+     "printed": true,
+     "doc_id": "CLM-00000-REC",
+     "doc_kind": "receipt",
+     "bbox": [
+      0.1312,
+      0.1505,
+      0.3845,
+      0.1723
+     ],
+     "first_read": "박지우",
+     "first_conf": 0.845,
+     "read": "박지우",
+     "read_conf": 0.845,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "total_amount",
+     "label": "합계(영수증)",
+     "decisive": true,
+     "truth": "3884730",
+     "value": "3884730",
+     "printed": true,
+     "doc_id": "CLM-00000-REC",
+     "doc_kind": "receipt",
+     "bbox": [
+      0.1252,
+      0.3023,
+      0.4256,
+      0.3241
+     ],
+     "first_read": "3,884,730원",
+     "first_conf": 0.781,
+     "read": "3,884,730원",
+     "read_conf": 0.781,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    }
+   ],
+   "confidence": 0.781,
+   "outcome": "APPROVE",
+   "amount": 210000,
+   "rules": [
+    "R-HOSP-01"
+   ],
+   "reasons": [],
+   "gold": "APPROVE",
+   "gold_amount": 210000
+  },
+  {
+   "id": "second-read",
+   "title": "첫 읽기가 틀린 코드를 확대해 다시 읽어 바로잡음",
+   "picked_by": "두 번째 읽기가 결정에 쓰는 값을 정답으로 바꾸고, 정답이 자동 지급이며 그대로 지급된 첫 건",
+   "note": "처음 읽기는 이 값의 모양이 틀렸습니다(코드는 영문 한 글자로 시작합니다). 그래서 값이 있는 상자만 3배로 키워 그 필드에 가능한 글자만 허용해 한 번 더 읽고, 그 값이 필드의 모양일 때만 받습니다.",
+   "case_id": "CLM-00045",
+   "scenario": "clean",
+   "level": "heavy",
+   "page": {
+    "doc_id": "CLM-00045-DIA",
+    "doc_kind": "diagnosis",
+    "image": "scan-examples/second-read.jpg",
+    "width": 760,
+    "height": 1075
+   },
+   "fields": [
+    {
+     "field": "admission_date",
+     "label": "입원일",
+     "decisive": true,
+     "truth": "2026-09-06",
+     "value": "2026-09-06",
+     "printed": true,
+     "doc_id": "CLM-00045-ADM",
+     "doc_kind": "admission",
+     "bbox": [
+      0.1112,
+      0.1975,
+      0.4075,
+      0.2125
+     ],
+     "first_read": "2026-09-06",
+     "first_conf": 0.895,
+     "read": "2026-09-06",
+     "read_conf": 0.895,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "diagnosis_code",
+     "label": "질병분류기호",
+     "decisive": true,
+     "truth": "K80.2",
+     "value": "K80.2",
+     "printed": true,
+     "doc_id": "CLM-00045-DIA",
+     "doc_kind": "diagnosis",
+     "bbox": [
+      0.1106,
+      0.2364,
+      0.3585,
+      0.2518
+     ],
+     "first_read": "80.2",
+     "first_conf": 0.834,
+     "read": "K80.2",
+     "read_conf": 0.838,
+     "how": [
+      "second_read"
+     ],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "diagnosis_date",
+     "label": "진단일",
+     "decisive": true,
+     "truth": "2026-09-07",
+     "value": "2026-09-07",
+     "printed": true,
+     "doc_id": "CLM-00045-DIA",
+     "doc_kind": "diagnosis",
+     "bbox": [
+      0.1119,
+      0.2736,
+      0.4069,
+      0.2899
+     ],
+     "first_read": "2026-09-07",
+     "first_conf": 0.876,
+     "read": "2026-09-07",
+     "read_conf": 0.876,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "diagnosis_name",
+     "label": "병명",
+     "decisive": false,
+     "truth": "담낭결석",
+     "value": "담낭결석",
+     "printed": true,
+     "doc_id": "CLM-00045-DIA",
+     "doc_kind": "diagnosis",
+     "bbox": [
+      0.1094,
+      0.1958,
+      0.3773,
+      0.2155
+     ],
+     "first_read": "담낭결석",
+     "first_conf": 0.893,
+     "read": "담낭결석",
+     "read_conf": 0.893,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "discharge_date",
+     "label": "퇴원일",
+     "decisive": true,
+     "truth": "2026-09-10",
+     "value": "2026-09-10",
+     "printed": true,
+     "doc_id": "CLM-00045-ADM",
+     "doc_kind": "admission",
+     "bbox": [
+      0.1125,
+      0.2356,
+      0.4081,
+      0.2501
+     ],
+     "first_read": "2026-09-10",
+     "first_conf": 0.857,
+     "read": "2026-09-10",
+     "read_conf": 0.857,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "hospital",
+     "label": "병원",
+     "decisive": false,
+     "truth": "한빛의료원",
+     "value": "한빛의료원",
+     "printed": true,
+     "doc_id": "CLM-00045-DIA",
+     "doc_kind": "diagnosis",
+     "bbox": [
+      0.1167,
+      0.4318,
+      0.4008,
+      0.4489
+     ],
+     "first_read": "한빛의료원",
+     "first_conf": 0.902,
+     "read": "한빛의료원",
+     "read_conf": 0.902,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "insured_name",
+     "label": "환자 이름",
+     "decisive": false,
+     "truth": "이하은",
+     "value": "이하은",
+     "printed": true,
+     "doc_id": "CLM-00045-DIA",
+     "doc_kind": "diagnosis",
+     "bbox": [
+      0.1082,
+      0.1595,
+      0.3597,
+      0.1757
+     ],
+     "first_read": "이하은",
+     "first_conf": 0.922,
+     "read": "이하은",
+     "read_conf": 0.922,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "surgery_date",
+     "label": "수술일",
+     "decisive": true,
+     "truth": "2026-09-08",
+     "value": "2026-09-08",
+     "printed": true,
+     "doc_id": "CLM-00045-SUR",
+     "doc_kind": "surgery",
+     "bbox": [
+      0.1082,
+      0.2364,
+      0.4039,
+      0.2535
+     ],
+     "first_read": "2026-09-08",
+     "first_conf": 0.863,
+     "read": "2026-09-08",
+     "read_conf": 0.863,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "surgery_grade",
+     "label": "수술 등급",
+     "decisive": true,
+     "truth": "3",
+     "value": "3",
+     "printed": true,
+     "doc_id": "CLM-00045-SUR",
+     "doc_kind": "surgery",
+     "bbox": [
+      0.1094,
+      0.2749,
+      0.3374,
+      0.2912
+     ],
+     "first_read": "3종",
+     "first_conf": 0.925,
+     "read": "3종",
+     "read_conf": 0.925,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "surgery_name",
+     "label": "수술명",
+     "decisive": false,
+     "truth": "담낭절제술",
+     "value": "담낭절제술",
+     "printed": true,
+     "doc_id": "CLM-00045-SUR",
+     "doc_kind": "surgery",
+     "bbox": [
+      0.1064,
+      0.1975,
+      0.3918,
+      0.215
+     ],
+     "first_read": "담낭절제술",
+     "first_conf": 0.929,
+     "read": "담낭절제술",
+     "read_conf": 0.929,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "total_amount",
+     "label": "합계(영수증)",
+     "decisive": true,
+     "truth": "2880356",
+     "value": "2880356",
+     "printed": true,
+     "doc_id": "CLM-00045-REC",
+     "doc_kind": "receipt",
+     "bbox": [
+      0.1112,
+      0.3117,
+      0.4099,
+      0.3296
+     ],
+     "first_read": "2,880,3562",
+     "first_conf": 0.593,
+     "read": "2,880,3562",
+     "read_conf": 0.593,
+     "how": [
+      "sum_checked"
+     ],
+     "flagged": false,
+     "correct": true
+    }
+   ],
+   "confidence": 0.838,
+   "outcome": "APPROVE",
+   "amount": 530000,
+   "rules": [
+    "R-HOSP-01",
+    "R-SURG-01"
+   ],
+   "reasons": [],
+   "gold": "APPROVE",
+   "gold_amount": 530000
+  },
+  {
+   "id": "repaired",
+   "title": "읽은 글자를 자리에 맞게 보정",
+   "picked_by": "금액·날짜·코드의 글자 보정을 거쳐 정답이 되고(두 번째 읽기 없이), 정답이 자동 지급이며 그대로 지급된 첫 건",
+   "note": "스캔은 쉼표를 마침표로, 날짜의 '년'·'월'을 숫자나 글자로 읽기도 합니다. 자리가 말해 주는 만큼만 고치고, 합계는 영수증 두 줄의 합이 맞을 때만 확정합니다.",
+   "case_id": "CLM-00012",
+   "scenario": "ocr_noise",
+   "level": "heavy",
+   "page": {
+    "doc_id": "CLM-00012-ADM",
+    "doc_kind": "admission",
+    "image": "scan-examples/repaired.jpg",
+    "width": 760,
+    "height": 1075
+   },
+   "fields": [
+    {
+     "field": "admission_date",
+     "label": "입원일",
+     "decisive": true,
+     "truth": "2025-10-13",
+     "value": "2025-10-13",
+     "printed": true,
+     "doc_id": "CLM-00012-ADM",
+     "doc_kind": "admission",
+     "bbox": [
+      0.13,
+      0.1885,
+      0.4262,
+      0.2069
+     ],
+     "first_read": "2025.10,13",
+     "first_conf": 0.892,
+     "read": "2025.10,13",
+     "read_conf": 0.892,
+     "how": [
+      "repaired"
+     ],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "discharge_date",
+     "label": "퇴원일",
+     "decisive": true,
+     "truth": "2025-10-25",
+     "value": "2025-10-25",
+     "printed": true,
+     "doc_id": "CLM-00012-ADM",
+     "doc_kind": "admission",
+     "bbox": [
+      0.1282,
+      0.2249,
+      0.4208,
+      0.2437
+     ],
+     "first_read": "2025.10.25",
+     "first_conf": 0.878,
+     "read": "2025.10.25",
+     "read_conf": 0.878,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "hospital",
+     "label": "병원",
+     "decisive": false,
+     "truth": "푸른내과의원",
+     "value": "푸른내과의원",
+     "printed": true,
+     "doc_id": "CLM-00012-REC",
+     "doc_kind": "receipt",
+     "bbox": [
+      0.1173,
+      0.4699,
+      0.419,
+      0.487
+     ],
+     "first_read": "푸른내과의원",
+     "first_conf": 0.871,
+     "read": "푸른내과의원",
+     "read_conf": 0.871,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "insured_name",
+     "label": "환자 이름",
+     "decisive": false,
+     "truth": "강예은",
+     "value": "강예은",
+     "printed": true,
+     "doc_id": "CLM-00012-REC",
+     "doc_kind": "receipt",
+     "bbox": [
+      0.1082,
+      0.1599,
+      0.3597,
+      0.1757
+     ],
+     "first_read": "강예은",
+     "first_conf": 0.864,
+     "read": "강예은",
+     "read_conf": 0.864,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "total_amount",
+     "label": "합계(영수증)",
+     "decisive": true,
+     "truth": "4108488",
+     "value": "4108488",
+     "printed": true,
+     "doc_id": "CLM-00012-REC",
+     "doc_kind": "receipt",
+     "bbox": [
+      0.1125,
+      0.3095,
+      0.4123,
+      0.3283
+     ],
+     "first_read": "4.108,488원",
+     "first_conf": 0.594,
+     "read": "4.108,488원",
+     "read_conf": 0.594,
+     "how": [
+      "sum_checked"
+     ],
+     "flagged": false,
+     "correct": true
+    }
+   ],
+   "confidence": 0.878,
+   "outcome": "APPROVE",
+   "amount": 270000,
+   "rules": [
+    "R-HOSP-01"
+   ],
+   "reasons": [],
+   "gold": "APPROVE",
+   "gold_amount": 270000
+  },
+  {
+   "id": "unread",
+   "title": "못 읽은 값은 사람에게",
+   "picked_by": "결정에 쓰는 값을 틀리게 읽거나 못 읽었고 결과가 담당자 확인인 첫 건(정답은 지급)",
+   "note": "읽지 못했거나 신뢰도가 낮은 값은 지급에 쓰지 않고 담당자에게 보냅니다. 틀린 채 지급되는 것보다 사람이 한 번 보는 쪽을 택한 동작입니다. 0이 O·D·Q 중 무엇인지처럼 글자 모양이 정하지 못하는 것은 추측하지 않습니다.",
+   "case_id": "CLM-00039",
+   "scenario": "ocr_noise",
+   "level": "heavy",
+   "page": {
+    "doc_id": "CLM-00039-DIA",
+    "doc_kind": "diagnosis",
+    "image": "scan-examples/unread.jpg",
+    "width": 760,
+    "height": 1075
+   },
+   "fields": [
+    {
+     "field": "admission_date",
+     "label": "입원일",
+     "decisive": true,
+     "truth": "2026-10-24",
+     "value": "2026-10-24",
+     "printed": true,
+     "doc_id": "CLM-00039-ADM",
+     "doc_kind": "admission",
+     "bbox": [
+      0.127,
+      0.1903,
+      0.4244,
+      0.2074
+     ],
+     "first_read": "2026/10/24",
+     "first_conf": 0.884,
+     "read": "2026/10/24",
+     "read_conf": 0.884,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "diagnosis_code",
+     "label": "질병분류기호",
+     "decisive": true,
+     "truth": "D05.1",
+     "value": "ㅁ005,|",
+     "printed": true,
+     "doc_id": "CLM-00039-DIA",
+     "doc_kind": "diagnosis",
+     "bbox": [
+      0.1264,
+      0.2262,
+      0.3736,
+      0.2475
+     ],
+     "first_read": "ㅁ005,|",
+     "first_conf": 0.599,
+     "read": "ㅁ005,|",
+     "read_conf": 0.599,
+     "how": [],
+     "flagged": true,
+     "correct": false
+    },
+    {
+     "field": "diagnosis_date",
+     "label": "진단일",
+     "decisive": true,
+     "truth": "2026-10-25",
+     "value": "2026-10-25",
+     "printed": true,
+     "doc_id": "CLM-00039-DIA",
+     "doc_kind": "diagnosis",
+     "bbox": [
+      0.1252,
+      0.2664,
+      0.4256,
+      0.2835
+     ],
+     "first_read": "2026/10/25",
+     "first_conf": 0.913,
+     "read": "2026/10/25",
+     "read_conf": 0.913,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "diagnosis_name",
+     "label": "병명",
+     "decisive": false,
+     "truth": "유방 상피내암종",
+     "value": "유방 상피내암종",
+     "printed": true,
+     "doc_id": "CLM-00039-DIA",
+     "doc_kind": "diagnosis",
+     "bbox": [
+      0.1276,
+      0.1898,
+      0.451,
+      0.2069
+     ],
+     "first_read": "유방 상피내암종",
+     "first_conf": 0.899,
+     "read": "유방 상피내암종",
+     "read_conf": 0.899,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "discharge_date",
+     "label": "퇴원일",
+     "decisive": true,
+     "truth": "2026-11-05",
+     "value": "2026-11-05",
+     "printed": true,
+     "doc_id": "CLM-00039-ADM",
+     "doc_kind": "admission",
+     "bbox": [
+      0.1258,
+      0.2266,
+      0.4178,
+      0.2458
+     ],
+     "first_read": "2026/11/05",
+     "first_conf": 0.858,
+     "read": "2026/11/05",
+     "read_conf": 0.858,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "hospital",
+     "label": "병원",
+     "decisive": false,
+     "truth": "미래대학교병원",
+     "value": "미래대학교병원",
+     "printed": true,
+     "doc_id": "CLM-00039-DIA",
+     "doc_kind": "diagnosis",
+     "bbox": [
+      0.1203,
+      0.4233,
+      0.4389,
+      0.4434
+     ],
+     "first_read": "미래대학교병원",
+     "first_conf": 0.893,
+     "read": "미래대학교병원",
+     "read_conf": 0.893,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "insured_name",
+     "label": "환자 이름",
+     "decisive": false,
+     "truth": "장지호",
+     "value": "장지호",
+     "printed": true,
+     "doc_id": "CLM-00039-DIA",
+     "doc_kind": "diagnosis",
+     "bbox": [
+      0.1282,
+      0.1501,
+      0.3809,
+      0.1723
+     ],
+     "first_read": "장지호",
+     "first_conf": 0.861,
+     "read": "장지호",
+     "read_conf": 0.861,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "total_amount",
+     "label": "합계(영수증)",
+     "decisive": true,
+     "truth": "3962532",
+     "value": "3962532",
+     "printed": true,
+     "doc_id": "CLM-00039-REC",
+     "doc_kind": "receipt",
+     "bbox": [
+      0.1131,
+      0.3108,
+      0.4166,
+      0.3275
+     ],
+     "first_read": "3,962,532원",
+     "first_conf": 0.885,
+     "read": "3,962,532원",
+     "read_conf": 0.885,
+     "how": [
+      "sum_checked"
+     ],
+     "flagged": false,
+     "correct": true
+    }
+   ],
+   "confidence": 0.599,
+   "outcome": "REVIEW",
+   "amount": 270000,
+   "rules": [
+    "R-CONF-01",
+    "R-CONS-01",
+    "R-DIAG-01",
+    "R-HOSP-01"
+   ],
+   "reasons": [
+    {
+     "rule_id": "R-CONS-01",
+     "severity": "review",
+     "message": "서류 간 정합성 문제: malformed_diagnosis_code"
+    },
+    {
+     "rule_id": "R-CONF-01",
+     "severity": "review",
+     "message": "추출 신뢰도 0.60 < 0.7"
+    },
+    {
+     "rule_id": "R-DIAG-01",
+     "severity": "deny",
+     "message": "진단코드 ㅁ005,|는 진단비 지급 대상이 아닙니다."
+    }
+   ],
+   "gold": "APPROVE",
+   "gold_amount": 2270000
+  },
+  {
+   "id": "scan-denial",
+   "title": "스캔에서 읽은 값만으로는 거절을 확정하지 않음",
+   "picked_by": "정답은 부지급인데 스캔 규칙(R-SCAN-01)으로 담당자 확인이 된 첫 건",
+   "note": "정답은 부지급이지만 스캔에서 읽은 값으로는 부지급을 확정하지 않습니다(R-SCAN-01). 사람이 원본을 봅니다.",
+   "case_id": "CLM-00006",
+   "scenario": "exclusion",
+   "level": "heavy",
+   "page": {
+    "doc_id": "CLM-00006-DIA",
+    "doc_kind": "diagnosis",
+    "image": "scan-examples/scan-denial.jpg",
+    "width": 760,
+    "height": 1075
+   },
+   "fields": [
+    {
+     "field": "admission_date",
+     "label": "입원일",
+     "decisive": true,
+     "truth": "2025-10-16",
+     "value": "2025-10-16",
+     "printed": true,
+     "doc_id": "CLM-00006-ADM",
+     "doc_kind": "admission",
+     "bbox": [
+      0.1112,
+      0.1975,
+      0.4045,
+      0.2125
+     ],
+     "first_read": "2025.10.16",
+     "first_conf": 0.917,
+     "read": "2025.10.16",
+     "read_conf": 0.917,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "diagnosis_code",
+     "label": "질병분류기호",
+     "decisive": true,
+     "truth": "Z41.1",
+     "value": "Z41.1",
+     "printed": true,
+     "doc_id": "CLM-00006-DIA",
+     "doc_kind": "diagnosis",
+     "bbox": [
+      0.1112,
+      0.2364,
+      0.3579,
+      0.2514
+     ],
+     "first_read": "241.1",
+     "first_conf": 0.657,
+     "read": "241.1",
+     "read_conf": 0.79,
+     "how": [
+      "second_read_confirmed",
+      "repaired"
+     ],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "diagnosis_date",
+     "label": "진단일",
+     "decisive": true,
+     "truth": "2025-10-16",
+     "value": "2025-10-16",
+     "printed": true,
+     "doc_id": "CLM-00006-DIA",
+     "doc_kind": "diagnosis",
+     "bbox": [
+      0.1119,
+      0.2736,
+      0.4051,
+      0.2894
+     ],
+     "first_read": "2025.10.16",
+     "first_conf": 0.87,
+     "read": "2025.10.16",
+     "read_conf": 0.87,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "diagnosis_name",
+     "label": "병명",
+     "decisive": false,
+     "truth": "미용 목적 성형수술",
+     "value": "미용목적 성형수술",
+     "printed": true,
+     "doc_id": "CLM-00006-DIA",
+     "doc_kind": "diagnosis",
+     "bbox": [
+      0.11,
+      0.1962,
+      0.4541,
+      0.2133
+     ],
+     "first_read": "미용목적 성형수술",
+     "first_conf": 0.844,
+     "read": "미용목적 성형수술",
+     "read_conf": 0.844,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "discharge_date",
+     "label": "퇴원일",
+     "decisive": true,
+     "truth": "2025-10-19",
+     "value": "2025-10-19",
+     "printed": true,
+     "doc_id": "CLM-00006-ADM",
+     "doc_kind": "admission",
+     "bbox": [
+      0.1125,
+      0.2356,
+      0.4051,
+      0.2501
+     ],
+     "first_read": "2025.10.19",
+     "first_conf": 0.911,
+     "read": "2025.10.19",
+     "read_conf": 0.911,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "hospital",
+     "label": "병원",
+     "decisive": false,
+     "truth": "강남제일병원",
+     "value": "강남제일병원",
+     "printed": true,
+     "doc_id": "CLM-00006-DIA",
+     "doc_kind": "diagnosis",
+     "bbox": [
+      0.1161,
+      0.4318,
+      0.4184,
+      0.4485
+     ],
+     "first_read": "강남제일병원",
+     "first_conf": 0.931,
+     "read": "강남제일병원",
+     "read_conf": 0.931,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "insured_name",
+     "label": "환자 이름",
+     "decisive": false,
+     "truth": "조예은",
+     "value": "조예은",
+     "printed": true,
+     "doc_id": "CLM-00006-DIA",
+     "doc_kind": "diagnosis",
+     "bbox": [
+      0.1082,
+      0.1599,
+      0.3597,
+      0.1796
+     ],
+     "first_read": "조예은",
+     "first_conf": 0.932,
+     "read": "조예은",
+     "read_conf": 0.932,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "surgery_date",
+     "label": "수술일",
+     "decisive": true,
+     "truth": "2025-10-16",
+     "value": "2025-10-16",
+     "printed": true,
+     "doc_id": "CLM-00006-SUR",
+     "doc_kind": "surgery",
+     "bbox": [
+      0.1094,
+      0.236,
+      0.4027,
+      0.2522
+     ],
+     "first_read": "2025.10.16",
+     "first_conf": 0.785,
+     "read": "2025.10.16",
+     "read_conf": 0.785,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "surgery_grade",
+     "label": "수술 등급",
+     "decisive": true,
+     "truth": "2",
+     "value": "2",
+     "printed": true,
+     "doc_id": "CLM-00006-SUR",
+     "doc_kind": "surgery",
+     "bbox": [
+      0.1112,
+      0.2745,
+      0.3386,
+      0.2903
+     ],
+     "first_read": "2종",
+     "first_conf": 0.86,
+     "read": "2종",
+     "read_conf": 0.86,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "surgery_name",
+     "label": "수술명",
+     "decisive": false,
+     "truth": "안면윤곽술",
+     "value": "안면윤곽술",
+     "printed": true,
+     "doc_id": "CLM-00006-SUR",
+     "doc_kind": "surgery",
+     "bbox": [
+      0.1088,
+      0.1954,
+      0.396,
+      0.2155
+     ],
+     "first_read": "안면윤곽술",
+     "first_conf": 0.893,
+     "read": "안면윤곽술",
+     "read_conf": 0.893,
+     "how": [],
+     "flagged": false,
+     "correct": true
+    },
+    {
+     "field": "total_amount",
+     "label": "합계(영수증)",
+     "decisive": true,
+     "truth": "2414631",
+     "value": "2414631",
+     "printed": true,
+     "doc_id": "CLM-00006-REC",
+     "doc_kind": "receipt",
+     "bbox": [
+      0.1143,
+      0.3091,
+      0.4021,
+      0.3271
+     ],
+     "first_read": "2414631원",
+     "first_conf": 0.916,
+     "read": "2414631원",
+     "read_conf": 0.916,
+     "how": [
+      "sum_checked"
+     ],
+     "flagged": false,
+     "correct": true
+    }
+   ],
+   "confidence": 0.785,
+   "outcome": "REVIEW",
+   "amount": 0,
+   "rules": [
+    "R-EXC-01",
+    "R-HOSP-01",
+    "R-SCAN-01"
+   ],
+   "reasons": [
+    {
+     "rule_id": "R-EXC-01",
+     "severity": "deny",
+     "message": "진단코드 Z41.1(Z41*)는 surgery 면책 대상입니다."
+    },
+    {
+     "rule_id": "R-HOSP-01",
+     "severity": "info",
+     "message": "입원 3일은 면책 3일 이내입니다."
+    },
+    {
+     "rule_id": "R-SCAN-01",
+     "severity": "review",
+     "message": "스캔 서류에서 읽은 값에 근거한 부지급은 자동으로 확정하지 않고 담당자가 확인합니다."
+    }
+   ],
+   "gold": "DENY",
+   "gold_amount": 0
+  }
+ ]
+}
