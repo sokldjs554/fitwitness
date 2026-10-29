@@ -69,23 +69,31 @@ class APIModel:
         if any(not x.is_finite() or x<0 for x in (self.input_rate,self.output_rate)):
             raise ValueError('invalid pricing')
         self.remaining=Decimal(str(max_cost))
+        self.output_limit=128
         if provider=='openai':
             from langchain_openai import ChatOpenAI
-            self.client=ChatOpenAI(model=model_id,temperature=.7,max_tokens=128,timeout=45,max_retries=0)
+            # OpenAI's reasoning models count their reasoning toward the output limit and set their own temperature:
+            # 128 tokens were spent before the verdict began (run 40872772028, every call cut off), so they get a
+            # wider limit with reasoning asked to be minimal. The budget reserves the same limit per call.
+            reasoning=model_id.startswith(('gpt-5','o1','o3','o4'))
+            self.output_limit=256 if reasoning else 128
+            self.client=ChatOpenAI(model=model_id,max_tokens=self.output_limit,timeout=45,max_retries=0,
+                                   **({'reasoning_effort':'minimal'} if reasoning else {'temperature':.7}))
         else:
             from langchain_anthropic import ChatAnthropic
             self.client=ChatAnthropic(model=model_id,temperature=.7,max_tokens=128,timeout=45,max_retries=0)
-        self.metadata=dict(model_id=model_id,provider=provider,pricing_input=str(self.input_rate),pricing_output=str(self.output_rate),max_cost_usd=max_cost)
+        self.metadata=dict(model_id=model_id,provider=provider,pricing_input=str(self.input_rate),pricing_output=str(self.output_rate),max_cost_usd=max_cost,
+                           output_limit=self.output_limit)
     def predict(self,payload,seed):
         from langchain_core.messages import SystemMessage,HumanMessage
         text=json.dumps(payload,ensure_ascii=False)
         budget=BudgetTracker(Budget(max_cost_usd=min(self.remaining,Decimal(5)),max_tokens=64000))
         estimate_in=len((PROMPT+text+json.dumps(Prediction.model_json_schema())).encode())+2048
-        reservation=(Decimal(estimate_in)*self.input_rate+Decimal(128)*self.output_rate)/1000000
+        reservation=(Decimal(estimate_in)*self.input_rate+Decimal(self.output_limit)*self.output_rate)/1000000
         if reservation>self.remaining:
             raise RuntimeError('experiment budget exhausted before request')
         self.remaining-=reservation  # retain conservatively even when provider fails
-        budget.reserve(estimate_in,128,self.input_rate,self.output_rate)
+        budget.reserve(estimate_in,self.output_limit,self.input_rate,self.output_rate)
         response=self.client.with_structured_output(Prediction,include_raw=True).invoke([SystemMessage(content=PROMPT),HumanMessage(content=text)])
         raw=response['raw'];usage=getattr(raw,'usage_metadata',None)
         if not usage:
