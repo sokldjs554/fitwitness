@@ -60,6 +60,7 @@ class ResponseError(ValueError):
 
 
 class APIModel:
+    output_limit=128  # tokens per call; the default for any model, widened for OpenAI reasoning models below
     def __init__(self,provider,model_id,max_cost):
         if not model_id or not max_cost or max_cost<=0 or max_cost>5:
             raise ValueError('API runs require model ID and explicit --max-cost-usd between 0 and 5')
@@ -69,7 +70,6 @@ class APIModel:
         if any(not x.is_finite() or x<0 for x in (self.input_rate,self.output_rate)):
             raise ValueError('invalid pricing')
         self.remaining=Decimal(str(max_cost))
-        self.output_limit=128
         if provider=='openai':
             from langchain_openai import ChatOpenAI
             # OpenAI's reasoning models count their reasoning toward the output limit and set their own temperature:
