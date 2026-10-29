@@ -191,7 +191,10 @@ tests:
       - eval_time: 24m
         alertname: FitwitnessModelErrors
         exp_alerts: []
-      - eval_time: 28m
+      # The rate reaches 3 at 23m and the alert waits 5m: 28m is exactly the edge. The recording rule and the alert are in
+      # different groups, which promtool (and Prometheus) evaluate in no fixed order, so the alert sometimes reads the
+      # previous tick's value and fires one minute later. 29m is the first time it fires in every order.
+      - eval_time: 29m
         alertname: FitwitnessModelErrors
         exp_alerts:
           - exp_labels: {severity: ticket, job: fitwitness, instance: "app:8787"}
