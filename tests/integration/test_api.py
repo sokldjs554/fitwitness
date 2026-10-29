@@ -1,6 +1,7 @@
 import os, importlib.util
 import pytest
 from fastapi.testclient import TestClient
+from test_workflow import env  # noqa: F401
 
 
 @pytest.fixture
@@ -132,3 +133,65 @@ def test_claim_cases_are_seeded_runnable_and_reviewable(tmp_path, monkeypatch):
     # a drawing revision must not invalidate claim runs
     a.post("/api/demo/revision")
     assert a.get("/api/runs/" + run["id"]).json()["state"] == "completed"
+
+
+def test_documents_sent_after_a_hold_are_attached_to_the_same_claim_over_the_api(tmp_path, monkeypatch):
+    from fitwitness.claims.synth import generate_cases
+    from fitwitness.api.app import create_app
+
+    generate_cases(tmp_path, n=11, seed=5)
+    monkeypatch.setenv("FITWITNESS_CLAIMS_DIR", str(tmp_path))
+    a = TestClient(create_app())
+    assert a.post("/api/demo-sessions").status_code == 200
+    cases = a.get("/api/claims/cases").json()
+    missing = next(c for c in cases if c["scenario"] == "missing_doc")
+    waiting = [d["id"] for d in missing["supplementary_documents"]]
+    assert waiting and not set(waiting) & {d["id"] for d in missing["documents"]}
+    png = a.get(f"/api/claims/cases/{missing['case_id']}/documents/{waiting[0]}/png")  # the waiting document can be looked at
+    assert png.status_code == 200 and png.headers["content-type"] == "image/png"
+    held = a.post(f"/api/claims/cases/{missing['case_id']}/run", headers={"Idempotency-Key": "api-supp-1"}).json()
+    assert a.post(f"/api/runs/{held['id']}/supplement", json={"document_ids": waiting}).status_code == 409  # not held yet: it is waiting for a person
+    assert a.post(f"/api/runs/{held['id']}/resume", json={"outcome": "REQUEST_INFO", "reviewer": "qa", "note": "서류를 보내 주세요"}).status_code == 200
+    assert a.post(f"/api/runs/{held['id']}/supplement", json={"document_ids": ["nope"]}).status_code == 422
+    assert a.post(f"/api/runs/{held['id']}/supplement", json={"document_ids": []}).status_code == 422
+    assert a.post("/api/runs/does-not-exist/supplement", json={"document_ids": waiting}).status_code == 404
+    second = a.post(f"/api/runs/{held['id']}/supplement", json={"document_ids": waiting})
+    assert second.status_code == 200
+    view = a.get("/api/runs/" + second.json()["id"]).json()
+    assert view["id"] != held["id"] and view["state"] == "completed"
+    assert view["claim"]["resubmission"]["of_run"] == held["id"] and view["claim"]["payout"]["status"] == "paid"
+    assert a.post(f"/api/runs/{held['id']}/supplement", json={"document_ids": waiting}).json()["id"] == view["id"]  # a second click is the same run
+    assert [p["claim_id"] for p in a.get("/api/claims/ledger").json()] == [missing["claim_id"]]
+    latest = next(c for c in a.get("/api/claims/cases").json() if c["case_id"] == missing["case_id"])["latest_run"]
+    assert latest["run_id"] == view["id"]
+    clean = next(c for c in cases if c["scenario"] == "clean")
+    paid = a.post(f"/api/claims/cases/{clean['case_id']}/run", headers={"Idempotency-Key": "api-supp-2"}).json()
+    assert a.post(f"/api/runs/{paid['id']}/supplement", json={"document_ids": waiting}).status_code == 409
+
+
+def test_the_api_refuses_a_client_built_claim_and_an_oversized_body_and_sends_its_headers(clients):
+    a, _ = clients
+    assert a.post("/api/demo-sessions").status_code == 200
+    forged = {"kind": "claim", "claim": {"case_id": "CLM-00007", "claim_id": "MINE-1", "policy": {"policy_id": "POL-OTHER"}}}
+    assert a.post("/api/runs", json=forged).status_code == 422  # a claim run is built from the stored case, never from the client
+    assert a.post("/api/runs", json={"claim": {"claim_id": "MINE-2"}}).status_code == 422
+    big = a.post("/api/runs", content=b'{"search":{"text":"' + b"a" * 70_000 + b'"}}', headers={"content-type": "application/json"})
+    assert big.status_code == 413
+    r = a.get("/api/documents")
+    assert "frame-ancestors 'none'" in r.headers["content-security-policy"] and "script-src 'self'" in r.headers["content-security-policy"]
+    assert r.headers["x-frame-options"] == "DENY" and r.headers["x-content-type-options"] == "nosniff"
+    assert a.post("/api/runs", json={"search": {"text": "x" * 10}, "model_id": "m" * 101}).status_code == 422
+    assert a.post("/api/search", json={"requirements": [{"field": "thickness", "value": {"low": "1E+999999", "high": "1E+999999"}, "unit": "in"}]}).status_code == 422
+
+
+def test_a_repeated_idempotency_key_does_not_spend_the_hourly_run_quota(env):
+    from fitwitness.contracts import RunRequest
+    from fitwitness.runtime.jobs import QuotaExceeded
+    from uuid import uuid4
+
+    r, j, s = env
+    quota = ("test-runs:" + uuid4().hex, 1)
+    first = j.enqueue(s, RunRequest(), "quota-1", quota=quota)
+    assert j.enqueue(s, RunRequest(), "quota-1", quota=quota).id == first.id  # the same key returns the run and spends nothing
+    with pytest.raises(QuotaExceeded):
+        j.enqueue(s, RunRequest(), "quota-2", quota=quota)

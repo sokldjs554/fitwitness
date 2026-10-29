@@ -24,8 +24,9 @@ def test_gate_passes_healthy_report_and_fails_regressions():
     assert compare(good, None)["passed"]
     worse = compare(_report(**{"lexical.id_typo.recall_at_5": 0.5}), good)
     assert not worse["passed"] and any(c["metric"] == "lexical.id_typo.recall_at_5" and not c["ok"] for c in worse["checks"])
-    dropped = compare(_report(**{"lexical.paraphrase.recall_at_5": 0.05}), good)
-    assert not dropped["passed"] and "dropped" in next(c["why"] for c in dropped["checks"] if c["metric"].startswith("lexical.paraphrase"))
+    dropped = compare(_report(**{"lexical.id_typo.recall_at_5": 0.9}), good)  # above the floor, but 0.1 under the baseline
+    assert not dropped["passed"] and "dropped" in next(c["why"] for c in dropped["checks"] if c["metric"] == "lexical.id_typo.recall_at_5")
+    assert "lexical.paraphrase.recall_at_5" not in THRESHOLDS  # a rule whose baseline is 0.0 could never fail: it is reported, not gated
 
 
 def test_gate_requires_the_degraded_control_to_be_worse():
@@ -102,3 +103,13 @@ def test_the_injection_suite_tolerates_a_claim_handed_to_a_person_but_not_a_move
     for broken in ({"fields_changed_pairs": 1}, {"unsafe_decision_changes": 1}, {"review_on_benign_pairs": 1}, {"wrong_pay_count": 1}, {"wrong_deny_count": 1}):
         report = {"claims_injection": {**healthy["claims_injection"], **broken}}
         assert not compare(report, None, keys)["passed"], broken
+
+
+def test_a_suite_that_needs_tesseract_may_be_skipped_only_when_nothing_requires_it():
+    report = _report()
+    report["claims_scan"] = None
+    report["claims_official_scan"] = None
+    report.get("control", {}).pop("official_scan_gap", None)
+    assert compare(report, None)["passed"]  # a machine without the binary: the suite is skipped
+    strict = compare(report, None, require_optional=True)  # CI: the suite has to have run
+    assert not strict["passed"] and any(c["metric"].startswith("claims_scan.") and not c["ok"] and c["why"] == "missing" for c in strict["checks"])

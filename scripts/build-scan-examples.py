@@ -22,7 +22,7 @@ from pathlib import Path
 
 from fitwitness.claims import evaluate as E
 from fitwitness.claims import ocr
-from fitwitness.claims.extract import DECISIVE, LABELS, extract_documents, read_pairs_scored
+from fitwitness.claims.extract import DECISIVE, read_pairs_scored
 from fitwitness.claims.scan import scan_pdf
 
 FIELD_LABEL = {"insured_name": "환자 이름", "hospital": "병원", "diagnosis_name": "병명", "diagnosis_code": "질병분류기호", "diagnosis_date": "진단일",
@@ -53,7 +53,6 @@ def read_case(args: tuple) -> dict:
     root, case, gold, level = args
     docs = [(d["id"], d["kind"], scan_pdf((root / case["case_id"] / f"{d['id']}.pdf").read_bytes(), level, d["id"])) for d in case["documents"]]
     ex, decision, _ = E.decide(case, docs)
-    labels = {**{label: f for label, f in LABELS.items()}}
     # What the reader said before the enlarged second reading: the same pages with that step switched off.
     final_pairs, first_pairs, part_lines = {}, {}, {}
     settle = ocr.settle

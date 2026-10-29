@@ -6,6 +6,7 @@ import {
   docKindLabels,
   eventNames,
   type ClaimCase,
+  type Resubmission,
   type Run,
   type RunEvent,
 } from "../types";
@@ -118,6 +119,36 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
     }
   }
 
+  async function supplement() {
+    if (!run || !current) return;
+    setBusy(true);
+    setError("");
+    try {
+      const r = await api<Run>(`/runs/${run.id}/supplement`, {
+        method: "POST",
+        body: JSON.stringify({ document_ids: (current.supplementary_documents ?? []).map((d) => d.id) }),
+      });
+      setRun(r);
+      setEvents([]);
+      setField("");
+      void loadCases();
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function showEarlier(id: string) {
+    try {
+      const [r, e] = await Promise.all([api<Run>("/runs/" + id), api<RunEvent[]>(`/runs/${id}/events`)]);
+      setRun(r);
+      setEvents(e);
+      setField("");
+    } catch (e) {
+      setError(String(e));
+    }
+  }
+
   const pending = run?.state === "waiting_input"
     ? ([...events].reverse().find((e) => e.kind === "waiting_input")?.payload as
         | {
@@ -134,6 +165,14 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
   const approveBlocked = busy || !reviewer.trim() || sameAsFirst || needsNote;
   const outcome = run?.claim ?? null;
   const held = outcome?.human?.outcome === "REQUEST_INFO"; // a reviewer asked for documents: nothing paid, nothing refused
+  // The documents this run reads: the finished run says so, a running one says so in its intake event.
+  const intake = events.find((e) => e.kind === "intake")?.payload as { documents?: { id: string }[]; resubmission?: Resubmission } | undefined;
+  const runDocIds = outcome?.document_ids?.length ? outcome.document_ids : intake?.documents?.map((d) => d.id);
+  const allDocs = [...(current?.documents ?? []), ...(current?.supplementary_documents ?? [])];
+  const runDocs = runDocIds ? allDocs.filter((d) => runDocIds.includes(d.id)) : current?.documents ?? [];
+  const again = outcome?.resubmission ?? intake?.resubmission ?? null; // this run continues a claim held for documents
+  const waitingDocs = (current?.supplementary_documents ?? []).filter((d) => !(runDocIds ?? []).includes(d.id));
+  const canSupplement = held && !!run && current?.latest_run?.run_id === run.id; // the newest run of the case, and it is held
   const extraction = outcome?.extraction;
   const evidence = extraction?.evidence ?? {};
   const docEvidence = Object.entries(evidence).filter(([, ref]) => ref.doc_id === doc);
@@ -239,6 +278,50 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
               {run?.state === "retry_wait" && (
                 <div className="notice stale" data-testid="claim-retry"><RotateCcw size={15} /><span><b>지급 기록 직후 worker가 중단됐습니다.</b> {run.attempts ?? 1}회 시도 후 재시도를 예약했습니다. 저장된 지점부터 다시 이어지며, 원장에 이미 있는 지급은 다시 기록되지 않습니다.</span></div>
               )}
+              {again && (
+                <div className="notice resubmitted" data-testid="claim-resubmission">
+                  <span>
+                    <b>{again.attempt}차 심사 · 보류했던 청구를 이어서 심사합니다.</b>{" "}
+                    {again.held_by && `${again.held_by} 님이 `}서류 보완을 요청했던 청구에 {again.added.map((i) => docKindLabels[allDocs.find((d) => d.id === i)?.kind || ""] || i).join(", ")}
+                    {again.replaced.length ? ` (기존 ${again.replaced.map((i) => docKindLabels[allDocs.find((d) => d.id === i)?.kind || ""] || i).join(", ")}를 대체)` : ""}가 접수됐습니다.
+                    청구 번호가 같아 지급은 원장에 한 번만 기록됩니다.
+                  </span>
+                  <button onClick={() => void showEarlier(again.of_run)}>보류했던 이전 심사 기록 보기</button>
+                </div>
+              )}
+              {canSupplement && (
+                <div className="notice supplement" data-testid="claim-supplement">
+                  <span>
+                    <b>심사 보류 · 서류를 기다리는 중입니다.</b>{" "}
+                    {outcome?.human?.note && <>요청 내용: “{outcome.human.note}”. </>}
+                    {waitingDocs.length ? (
+                      <>
+                        청구인이 보낸 서류를 같은 청구에 붙이면 처음부터 다시 심사하고, 같은 종류의 서류는 새 것으로 바꿉니다.
+                        <ul className="review-list">
+                          {waitingDocs.map((d) => {
+                            const replaces = runDocs.find((x) => x.kind === d.kind);
+                            return (
+                              <li key={d.id}>
+                                <code>{docKindLabels[d.kind] || d.kind}</code>
+                                <small>{replaces ? "이미 낸 같은 종류의 서류를 대체" : "새로 접수"}</small>
+                                <a className="text-button" href={`/api/claims/cases/${current?.case_id}/documents/${d.id}/png`} target="_blank" rel="noreferrer">서류 보기</a>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                        <small className="review-aside">데모에서는 청구인이 보낼 서류를 미리 만들어 두었습니다. 파일을 올리는 기능은 없습니다.</small>
+                      </>
+                    ) : (
+                      <small className="review-aside" data-testid="claim-no-supplement">이 청구에는 접수할 보완 서류가 준비돼 있지 않습니다. 서류 누락·수술 등급 누락 건에서 체험할 수 있습니다.</small>
+                    )}
+                  </span>
+                  {waitingDocs.length > 0 && (
+                    <div className="review-buttons">
+                      <button onClick={() => void supplement()} disabled={busy}>서류 {waitingDocs.length}건 접수 · 다시 심사 <ArrowRight size={13} /></button>
+                    </div>
+                  )}
+                </div>
+              )}
               {outcome && (
                 <div className={`claims-decision ${outcome.decision.outcome}`} data-testid="claim-decision">
                   <div>
@@ -263,7 +346,7 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
                   <div className="section-bar">
                     <h2>서류 원문</h2>
                     <div className="doc-tabs">
-                      {current.documents.map((d) => (
+                      {runDocs.map((d) => (
                         <button key={d.id} className={d.id === doc ? "selected" : ""} onClick={() => { setDoc(d.id); setField(""); }}>
                           <FileText size={11} /> {docKindLabels[d.kind] || d.kind}
                         </button>
@@ -303,7 +386,7 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
                               <tr key={k} className={k === field ? "chosen" : ""} onClick={() => { if (ref) { setDoc(ref.doc_id); setField(k); } }}>
                                 <th>{claimLabels[k] || k}</th>
                                 <td>{typeof v === "number" ? (k === "total_amount" ? won(v) : String(v)) : String(v)}</td>
-                                <td className="where">{ref ? `${docKindLabels[current.documents.find((d) => d.id === ref.doc_id)?.kind || ""] || ref.doc_id} p.${ref.page}` : "근거 없음"}</td>
+                                <td className="where">{ref ? `${docKindLabels[allDocs.find((d) => d.id === ref.doc_id)?.kind || ""] || ref.doc_id} p.${ref.page}` : "근거 없음"}</td>
                               </tr>
                             );
                           })}

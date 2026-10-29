@@ -4,10 +4,9 @@ from hashlib import sha256
 import json
 import os
 from time import monotonic
-from uuid import uuid4
 import psycopg
 from psycopg.types.json import Jsonb
-from fitwitness.contracts import RunRequest, RunView, Usage, Decision, uid, now
+from fitwitness.contracts import RunRequest, RunView, Usage, Decision, uid
 
 
 # Run before an expired workspace's events and runs are deleted, inside the same tenant-scoped transaction:
@@ -31,6 +30,10 @@ RETAIN_USAGE_TOTALS = (
 def backoff_seconds(attempt: int, base: int = 5, cap: int = 300) -> int:
     """Exponential delay before retry number ``attempt`` (0-based), capped."""
     return int(min(cap, base * 2**attempt))
+
+
+class QuotaExceeded(ValueError):
+    """The hourly admission limit for new runs is used up (the API reports 429)."""
 
 
 class Jobs:
@@ -124,7 +127,9 @@ class Jobs:
                     f"GRANT SELECT,INSERT,UPDATE,DELETE ON {name} TO fitwitness_app"
                 )
 
-    def enqueue(self, scope, request: RunRequest, idempotency_key: str):
+    def enqueue(self, scope, request: RunRequest, idempotency_key: str, quota: tuple[str, int] | None = None):
+        """Queue a run. ``quota`` is an admission bucket and its limit, spent only when a new run is created: a repeated
+        idempotency key returns the run it started and spends nothing."""
         if scope.role == "viewer":
             raise PermissionError("read only")
         body = request.model_dump(mode="json")
@@ -146,6 +151,8 @@ class Jobs:
                     raise ValueError(
                         "동시 실행 제한: 기존 실행이 끝난 후 다시 시도해 주세요"
                     )
+                if quota and not self.admit(*quota):
+                    raise QuotaExceeded("전체 실행 한도입니다. 잠시 후 다시 시도해 주세요.")
                 run_id = uid()
                 snapshot = self.repo.snapshot_in(c, scope)
                 c.execute(

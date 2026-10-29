@@ -1529,11 +1529,9 @@
     "tool:extract_documents",
     "extracted",
     "validated",
-    "adjudicated:DENY",
-    "challenged:DENY",
-    "payout:skipped",
-    "explained",
-    "completed:DENY"
+    "adjudicated:REVIEW",
+    "challenged:REVIEW",
+    "waiting_input"
    ]
   },
   "CLM-00075": {

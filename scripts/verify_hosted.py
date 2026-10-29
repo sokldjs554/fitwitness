@@ -113,6 +113,23 @@ def verify(base, local=False):
     assert any(r["rule_id"] == "R-HUMAN-02" for r in claim["decision"]["reasons"])
     assert call("/api/claims/ledger") == ledger_before, "a held claim must not reach the ledger"
     print("Claim held for documents: nothing paid, nothing refused", flush=True)
+    # The claimant's documents continue the same claim: one new run reads the full set, a second click is the same run,
+    # and nothing reaches the ledger before the sign-off this claim's amount needs.
+    waiting = [d["id"] for d in missing["supplementary_documents"]]
+    again = call(f"/api/runs/{parked['id']}/supplement", {"document_ids": waiting})
+    assert again["id"] != parked["id"]
+    assert call(f"/api/runs/{parked['id']}/supplement", {"document_ids": waiting})["id"] == again["id"], "a second click must be the same run"
+    call(f"/api/runs/{parked['id']}/supplement", {"document_ids": ["nope"]}, expected=422)
+    end = time.monotonic() + 150
+    while call(f"/api/runs/{again['id']}")["state"] not in ("waiting_input", "completed"):
+        assert time.monotonic() < end, "the continued claim did not finish its review"
+        time.sleep(2)
+    events_again = call(f"/api/runs/{again['id']}/events")
+    intake = next(e for e in events_again if e["kind"] == "intake")["payload"]
+    assert intake["resubmission"]["of_run"] == parked["id"] and set(waiting) <= {d["id"] for d in intake["documents"]}, intake
+    if call(f"/api/runs/{again['id']}")["state"] == "waiting_input":  # still waiting for a sign-off: nothing may have been paid
+        assert call("/api/claims/ledger") == ledger_before, "a claim waiting for a sign-off must not reach the ledger"
+    print("Documents sent after the hold continue the same claim", flush=True)
     call("/api/demo-sessions", {})
     call(f"/api/runs/{run['id']}", expected=404)
     assert len(call("/api/documents")) == count
@@ -121,7 +138,8 @@ def verify(base, local=False):
             "after": dict(after), "events": dict(kinds), "assets":assets, "checks": ["readiness", "secure cookie",
             f"all {count} PDF/PNG/STEP/mesh assets and exact-ID search", "idempotency", "worker recovery", "revision invalidation",
             "reverification", "tenant isolation", "origin rejection", "paid API disabled", "private metrics",
-            "scan examples and their page pictures", "claim held for documents without payout"]}
+            "scan examples and their page pictures", "claim held for documents without payout",
+            "documents sent after a hold continue the same claim"]}
 
 
 if __name__ == "__main__":

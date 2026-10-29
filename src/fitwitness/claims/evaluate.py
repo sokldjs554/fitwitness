@@ -179,6 +179,52 @@ def evaluate(root: Path, *, degraded: bool = False, scan: str | None = None, wor
     return {"summary": summary, "rows": rows}
 
 
+def evaluate_resubmission(root: Path, *, scan: str | None = None) -> dict:
+    """A claim held for documents, then answered with them: does the second review reach what the rules reach on the full set?
+
+    Only the cases the corpus holds for documents take part (a document missing, or a surgery certificate without its
+    grade). Each is decided twice by the same pipeline: on the documents it arrived with, which should not pay, and on
+    those documents with the supplementary one added (or substituted for the one of its kind), which is compared with
+    ``gold_after_supplement``, the rules applied to the truth with every document present."""
+    manifest = json.loads((root / "manifest.json").read_text())
+    gold = json.loads((root / "gold.json").read_text())
+
+    def read(case, docs):
+        out = [(d["id"], d["kind"], (root / case["case_id"] / f"{d['id']}.pdf").read_bytes()) for d in docs]
+        if scan:
+            from fitwitness.claims.scan import scan_pdf
+
+            out = [(i, k, scan_pdf(data, scan, i)) for i, k, data in out]
+        return out
+
+    rows = []
+    for case in manifest["cases"]:
+        waiting = case.get("supplementary_documents")
+        if not waiting:
+            continue
+        want = gold[case["case_id"]]["gold_after_supplement"]
+        _, before, _ = decide(case, read(case, case["documents"]))
+        kinds = {d["kind"] for d in waiting}
+        merged = [d for d in case["documents"] if d["kind"] not in kinds] + waiting
+        _, after, _ = decide({**case, "documents": merged}, read(case, merged))
+        correct = after.outcome == want["outcome"] and after.total_amount == want["total_amount"]
+        rows.append({"case_id": case["case_id"], "scenario": case["scenario"], "added": [d["kind"] for d in waiting],
+                     "before": before.outcome, "after": after.outcome, "gold_after": want["outcome"], "amount": after.total_amount,
+                     "gold_amount": want["total_amount"], "correct": correct,
+                     "wrong_pay": after.outcome == "APPROVE" and not correct, "paid_before": before.outcome == "APPROVE"})
+    held = [r for r in rows if r["before"] == "REVIEW"]  # only a claim that reaches a reviewer can be held for documents
+    return {"summary": {
+        "cases": len(rows), "scan": scan,
+        "held_before": len(held),
+        "paid_before": sum(r["paid_before"] for r in rows),
+        "not_held": [r["case_id"] for r in rows if r["before"] != "REVIEW"],  # decided without a person before the documents came
+        "correct_after": sum(r["correct"] for r in held),
+        "paid_after": sum(r["after"] == "APPROVE" and r["correct"] for r in held),
+        "review_after": sum(r["after"] == "REVIEW" for r in held),
+        "wrong_pay_after": sum(r["wrong_pay"] for r in held),
+    }, "rows": rows}
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -192,9 +238,16 @@ if __name__ == "__main__":
                     help="write the diagnosis and the fee statement on the statutory forms (redrawn unless --diagnosis-form/--receipt-form is given)")
     ap.add_argument("--diagnosis-form", help="path of the real blank 별지 제5호의2 진단서 (a downloaded file; not in this repository)")
     ap.add_argument("--receipt-form", help="path of the real blank 별지 제6호 진료비 계산서·영수증")
+    ap.add_argument("--resubmission", action="store_true", help="measure the claims held for documents, decided again with the documents sent afterwards")
     ap.add_argument("--split", choices=["all", "dev", "test"], default="all",
                     help="dev = even-numbered cases, test = odd-numbered ones (the confidence floor is chosen on dev and checked on test)")
     a = ap.parse_args()
+    if a.resubmission:
+        result = evaluate_resubmission(Path(a.root), scan=a.scan)
+        Path(a.output).parent.mkdir(parents=True, exist_ok=True)
+        Path(a.output).write_text(json.dumps(result, ensure_ascii=False, indent=1))
+        print(json.dumps(result["summary"], ensure_ascii=False, indent=1))
+        raise SystemExit(0)
     ids = [c["case_id"] for c in json.loads((Path(a.root) / "manifest.json").read_text())["cases"]]
     chosen = None if a.split == "all" else [c for i, c in enumerate(ids) if (i % 2 == 0) == (a.split == "dev")]
     forms = None

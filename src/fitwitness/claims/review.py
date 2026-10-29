@@ -7,6 +7,8 @@ Two rules, both stated as data on the product (a virtual authority matrix, not a
 * a **senior** claim, or any claim whose reviewer did not answer in time (the run is *escalated*), is paid
   only when the approver gives a written reason and a second, different person approves too.
   A denial from either person is final: one "no" is enough, two "yes" are needed.
+* a reviewer may lower the amount to approve but never raise it above what the rules proposed, because the tier
+  (one person or two) was chosen on that proposal;
 * a reviewer may also **ask for documents** (``REQUEST_INFO``) at either step: the claim is held, nothing is
   paid or refused, and the answer must say what is missing. Like a denial, it from either person is final.
 
@@ -51,5 +53,10 @@ def check_answer(waiting: dict, answer: ClaimReview, *, escalated: bool = False)
         raise ReviewRuleError("보완 요청에는 무엇을 보완해야 하는지 적어 주세요")
     if answer.outcome == "APPROVE" and senior and len(answer.note.strip()) < NOTE_MIN_CHARS:
         raise ReviewRuleError(f"상급 검토 건의 승인에는 사유({NOTE_MIN_CHARS}자 이상)가 필요합니다")
+    proposed = waiting.get("total_amount")
+    if answer.outcome == "APPROVE" and answer.total_amount is not None and isinstance(proposed, int) and answer.total_amount > proposed:
+        # The sign-off tier was decided on the proposed amount. A reviewer who could raise it would pay more than the
+        # people required for that tier agreed to.
+        raise ReviewRuleError(f"승인 금액은 심사가 제안한 {proposed:,}원을 넘을 수 없습니다")
     if step >= 2 and same_person(answer.reviewer, str(waiting.get("first_reviewer") or "")):
         raise ReviewRuleError("2차 승인은 1차 승인자와 다른 담당자여야 합니다")

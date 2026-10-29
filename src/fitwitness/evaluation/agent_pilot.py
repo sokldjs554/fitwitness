@@ -1,10 +1,11 @@
 """Paid, operator-only full graph smoke/ablation. No gold enters the graph."""
-import json, os, subprocess, time
+import json, os, time
 from datetime import datetime, timezone
 from decimal import Decimal
 from hashlib import sha256
 from pathlib import Path
 from uuid import uuid4
+from fitwitness.evaluation.provenance import git_sha
 from fitwitness.contracts import Budget, DrawingRevision, RunRequest, SearchRequest, TenantScope
 from fitwitness.ingest.pdf import extract_pdf
 from fitwitness.storage.repository import Repository
@@ -39,7 +40,7 @@ def run(output, diagnostic=False):
     source_paths = [*Path('src/fitwitness/agents').glob('*.py'), Path(__file__)]
     configs = PROTOCOL['runs'][:3] if diagnostic else PROTOCOL['runs']
     protocol={**PROTOCOL, 'runs':configs, 'phase':'v2-debug' if diagnostic else 'v1',
-              'prior_measured_cost_usd':'0.171018' if diagnostic else None, 'code_sha':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+              'prior_measured_cost_usd':'0.171018' if diagnostic else None, 'code_sha':git_sha(),
               'source_hashes': {str(p):sha256(p.read_bytes()).hexdigest() for p in source_paths}}
     (out/'protocol.json').write_text(json.dumps(protocol,ensure_ascii=False,indent=2))
     repo=Repository(os.environ['FITWITNESS_DATABASE_URL']); jobs=Jobs(repo)

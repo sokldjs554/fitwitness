@@ -26,7 +26,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import subprocess
 import time
 from collections import Counter
 from datetime import datetime, timezone
@@ -36,6 +35,7 @@ from pathlib import Path
 from statistics import median
 from uuid import uuid4
 
+from fitwitness.evaluation.provenance import git_sha
 from fitwitness.contracts import Budget, RunRequest, SearchRequest
 from fitwitness.evaluation.agent_trajectory import KIND_WORD, Charged, Ledger, rejected
 
@@ -202,7 +202,7 @@ def run(args) -> dict:
         "provider": "anthropic", "model": args.model, "ceiling_usd": str(ceiling), "per_run_cap_usd": str(cap), "budget": BUDGET,
         "pricing_usd_per_million": {"input": os.getenv("FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION"),
                                     "output": os.getenv("FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION")},
-        "code_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+        "code_sha": git_sha(),
         "module_hash": sha256(Path(__file__).read_bytes()).hexdigest(),
         "started_at": datetime.now(timezone.utc).isoformat(),
     }

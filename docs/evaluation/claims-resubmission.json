@@ -1,0 +1,186 @@
+{
+ "summary": {
+  "cases": 11,
+  "scan": null,
+  "held_before": 11,
+  "paid_before": 0,
+  "not_held": [],
+  "correct_after": 11,
+  "paid_after": 8,
+  "review_after": 3,
+  "wrong_pay_after": 0
+ },
+ "rows": [
+  {
+   "case_id": "CLM-00003",
+   "scenario": "missing_doc",
+   "added": [
+    "diagnosis"
+   ],
+   "before": "REVIEW",
+   "after": "REVIEW",
+   "gold_after": "REVIEW",
+   "amount": 11000000,
+   "gold_amount": 11000000,
+   "correct": true,
+   "wrong_pay": false,
+   "paid_before": false
+  },
+  {
+   "case_id": "CLM-00014",
+   "scenario": "missing_doc",
+   "added": [
+    "diagnosis"
+   ],
+   "before": "REVIEW",
+   "after": "APPROVE",
+   "gold_after": "APPROVE",
+   "amount": 590000,
+   "gold_amount": 590000,
+   "correct": true,
+   "wrong_pay": false,
+   "paid_before": false
+  },
+  {
+   "case_id": "CLM-00025",
+   "scenario": "missing_doc",
+   "added": [
+    "diagnosis"
+   ],
+   "before": "REVIEW",
+   "after": "APPROVE",
+   "gold_after": "APPROVE",
+   "amount": 6550000,
+   "gold_amount": 6550000,
+   "correct": true,
+   "wrong_pay": false,
+   "paid_before": false
+  },
+  {
+   "case_id": "CLM-00043",
+   "scenario": "grade_missing",
+   "added": [
+    "surgery"
+   ],
+   "before": "REVIEW",
+   "after": "REVIEW",
+   "gold_after": "REVIEW",
+   "amount": 11000000,
+   "gold_amount": 11000000,
+   "correct": true,
+   "wrong_pay": false,
+   "paid_before": false
+  },
+  {
+   "case_id": "CLM-00059",
+   "scenario": "missing_doc",
+   "added": [
+    "diagnosis"
+   ],
+   "before": "REVIEW",
+   "after": "APPROVE",
+   "gold_after": "APPROVE",
+   "amount": 570000,
+   "gold_amount": 570000,
+   "correct": true,
+   "wrong_pay": false,
+   "paid_before": false
+  },
+  {
+   "case_id": "CLM-00063",
+   "scenario": "grade_missing",
+   "added": [
+    "surgery"
+   ],
+   "before": "REVIEW",
+   "after": "APPROVE",
+   "gold_after": "APPROVE",
+   "amount": 500000,
+   "gold_amount": 500000,
+   "correct": true,
+   "wrong_pay": false,
+   "paid_before": false
+  },
+  {
+   "case_id": "CLM-00068",
+   "scenario": "missing_doc",
+   "added": [
+    "surgery"
+   ],
+   "before": "REVIEW",
+   "after": "APPROVE",
+   "gold_after": "APPROVE",
+   "amount": 1120000,
+   "gold_amount": 1120000,
+   "correct": true,
+   "wrong_pay": false,
+   "paid_before": false
+  },
+  {
+   "case_id": "CLM-00073",
+   "scenario": "grade_missing",
+   "added": [
+    "surgery"
+   ],
+   "before": "REVIEW",
+   "after": "APPROVE",
+   "gold_after": "APPROVE",
+   "amount": 310000,
+   "gold_amount": 310000,
+   "correct": true,
+   "wrong_pay": false,
+   "paid_before": false
+  },
+  {
+   "case_id": "CLM-00074",
+   "scenario": "missing_doc",
+   "added": [
+    "admission"
+   ],
+   "before": "REVIEW",
+   "after": "REVIEW",
+   "gold_after": "REVIEW",
+   "amount": 450000,
+   "gold_amount": 450000,
+   "correct": true,
+   "wrong_pay": false,
+   "paid_before": false
+  },
+  {
+   "case_id": "CLM-00076",
+   "scenario": "missing_doc",
+   "added": [
+    "admission"
+   ],
+   "before": "REVIEW",
+   "after": "APPROVE",
+   "gold_after": "APPROVE",
+   "amount": 250000,
+   "gold_amount": 250000,
+   "correct": true,
+   "wrong_pay": false,
+   "paid_before": false
+  },
+  {
+   "case_id": "CLM-00095",
+   "scenario": "missing_doc",
+   "added": [
+    "admission"
+   ],
+   "before": "REVIEW",
+   "after": "APPROVE",
+   "gold_after": "APPROVE",
+   "amount": 60000,
+   "gold_amount": 60000,
+   "correct": true,
+   "wrong_pay": false,
+   "paid_before": false
+  }
+ ],
+ "what": "보완 서류 접수(재첨부): 보류된 청구에 청구인의 서류를 붙여 같은 청구로 다시 심사했을 때, 규칙이 모든 서류가 있을 때 내리는 결정(gold_after_supplement)과 같은지. 합성 청구 120건(seed 7)의 서류 누락 8건과 수술 등급 누락 3건. 텍스트 층 PDF, 모델 호출 없음.",
+ "caveats": [
+  "합성 서류이고 보완 서류도 같은 생성기가 만든 깨끗한 서류라, 실제 병원 서류의 다양함은 담지 않는다",
+  "보완 서류가 필요한 사유 가운데 이 측정에 있는 것은 서류 누락과 수술 등급 누락뿐이다",
+  "처음 측정에서는 CLM-00074가 서류 누락과 다른 담보의 면책이 겹쳐 부지급으로 끝나 사람에게 가지 않았다(10/10). R-UNDEC-01로 고친 뒤의 값이다"
+ ]
+}

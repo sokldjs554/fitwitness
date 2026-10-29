@@ -69,3 +69,17 @@ def test_a_request_for_documents_needs_to_say_what_is_missing_and_is_final_at_ei
     with pytest.raises(ReviewRuleError):  # the second answer still has to come from a different person
         check_answer(second, answer("REQUEST_INFO", reviewer="김심사", note="수술기록 보완"))
 
+
+
+def test_a_reviewer_can_lower_the_amount_to_approve_but_never_raise_it():
+    # the tier (one person or two) was chosen on the proposed amount, so a raise would pay what the required people did not sign
+    waiting = {"tier": "standard", "step": 1, "total_amount": 210_000}
+    check_answer(waiting, ClaimReview(outcome="APPROVE", reviewer="김심사", total_amount=200_000))
+    check_answer(waiting, ClaimReview(outcome="APPROVE", reviewer="김심사", total_amount=210_000))
+    with pytest.raises(ReviewRuleError):
+        check_answer(waiting, ClaimReview(outcome="APPROVE", reviewer="김심사", total_amount=9_000_000_000))
+    with pytest.raises(ReviewRuleError):
+        check_answer(waiting, ClaimReview(outcome="APPROVE", reviewer="김심사", total_amount=210_001))
+    check_answer(waiting, ClaimReview(outcome="DENY", reviewer="김심사", total_amount=9_000_000_000))  # a refusal pays nothing
+    with pytest.raises(ValueError):  # beyond any amount the ledger column can hold
+        ClaimReview(outcome="APPROVE", reviewer="김심사", total_amount=10**30)

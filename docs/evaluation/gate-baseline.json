@@ -1,40 +1,40 @@
 {
   "version": "gate-v1",
-  "code_sha": "20dbb89e9c9716660d729d14440cd5bb342d8b21",
-  "created_at": "2026-10-28T07:46:20.213956+00:00",
-  "wall_s": 209.44,
+  "code_sha": "079754947cb9b32aafe0195c659614da7e429f9f-dirty",
+  "created_at": "2026-10-29T02:15:27.913855+00:00",
+  "wall_s": 298.02,
   "corpus_documents": 150,
   "rules_graph": {
     "state": "completed",
     "correct": 5,
     "total": 5,
     "accuracy": 1.0,
-    "latency_ms": 86.53559000049427
+    "latency_ms": 134.38648499982264
   },
   "lexical": {
     "exact": {
       "n": 6,
       "recall_at_5": 1.0,
       "ndcg_at_5": 1.0,
-      "latency_p50_ms": 63.82832500094082
+      "latency_p50_ms": 104.0839600000254
     },
     "id_typo": {
       "n": 6,
       "recall_at_5": 1.0,
       "ndcg_at_5": 0.7195882275513225,
-      "latency_p50_ms": 59.882678999201744
+      "latency_p50_ms": 103.28821699999935
     },
     "id_variant": {
       "n": 6,
       "recall_at_5": 1.0,
       "ndcg_at_5": 1.0,
-      "latency_p50_ms": 60.126587999548065
+      "latency_p50_ms": 112.46908700013591
     },
     "paraphrase": {
       "n": 6,
       "recall_at_5": 0.0,
       "ndcg_at_5": 0.0,
-      "latency_p50_ms": 57.55780299841717
+      "latency_p50_ms": 119.66663500015784
     }
   },
   "geometry": {
@@ -42,7 +42,7 @@
     "pool": 60,
     "same_family_at_1": 1,
     "same_family_at_3": 1,
-    "parse_latency_p50_ms": 10.268938000081107
+    "parse_latency_p50_ms": 14.925074999837307
   },
   "control": {
     "id_variant_gap": 0.5,
@@ -52,25 +52,25 @@
         "n": 6,
         "recall_at_5": 1.0,
         "ndcg_at_5": 1.0,
-        "latency_p50_ms": 54.61864399876504
+        "latency_p50_ms": 100.7611850000103
       },
       "id_typo": {
         "n": 6,
         "recall_at_5": 0.0,
         "ndcg_at_5": 0.0,
-        "latency_p50_ms": 67.14046900015092
+        "latency_p50_ms": 102.19809399995938
       },
       "id_variant": {
         "n": 6,
         "recall_at_5": 0.5,
         "ndcg_at_5": 0.5,
-        "latency_p50_ms": 56.72336400130007
+        "latency_p50_ms": 115.88778999998794
       },
       "paraphrase": {
         "n": 6,
         "recall_at_5": 0.0,
         "ndcg_at_5": 0.0,
-        "latency_p50_ms": 55.32670700085873
+        "latency_p50_ms": 114.98104100019191
       }
     },
     "claims_wrong_pay_gap": 0.1583,
@@ -95,9 +95,9 @@
       "wrong_pay_count": 19,
       "wrong_deny_count": 0,
       "wrong_deny_rate": 0.0,
-      "review_rate": 0.3083,
+      "review_rate": 0.3167,
       "auto_rate": 0.8846,
-      "latency_ms_p50": 39.4,
+      "latency_ms_p50": 57.6,
       "by_scenario": {
         "clean": {
           "n": 36,
@@ -151,7 +151,7 @@
           "n": 8,
           "decision_accuracy": 0.625,
           "wrong_pay": 2,
-          "review": 5
+          "review": 6
         },
         "ocr_noise": {
           "n": 9,
@@ -187,14 +187,14 @@
         "surgery_name": 1.0,
         "total_amount": 0.0
       },
-      "decision_accuracy": 0.7417,
+      "decision_accuracy": 0.725,
       "wrong_pay_rate": 0.0,
       "wrong_pay_count": 0,
       "wrong_deny_count": 0,
       "wrong_deny_rate": 0.0,
-      "review_rate": 0.475,
+      "review_rate": 0.5,
       "auto_rate": 0.8077,
-      "latency_ms_p50": 58.0,
+      "latency_ms_p50": 95.9,
       "by_scenario": {
         "clean": {
           "n": 36,
@@ -210,9 +210,9 @@
         },
         "duplicate": {
           "n": 8,
-          "decision_accuracy": 1.0,
+          "decision_accuracy": 0.625,
           "wrong_pay": 0,
-          "review": 0
+          "review": 3
         },
         "exclusion": {
           "n": 8,
@@ -246,7 +246,7 @@
         },
         "missing_doc": {
           "n": 8,
-          "decision_accuracy": 0.875,
+          "decision_accuracy": 1.0,
           "wrong_pay": 0,
           "review": 8
         },
@@ -294,7 +294,7 @@
       "wrong_deny_rate": 0.0,
       "review_rate": 0.6364,
       "auto_rate": 1.0,
-      "latency_ms_p50": 7817.7,
+      "latency_ms_p50": 10171.7,
       "by_scenario": {
         "clean": {
           "n": 1,
@@ -371,7 +371,7 @@
       }
     },
     "trajectory_gap": 0.25,
-    "trajectory_degraded_violations": 10
+    "trajectory_degraded_violations": 7
   },
   "claims": {
     "cases": 120,
@@ -394,9 +394,9 @@
     "wrong_pay_count": 0,
     "wrong_deny_count": 0,
     "wrong_deny_rate": 0.0,
-    "review_rate": 0.4,
+    "review_rate": 0.4083,
     "auto_rate": 0.8846,
-    "latency_ms_p50": 36.9,
+    "latency_ms_p50": 54.0,
     "by_scenario": {
       "clean": {
         "n": 36,
@@ -450,7 +450,7 @@
         "n": 8,
         "decision_accuracy": 1.0,
         "wrong_pay": 0,
-        "review": 7
+        "review": 8
       },
       "ocr_noise": {
         "n": 9,
@@ -501,7 +501,7 @@
     "wrong_deny_rate": 0.0,
     "review_rate": 0.6364,
     "auto_rate": 1.0,
-    "latency_ms_p50": 12463.3,
+    "latency_ms_p50": 17990.0,
     "by_scenario": {
       "clean": {
         "n": 2,
@@ -596,9 +596,9 @@
     "wrong_pay_count": 0,
     "wrong_deny_count": 0,
     "wrong_deny_rate": 0.0,
-    "review_rate": 0.4,
+    "review_rate": 0.4083,
     "auto_rate": 0.8846,
-    "latency_ms_p50": 82.5,
+    "latency_ms_p50": 127.1,
     "by_scenario": {
       "clean": {
         "n": 36,
@@ -652,7 +652,7 @@
         "n": 8,
         "decision_accuracy": 1.0,
         "wrong_pay": 0,
-        "review": 7
+        "review": 8
       },
       "ocr_noise": {
         "n": 9,
@@ -697,7 +697,7 @@
     "wrong_deny_rate": 0.0,
     "review_rate": 0.6364,
     "auto_rate": 1.0,
-    "latency_ms_p50": 10932.3,
+    "latency_ms_p50": 16490.2,
     "by_scenario": {
       "clean": {
         "n": 1,

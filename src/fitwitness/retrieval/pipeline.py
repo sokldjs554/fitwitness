@@ -69,7 +69,7 @@ def extract_requirements(text: str) -> list[Requirement]:
             )
             covered.append(m.span())
     for m in re.finditer(
-        r"\d+(?:\.\d+)?\s*(?:mm|cm|in|kg|MPa|N|m)(?![a-z])", text, re.I
+        r"(?<![\d.])\d{1,12}(?:\.\d{1,12})?\s*(?:mm|cm|in|kg|MPa|N|m)(?![a-z])", text, re.I  # bounded and anchored: a long run of digits was quadratic
     ):
         if not any(a <= m.start() and m.end() <= b for a, b in covered):
             reqs.append(

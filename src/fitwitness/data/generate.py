@@ -1,7 +1,7 @@
 """Reproducible synthetic CAD corpus. Gold is never loaded by the runtime."""
 
 from __future__ import annotations
-import hashlib, json, math, random
+import hashlib, json, random
 from pathlib import Path
 from uuid import uuid5, NAMESPACE_URL
 import cadquery as cq

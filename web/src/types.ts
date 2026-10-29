@@ -30,8 +30,11 @@ export type Decision = {
   reviewed_by?: string | null;
   review_note?: string | null;
 };
+export type Resubmission = { of_run: string; attempt: number; added: string[]; replaced: string[]; held_by: string; hold_note: string };
 export type ClaimOutcome = {
   claim_id: string;
+  document_ids?: string[];
+  resubmission?: Resubmission | null;
   extraction: Record<string, unknown> & {
     evidence: Record<string, { doc_id: string; page: number; bbox: number[]; snippet: string }>;
     confidence: number;
@@ -63,6 +66,7 @@ export type ClaimCase = {
   scenario: string;
   scenario_label: string;
   prior_paid_keys: string[];
+  supplementary_documents?: { id: string; case_id: string; kind: string; issued_at: string; pages: number }[]; // what the claimant can still send
   latest_run: { run_id: string; state: string } | null;
 };
 export const claimLabels: Record<string, string> = {
@@ -80,6 +84,7 @@ export const claimLabels: Record<string, string> = {
   REQUEST_INFO: "보완 요청",
   already_paid: "기지급 확인 (중복 지급 없음)",
   skipped: "지급 없음",
+  duplicate: "중복 지급 차단 (다른 청구로 이미 지급)",
   insured_name: "피보험자",
   hospital: "의료기관",
   diagnosis_name: "병명",

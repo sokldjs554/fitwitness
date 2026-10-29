@@ -93,3 +93,11 @@ def test_the_subtle_control_pays_a_wrong_amount_that_no_computed_fact_names(tmp_
     assert f"{sound_ex.surgery_grade}종" in rows and sound_ex.discharge_date in rows, "the printed rows still say what the documents say"
     stated = facts(policy, PRODUCTS[policy.product_id], list(case["requested"]), {k for _, k, _ in docs}, ex, decision, [])
     assert "모두 있음" in stated and "한도 이내" in stated and "이미 지급된 것: 없음" in stated, "every fact the auditor is handed looks fine"
+
+
+def test_the_facts_survive_a_diagnosis_date_that_is_not_a_date():
+    from fitwitness.claims.audit import facts
+    # a malformed date used to raise TypeError on the waiting-period line, which only the model-audit path reaches
+    ex = Extraction(admission_date="2025-12-07", discharge_date="2025-12-17", diagnosis_code="C50.9", diagnosis_date="2026-13-45")
+    text = facts(POLICY, PRODUCTS["CANCER-B"], ["diagnosis"], {"diagnosis"}, ex, DECISION, [])
+    assert "면책기간" not in text and "필요 서류" in text

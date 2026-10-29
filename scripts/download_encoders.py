@@ -1,6 +1,5 @@
 """Download only the hash-locked files needed by the research worker."""
 from concurrent.futures import ThreadPoolExecutor
-from hashlib import sha256
 from pathlib import Path
 import os
 import urllib.request

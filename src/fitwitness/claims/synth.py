@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import json
 import random
+import shutil
+import zlib
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from pathlib import Path
@@ -48,6 +50,16 @@ class ClaimCase:
     prior_paid_keys: list[str] = field(default_factory=list)
     gold_flags: list[str] = field(default_factory=list)
     visible_fields: list[str] = field(default_factory=list)
+    # What the claimant sends once a reviewer asks for it (a missing document, or a corrected one), and the decision
+    # the rules reach with it. Empty for the scenarios that are not a request for documents.
+    supplementary: list[ClaimDocument] = field(default_factory=list)
+    gold_after_supplement: ClaimDecision | None = None
+
+
+def _number(text: str) -> int:
+    """A number made from a string that is the same in every process. (``hash()`` is salted per process, so the document and
+    licence numbers, and with them the bytes of every PDF, differed from one corpus build to the next.)"""
+    return zlib.crc32(text.encode())
 
 
 def _fmt_date(d: date, fmt: str) -> str:
@@ -113,7 +125,7 @@ def render_document(path: Path, title: str, rows: list[tuple[str, str]], issued:
     c.drawString(70, y, "담당의:")
     c.drawString(190, y, doctor)
     c.drawString(330, y, "면허번호:")
-    c.drawString(400, y, f"제 {abs(hash(doctor)) % 90000 + 10000} 호")
+    c.drawString(400, y, f"제 {_number(doctor) % 90000 + 10000} 호")
     c.setFont(FONT_NAME, 8)
     c.drawString(60, 60, "연구용 합성 문서 · 실제 환자 정보가 아닙니다")
     c.drawString(60, 48, "FitWitness synthetic claim document. Not a real medical record.")
@@ -147,7 +159,7 @@ def build_documents(case_dir: Path, case_id: str, truth: Extraction, requested: 
     def emit(kind: str, title: str, rows: list[tuple[str, str]], closing: str) -> None:
         doc_id = f"{case_id}-{kind[:3].upper()}"
         pdf = case_dir / f"{doc_id}.pdf"
-        render_document(pdf, title, rows + list(extra or []), issued, hosp, doctor, f"{issued.year}-{abs(hash(doc_id)) % 900000 + 100000}", closing)
+        render_document(pdf, title, rows + list(extra or []), issued, hosp, doctor, f"{issued.year}-{_number(doc_id) % 900000 + 100000}", closing)
         render_png(pdf, case_dir / f"{doc_id}.png")
         docs.append(ClaimDocument(id=doc_id, case_id=case_id, kind=kind, issued_at=issued.isoformat()))
 
@@ -178,6 +190,30 @@ def build_documents(case_dir: Path, case_id: str, truth: Extraction, requested: 
             ("합계:", _amount(total, amt_style)),
         ], "위와 같이 확인함.")
     return docs
+
+
+def build_supplement(case_dir: Path, case_id: str, truth: Extraction, requested: list[str], issued: date, fmt: str, amt_style: int,
+                     department: str, doctor: str, kinds: set[str], seed: int) -> list[ClaimDocument]:
+    """The documents of ``kinds`` as a claimant would send them after a request: complete and clean.
+
+    They come from their own random stream, so adding them moves nothing else in the corpus, and they are rendered
+    in a scratch folder so the case's original documents are not rewritten. Their ids end in ``-S``."""
+    scratch = case_dir / "_supplement"
+    scratch.mkdir(exist_ok=True)
+    try:
+        made = build_documents(scratch, case_id, truth, requested, issued, random.Random(f"supplement:{seed}:{case_id}"), fmt, amt_style,
+                               department, None, 0.0, False, doctor)
+        out: list[ClaimDocument] = []
+        for doc in made:
+            if doc.kind not in kinds:
+                continue
+            new_id = doc.id + "-S"
+            for ext in ("pdf", "png"):
+                (scratch / f"{doc.id}.{ext}").replace(case_dir / f"{new_id}.{ext}")
+            out.append(doc.model_copy(update={"id": new_id}))
+        return out
+    finally:
+        shutil.rmtree(scratch, ignore_errors=True)
 
 
 def generate_cases(root: Path, n: int = 120, seed: int = 7) -> list[ClaimCase]:
@@ -243,8 +279,16 @@ def generate_cases(root: Path, n: int = 120, seed: int = 7) -> list[ClaimCase]:
         case_dir = root / case_id
         case_dir.mkdir(exist_ok=True)
         department = "외과" if surg else ("혈액종양내과" if code.startswith("C") else "내과")
+        doctor = rng.choice(vocab.DOCTORS)  # drawn where it always was: after every other argument, before the documents are made
         docs = build_documents(case_dir, case_id, truth, requested, dis + timedelta(days=3), rng, fmt, amt_style, department,
-                               omit, 0.35 if scenario == "ocr_noise" else 0.0, scenario == "date_conflict", rng.choice(vocab.DOCTORS))
+                               omit, 0.35 if scenario == "ocr_noise" else 0.0, scenario == "date_conflict", doctor)
+        supplementary: list[ClaimDocument] = []
+        if scenario == "missing_doc" and omit:
+            supplementary = build_supplement(case_dir, case_id, truth, requested, dis + timedelta(days=3), fmt, amt_style, department,
+                                             doctor, {omit}, seed)
+        elif omit == "grade":
+            supplementary = build_supplement(case_dir, case_id, truth, requested, dis + timedelta(days=3), fmt, amt_style, department,
+                                             doctor, {"surgery"}, seed)
         prior: list[str] = []
         if scenario == "duplicate":
             prior.append(f"{policy.policy_id}|hosp|{adm.isoformat()}")
@@ -268,16 +312,21 @@ def generate_cases(root: Path, n: int = 120, seed: int = 7) -> list[ClaimCase]:
             gold_flags.append("discharge_before_admission")
             truth_for_gold.discharge_date = (adm - timedelta(days=2)).isoformat()
         gold = adjudicate(policy, PRODUCTS[product_id], requested, truth_for_gold, present, set(prior), gold_flags)
+        gold_after = adjudicate(policy, PRODUCTS[product_id], requested, truth, present | {d.kind for d in supplementary}, set(prior), []) \
+            if supplementary else None
         cases.append(ClaimCase(case_id=case_id, claim_id=case_id, policy=policy, insured_name=name, requested=requested,
                                documents=docs, submitted_at=(dis + timedelta(days=5)).isoformat(), scenario=scenario, truth=truth,
-                               gold=gold, prior_paid_keys=prior, gold_flags=gold_flags, visible_fields=sorted(visible)))
+                               gold=gold, prior_paid_keys=prior, gold_flags=gold_flags, visible_fields=sorted(visible),
+                               supplementary=supplementary, gold_after_supplement=gold_after))
     manifest = {"version": "claims-v1", "seed": seed, "cases": [
         {"case_id": c.case_id, "claim_id": c.claim_id, "policy": c.policy.model_dump(), "insured_name": c.insured_name,
          "requested": c.requested, "documents": [d.model_dump() for d in c.documents], "submitted_at": c.submitted_at,
-         "scenario": c.scenario, "prior_paid_keys": c.prior_paid_keys} for c in cases]}
+         "scenario": c.scenario, "prior_paid_keys": c.prior_paid_keys,
+         **({"supplementary_documents": [d.model_dump() for d in c.supplementary]} if c.supplementary else {})} for c in cases]}
     (root / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1))
     gold = {c.case_id: {"truth": c.truth.model_dump(), "gold": c.gold.model_dump(), "gold_flags": c.gold_flags,
-                        "visible_fields": c.visible_fields} for c in cases}
+                        "visible_fields": c.visible_fields,
+                        **({"gold_after_supplement": c.gold_after_supplement.model_dump()} if c.gold_after_supplement else {})} for c in cases}
     (root / "gold.json").write_text(json.dumps(gold, ensure_ascii=False, indent=1))
     return cases
 

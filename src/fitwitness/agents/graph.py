@@ -2,16 +2,16 @@
 
 from typing import TypedDict
 from contextlib import contextmanager
-import json, os, threading, time
+import os, threading, time
 from datetime import datetime, timezone
 from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.types import Command, interrupt
+from fitwitness.runtime.heartbeat import start_heartbeat
 from fitwitness.contracts import (
     Candidate,
     Decision,
     Evidence,
-    Fact,
     Requirement,
     ReviewInput,
     RunRequest,
@@ -126,18 +126,7 @@ def _execute_run(
     def emit(kind, payload):
         return jobs.event(scope, run_id, kind, payload, token=token)
 
-    def heartbeat():
-        while not stop.wait(10):
-            try:
-                if not jobs.heartbeat(scope, run_id, token):
-                    lost.set()
-                    return
-            except Exception:
-                lost.set()
-                return
-
-    thread = threading.Thread(target=heartbeat, daemon=True)
-    thread.start()
+    thread = start_heartbeat(jobs, scope, run_id, token, stop, lost)
     try:
         if encoders is None:
             from fitwitness.retrieval.embeddings import configured_encoders

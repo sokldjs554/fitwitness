@@ -17,8 +17,31 @@ def now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _no_nul(value):
+    """Reject U+0000 anywhere in a request: PostgreSQL's jsonb cannot store it, so it would surface as a 500 at the insert."""
+    if isinstance(value, str):
+        if "\x00" in value:
+            raise ValueError("NUL characters are not allowed")
+    elif isinstance(value, dict):
+        for k, v in value.items():
+            _no_nul(k)
+            _no_nul(v)
+    elif isinstance(value, (list, tuple)):
+        for v in value:
+            _no_nul(v)
+    return value
+
+
 class Strict(BaseModel):
     model_config = ConfigDict(extra="forbid", validate_assignment=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _text_is_storable(cls, data):
+        return _no_nul(data)
+
+
+INTERVAL_LIMIT = Decimal("1e12")
 
 
 class Interval(Strict):
@@ -30,6 +53,8 @@ class Interval(Strict):
     def finite(cls, value):
         if not value.is_finite():
             raise ValueError("finite number required")
+        if abs(value) >= INTERVAL_LIMIT:  # a drawing dimension, not an exponent that overflows the comparison arithmetic
+            raise ValueError("number out of range")
         return value
 
     @model_validator(mode="after")
@@ -191,7 +216,7 @@ class RunRequest(Strict):
     claim: dict | None = None  # a claims.models.ClaimRequest, validated by the claim runner
     mode: Literal["fixed", "react", "fitwitness"] = "fitwitness"
     provider: Literal["openai", "anthropic", "rules"] = "rules"
-    model_id: str = ""
+    model_id: str = Field(default="", max_length=100)
     budget: Budget = Field(default_factory=Budget)
     # "on_unknown": stop and wait for a reviewer when a required verdict stays unknown.
     review: Literal["none", "on_unknown"] = "none"

@@ -9,22 +9,30 @@ from fitwitness.runtime.pool import WarmWorkers
 from pathlib import Path
 from uuid import uuid4
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request, Response
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from fitwitness.contracts import TenantScope, RunRequest, DrawingRevision, SearchRequest, ReviewInput
-from fitwitness.claims.models import ClaimRequest, ClaimReview, Policy
+from fitwitness.claims.models import ClaimRequest, ClaimReview, ClaimSupplement, Policy
 from fitwitness.claims.synth import SCENARIO_LABELS
 from fitwitness.runtime.metrics import collect as collect_db_metrics
 from fitwitness.runtime.trace import build_trace
 from fitwitness.storage.repository import Repository
-from fitwitness.runtime.jobs import Jobs
+from fitwitness.runtime.jobs import Jobs, QuotaExceeded
 from fitwitness.ingest.pdf import extract_pdf
 from fitwitness.retrieval.pipeline import search
 from prometheus_client import CollectorRegistry, Counter, Histogram, generate_latest
 
 ROOT = Path(__file__).resolve().parents[3]
 CORPUS = ROOT / "var/corpus"
+
+
+MAX_BODY_BYTES = 64 * 1024
+# The bundle is self-contained: no external script, font, or style is loaded. The viewer draws into canvases and
+# blob URLs; React sets inline style attributes. Nothing may frame the app.
+CSP = ("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
+       "font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; "
+       "form-action 'self'; frame-ancestors 'none'")
 
 
 def create_app():
@@ -34,6 +42,8 @@ def create_app():
     repo = Repository(dsn)
     jobs = Jobs(repo)
     key = os.getenv("FITWITNESS_SESSION_SECRET")
+    if key and os.getenv("RENDER") and (len(key) < 32 or "replace" in key.lower()):
+        raise RuntimeError("FITWITNESS_SESSION_SECRET must be a random string of at least 32 characters in hosted deployments")
     if not key:
         if os.getenv("RENDER"):
             raise RuntimeError(
@@ -41,10 +51,17 @@ def create_app():
             )
         path = ROOT / "var/session.key"
         path.parent.mkdir(exist_ok=True)
-        if not path.exists():
-            path.write_text(secrets.token_urlsafe(48))
-            path.chmod(0o600)
-        key = path.read_text().strip()
+        try:  # created owner-only from the start, and by exactly one process if several start at once
+            fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+            with os.fdopen(fd, "w") as f:
+                f.write(secrets.token_urlsafe(48))
+        except FileExistsError:
+            pass
+        for _ in range(50):  # another process may still be writing the key it just created
+            key = path.read_text().strip()
+            if key:
+                break
+            time.sleep(0.1)
     signer = URLSafeTimedSerializer(key, salt="fitwitness-session-v1")
     # The per-address session count is stored under a keyed hash of the address: a bare SHA-256 of an IPv4
     # address is undone by trying every address.
@@ -55,7 +72,8 @@ def create_app():
     # (tests) nothing is pre-warmed and a worker is spawned cold per run, as before.
     workers = WarmWorkers(
         [sys.executable, "-m", "fitwitness.runtime.worker", "--pool"],
-        env={**os.environ, "PYTHONPATH": str(ROOT / "src"), "FITWITNESS_DATABASE_URL": dsn},
+        env={**{k: v for k, v in os.environ.items() if k not in ("FITWITNESS_SESSION_SECRET", "FITWITNESS_METRICS_TOKEN")},
+             "PYTHONPATH": str(ROOT / "src"), "FITWITNESS_DATABASE_URL": dsn},
         cwd=ROOT,
         size=int(os.getenv("FITWITNESS_WARM_WORKERS", "1")),
     )
@@ -104,6 +122,14 @@ def create_app():
             and request.headers["origin"] not in allowed
         ):
             return Response("Origin not allowed", status_code=403)
+        if request.method in ("POST", "PUT", "PATCH"):
+            # Every JSON body this API takes is a few hundred bytes. The framework reads a body before it looks at the
+            # session cookie, so without a cap an anonymous client could make the process buffer whatever it sends.
+            length = request.headers.get("content-length")
+            if length is None and "chunked" in request.headers.get("transfer-encoding", "").lower():
+                return Response("Content-Length required", status_code=411)
+            if length is not None and (not length.isdigit() or int(length) > MAX_BODY_BYTES):
+                return Response("Request body too large", status_code=413)
         try:
             response = await call_next(request)
         except Exception:
@@ -115,10 +141,18 @@ def create_app():
         latency.observe(time.monotonic() - start)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "same-origin"
+        response.headers["Content-Security-Policy"] = CSP
+        response.headers["X-Frame-Options"] = "DENY"
+        if request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https":
+            response.headers["Strict-Transport-Security"] = "max-age=31536000"
         response.headers["Cache-Control"] = (
             "no-store" if request.url.path.startswith("/api") else "no-cache"
         )
         return response
+
+    def run_quota():
+        """The hourly budget for new runs, shared by every route that starts one."""
+        return ("runs:" + str(int(time.time() // 3600)), 200)
 
     def scope(request: Request):
         cookie = request.cookies.get("fw_session")
@@ -194,7 +228,7 @@ def create_app():
         for case in cases:
             folder = CLAIMS / case["case_id"]
             documents = []
-            for d in case["documents"]:
+            for d in [*case["documents"], *case.get("supplementary_documents", [])]:  # the waiting ones are stored with the case
                 png = folder / f"{d['id']}.png"
                 documents.append((d, (folder / f"{d['id']}.pdf").read_bytes(), png.read_bytes() if png.exists() else None))
             items.append((case, documents, case.get("prior_paid_keys") or []))
@@ -211,7 +245,8 @@ def create_app():
             peer_key, (request.client.host if request.client else "unknown").encode(), hashlib.sha256
         ).hexdigest()[:16]
         per_peer = int(os.getenv("FITWITNESS_SESSION_LIMIT_PER_PEER", "20"))
-        if not jobs.admit(bucket, 100) or not jobs.admit(bucket + ":" + peer, per_peer):
+        # the address's own budget first: an address that is over it must not also use up the shared one
+        if not jobs.admit(bucket + ":" + peer, per_peer) or not jobs.admit(bucket, 100):
             raise HTTPException(
                 429, "체험 공간 생성 한도입니다. 잠시 후 다시 시도해 주세요."
             )
@@ -296,6 +331,11 @@ def create_app():
         background: BackgroundTasks,
         s: TenantScope = Depends(scope),
     ):
+        if body.kind == "claim" or body.claim is not None:
+            # A claim run is built by the server from the stored case (/api/claims/cases/{id}/run) or continues a held one
+            # (/api/runs/{id}/supplement). A client-supplied claim would choose its own claim id, policy and dates, and with
+            # them what the payout ledger and the duplicate check protect.
+            raise HTTPException(422, "청구 심사는 청구 건에서 시작해 주세요")
         if body.provider != "rules":
             # Public anonymous demo never has authority to spend provider funds.
             # Live research runs use the CLI with explicit server-side credentials.
@@ -306,15 +346,13 @@ def create_app():
         idem = request.headers.get("idempotency-key") or str(uuid4())
         if len(idem) > 200:
             raise HTTPException(422, "idempotency key too long")
-        if not jobs.admit("runs:" + str(int(time.time() // 3600)), 200):
-            raise HTTPException(
-                429, "전체 실행 한도입니다. 잠시 후 다시 시도해 주세요."
-            )
         body = body.model_copy(
             update={"demo_fault": request.headers.get("x-demo-fault") == "1"}
         )
         try:
-            view = jobs.enqueue(s, body, idem)
+            view = jobs.enqueue(s, body, idem, quota=run_quota())
+        except QuotaExceeded as exc:
+            raise HTTPException(429, str(exc))
         except ValueError as exc:
             raise HTTPException(409, str(exc))
         if view.state == "queued" and not app.state.dispatcher:
@@ -389,10 +427,41 @@ def create_app():
                              submitted_at=case["submitted_at"], review=review)
         body = RunRequest(kind="claim", claim=claim.model_dump(mode="json"), demo_fault=request.headers.get("x-demo-fault") == "1")
         idem = request.headers.get("Idempotency-Key") or str(uuid4())
+        if len(idem) > 200:
+            raise HTTPException(422, "idempotency key too long")
         try:
-            view = jobs.enqueue(s, body, idem)
+            view = jobs.enqueue(s, body, idem, quota=run_quota())
+        except QuotaExceeded as exc:
+            raise HTTPException(429, str(exc))
         except ValueError as exc:
             raise HTTPException(409, str(exc))
+        if view.state == "queued" and not app.state.dispatcher:
+            background.add_task(supervise, s, view.id, False)
+        app.state.nudge()
+        return view
+
+    @app.post("/api/runs/{run_id}/supplement")
+    def supplement_claim(run_id: str, body: ClaimSupplement, background: BackgroundTasks, s: TenantScope = Depends(scope)):
+        """The claimant sends the documents a reviewer asked for: the held claim is reviewed again as the same claim."""
+        from fitwitness.claims import resubmit
+
+        run = jobs.raw(s, run_id)
+        if not run:
+            raise HTTPException(404, "실행을 찾을 수 없습니다")
+        claim = (run["request"] or {}).get("claim") or {}
+        case = repo.claim_case(s, claim.get("case_id", ""))
+        if not case:
+            raise HTTPException(404, "청구 건을 찾을 수 없습니다")
+        try:
+            planned = resubmit.plan(case, run, body.document_ids)
+            # One continuation per hold: the same key returns the run already started, a different set of documents is refused.
+            view = jobs.enqueue(s, RunRequest(kind="claim", claim=planned.model_dump(mode="json")), "resubmit:" + run_id, quota=run_quota())
+        except resubmit.ResubmitError as exc:
+            raise HTTPException(409 if exc.conflict else 422, str(exc))
+        except QuotaExceeded as exc:
+            raise HTTPException(429, str(exc))
+        except ValueError as exc:
+            raise HTTPException(409, "이 보류에는 이미 다른 서류가 접수되었습니다" if "idempotency" in str(exc) else str(exc))
         if view.state == "queued" and not app.state.dispatcher:
             background.add_task(supervise, s, view.id, False)
         app.state.nudge()
@@ -533,7 +602,7 @@ def create_app():
     @app.get("/metrics")
     def metrics(request: Request):
         token = os.getenv("FITWITNESS_METRICS_TOKEN")
-        if not token or request.headers.get("authorization") != "Bearer " + token:
+        if not token or not hmac.compare_digest(request.headers.get("authorization", "").encode(), ("Bearer " + token).encode()):
             raise HTTPException(401)
         try:
             derived = collect_db_metrics(dsn)

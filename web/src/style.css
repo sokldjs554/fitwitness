@@ -1309,18 +1309,23 @@ main {
 .notice.stale {
   font-size: 11px;
 }
-.notice.review {
+.notice.review,
+.notice.supplement,
+.notice.resubmitted {
   align-items: flex-start;
   background: #eef4fb;
   border-color: #c5d6ea;
   color: #365a85;
 }
-.notice.review button {
+.notice.review button,
+.notice.supplement button,
+.notice.resubmitted button {
   color: #365a85;
   border-color: #c5d6ea;
   margin-top: 2px;
 }
-.notice.review button:disabled {
+.notice.review button:disabled,
+.notice.supplement button:disabled {
   opacity: 0.5;
 }
 .review-list {

@@ -30,7 +30,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import subprocess
 import sys
 import time
 from collections import defaultdict
@@ -39,6 +38,7 @@ from pathlib import Path
 from statistics import mean
 from uuid import uuid4
 
+from fitwitness.evaluation.provenance import git_sha
 from fitwitness.contracts import Budget, DrawingRevision, RunRequest, SearchRequest, TenantScope
 from fitwitness.evaluation.retrieval import make_cases, score_ranking
 
@@ -50,7 +50,8 @@ THRESHOLDS: dict[str, dict] = {
     "lexical.exact.recall_at_5": {"min": 0.99},
     "lexical.id_variant.recall_at_5": {"min": 0.95, "max_drop": 0.0},
     "lexical.id_typo.recall_at_5": {"min": 0.80, "max_drop": 0.05},
-    "lexical.paraphrase.recall_at_5": {"max_drop": 0.10},
+    # Paraphrase recall is reported, not gated: the lexical channel cannot read a paraphrase (the baseline is 0.0, so no
+    # drop from it could ever fail). The semantic channel is what the control pairs below stand for.
     "geometry.same_family_at_3": {"min": 0.5, "max_drop": 0.10},
     "control.id_variant_gap": {"min": 0.3},
     "control.id_typo_gap": {"min": 0.3},
@@ -91,10 +92,7 @@ THRESHOLDS: dict[str, dict] = {
 
 
 def _git_sha() -> str:
-    try:
-        return subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-    except Exception:  # noqa: BLE001 - not inside a checkout
-        return os.getenv("GITHUB_SHA", "unknown")
+    return git_sha(dirty_suffix=True)
 
 
 def run_rules_graph(repo, root: Path) -> dict:
@@ -348,13 +346,15 @@ def _get(d: dict, path: str):
     return cur
 
 
-def compare(report: dict, baseline: dict | None, thresholds: dict[str, dict] = THRESHOLDS) -> dict:
+def compare(report: dict, baseline: dict | None, thresholds: dict[str, dict] = THRESHOLDS, *, require_optional: bool = False) -> dict:
+    """``require_optional``: a suite that needs the tesseract binary must have run. CI turns it on, so a job that lost
+    the binary (or skipped the suite) fails instead of passing on nothing."""
     checks = []
     for path, rule in thresholds.items():
         value = _get(report, path)
         base = _get(baseline, path) if baseline else None
         why = []
-        if value is None and rule.get("optional"):
+        if value is None and rule.get("optional") and not require_optional:
             checks.append({"metric": path, "value": None, "baseline": base, "ok": True, "why": "skipped (not measured here)"})
             continue
         if value is None:
@@ -382,10 +382,12 @@ def main(argv: list[str] | None = None) -> int:
                    help="committed reference paths each claim and drawing run must reproduce")
     p.add_argument("--write-trajectories", action="store_true", help="adopt the observed paths as the new reference (deliberate act)")
     p.add_argument("--write-baseline", action="store_true", help="store this report as the new baseline (deliberate act)")
+    p.add_argument("--force-baseline", action="store_true", help="with --write-baseline: store it although the gate failed (a deliberate, reviewed change)")
+    p.add_argument("--require-optional", action="store_true", help="fail when a suite that needs the tesseract binary was not measured")
     args = p.parse_args(argv)
     report = run_gate(args.root, args.output, args.claims_root, args.trajectories, adopt_trajectories=args.write_trajectories)
     baseline = json.loads(args.baseline.read_text()) if args.baseline.exists() else None
-    result = compare(report, baseline)
+    result = compare(report, baseline, require_optional=args.require_optional)
     for c in result["checks"]:
         mark = "PASS" if c["ok"] else "FAIL"
         base = f" (baseline {c['baseline']:.3f})" if isinstance(c["baseline"], (int, float)) else ""
@@ -401,7 +403,10 @@ def main(argv: list[str] | None = None) -> int:
         args.trajectories.parent.mkdir(parents=True, exist_ok=True)
         args.trajectories.write_text((args.output / "trajectories.observed.json").read_text() + "\n")
         print(f"trajectory reference written to {args.trajectories}")
-    if args.write_baseline:
+    if args.write_baseline and not result["passed"] and not args.force_baseline:
+        # A failing report must not become the standard the next run is compared with.
+        print("baseline NOT written: the gate failed (use --force-baseline for a deliberate change)")
+    elif args.write_baseline:
         args.baseline.parent.mkdir(parents=True, exist_ok=True)
         args.baseline.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
         print(f"baseline written to {args.baseline}")

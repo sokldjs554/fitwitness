@@ -1,5 +1,4 @@
 """Frozen synthetic retrieval pilot, real PostgreSQL and pinned encoders. No LLM calls."""
-from collections import defaultdict
 from hashlib import sha256
 from io import BytesIO
 from pathlib import Path
@@ -136,7 +135,7 @@ def ablation_protocol(cases):
 
 
 def run(root, output, ablation=False, image=False):
-    from fitwitness.contracts import TenantScope,SearchRequest,DrawingRevision,RunRequest
+    from fitwitness.contracts import TenantScope,SearchRequest,RunRequest
     from fitwitness.data.bootstrap import seed
     from fitwitness.storage.repository import Repository
     from fitwitness.retrieval.embeddings import Encoders

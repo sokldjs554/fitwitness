@@ -17,7 +17,6 @@ Alert and recording rules over these series are in ``deploy/prometheus``.
 from __future__ import annotations
 
 from collections import Counter, defaultdict
-from typing import Iterable
 
 import psycopg
 

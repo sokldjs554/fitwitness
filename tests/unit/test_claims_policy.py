@@ -79,3 +79,17 @@ def test_a_refusal_next_to_a_reading_the_system_doubts_goes_to_a_person_but_disa
     assert doubtful.outcome == "REVIEW" and doubtful.needs_human and {"R-EXC-01", "R-CONF-01", "R-DOUBT-01"} <= set(doubtful.rule_ids())
     disagreeing = run(ex(diagnosis_code="Z41.1"), requested=("surgery",), flags=["discharge_before_admission"])
     assert disagreeing.outcome == "DENY"  # the refusal rests on a field the documents agree on
+
+
+def test_a_refusal_next_to_a_coverage_that_could_not_be_judged_goes_to_a_person():
+    cancer = POL.model_copy(update={"product_id": "CANCER-B"})  # its diagnosis lump sum is for cancers: I21.9 is refused
+    docs = {"diagnosis", "receipt"}  # the hospitalization claim lacks its admission certificate
+    asked = run(ex(diagnosis_code="I21.9"), requested=("hospitalization_daily", "diagnosis"), docs=docs, policy=cancer)
+    assert asked.outcome == "REVIEW" and asked.needs_human and asked.total_amount == 0
+    assert {"R-REQ-01", "R-DIAG-01", "R-UNDEC-01"} <= set(asked.rule_ids())
+    # with nothing undecided the same refusal stands, and a missing document alone is still a request for it
+    assert run(ex(diagnosis_code="I21.9"), requested=("diagnosis",), policy=cancer).outcome == "DENY"
+    assert run(ex(), requested=("hospitalization_daily",), docs=docs).outcome == "REVIEW"
+    # a value the documents do not state is the same kind of gap
+    no_dates = run(ex(diagnosis_code="I21.9", admission_date=None), requested=("hospitalization_daily", "diagnosis"), policy=cancer)
+    assert no_dates.outcome == "REVIEW" and "R-UNDEC-01" in no_dates.rule_ids()

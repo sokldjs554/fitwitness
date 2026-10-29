@@ -99,8 +99,9 @@ def facts(policy: Policy, product: Product, requested: list[str], present_kinds:
             lines.append(f"{label} {value}: 보장 시작 {policy.effective_from}으로부터 {since}일 " + ("뒤" if since >= 0 else "앞 (보장 시작 전)"))
     for kind in requested:
         cov = product.coverages.get(kind)
-        if cov and cov.waiting_days and ex.diagnosis_date and start:
-            since = (parse_date(ex.diagnosis_date) - start).days
+        diagnosed = parse_date(ex.diagnosis_date)  # None when the date is not a date: the waiting period is then not a fact to state
+        if cov and cov.waiting_days and diagnosed and start:
+            since = (diagnosed - start).days
             lines.append(f"{COVERAGE_LABELS.get(kind, kind)} 면책기간 {cov.waiting_days}일: 진단일은 " + ("면책기간 안" if 0 <= since < cov.waiting_days else "면책기간 밖"))
         need = REQUIRED_DOCS.get(kind, set())
         missing = sorted(need - present_kinds)

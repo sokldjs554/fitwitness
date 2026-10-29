@@ -1,6 +1,5 @@
 """Bounded actual VLM pilot. Original/omitted labels; no values in model input."""
 import argparse,base64,gzip,json,os,subprocess,time
-from collections import defaultdict
 from decimal import Decimal,DecimalException
 from hashlib import sha256
 from pathlib import Path

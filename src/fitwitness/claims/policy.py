@@ -134,6 +134,19 @@ def _doubtful_denial(reasons: list[Reason], total: int, items: list[LineItem]) -
     return ClaimDecision(outcome="REVIEW", line_items=items, total_amount=total, reasons=reasons, needs_human=True)
 
 
+# A coverage the rules could not judge for want of a document or a value (each of these is raised with the coverage skipped).
+UNJUDGED_CODES = {"missing_documents", "hospital_dates_missing", "surgery_grade_missing", "unknown_surgery_grade", "diagnosis_missing"}
+
+
+def _unfinished_denial(reasons: list[Reason], total: int, items: list[LineItem]) -> ClaimDecision:
+    """A refusal on one coverage next to another that could not be judged yet goes to a person. Refusing the whole claim
+    would turn away a claimant who owes nothing more than the missing document; a person can refuse the one coverage
+    and hold the claim for the rest."""
+    reasons = reasons + [Reason(rule_id="R-UNDEC-01", code="denial_with_undecided_coverage", severity="review",
+                                message="다른 담보가 서류·값 부족으로 아직 판단되지 않은 상태의 부지급은 자동으로 확정하지 않고 담당자가 확인합니다.")]
+    return ClaimDecision(outcome="REVIEW", line_items=items, total_amount=total, reasons=reasons, needs_human=True)
+
+
 def adjudicate(policy: Policy, product: Product, requested: list[str], ex: Extraction,
                present_docs: set[str], prior_paid_keys: set[str], flags: list[str] | None = None) -> ClaimDecision:
     reasons: list[Reason] = []
@@ -254,6 +267,8 @@ def adjudicate(policy: Policy, product: Product, requested: list[str], ex: Extra
         return _scanned_denial(reasons, total, items)
     if outcome == "DENY" and any(r.rule_id == "R-CONF-01" for r in reasons):
         return _doubtful_denial(reasons, total, items)
+    if outcome == "DENY" and any(r.code in UNJUDGED_CODES for r in reasons):
+        return _unfinished_denial(reasons, total, items)
     return ClaimDecision(outcome=outcome, line_items=items, total_amount=total, reasons=reasons, needs_human=(outcome == "REVIEW"))
 
 

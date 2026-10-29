@@ -5,8 +5,9 @@ python -m fitwitness.evaluation.runner --provider local --model-path var/models/
 from pathlib import Path
 from datetime import datetime, timezone
 from hashlib import sha256
-import argparse, json, os, platform, subprocess, time
+import argparse, json, os, time
 from decimal import Decimal
+from fitwitness.evaluation.provenance import git_sha
 from fitwitness.contracts import Candidate, Fact, Requirement, Budget
 from fitwitness.verification.conditions import verify
 from fitwitness.evaluation.dataset import build_cases
@@ -123,7 +124,7 @@ def run(args):
         prompt_hash=sha256(PROMPT.encode()).hexdigest(),
         dataset_hash=digest(cases),model_revision=MODEL_REVISION if args.provider=='local' else None,
         temperature=.7,top_p=.8 if args.provider=='local' else None,max_new_tokens=128,
-        code_sha=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+        code_sha=git_sha(),
         runner_hash=sha256(Path(__file__).read_bytes()).hexdigest())
     (out/'protocol.json').write_text(json.dumps(protocol,ensure_ascii=False,indent=2)+'\n')
     (out/'cases.json').write_text(json.dumps(cases,ensure_ascii=False,indent=2)+'\n')

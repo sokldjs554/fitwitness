@@ -132,4 +132,15 @@ test("a reviewer can hold a claim for documents: nothing is paid and nothing is 
   await expect(page.getByTestId("claim-rules")).toContainText("R-HUMAN-02");
   await expect(page.getByTestId("claim-explain")).toContainText("보류");
   await expect(page.getByTestId("claims-ledger")).toHaveText(ledger);
+  // the claimant's documents continue the same claim: the held run stays as it was, a second run reads the full set
+  const waiting = page.getByTestId("claim-supplement");
+  await expect(waiting).toContainText("서류를 기다리는 중");
+  await expect(waiting).toContainText("수술확인서 사본 요청");
+  await waiting.getByRole("button", { name: /서류 \d건 접수/ }).click();
+  await expect(page.getByTestId("claim-resubmission")).toContainText("2차 심사", { timeout: 90000 });
+  await expect(page.getByTestId("claim-state")).toHaveText(/담당자 확인 대기|심사 완료/, { timeout: 90000 });
+  await expect(page.getByTestId("claim-supplement")).toHaveCount(0);
+  await expect(page.getByTestId("claims-ledger")).toHaveText(ledger); // nothing paid before a person has signed off
+  await page.getByRole("button", { name: "보류했던 이전 심사 기록 보기" }).click();
+  await expect(page.getByTestId("claim-decision")).toContainText("심사 보류 · 보완 요청");
 });

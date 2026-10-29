@@ -25,7 +25,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import subprocess
 import time
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -34,6 +33,7 @@ from pathlib import Path
 from statistics import mean, median
 from uuid import uuid4
 
+from fitwitness.evaluation.provenance import git_sha
 from fitwitness.contracts import Budget, RunRequest, SearchRequest
 from fitwitness.evaluation.trajectory import _seed_family, drawing_invariants, signature
 
@@ -243,7 +243,7 @@ def run(args) -> dict:
         "budget": {"max_model_calls": 4, "max_tool_calls": 16, "max_tokens": 64000, "deadline_seconds": 240},
         "pricing_usd_per_million": {"input": os.getenv(f"FITWITNESS_{args.provider.upper()}_INPUT_USD_PER_MILLION"),
                                     "output": os.getenv(f"FITWITNESS_{args.provider.upper()}_OUTPUT_USD_PER_MILLION")},
-        "code_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+        "code_sha": git_sha(),
         "module_hash": sha256(Path(__file__).read_bytes()).hexdigest(),
         "started_at": datetime.now(timezone.utc).isoformat(),
     }

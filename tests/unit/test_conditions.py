@@ -125,3 +125,20 @@ def test_foreign_evidence_never_proves_match():
 
 def test_unknown_units_hold():
     assert decision(unit="pixels").verdict == "unknown"
+
+
+def test_a_request_carrying_a_nul_character_is_refused_not_stored():
+    import pytest
+    from pydantic import ValidationError
+    from fitwitness.claims.models import ClaimReview
+    from fitwitness.contracts import ReviewInput, SearchRequest
+
+    # PostgreSQL's jsonb cannot hold U+0000: such a string used to reach the insert and come back as a 500
+    for build in (lambda: SearchRequest(text="브래킷\x00"), lambda: ClaimReview(outcome="DENY", reviewer="김", note="a\x00b"),
+                  lambda: ReviewInput(reviewer="김", note="\x00")):
+        with pytest.raises(ValidationError):
+            build()
+    ok = SearchRequest(text="브래킷 40mm")
+    ok.text = "다른 질의"  # assignment is validated too, and an ordinary string passes
+    with pytest.raises(ValidationError):
+        ok.text = "x\x00"

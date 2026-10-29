@@ -27,6 +27,7 @@ from typing import TypedDict
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command, interrupt
 
+from fitwitness.runtime.heartbeat import start_heartbeat
 from fitwitness.agents.graph import checkpointer
 
 from fitwitness.agents.budget import BudgetTracker
@@ -81,18 +82,7 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
     def emit(kind, payload):
         return jobs.event(scope, run_id, kind, payload, token=token)
 
-    def heartbeat():
-        while not stop.wait(10):
-            try:
-                if not jobs.heartbeat(scope, run_id, token):
-                    lost.set()
-                    return
-            except Exception:
-                lost.set()
-                return
-
-    thread = threading.Thread(target=heartbeat, daemon=True)
-    thread.start()
+    thread = start_heartbeat(jobs, scope, run_id, token, stop, lost)
     try:
         if product is None:
             raise ValueError(f"unknown product {claim.policy.product_id}")
@@ -116,9 +106,15 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
         # ---- nodes -------------------------------------------------------------------
         def intake(state: State):
             guard()
+            again = claim.resubmission
             emit("intake", {"claim_id": claim.claim_id, "product": product.name, "requested": claim.requested,
-                            "documents": [{"id": d, "kind": k} for d, k, _ in documents]})
-            return {"audit": _audit(state, f"intake: {len(documents)} documents, requested={','.join(claim.requested)}")}
+                            "documents": [{"id": d, "kind": k} for d, k, _ in documents],
+                            **({"resubmission": again.model_dump()} if again else {})})
+            line = f"intake: {len(documents)} documents, requested={','.join(claim.requested)}"
+            if again:
+                line += f"; attempt {again.attempt} of the claim held in run {again.of_run[:8]}, added {','.join(again.added)}" + \
+                        (f", replacing {','.join(again.replaced)}" if again.replaced else "")
+            return {"audit": _audit(state, line)}
 
         def extract(state: State):
             guard()
@@ -233,6 +229,8 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                                         + (" 상급 검토 건이므로 승인에는 사유와 다른 담당자의 2차 승인이 필요합니다." if need["tier"] == "senior" else "")))
             guard()
             first = ClaimReview.model_validate(answer)
+            if first.outcome == "APPROVE" and first.total_amount is not None and first.total_amount > decision.total_amount:
+                raise ReviewRuleError("승인 금액은 심사가 제안한 금액을 넘을 수 없습니다")  # resume() refuses this first; the graph moves the money
             # An answer that arrived after the deadline was escalated, and an escalated claim is senior whatever its amount.
             need = requirements(product, decision.total_amount, escalated=bool(jobs.raw(scope, run_id).get("escalated_at")))
             approvers = [first.reviewer]
@@ -261,8 +259,8 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                                       amount=total, basis=f"담당자 조정 지급액 {total:,}원")]
                 final = ClaimDecision(outcome="APPROVE", line_items=items, total_amount=total, reasons=reasons)
             elif decisive.outcome == "REQUEST_INFO":
-                # Held, not decided: no payment, no refusal, and the reason says what is missing. Re-submitting
-                # documents to the same claim is not built; a new run on the claim starts the review again.
+                # Held, not decided: no payment, no refusal, and the reason says what is missing. The claimant's
+                # answer is a new run of the same claim (claims/resubmit.py); this run stays as the record of the hold.
                 reasons.append(Reason(rule_id="R-HUMAN-02", code="info_requested", severity="review",
                                       message=f"서류 보완 요청({decisive.reviewer}): {decisive.note.strip()}"))
                 final = ClaimDecision(outcome="REVIEW", line_items=[], total_amount=0, reasons=reasons, needs_human=True)
@@ -281,13 +279,16 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                 receipt = Payout(status="skipped", claim_id=claim.claim_id, amount=0)
             else:
                 receipt = Payout(**repo.pay(scope, claim.claim_id, claim.policy.policy_id, decision.total_amount,
-                                            dedupe_keys(claim.policy, ex, decision), [li.model_dump() for li in decision.line_items], run_id))
+                                            dedupe_keys(claim.policy, ex, decision), [li.model_dump() for li in decision.line_items], run_id,
+                                            lease_token=token))
                 if request.demo_fault and jobs.mark_fault_consumed(scope, run_id):
                     # The dangerous crash: the ledger row exists, the checkpoint for this node does not yet.
                     emit("interrupted", {"reason": "체험용 중단: 지급 기록 직후 worker 오류", "retry": True})
                     raise TransientProviderError("injected failure right after the ledger write")
             emit("payout", receipt.model_dump(mode="json"))
             explanation = explain(decision)
+            if receipt.status == "duplicate":
+                explanation += f"\n- 같은 사건이 청구 {receipt.duplicate_of} 로 이미 지급되어 이 청구는 지급하지 않았습니다. 담당자 확인이 필요합니다."
             emit("explained", {"text": explanation})
             return {"payout": receipt.model_dump(mode="json"), "explanation": explanation,
                     "audit": _audit(state, f"payout: {receipt.status} {receipt.amount:,}")}
@@ -330,6 +331,8 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                 return
             outcome = ClaimOutcome(
                 claim_id=claim.claim_id,
+                document_ids=list(claim.document_ids),
+                resubmission=claim.resubmission,
                 extraction=Extraction.model_validate(out["extraction"]),
                 flags=out.get("flags", []),
                 decision=ClaimDecision.model_validate(out["decision"]),

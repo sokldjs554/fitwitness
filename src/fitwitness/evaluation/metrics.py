@@ -1,5 +1,4 @@
 """Failure-inclusive metrics; confidence intervals resample design families."""
-import json
 import random
 from collections import defaultdict
 from statistics import mean

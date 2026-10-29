@@ -10,7 +10,7 @@ from pathlib import Path
 import gzip, json, subprocess, sys
 
 sys.path.insert(0, "src")
-from fitwitness.evaluation.stats import wilson, pass_power_k, case_bootstrap, sem  # noqa: E402
+from fitwitness.evaluation.stats import wilson, pass_power_k, case_bootstrap  # noqa: E402
 
 E = Path("docs/evaluation")
 entries = []

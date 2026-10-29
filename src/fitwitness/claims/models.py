@@ -109,6 +109,23 @@ class ClaimDocument(Strict):
     pages: int = 1
 
 
+class Resubmission(Strict):
+    """A claim run that continues a held one: the same claim, with the documents the claimant sent afterwards."""
+
+    of_run: str  # the held run this one continues
+    attempt: int = Field(ge=2)
+    added: list[str] = Field(min_length=1)  # supplementary documents now attached
+    replaced: list[str] = Field(default_factory=list)  # earlier documents of the same kind that they replace
+    held_by: str = ""
+    hold_note: str = ""  # what the reviewer asked for
+
+
+class ClaimSupplement(Strict):
+    """The claimant's answer to a request for documents: which of the case's waiting documents to attach."""
+
+    document_ids: list[str] = Field(min_length=1, max_length=4)
+
+
 class ClaimRequest(Strict):
     """What a claim run works on. Documents are looked up by id inside the tenant."""
 
@@ -120,6 +137,7 @@ class ClaimRequest(Strict):
     submitted_at: str
     review: Literal["rules", "always"] = "rules"  # "always": every claim stops for a reviewer
     audit: Literal["none", "model"] = "none"  # "model": a model reads the decision about to pay and can only send it to a person
+    resubmission: Resubmission | None = None  # set when this run continues a claim a reviewer held for documents
 
 
 class ClaimReview(Strict):
@@ -128,21 +146,24 @@ class ClaimReview(Strict):
     outcome: Literal["APPROVE", "DENY", "REQUEST_INFO"]  # REQUEST_INFO: hold the claim and ask for documents; nothing is paid or refused
     reviewer: str = Field(min_length=1, max_length=100)
     note: str = Field(default="", max_length=500)
-    total_amount: int | None = Field(None, ge=0)  # an adjusted amount when approving
+    total_amount: int | None = Field(None, ge=0, le=10**12)  # an adjusted amount when approving: it can lower the proposal, never raise it
 
 
 class Payout(Strict):
-    status: Literal["paid", "already_paid", "skipped"]
+    status: Literal["paid", "already_paid", "skipped", "duplicate"]  # duplicate: the same event was paid under another claim number
     claim_id: str
     amount: int = 0
     paid_at: str | None = None
     run_id: str | None = None
+    duplicate_of: str | None = None
 
 
 class ClaimOutcome(Strict):
     """What a finished claim run stores as its result."""
 
     claim_id: str
+    document_ids: list[str] = Field(default_factory=list)  # the documents this run read
+    resubmission: Resubmission | None = None
     extraction: Extraction
     flags: list[str] = Field(default_factory=list)
     decision: ClaimDecision

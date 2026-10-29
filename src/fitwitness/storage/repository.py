@@ -8,7 +8,6 @@ import json
 import os
 import threading
 import time
-from pathlib import Path
 import psycopg
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
@@ -109,6 +108,10 @@ CREATE TABLE IF NOT EXISTS fw_facts (
  PRIMARY KEY(tenant_id,id), FOREIGN KEY(tenant_id,revision_id) REFERENCES fw_revisions(tenant_id,id)
 );
 """
+
+
+class LeaseLost(RuntimeError):
+    """The run that tried to write no longer owns its lease (it was cancelled, or another worker took over)."""
 
 
 class Repository:
@@ -493,23 +496,43 @@ class Repository:
         meta = {k: row[k] for k in ("id", "case_id", "kind", "issued_at")}
         return meta, bytes(row["pdf"]), (bytes(row["png"]) if row["png"] is not None else None)
 
-    def pay(self, scope, claim_id, policy_id, amount, dedupe_keys, line_items, run_id=None) -> dict:
-        """Record a payout once. Returns status 'paid' the first time and 'already_paid' afterwards."""
+    def pay(self, scope, claim_id, policy_id, amount, dedupe_keys, line_items, run_id=None, lease_token=None) -> dict:
+        """Record a payout once. Returns status 'paid' the first time and 'already_paid' afterwards.
+
+        Three checks happen in the one transaction that writes the row, under the tenant's advisory lock:
+        a run that was cancelled or lost its lease pays nothing (``lease_token`` fences the write against ``cancel``,
+        which waits for this transaction), and a claim whose event (a hospital stay, a surgery, a diagnosis) was paid
+        under another claim number since the rules looked is not paid again: status 'duplicate', nothing written."""
         with self.connection(scope) as c:
             self.lock(c, scope.tenant_id)
-            inserted = c.execute(
-                "INSERT INTO fw_payouts (tenant_id,claim_id,policy_id,amount,line_items,run_id) VALUES (%s,%s,%s,%s,%s,%s) "
-                "ON CONFLICT (tenant_id,claim_id) DO NOTHING RETURNING claim_id",
-                (scope.tenant_id, claim_id, policy_id, amount, Jsonb(line_items), run_id),
-            ).fetchone()
-            if inserted:
+            row = c.execute("SELECT amount,paid_at,run_id FROM fw_payouts WHERE claim_id=%s", (claim_id,)).fetchone()
+            if row is None:
+                if run_id and lease_token and not c.execute(
+                    "SELECT 1 FROM fw_runs WHERE id=%s AND lease_token=%s AND state='running' AND lease_until>now() FOR UPDATE",
+                    (run_id, lease_token),
+                ).fetchone():
+                    raise LeaseLost("실행이 취소되거나 소유권이 만료되어 지급하지 않았습니다")
+                other = c.execute(
+                    "SELECT claim_id FROM fw_payout_keys WHERE dedupe_key = ANY(%s) AND claim_id <> %s LIMIT 1",
+                    (list(dedupe_keys), claim_id),
+                ).fetchone() if dedupe_keys else None
+                if other:
+                    return {"status": "duplicate", "claim_id": claim_id, "amount": 0, "paid_at": None, "run_id": None,
+                            "duplicate_of": other["claim_id"]}
+                c.execute(
+                    "INSERT INTO fw_payouts (tenant_id,claim_id,policy_id,amount,line_items,run_id) VALUES (%s,%s,%s,%s,%s,%s)",
+                    (scope.tenant_id, claim_id, policy_id, amount, Jsonb(line_items), run_id),
+                )
                 for key in dedupe_keys:
                     c.execute(
                         "INSERT INTO fw_payout_keys (tenant_id,dedupe_key,claim_id,policy_id) VALUES (%s,%s,%s,%s) ON CONFLICT DO NOTHING",
                         (scope.tenant_id, key, claim_id, policy_id),
                     )
-            row = c.execute("SELECT amount,paid_at,run_id FROM fw_payouts WHERE claim_id=%s", (claim_id,)).fetchone()
-        return {"status": "paid" if inserted else "already_paid", "claim_id": claim_id, "amount": int(row["amount"]),
+                row = c.execute("SELECT amount,paid_at,run_id FROM fw_payouts WHERE claim_id=%s", (claim_id,)).fetchone()
+                status = "paid"
+            else:
+                status = "already_paid"
+        return {"status": status, "claim_id": claim_id, "amount": int(row["amount"]),
                 "paid_at": row["paid_at"].isoformat(), "run_id": row["run_id"]}
 
     def paid_keys(self, scope, policy_id) -> set[str]:

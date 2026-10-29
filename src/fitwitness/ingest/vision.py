@@ -1,6 +1,5 @@
 """Typed visual observations remain uncertain until independently validated."""
 from decimal import Decimal, InvalidOperation
-from hashlib import sha256
 from io import BytesIO
 from typing import Literal
 from PIL import Image
