@@ -1,0 +1,120 @@
+{
+ "what": "The dense channels at 10,000 and 100,000 drawings: what a search through the text and image vectors costs.",
+ "measured_at": "2026-10-29T05:25:13.445223+00:00",
+ "code_sha": "ad376bb41f66797d8f8821eac35ba13f92dee47e-dirty",
+ "database": "local PostgreSQL 16 (pgserver), same machine; random vectors",
+ "results": [
+  {
+   "drawings": 10000,
+   "seed_ms": 2360.1,
+   "vectors_written_ms": 5123.0,
+   "analyze_after_load_ms": 363.1,
+   "cold_snapshot_ms": 1013.3,
+   "index_check_ms": 386.3,
+   "first_vector_search_ms": 53.9,
+   "second_vector_search_ms": 54.4,
+   "database_during_first_search": [
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ]
+   ],
+   "search_ms_median": {
+    "semantic": 86.85,
+    "image": 129.7,
+    "all_channels": 226.0
+   },
+   "search_ms_max": {
+    "semantic": 267.6,
+    "image": 169.0,
+    "all_channels": 295.9
+   },
+   "peak_rss_mb_after_cold": 100.3,
+   "peak_rss_mb": 100.3
+  },
+  {
+   "drawings": 100000,
+   "seed_ms": 24730.6,
+   "vectors_written_ms": 55945.7,
+   "analyze_after_load_ms": 300.9,
+   "cold_snapshot_ms": 8906.4,
+   "index_check_ms": 2990.8,
+   "first_vector_search_ms": 830.7,
+   "second_vector_search_ms": 841.7,
+   "database_during_first_search": [
+    [
+     {
+      "state": "active",
+      "wait": "Client/ClientRead",
+      "query": "SELECT revision_id,channel,metadata FROM fw_vectors WHERE revision_id=ANY($1)"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "IO/DataFileRead",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "IO/DataFileRead",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ]
+   ],
+   "search_ms_median": {
+    "semantic": 870.1,
+    "image": 1307.6999999999998,
+    "all_channels": 2472.6499999999996
+   },
+   "search_ms_max": {
+    "semantic": 3965.2,
+    "image": 1400.8,
+    "all_channels": 3708.8
+   },
+   "peak_rss_mb_after_cold": 509.6,
+   "peak_rss_mb": 509.6
+  }
+ ],
+ "note": "Run with ANALYZE fw_vectors after the load (what the bulk indexer now does). Measured on the working tree before the commit that adds this file; code_sha names the commit it was built on."
+}

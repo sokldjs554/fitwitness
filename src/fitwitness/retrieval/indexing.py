@@ -61,6 +61,7 @@ def main():
     encoders = Encoders()
     for rid in repo.snapshot(scope).revision_ids:
         index_revision(scope, rid, repo, encoders)
+    repo.analyze_vectors()  # the planner's statistics catch up now, not at autovacuum's leisure
     print(json.dumps(dict(indexed=len(repo.snapshot(scope).revision_ids),
                           encoder_fingerprint=encoders.fingerprint)))
 

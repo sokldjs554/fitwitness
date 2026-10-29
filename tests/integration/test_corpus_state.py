@@ -189,3 +189,48 @@ def test_the_remembered_states_stay_within_their_bounds(repo, monkeypatch):
         repo.corpus_state(s)
     mine = [k for k in corpus_state._STATES if k[0] == repo.dsn]
     assert len(corpus_state._STATES) <= 3 and len(mine) <= 3
+
+
+class CountingEncoders:
+    fingerprint = "counting"
+
+    def encode_text(self, texts, query=False):
+        import numpy as np
+        return np.zeros((len(texts), 3), dtype=np.float32) + 0.1
+
+    def encode_image(self, images):
+        import numpy as np
+        return np.zeros((len(images), 3), dtype=np.float32) + 0.1
+
+
+def test_the_dense_index_is_checked_once_per_corpus_state_and_again_after_a_write(repo, monkeypatch):
+    from fitwitness.retrieval import indexing
+
+    calls = []
+    monkeypatch.setattr(indexing, "require_index", lambda *a, **k: calls.append(1))
+    scope, rng = seed(repo, 10)
+    snapshot = repo.snapshot(scope)
+    request = SearchRequest(text="브래킷")
+    for _ in range(3):
+        search(scope, request, snapshot, repo, encoders=CountingEncoders(), channels={"semantic"})
+    assert len(calls) == 1  # three searches over one state: one check of the whole index
+    repo.save_vector(scope, repo.corpus_state(scope).ids[0], "text", [0.1, 0.2, 0.3])  # a vector write replaces the state
+    search(scope, request, repo.snapshot(scope), repo, encoders=CountingEncoders(), channels={"semantic"})
+    assert len(calls) == 2
+    other = CountingEncoders()
+    other.fingerprint = "another encoder"  # a different encoder is a different question
+    search(scope, request, repo.snapshot(scope), repo, encoders=other, channels={"semantic"})
+    assert len(calls) == 3
+
+
+def test_a_failed_index_check_is_not_remembered(repo, monkeypatch):
+    from fitwitness.retrieval import indexing
+
+    def refuse(*a, **k):
+        raise ValueError("dense index missing or encoder mismatch; rebuild index")
+
+    monkeypatch.setattr(indexing, "require_index", refuse)
+    scope, _ = seed(repo, 5)
+    for _ in range(2):
+        with pytest.raises(ValueError, match="rebuild index"):
+            search(scope, SearchRequest(text="x"), repo.snapshot(scope), repo, encoders=CountingEncoders(), channels={"semantic"})

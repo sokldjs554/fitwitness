@@ -755,3 +755,9 @@ class Repository:
                 "SELECT revision_id,embedding <=> %s::vector AS distance FROM fw_vectors WHERE channel=%s AND revision_id=ANY(%s) ORDER BY distance,revision_id LIMIT %s",
                 (str(vector), channel, revision_ids, top_k),
             ).fetchall()
+
+    def analyze_vectors(self) -> None:
+        """Refresh the planner's statistics on the vector table. After a bulk load PostgreSQL plans the first queries without
+        them (autovacuum analyses a table only some time after a large change); see docs/RETRIEVAL.md, "vector channels"."""
+        with self.plain() as c:
+            c.execute("ANALYZE fw_vectors")

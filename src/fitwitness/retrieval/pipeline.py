@@ -151,8 +151,14 @@ def _search_indexed(scope, request, snapshot, repo, state, encoders, channels, r
     if channels & {"semantic", "image", "image_dino"}:
         if encoders is None:
             raise ValueError("dense index encoders are not configured")
-        from fitwitness.retrieval.indexing import require_index
-        require_index(scope, snapshot, repo, encoders)
+        from fitwitness.retrieval.indexing import dense_channels, require_index
+
+        # Whether every active drawing has its vectors, made by these encoders, is checked once per corpus state: a vector
+        # write is a write to the corpus (it moves the change counter), so a state that passed stays true until it is replaced.
+        key = ("dense_index_ok", encoders.fingerprint, tuple(sorted(dense_channels(encoders))))
+        if not state.memo.get(key):
+            require_index(scope, snapshot, repo, encoders)
+            state.memo[key] = True
     if not state.ids:
         return []
     ids = state.ids

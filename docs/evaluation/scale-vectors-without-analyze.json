@@ -1,0 +1,153 @@
+{
+ "what": "The dense channels at 10,000 and 100,000 drawings: what a search through the text and image vectors costs.",
+ "measured_at": "2026-10-29T04:58:07.840329+00:00",
+ "code_sha": "ad376bb41f66797d8f8821eac35ba13f92dee47e-dirty",
+ "database": "local PostgreSQL 16 (pgserver), same machine; random vectors",
+ "results": [
+  {
+   "drawings": 10000,
+   "seed_ms": 2038.4,
+   "vectors_written_ms": 4612.2,
+   "cold_snapshot_ms": 981.0,
+   "index_check_ms": 241.8,
+   "first_vector_search_ms": 54.9,
+   "second_vector_search_ms": 46.6,
+   "database_during_first_search": [
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ]
+   ],
+   "search_ms_median": {
+    "semantic": 156.05,
+    "image": 107.95,
+    "all_channels": 1424.8
+   },
+   "search_ms_max": {
+    "semantic": 1312.8,
+    "image": 1439.3,
+    "all_channels": 2706.0
+   },
+   "peak_rss_mb_after_cold": 100.1,
+   "peak_rss_mb": 100.1
+  },
+  {
+   "drawings": 100000,
+   "seed_ms": 21591.0,
+   "vectors_written_ms": 53323.8,
+   "cold_snapshot_ms": 11727.9,
+   "index_check_ms": 3007.9,
+   "first_vector_search_ms": 114884.2,
+   "second_vector_search_ms": 1053.3,
+   "database_during_first_search": [
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id,embedding <=> $1::vector AS distance FROM fw_vectors WHERE ch"
+     }
+    ]
+   ],
+   "search_ms_median": {
+    "semantic": 860.45,
+    "image": 1376.8000000000002,
+    "all_channels": 2409.15
+   },
+   "search_ms_max": {
+    "semantic": 4260.2,
+    "image": 1490.7,
+    "all_channels": 3841.7
+   },
+   "peak_rss_mb_after_cold": 509.5,
+   "peak_rss_mb": 509.5
+  }
+ ],
+ "note": "The same measurement without the statistics refresh after the load (this file predates the --no-analyze flag; it is what the script did then). The first vector search over 100,000 drawings took 115 s while the database, sampled during it, showed one active backend with no wait event; the second search took 1 s. Kept as the record of the problem that docs/evaluation/scale-vectors.json no longer has."
+}
