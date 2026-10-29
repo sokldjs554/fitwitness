@@ -97,6 +97,22 @@ def verify(base, local=False):
     after = Counter(x["verdict"] for x in revised["decisions"])
     assert after == {"match": 1, "mismatch": 4, "unknown": 1}, after
     print("Revision invalidation and revised verdicts verified", flush=True)
+    # A reviewer holds a claim for documents: nothing is paid and nothing is refused (claims desk, 2026-10-28).
+    ledger_before = call("/api/claims/ledger")
+    missing = next(c for c in call("/api/claims/cases") if c["scenario"] == "missing_doc")
+    parked = call(f"/api/claims/cases/{missing['case_id']}/run", {})
+    end = time.monotonic() + 150
+    while call(f"/api/runs/{parked['id']}")["state"] != "waiting_input":
+        assert time.monotonic() < end, "the claim did not reach a reviewer"
+        time.sleep(2)
+    call(f"/api/runs/{parked['id']}/resume", {"outcome": "REQUEST_INFO", "reviewer": "hosted check", "note": " "}, expected=422)
+    call(f"/api/runs/{parked['id']}/resume", {"outcome": "REQUEST_INFO", "reviewer": "hosted check", "note": "수술확인서 사본 요청"})
+    claim = wait(parked["id"])["claim"]
+    assert claim["decision"]["outcome"] == "REVIEW" and claim["decision"]["total_amount"] == 0, claim["decision"]
+    assert claim["human"]["outcome"] == "REQUEST_INFO" and claim["payout"]["status"] == "skipped", claim["human"]
+    assert any(r["rule_id"] == "R-HUMAN-02" for r in claim["decision"]["reasons"])
+    assert call("/api/claims/ledger") == ledger_before, "a held claim must not reach the ledger"
+    print("Claim held for documents: nothing paid, nothing refused", flush=True)
     call("/api/demo-sessions", {})
     call(f"/api/runs/{run['id']}", expected=404)
     assert len(call("/api/documents")) == count
@@ -105,7 +121,7 @@ def verify(base, local=False):
             "after": dict(after), "events": dict(kinds), "assets":assets, "checks": ["readiness", "secure cookie",
             f"all {count} PDF/PNG/STEP/mesh assets and exact-ID search", "idempotency", "worker recovery", "revision invalidation",
             "reverification", "tenant isolation", "origin rejection", "paid API disabled", "private metrics",
-            "scan examples and their page pictures"]}
+            "scan examples and their page pictures", "claim held for documents without payout"]}
 
 
 if __name__ == "__main__":
