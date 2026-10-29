@@ -64,7 +64,7 @@ python scripts/verify_hosted.py --url https://fitwitness.onrender.com
 
 [CI37186711069](https://github.com/sokldjs554/fitwitness/actions/runs/37186711069)에서 독립 PostgreSQL 환경 두 개 모두 Python76개, 데스크톱·모바일 E2E6개, 실제 API 기반 시연 캡처가 통과했습니다. 작업대의 후보 필터, 도면 근거, 개정판 재검증, worker 복구, 실험실 이동과 Ctrl/Cmd+K를 확인합니다.
 
-실험실은 Qwen3-1.7B 실제 추론72회의 저장된 결과를 제공합니다. 정확도75%, 잘못된 일치28.6%, 지연p50 6.18초입니다. 24개 사례·4개 family의 PDF 근거 판정 pilot이며 전체 Agent·검색·VLM 또는 OpenAI·Claude 평가가 아닙니다. 모델 가중치와 추론 라이브러리는 Render 서비스에 배포하지 않으며 무료 웹서버에서 LLM 추론을 실행하지 않습니다.
+실험실은 Qwen3-1.7B 실제 추론72회의 저장된 결과를 제공합니다. 정확도 75%, 잘못된 일치 28.6%(정답이 불일치·확인 필요인 42회 중 12회), 지연 p50 6.18초입니다. 24개 사례·4개 family의 PDF 근거 판정 pilot이며 전체 Agent·검색·VLM 또는 OpenAI·Claude 평가가 아닙니다. 모델 가중치와 추론 라이브러리는 Render 서비스에 배포하지 않으며 무료 웹서버에서 LLM 추론을 실행하지 않습니다.
 
 ![도면 작업대](media/review-workbench.png)
 
