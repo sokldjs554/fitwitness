@@ -1,4 +1,4 @@
-FROM node:22-bookworm-slim AS web
+FROM node:25-bookworm-slim AS web
 WORKDIR /build/web
 COPY web/package*.json ./
 RUN npm ci
