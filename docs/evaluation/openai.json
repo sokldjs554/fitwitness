@@ -1,0 +1,1732 @@
+{
+ "status": "measured",
+ "title": "Evidence verdict pilot with an OpenAI model",
+ "date": "2026-10-29",
+ "what": "The same 24 PDF-evidence verdict cases (test split, 4 families) as the Claude Haiku 4.5 and Qwen3-1.7B records, 3 repeats, run by .github/workflows/openai-evidence-measure.yml (workflow_dispatch) with the repository's OPENAI_API_KEY secret. The dataset hash was checked against docs/evaluation/latest.json before any call.",
+ "model": {
+  "id": "gpt-5-mini",
+  "reasoning_effort": "minimal",
+  "output_limit_tokens": 256,
+  "temperature": "provider default (not set for reasoning models)",
+  "prices_usd_per_million_as_entered": {
+   "input": "0.25",
+   "output": "2.00"
+  },
+  "price_source": "third-party price listings; OpenAI's own pricing page was not reachable from the session"
+ },
+ "runs": [
+  {
+   "run_id": 40872772028,
+   "code": "88a7484",
+   "result": "every one of the 72 calls was cut off at the 128-token output limit (LengthFinishReasonError, completion_tokens=128): a reasoning model counts its reasoning toward that limit, so no verdict was produced. Cost not recorded by the runner (rows carry cost_usd null); from the usage in the errors about 72 x (640 in + 128 out) tokens."
+  },
+  {
+   "run_id": 40873893367,
+   "code": "1c14c66",
+   "result": "output limit 256 with minimal reasoning: 55 calls completed, 17 failed with HTTP 429 'You have no credits remaining' from the OpenAI account (not this repository's ceiling, which was 0.10 USD and 0.0114 USD was spent)."
+  }
+ ],
+ "summary": {
+  "calls": 72,
+  "completed": 55,
+  "correct": 55,
+  "wrong": 0,
+  "false_match": 0,
+  "completed_non_match_cases": 31,
+  "failed_no_credits": 17,
+  "citations_all_valid": true,
+  "cost_usd": 0.01136,
+  "input_tokens": 33159,
+  "output_tokens": 1535,
+  "latency_ms_median": 1058,
+  "latency_ms_p95": 1456,
+  "wilson_95_lower_for_55_of_55": 0.935,
+  "by_category": {
+   "match": {
+    "calls": 12,
+    "correct": 10,
+    "failed_no_credits": 2
+   },
+   "dimension": {
+    "calls": 12,
+    "correct": 9,
+    "failed_no_credits": 3
+   },
+   "material": {
+    "calls": 12,
+    "correct": 9,
+    "failed_no_credits": 3
+   },
+   "missing": {
+    "calls": 12,
+    "correct": 9,
+    "failed_no_credits": 3
+   },
+   "unit": {
+    "calls": 12,
+    "correct": 9,
+    "failed_no_credits": 3
+   },
+   "revision": {
+    "calls": 12,
+    "correct": 9,
+    "failed_no_credits": 3
+   }
+  }
+ },
+ "rules_baseline_same_run": {
+  "correct": 72,
+  "calls": 72
+ },
+ "comparison": {
+  "claude_haiku_4_5": "72/72 correct, false match 0/42, 0.110455 USD (docs/evaluation/claude.json)",
+  "qwen3_1_7b_local": "75% correct, false match 12/42 (docs/evaluation/latest.json)"
+ },
+ "limitations": [
+  "55 of 72 calls completed, so this is not 3 full repeats of 24 cases; the 17 missing calls are spread over every category.",
+  "The same narrow task as the other two records: a verdict from extracted facts, not retrieval, OCR, VLM or the full agent.",
+  "Prices were typed in from third-party listings, so the cost is an estimate from token counts; the OpenAI invoice is the truth.",
+  "The report artifact is on the GitHub run (artifact 12896564727); this file was rebuilt from the job log's printed report."
+ ],
+ "rows": [
+  {
+   "case_id": "FW-F003-match",
+   "family_id": "FW-F003",
+   "category": "match",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 639,
+   "output_tokens": 28,
+   "cost_usd": 0.00021575,
+   "request_id": "lc_run--01a187a5-3f9d-7612-90ff-007925b32e6a-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 2492.531299999996
+  },
+  {
+   "case_id": "FW-F003-dimension",
+   "family_id": "FW-F003",
+   "category": "dimension",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F5",
+    "F3"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 637,
+   "output_tokens": 29,
+   "cost_usd": 0.00021725,
+   "request_id": "lc_run--01a187a5-493e-7da1-8cd2-8abcc28a3e6a-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F5\",\"F3\"]}",
+   "latency_ms": 1404.1310340000166
+  },
+  {
+   "case_id": "FW-F003-material",
+   "family_id": "FW-F003",
+   "category": "material",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 621,
+   "output_tokens": 29,
+   "cost_usd": 0.00021325,
+   "request_id": "lc_run--01a187a5-4eba-7d01-93a5-b9c64bc70988-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1392.9459829999757
+  },
+  {
+   "case_id": "FW-F003-missing",
+   "family_id": "FW-F003",
+   "category": "missing",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "unknown",
+   "predicted": "unknown",
+   "status": "ok",
+   "citations": [
+    "F4"
+   ],
+   "valid_citations": [
+    "F4"
+   ],
+   "input_tokens": 457,
+   "output_tokens": 25,
+   "cost_usd": 0.00016425,
+   "request_id": "lc_run--01a187a5-542b-7921-a874-ec5d0e1f029d-0",
+   "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F4\"]}",
+   "latency_ms": 1469.209850999988
+  },
+  {
+   "case_id": "FW-F003-unit",
+   "family_id": "FW-F003",
+   "category": "unit",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F5",
+    "F3"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 645,
+   "output_tokens": 28,
+   "cost_usd": 0.00021725,
+   "request_id": "lc_run--01a187a5-59e9-78d3-b007-e5e1cf53cb25-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+   "latency_ms": 2221.375281999997
+  },
+  {
+   "case_id": "FW-F003-revision",
+   "family_id": "FW-F003",
+   "category": "revision",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 637,
+   "output_tokens": 28,
+   "cost_usd": 0.00021525,
+   "request_id": "lc_run--01a187a5-6296-7ef3-bc4d-baecbf6caa98-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1456.200177999989
+  },
+  {
+   "case_id": "FW-F012-match",
+   "family_id": "FW-F012",
+   "category": "match",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 625,
+   "output_tokens": 28,
+   "cost_usd": 0.00021225,
+   "request_id": "lc_run--01a187a5-6847-7842-b9d0-ab813870e3bd-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1021.1907040000199
+  },
+  {
+   "case_id": "FW-F012-dimension",
+   "family_id": "FW-F012",
+   "category": "dimension",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 631,
+   "output_tokens": 29,
+   "cost_usd": 0.00021575,
+   "request_id": "lc_run--01a187a5-6c44-7040-a2bb-e15d763f9757-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1451.2032510000097
+  },
+  {
+   "case_id": "FW-F012-material",
+   "family_id": "FW-F012",
+   "category": "material",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 617,
+   "output_tokens": 29,
+   "cost_usd": 0.00021225,
+   "request_id": "lc_run--01a187a5-71ef-7d73-97ce-5dbd3c60d501-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1144.1604949999942
+  },
+  {
+   "case_id": "FW-F012-missing",
+   "family_id": "FW-F012",
+   "category": "missing",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "unknown",
+   "predicted": "unknown",
+   "status": "ok",
+   "citations": [
+    "F3"
+   ],
+   "valid_citations": [
+    "F3"
+   ],
+   "input_tokens": 460,
+   "output_tokens": 25,
+   "cost_usd": 0.000165,
+   "request_id": "lc_run--01a187a5-7668-7bf0-af31-ea1f95a2996b-0",
+   "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F3\"]}",
+   "latency_ms": 989.700312999986
+  },
+  {
+   "case_id": "FW-F012-unit",
+   "family_id": "FW-F012",
+   "category": "unit",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 631,
+   "output_tokens": 28,
+   "cost_usd": 0.00021375,
+   "request_id": "lc_run--01a187a5-7a45-77c3-8779-9423faa213c3-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1357.9691519999812
+  },
+  {
+   "case_id": "FW-F012-revision",
+   "family_id": "FW-F012",
+   "category": "revision",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 629,
+   "output_tokens": 29,
+   "cost_usd": 0.00021525,
+   "request_id": "lc_run--01a187a5-7f94-7502-a2ae-d67d2314b8c7-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1072.3731979999798
+  },
+  {
+   "case_id": "FW-F018-match",
+   "family_id": "FW-F018",
+   "category": "match",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F5",
+    "F3"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 615,
+   "output_tokens": 28,
+   "cost_usd": 0.00020975,
+   "request_id": "lc_run--01a187a5-83c4-7940-9a20-bcf7e50da8f0-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+   "latency_ms": 1123.3838470000137
+  },
+  {
+   "case_id": "FW-F018-dimension",
+   "family_id": "FW-F018",
+   "category": "dimension",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 641,
+   "output_tokens": 29,
+   "cost_usd": 0.00021825,
+   "request_id": "lc_run--01a187a5-8828-7373-b2f6-895e37bcc8f7-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1041.5814539999815
+  },
+  {
+   "case_id": "FW-F018-material",
+   "family_id": "FW-F018",
+   "category": "material",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 633,
+   "output_tokens": 29,
+   "cost_usd": 0.00021625,
+   "request_id": "lc_run--01a187a5-8c39-7ab1-baf8-ad3d817eb9f7-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1015.5582840000079
+  },
+  {
+   "case_id": "FW-F018-missing",
+   "family_id": "FW-F018",
+   "category": "missing",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "unknown",
+   "predicted": "unknown",
+   "status": "ok",
+   "citations": [
+    "F4"
+   ],
+   "valid_citations": [
+    "F4"
+   ],
+   "input_tokens": 458,
+   "output_tokens": 25,
+   "cost_usd": 0.0001645,
+   "request_id": "lc_run--01a187a5-9031-7fc3-8a30-02f97802458b-0",
+   "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F4\"]}",
+   "latency_ms": 1076.0557770000219
+  },
+  {
+   "case_id": "FW-F018-unit",
+   "family_id": "FW-F018",
+   "category": "unit",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 621,
+   "output_tokens": 28,
+   "cost_usd": 0.00021125,
+   "request_id": "lc_run--01a187a5-9465-72c0-a8af-cad4f2859cfb-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 899.1838679999944
+  },
+  {
+   "case_id": "FW-F018-revision",
+   "family_id": "FW-F018",
+   "category": "revision",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F5",
+    "F3"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 619,
+   "output_tokens": 28,
+   "cost_usd": 0.00021075,
+   "request_id": "lc_run--01a187a5-97e9-7fb1-8227-da3a72e79855-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+   "latency_ms": 1138.3018010000114
+  },
+  {
+   "case_id": "FW-F029-match",
+   "family_id": "FW-F029",
+   "category": "match",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 637,
+   "output_tokens": 28,
+   "cost_usd": 0.00021525,
+   "request_id": "lc_run--01a187a5-9c5b-7211-bd65-4908809d1f58-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1062.9782199999909
+  },
+  {
+   "case_id": "FW-F029-dimension",
+   "family_id": "FW-F029",
+   "category": "dimension",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 630,
+   "output_tokens": 29,
+   "cost_usd": 0.0002155,
+   "request_id": "lc_run--01a187a5-a082-7433-bcc4-025096fa93d2-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1131.2947920000056
+  },
+  {
+   "case_id": "FW-F029-material",
+   "family_id": "FW-F029",
+   "category": "material",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 625,
+   "output_tokens": 29,
+   "cost_usd": 0.00021425,
+   "request_id": "lc_run--01a187a5-a4ee-7da0-a868-9fa5af883fe7-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1055.9425460000114
+  },
+  {
+   "case_id": "FW-F029-missing",
+   "family_id": "FW-F029",
+   "category": "missing",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "unknown",
+   "predicted": "unknown",
+   "status": "ok",
+   "citations": [
+    "F3"
+   ],
+   "valid_citations": [
+    "F3"
+   ],
+   "input_tokens": 468,
+   "output_tokens": 25,
+   "cost_usd": 0.000167,
+   "request_id": "lc_run--01a187a5-a90e-7d53-9545-42108f84d633-0",
+   "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F3\"]}",
+   "latency_ms": 1038.468746999996
+  },
+  {
+   "case_id": "FW-F029-unit",
+   "family_id": "FW-F029",
+   "category": "unit",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 643,
+   "output_tokens": 28,
+   "cost_usd": 0.00021675,
+   "request_id": "lc_run--01a187a5-ad1c-7632-b8a1-7a2dd88a592e-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1012.5833129999933
+  },
+  {
+   "case_id": "FW-F029-revision",
+   "family_id": "FW-F029",
+   "category": "revision",
+   "method": "openai",
+   "repeat": 0,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 630,
+   "output_tokens": 29,
+   "cost_usd": 0.0002155,
+   "request_id": "lc_run--01a187a5-b111-79b1-967d-f6d3b139c4eb-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1261.4183120000177
+  },
+  {
+   "case_id": "FW-F003-match",
+   "family_id": "FW-F003",
+   "category": "match",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F5",
+    "F3"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 639,
+   "output_tokens": 28,
+   "cost_usd": 0.00021575,
+   "request_id": "lc_run--01a187a5-b5ff-7010-96b0-bba67c9a59ab-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+   "latency_ms": 1133.074152000006
+  },
+  {
+   "case_id": "FW-F003-dimension",
+   "family_id": "FW-F003",
+   "category": "dimension",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F5",
+    "F3"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 637,
+   "output_tokens": 29,
+   "cost_usd": 0.00021725,
+   "request_id": "lc_run--01a187a5-ba6c-75c2-abe2-56f38d5a38de-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F5\",\"F3\"]}",
+   "latency_ms": 1176.2935849999963
+  },
+  {
+   "case_id": "FW-F003-material",
+   "family_id": "FW-F003",
+   "category": "material",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 621,
+   "output_tokens": 29,
+   "cost_usd": 0.00021325,
+   "request_id": "lc_run--01a187a5-bf04-7171-b994-913c709fc048-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 951.6850500000089
+  },
+  {
+   "case_id": "FW-F003-missing",
+   "family_id": "FW-F003",
+   "category": "missing",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "unknown",
+   "predicted": "unknown",
+   "status": "ok",
+   "citations": [
+    "F4"
+   ],
+   "valid_citations": [
+    "F4"
+   ],
+   "input_tokens": 457,
+   "output_tokens": 25,
+   "cost_usd": 0.00016425,
+   "request_id": "lc_run--01a187a5-c2bc-7a02-b5cc-db1d76ca772c-0",
+   "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F4\"]}",
+   "latency_ms": 1094.9939049999955
+  },
+  {
+   "case_id": "FW-F003-unit",
+   "family_id": "FW-F003",
+   "category": "unit",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 645,
+   "output_tokens": 28,
+   "cost_usd": 0.00021725,
+   "request_id": "lc_run--01a187a5-c704-7851-b711-f850bdced53b-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 971.7496419999918
+  },
+  {
+   "case_id": "FW-F003-revision",
+   "family_id": "FW-F003",
+   "category": "revision",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 637,
+   "output_tokens": 28,
+   "cost_usd": 0.00021525,
+   "request_id": "lc_run--01a187a5-cad0-7051-9051-cfa3c34194c1-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 998.3978729999876
+  },
+  {
+   "case_id": "FW-F012-match",
+   "family_id": "FW-F012",
+   "category": "match",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 625,
+   "output_tokens": 28,
+   "cost_usd": 0.00021225,
+   "request_id": "lc_run--01a187a5-ceb6-7d42-8c7a-c5c0c28384ee-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1127.687452999993
+  },
+  {
+   "case_id": "FW-F012-dimension",
+   "family_id": "FW-F012",
+   "category": "dimension",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 631,
+   "output_tokens": 29,
+   "cost_usd": 0.00021575,
+   "request_id": "lc_run--01a187a5-d31e-7e62-9d1f-e71d6ea9e625-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1373.6571990000073
+  },
+  {
+   "case_id": "FW-F012-material",
+   "family_id": "FW-F012",
+   "category": "material",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 617,
+   "output_tokens": 29,
+   "cost_usd": 0.00021225,
+   "request_id": "lc_run--01a187a5-d87c-71f3-9a50-695c21730e61-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1347.0548089999852
+  },
+  {
+   "case_id": "FW-F012-missing",
+   "family_id": "FW-F012",
+   "category": "missing",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "unknown",
+   "predicted": "unknown",
+   "status": "ok",
+   "citations": [
+    "F3"
+   ],
+   "valid_citations": [
+    "F3"
+   ],
+   "input_tokens": 460,
+   "output_tokens": 25,
+   "cost_usd": 0.000165,
+   "request_id": "lc_run--01a187a5-ddbf-73b3-9f4f-47191823b9cb-0",
+   "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F3\"]}",
+   "latency_ms": 1318.5165459999837
+  },
+  {
+   "case_id": "FW-F012-unit",
+   "family_id": "FW-F012",
+   "category": "unit",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 631,
+   "output_tokens": 28,
+   "cost_usd": 0.00021375,
+   "request_id": "lc_run--01a187a5-e2e6-71e0-a64b-575b6efef647-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1161.0580310000103
+  },
+  {
+   "case_id": "FW-F012-revision",
+   "family_id": "FW-F012",
+   "category": "revision",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 629,
+   "output_tokens": 29,
+   "cost_usd": 0.00021525,
+   "request_id": "lc_run--01a187a5-e76f-7561-8ccf-d3a9e491b051-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1029.9793610000165
+  },
+  {
+   "case_id": "FW-F018-match",
+   "family_id": "FW-F018",
+   "category": "match",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F5",
+    "F3"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 615,
+   "output_tokens": 28,
+   "cost_usd": 0.00020975,
+   "request_id": "lc_run--01a187a5-eb75-73c0-a8d6-ac4d4b85dcfb-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+   "latency_ms": 1019.779863999986
+  },
+  {
+   "case_id": "FW-F018-dimension",
+   "family_id": "FW-F018",
+   "category": "dimension",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F5",
+    "F3"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 641,
+   "output_tokens": 29,
+   "cost_usd": 0.00021825,
+   "request_id": "lc_run--01a187a5-ef71-79e0-ab3f-72d3e788d488-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F5\",\"F3\"]}",
+   "latency_ms": 1016.0307509999882
+  },
+  {
+   "case_id": "FW-F018-material",
+   "family_id": "FW-F018",
+   "category": "material",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 633,
+   "output_tokens": 29,
+   "cost_usd": 0.00021625,
+   "request_id": "lc_run--01a187a5-f369-7182-8944-4f6fa039f0b4-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 998.4154119999857
+  },
+  {
+   "case_id": "FW-F018-missing",
+   "family_id": "FW-F018",
+   "category": "missing",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "unknown",
+   "predicted": "unknown",
+   "status": "ok",
+   "citations": [
+    "F4"
+   ],
+   "valid_citations": [
+    "F4"
+   ],
+   "input_tokens": 458,
+   "output_tokens": 25,
+   "cost_usd": 0.0001645,
+   "request_id": "lc_run--01a187a5-f750-7181-ab2e-b6284722f3e9-0",
+   "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F4\"]}",
+   "latency_ms": 1142.8497690000086
+  },
+  {
+   "case_id": "FW-F018-unit",
+   "family_id": "FW-F018",
+   "category": "unit",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 621,
+   "output_tokens": 28,
+   "cost_usd": 0.00021125,
+   "request_id": "lc_run--01a187a5-fbc7-7a03-9e92-26a499b307e5-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1179.0397380000002
+  },
+  {
+   "case_id": "FW-F018-revision",
+   "family_id": "FW-F018",
+   "category": "revision",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F5",
+    "F3"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 619,
+   "output_tokens": 28,
+   "cost_usd": 0.00021075,
+   "request_id": "lc_run--01a187a6-0062-79b2-876e-ad17895f1ebf-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+   "latency_ms": 1000.7972079999945
+  },
+  {
+   "case_id": "FW-F029-match",
+   "family_id": "FW-F029",
+   "category": "match",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 637,
+   "output_tokens": 28,
+   "cost_usd": 0.00021525,
+   "request_id": "lc_run--01a187a6-044b-77b1-b23a-7b76c1a0462f-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1079.517826
+  },
+  {
+   "case_id": "FW-F029-dimension",
+   "family_id": "FW-F029",
+   "category": "dimension",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 630,
+   "output_tokens": 29,
+   "cost_usd": 0.0002155,
+   "request_id": "lc_run--01a187a6-0883-7412-9826-c734e36836a0-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 980.9265140000036
+  },
+  {
+   "case_id": "FW-F029-material",
+   "family_id": "FW-F029",
+   "category": "material",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 625,
+   "output_tokens": 29,
+   "cost_usd": 0.00021425,
+   "request_id": "lc_run--01a187a6-0c58-79c2-a739-251d8583df28-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1583.2387239999832
+  },
+  {
+   "case_id": "FW-F029-missing",
+   "family_id": "FW-F029",
+   "category": "missing",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "unknown",
+   "predicted": "unknown",
+   "status": "ok",
+   "citations": [
+    "F3"
+   ],
+   "valid_citations": [
+    "F3"
+   ],
+   "input_tokens": 468,
+   "output_tokens": 25,
+   "cost_usd": 0.000167,
+   "request_id": "lc_run--01a187a6-1287-7b51-95b0-5d279c035c07-0",
+   "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F3\"]}",
+   "latency_ms": 1063.5399150000069
+  },
+  {
+   "case_id": "FW-F029-unit",
+   "family_id": "FW-F029",
+   "category": "unit",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 643,
+   "output_tokens": 28,
+   "cost_usd": 0.00021675,
+   "request_id": "lc_run--01a187a6-16af-7bf3-86c6-891f7074a0a8-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1083.9309970000102
+  },
+  {
+   "case_id": "FW-F029-revision",
+   "family_id": "FW-F029",
+   "category": "revision",
+   "method": "openai",
+   "repeat": 1,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 630,
+   "output_tokens": 29,
+   "cost_usd": 0.0002155,
+   "request_id": "lc_run--01a187a6-1aeb-72e1-901e-aa82a852fb28-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 936.1128310000026
+  },
+  {
+   "case_id": "FW-F003-match",
+   "family_id": "FW-F003",
+   "category": "match",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F5",
+    "F3"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 639,
+   "output_tokens": 28,
+   "cost_usd": 0.00021575,
+   "request_id": "lc_run--01a187a6-1e93-7b62-b106-a75d9a0f9077-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+   "latency_ms": 1061.0364519999962
+  },
+  {
+   "case_id": "FW-F003-dimension",
+   "family_id": "FW-F003",
+   "category": "dimension",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 637,
+   "output_tokens": 29,
+   "cost_usd": 0.00021725,
+   "request_id": "lc_run--01a187a6-22b8-7913-a84b-d8b045a2518f-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1367.036326999994
+  },
+  {
+   "case_id": "FW-F003-material",
+   "family_id": "FW-F003",
+   "category": "material",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "mismatch",
+   "predicted": "mismatch",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 621,
+   "output_tokens": 29,
+   "cost_usd": 0.00021325,
+   "request_id": "lc_run--01a187a6-280f-7751-9fb5-99fe1a107619-0",
+   "raw_output": "{\"verdict\":\"mismatch\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1073.7796870000125
+  },
+  {
+   "case_id": "FW-F003-missing",
+   "family_id": "FW-F003",
+   "category": "missing",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "unknown",
+   "predicted": "unknown",
+   "status": "ok",
+   "citations": [
+    "F4"
+   ],
+   "valid_citations": [
+    "F4"
+   ],
+   "input_tokens": 457,
+   "output_tokens": 25,
+   "cost_usd": 0.00016425,
+   "request_id": "lc_run--01a187a6-2c41-7761-a6ec-a6d3bd1d373a-0",
+   "raw_output": "{\"verdict\":\"unknown\",\"citations\":[\"F4\"]}",
+   "latency_ms": 1342.551570000012
+  },
+  {
+   "case_id": "FW-F003-unit",
+   "family_id": "FW-F003",
+   "category": "unit",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 645,
+   "output_tokens": 28,
+   "cost_usd": 0.00021725,
+   "request_id": "lc_run--01a187a6-3180-7a41-a867-52b58d5cb41b-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1130.4110869999988
+  },
+  {
+   "case_id": "FW-F003-revision",
+   "family_id": "FW-F003",
+   "category": "revision",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F5",
+    "F3"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 637,
+   "output_tokens": 28,
+   "cost_usd": 0.00021525,
+   "request_id": "lc_run--01a187a6-35eb-7491-9d79-5ba3a5e0b313-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F5\",\"F3\"]}",
+   "latency_ms": 1103.9090929999986
+  },
+  {
+   "case_id": "FW-F012-match",
+   "family_id": "FW-F012",
+   "category": "match",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "match",
+   "predicted": "match",
+   "status": "ok",
+   "citations": [
+    "F3",
+    "F5"
+   ],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 625,
+   "output_tokens": 28,
+   "cost_usd": 0.00021225,
+   "request_id": "lc_run--01a187a6-3a3b-74a1-ae66-9e5c39fd8789-0",
+   "raw_output": "{\"verdict\":\"match\",\"citations\":[\"F3\",\"F5\"]}",
+   "latency_ms": 1016.0600469999963
+  },
+  {
+   "case_id": "FW-F012-dimension",
+   "family_id": "FW-F012",
+   "category": "dimension",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "mismatch",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "OpenAIRateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quo",
+   "latency_ms": 323.0415540000138
+  },
+  {
+   "case_id": "FW-F012-material",
+   "family_id": "FW-F012",
+   "category": "material",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "mismatch",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "OpenAIRateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quo",
+   "latency_ms": 233.0722589999823
+  },
+  {
+   "case_id": "FW-F012-missing",
+   "family_id": "FW-F012",
+   "category": "missing",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "unknown",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "OpenAIRateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quo",
+   "latency_ms": 58.62466199999972
+  },
+  {
+   "case_id": "FW-F012-unit",
+   "family_id": "FW-F012",
+   "category": "unit",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "match",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "OpenAIRateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quo",
+   "latency_ms": 52.513785000002144
+  },
+  {
+   "case_id": "FW-F012-revision",
+   "family_id": "FW-F012",
+   "category": "revision",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "mismatch",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "OpenAIRateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quo",
+   "latency_ms": 206.04852499999993
+  },
+  {
+   "case_id": "FW-F018-match",
+   "family_id": "FW-F018",
+   "category": "match",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "match",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "OpenAIRateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quo",
+   "latency_ms": 243.51499900001272
+  },
+  {
+   "case_id": "FW-F018-dimension",
+   "family_id": "FW-F018",
+   "category": "dimension",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "mismatch",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "OpenAIRateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quo",
+   "latency_ms": 76.42762500000799
+  },
+  {
+   "case_id": "FW-F018-material",
+   "family_id": "FW-F018",
+   "category": "material",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "mismatch",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "OpenAIRateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quo",
+   "latency_ms": 219.5995079999875
+  },
+  {
+   "case_id": "FW-F018-missing",
+   "family_id": "FW-F018",
+   "category": "missing",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "unknown",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F4"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "OpenAIRateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quo",
+   "latency_ms": 58.07878400000277
+  },
+  {
+   "case_id": "FW-F018-unit",
+   "family_id": "FW-F018",
+   "category": "unit",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "match",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "OpenAIRateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quo",
+   "latency_ms": 53.501170000004095
+  },
+  {
+   "case_id": "FW-F018-revision",
+   "family_id": "FW-F018",
+   "category": "revision",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "match",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "OpenAIRateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quo",
+   "latency_ms": 55.430183999988
+  },
+  {
+   "case_id": "FW-F029-match",
+   "family_id": "FW-F029",
+   "category": "match",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "match",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "RuntimeError: experiment budget exhausted before request",
+   "latency_ms": 0.4648790000203462
+  },
+  {
+   "case_id": "FW-F029-dimension",
+   "family_id": "FW-F029",
+   "category": "dimension",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "mismatch",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "RuntimeError: experiment budget exhausted before request",
+   "latency_ms": 0.35499400001981485
+  },
+  {
+   "case_id": "FW-F029-material",
+   "family_id": "FW-F029",
+   "category": "material",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "mismatch",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "RuntimeError: experiment budget exhausted before request",
+   "latency_ms": 0.37785600000006525
+  },
+  {
+   "case_id": "FW-F029-missing",
+   "family_id": "FW-F029",
+   "category": "missing",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "unknown",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "RuntimeError: experiment budget exhausted before request",
+   "latency_ms": 0.3147780000176681
+  },
+  {
+   "case_id": "FW-F029-unit",
+   "family_id": "FW-F029",
+   "category": "unit",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "match",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "RuntimeError: experiment budget exhausted before request",
+   "latency_ms": 0.34774899998524234
+  },
+  {
+   "case_id": "FW-F029-revision",
+   "family_id": "FW-F029",
+   "category": "revision",
+   "method": "openai",
+   "repeat": 2,
+   "expected": "mismatch",
+   "predicted": null,
+   "status": "error",
+   "citations": [],
+   "valid_citations": [
+    "F3",
+    "F5"
+   ],
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd": null,
+   "error": "RuntimeError: experiment budget exhausted before request",
+   "latency_ms": 0.46096099998749196
+  }
+ ]
+}

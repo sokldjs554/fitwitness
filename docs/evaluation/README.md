@@ -36,7 +36,18 @@ PYTHONPATH=src uv run python -m fitwitness.evaluation.runner \
 
 외부 API provider는 비밀 환경변수의 API 키, 정확한 모델 ID와 현재 단가가 필요합니다. 최종 측정 provider는 Claude Haiku 4.5로 고정했습니다. OpenAI 어댑터 코드는 유지하지만 최종 성능 비교 범위에는 포함하지 않습니다. 익명 웹 요청으로 유료 평가를 시작할 수 없습니다.
 
-**OpenAI는 한 번도 실측하지 않았습니다.** 기록의 `blocked` 항목이 말하듯 키가 연결된 적이 없고, 어댑터는 코드로만 있습니다. 공고가 "OpenAI API·Claude"를 함께 들어서, 같은 24개 사례를 OpenAI 모델로 한 번 재는 수동 워크플로 [`openai-evidence-measure.yml`](../../.github/workflows/openai-evidence-measure.yml)을 2026-10-29에 두었습니다. 저장소 secret `OPENAI_API_KEY`가 있어야 하고, 모델 이름과 현재 가격표, 상한(최대 $0.25, 기본 $0.10)을 실행할 때 입력합니다. 상한은 runner가 호출 전에 최악의 비용으로 지키고, 결과 보고서는 로그에 찍혀 산출물 없이도 옮겨 적을 수 있습니다. 실행 결과는 돌린 뒤에 이 절에 적습니다.
+### OpenAI 실측 (2026-10-29)
+
+2026-10-29 전까지 OpenAI는 한 번도 실측하지 않았습니다(기록의 `blocked` 항목, 키가 연결된 적 없음). 공고가 "OpenAI API·Claude"를 함께 들어서 같은 24개 사례를 OpenAI 모델로 재는 수동 워크플로 [`openai-evidence-measure.yml`](../../.github/workflows/openai-evidence-measure.yml)을 두었습니다. 모델 이름·가격표·상한(최대 $0.25)을 실행할 때 입력하고, runner가 호출 전에 최악의 비용으로 상한을 지키며, 호출 전에 데이터셋 해시가 발행된 기록과 같은지 확인합니다. 기록은 [openai.json](openai.json)입니다.
+
+| 실행 | 결과 |
+|---|---|
+| 1차 [40872772028](https://github.com/sokldjs554/fitwitness/actions/runs/40872772028) (`gpt-5-mini`, 출력 128토큰) | 72회 모두 출력 한도에서 잘림(`LengthFinishReasonError`, completion_tokens=128). 추론 모델은 추론 토큰이 출력 한도에 들어가므로 판정이 시작되기 전에 한도가 끝났습니다. 비용은 runner가 오류 행에 기록하지 않아 토큰 수로만 어림됩니다(약 72 × (640 + 128) 토큰) |
+| 2차 [40873893367](https://github.com/sokldjs554/fitwitness/actions/runs/40873893367) (출력 256토큰, 추론 minimal, 온도 미지정) | 55회 완료, **55/55 정답, 잘못된 일치 0**(완료된 비일치 정답 사례 모두), 인용은 55회 모두 서류의 사실 id. 나머지 17회는 OpenAI 계정의 잔액 소진(HTTP 429 "no credits remaining")으로 실패했고 이 저장소의 상한($0.10) 때문이 아닙니다. 기록된 비용 $0.0114(입력 33,159·출력 1,535 토큰, 입력 $0.25·출력 $2.00/백만 토큰으로 계산), 지연 중앙값 1.06초·p95 1.46초 |
+
+같은 입력에서 Claude Haiku 4.5는 72/72, 잘못된 일치 0/42, $0.110455였고 Qwen3-1.7B는 75%, 잘못된 일치 12/42였습니다. 읽는 법: 55/55의 95% 구간은 93.5%부터이고, 72회 중 17회가 비어 있어 사례마다 3회가 다 있지 않습니다(빈 17회는 모든 범주에 2~3회씩 흩어져 있습니다). 가격은 OpenAI 공식 페이지가 이 환경에서 열리지 않아 외부 정리에서 가져와 입력한 값이라 비용은 토큰 수에서 계산한 어림이며 청구서가 진실입니다. 이 결과로 말할 수 있는 것은 "OpenAI 모델로도 같은 판정 경로가 끝까지 돌고, 끝난 호출에서는 틀리지 않았다"까지이고, 두 모델의 우열은 아닙니다(둘 다 천장).
+
+**배운 것.** 1차 실행의 실패는 모델이 아니라 호출 쪽의 가정이었습니다. Claude 기록에 쓴 128토큰 출력 한도를 그대로 썼는데, 추론 모델은 그 한도를 추론에 먼저 씁니다. runner는 이제 추론 모델(`gpt-5*`, `o*`)에 256토큰과 `reasoning_effort=minimal`을 주고 온도를 보내지 않으며, 예산 예약도 같은 한도로 합니다.
 
 비교 UI는 catalog에서 모델을 선택합니다. Qwen 원본 latest.json과 Claude의 claude.json을 분리하고, API provider 표시 및 null seed를 지원합니다. API 반복은 로컬 모델과 달리 seed 고정을 주장하지 않습니다.
 

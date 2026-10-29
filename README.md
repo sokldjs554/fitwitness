@@ -15,6 +15,7 @@
 | 측정 | 결과 | 기록 |
 |---|---|---|
 | PDF 근거 판정, Claude Haiku 4.5 72회 | 72/72 정답, 잘못된 일치 0/42, $0.110455 | [evaluation/README](docs/evaluation/README.md) |
+| 같은 판정, OpenAI `gpt-5-mini` 72회 시도 (2026-10-29, 수동 워크플로, 상한 $0.10) | 끝난 55회 모두 정답, 잘못된 일치 0, $0.0114. 17회는 OpenAI 계정 잔액 소진(429)으로 실패. 1차 실행 72회는 추론 모델의 128토큰 출력 한도에 잘려 한도와 추론 설정을 고친 뒤 다시 잼 | [evaluation/README](docs/evaluation/README.md#openai-실측-2026-10-29) · [openai.json](docs/evaluation/openai.json) |
 | 전체 Agent 세 구조, 최종 코드 Claude gate | 3/3 완료, 각 5/5 판정, $0.016586 | [claude-final-gate.json](docs/evaluation/claude-final-gate.json) |
 | 실제 모델이 고르는 경로, test 6개 family × 세 구조, 네 번 실행 (판정은 결정적 검증기, 모델은 도구 선택과 종료만) | 1차 planner+challenger 4/6 완료 → 스키마 실패·없는 저장 검색 호출을 고침 → 3차 단일·반복 계획 24/30·26/30 → 남은 계획 횟수·미조회 필드·돌릴 수 있는 채널을 컨텍스트에 넣음 → 4차 18/18 완료, 90/90, 조회율 1.0. 합계 $0.402162 | [evaluation/README](docs/evaluation/README.md#실제-모델이-고르는-경로--2026-10-22) · [agent-trajectory.json](docs/evaluation/agent-trajectory.json) |
 | 복합 검색 288회 + 재정렬 216회 | Recall@5 복합 33.3%, 조건 정렬 64.2% | [RETRIEVAL.md](docs/RETRIEVAL.md) |
