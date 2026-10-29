@@ -1,12 +1,14 @@
 name: external-nist-sources
+# Free (no model API). Besides the original marker-commit trigger it can be started by hand from the Actions tab.
 on:
   push:
     branches: [feat/fitwitness-foundation]
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
   sources:
-    if: contains(github.event.head_commit.message, '[nist-sources]')
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[nist-sources]')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

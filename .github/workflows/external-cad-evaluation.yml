@@ -1,7 +1,9 @@
 name: nist-external-cad-evaluation
+# Free (no model API). Besides the original marker-commit trigger it can be started by hand from the Actions tab.
 on:
   push:
     branches: [feat/fitwitness-foundation]
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
@@ -10,6 +12,7 @@ concurrency:
 jobs:
   evaluate:
     if: >-
+      github.event_name == 'workflow_dispatch' ||
       startsWith(github.event.head_commit.message, 'eval: NIST external CAD [no-api]')
     runs-on: ubuntu-latest
     timeout-minutes: 20

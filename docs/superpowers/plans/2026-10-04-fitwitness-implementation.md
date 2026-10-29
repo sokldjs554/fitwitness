@@ -1,5 +1,7 @@
 # FitWitness Implementation Plan
 
+> **초기 계획입니다 (2026-10-04).** 실제 구성과 다릅니다. 이 문서가 적은 `verify.yml`, `scripts/verify_release.py`, `deploy/README_KO.md`, `web/src/features/` 같은 경로는 만들지 않았거나 이름이 바뀌었습니다. 지금의 구조는 [README](../../../README.md)와 [WORKFLOW.md](../../WORKFLOW.md)를 보세요.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 자연어·이미지로 도면을 찾고, 후보의 결정적 반례를 확인하며, 도면 변경과 실행 중단 이후에도 근거를 재검증하는 동작 가능한 Agent와 데모를 만든다.

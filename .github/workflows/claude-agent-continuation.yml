@@ -1,4 +1,7 @@
 name: claude-agent-continuation
+# HISTORICAL RECORD. This paid-model workflow ran once, from a marker commit on the branch below, for the measurement the
+# docs cite (the run id is in docs/evaluation). The branch no longer exists and the marker names an exhausted budget, so it
+# cannot start by itself and has no manual trigger on purpose: a new paid measurement is a new, explicitly approved workflow.
 on:
   push:
     branches: [feat/fitwitness-foundation]

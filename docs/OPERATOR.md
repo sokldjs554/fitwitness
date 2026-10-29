@@ -39,7 +39,7 @@ print(Jobs(repo).get(scope, job.id).model_dump_json(indent=2))
 
 `eval: claude evidence pilot [max-usd=1]`
 
-이 프로젝트 승인 한도는 후속 진단을 포함한 **누적1 USD**입니다. 각 workflow의 한도 외에도 확인된 비용과 미확정 예약을 합산합니다. 동일 workflow 재실행은 run_attempt==1로 차단합니다. 현재 누적은$0.238662이며 자동 추가 실행은 없습니다. API 반복에는 seed를 적용하지 않으므로 프로토콜의 seeds는 null이며, 로컬 모델의 seed 고정과 구분합니다.
+이 프로젝트 승인 한도는 후속 진단을 포함한 **누적1 USD**입니다. 각 workflow의 한도 외에도 확인된 비용과 미확정 예약을 합산합니다. 동일 workflow 재실행은 run_attempt==1로 차단합니다. 현재 누적은 $0.255248(최종 provider gate $0.016586 포함)이며 자동 추가 실행은 없습니다. API 반복에는 seed를 적용하지 않으므로 프로토콜의 seeds는 null이며, 로컬 모델의 seed 고정과 구분합니다.
 
 사전 제안: Claude Haiku 4.5 고정 ID `claude-haiku-4-5-20251001`, 동일 24개 사례 × 3회. 입력/출력 단가는 2026-10-04 확인한 공식 기준 1/5 USD per million tokens이며, 실행 전 다시 확인합니다. 전체 실험은 보수적인 예약 합계 1 USD 한도로 차단합니다. 이 한도는 이 작업의 API 호출 예산이며 계정 전체 지출 한도는 아닙니다.
 

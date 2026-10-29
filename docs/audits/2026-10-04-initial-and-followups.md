@@ -6,7 +6,7 @@
 
 E5/OpenCLIP의 실제 가중치 고정·원본 색인·pgvector·worker 연결을 추가했고, 합성150개 도면/24개 질문에서 네 방식×3회=288회 측정했습니다. 도번+BM25 Recall@5 25.0%, 복합33.3%이지만 이미지 단독11.1%, 설명+이미지의 복합9.7%로 한계가 큽니다. 실제 LangGraph의 semantic/image 채널과 완료 상태도 확인했습니다. 아래 최초 감사의 “encoder 미연결·실측 없음”은 이 후속으로 일부 해소됐습니다.
 
-원자적 색인·모델 불일치·테넌트·snapshot·근거 변경 무효화를 검증했습니다. 이는 연구 작업 환경의 연결이며 무료 공개 서버는 lexical/rules를 유지합니다. 이미지 품질 최적화·CAD 거리·reranker·산업 데이터·VLM·OpenAI 실측은 미완료입니다. [실측 표와 범위](RETRIEVAL.md).
+원자적 색인·모델 불일치·테넌트·snapshot·근거 변경 무효화를 검증했습니다. 이는 연구 작업 환경의 연결이며 무료 공개 서버는 lexical/rules를 유지합니다. 이미지 품질 최적화·CAD 거리·reranker·산업 데이터·VLM·OpenAI 실측은 미완료입니다. [실측 표와 범위](../RETRIEVAL.md).
 
 ## 등록 키 후 보완 — 2026-10-04 후속
 
@@ -70,7 +70,7 @@ E5/OpenCLIP의 실제 가중치 고정·원본 색인·pgvector·worker 연결�
 
 ## Claude 키와 비용
 
-사용자는 키를 보유한다고 했으나 이 실행 환경의 `ANTHROPIC_API_KEY`는 비어 있었습니다. 키 값은 요청하거나 출력하지 않았습니다. 먼저 동일 PDF 판정 실험용 실행 경로를 준비합니다. 키는 GitHub Actions secret에 저장하고, 최대 1 USD의 유료 실행 승인을 받은 뒤 전용 marker commit으로 시작합니다. [실행 경로](OPERATOR.md). 이 pilot을 끝내도 위 전체 Agent·검색 항목은 별도 검증해야 합니다.
+사용자는 키를 보유한다고 했으나 이 실행 환경의 `ANTHROPIC_API_KEY`는 비어 있었습니다. 키 값은 요청하거나 출력하지 않았습니다. 먼저 동일 PDF 판정 실험용 실행 경로를 준비합니다. 키는 GitHub Actions secret에 저장하고, 최대 1 USD의 유료 실행 승인을 받은 뒤 전용 marker commit으로 시작합니다. [실행 경로](../OPERATOR.md). 이 pilot을 끝내도 위 전체 Agent·검색 항목은 별도 검증해야 합니다.
 
 ## 현재 검증 근거
 

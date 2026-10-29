@@ -15,7 +15,7 @@
 
 Render 기본 무료 DB는 계정의 기존 무료 DB 때문에 생성할 수 없었습니다. 외부 무료 DB를 사용하라는 지시에 따라 Neon을 연결했습니다. Render 연결 도구가 Docker 서비스 생성을 지원하지 않아 네이티브 Python 런타임을 사용합니다. `render.yaml`에 실제 빌드·실행 명령을 기록했으며, Dockerfile은 별도의 실행 경로입니다.
 
-빌드는 uv 고정 의존성 설치, CadQuery 합성 도면 180개 생성, React 프런트엔드 빌드를 수행합니다. 시작 시 `scripts/setup.py`가 스키마·pgvector·RLS·체크포인트를 준비하고 uvicorn을 실행합니다.
+빌드는 uv 고정 의존성 설치, CadQuery 합성 도면 180개와 합성 청구 120건 생성, React 프런트엔드 빌드를 수행합니다. 시작 시 `scripts/setup.py`가 스키마·pgvector·RLS·체크포인트를 준비하고 uvicorn을 실행합니다.
 
 ## 연결과 비밀 정보
 
@@ -153,3 +153,9 @@ Render 배포 `dep-db13nve0tbcc739c69t0`, 코드 `8a1d8b065399bff657bde1db4a25e9
 
 이 확인은 공개 데모의 체험 공간 두 개를 더 썼습니다(검증 스크립트 한 개, 브라우저 둘). 체험 공간은 방문자마다 따로 만들어지고 시간당 한도 안입니다.
 
+
+## 원클릭 배포 (`deploy.yml`, 2026-10-29)
+
+Render의 자동 배포는 꺼 둔 채(`render.yaml`), Actions 탭에서 한 번 눌러 배포하는 워크플로를 더했습니다. 배포할 커밋(기본은 main의 머리)에 CI(`verified-demo`)가 통과했는지 확인하고, 그 커밋을 배포 훅으로 배포한 뒤, 공개 서버의 `/health`가 그 커밋을 보고할 때까지 기다리고, `scripts/verify_hosted.py`로 공개 HTTPS 검증을 돌려 결과 JSON을 아티팩트로 남깁니다. 이전 커밋을 `ref`로 주면 되돌리기입니다.
+
+필요한 것은 저장소 시크릿 `RENDER_DEPLOY_HOOK_URL`(Render 서비스의 Settings > Deploy Hook) 하나입니다. 없으면 첫 단계에서 멈추고 이유를 적습니다. 이 저장소에서는 아직 등록하지 않았고 한 번도 돌려 보지 않았습니다. 워크플로가 있다는 것이 배포가 자동화됐다는 뜻은 아닙니다.

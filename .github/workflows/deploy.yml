@@ -1,0 +1,63 @@
+name: deploy
+# One click from the Actions tab: deploy a commit of main to the public demo, wait until the demo reports that commit,
+# then run the hosted check (scripts/verify_hosted.py) and keep its result as an artifact. Automatic deploys on Render
+# stay off (render.yaml): a deploy is a decision, and this makes the decision one click instead of a dashboard visit.
+#
+# Needs one repository secret, RENDER_DEPLOY_HOOK_URL (Render: the service > Settings > Deploy Hook). Without it the
+# job stops at its first step and says so. Rolling back is the same run with an earlier commit as `ref`.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit to deploy (default - the head of main)
+        required: false
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DEMO_URL: https://fitwitness.onrender.com
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || 'main' }}
+      - name: The deploy hook is configured
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: test -n "$HOOK" || { echo "::error::Add the repository secret RENDER_DEPLOY_HOOK_URL (Render > service > Settings > Deploy Hook)."; exit 1; }
+      - name: The commit passed CI (verified-demo)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha=$(git rev-parse HEAD)
+          echo "SHA=$sha" >> "$GITHUB_ENV"
+          ok=$(gh run list --repo "${{ github.repository }}" --workflow verified-demo --commit "$sha" --json conclusion --jq '[.[] | select(.conclusion=="success")] | length')
+          echo "green verified-demo runs for $sha: $ok"
+          test "$ok" -ge 1 || { echo "::error::$sha has no green verified-demo run; deploy only what CI has passed."; exit 1; }
+      - name: Trigger the deploy of exactly that commit
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: curl -fsS -X POST "${HOOK}&ref=${SHA}" -o /dev/null || curl -fsS -X POST "${HOOK}?ref=${SHA}" -o /dev/null
+      - name: Wait until the demo reports that commit (a free instance builds for several minutes)
+        run: |
+          for i in $(seq 1 60); do
+            got=$(curl -fsS --max-time 120 "$DEMO_URL/health" 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin).get('sha',''))" 2>/dev/null || true)
+            echo "attempt $i: demo reports '${got:0:7}', want '${SHA:0:7}'"
+            case "$got" in "$SHA"*|"${SHA:0:7}"*) exit 0;; esac
+            sleep 30
+          done
+          echo "::error::the demo did not report $SHA within 30 minutes"; exit 1
+      - name: Hosted check over HTTPS (readiness, assets, workers, claims, review, supplement, headers)
+        run: python3 scripts/verify_hosted.py --url "$DEMO_URL" --output "artifacts/hosted-${SHA:0:7}.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hosted-verification
+          path: artifacts/
+          if-no-files-found: ignore
