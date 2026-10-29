@@ -4,7 +4,7 @@
 - 저장소: https://github.com/sokldjs554/fitwitness
 - 배포 브랜치: `main` (`render.yaml`, 자동 배포 꺼짐, Render 대시보드에서 수동 배포)
 - 처음 배포한 `feat/fitwitness-foundation`은 PR [#1](https://github.com/sokldjs554/fitwitness/pull/1)로 2026-10-05에 main에 병합했습니다
-- 공개 데모가 돌리는 코드: `93a794c`(2026-10-29 01:00 UTC 확인). 스캔 읽기 예시(`#claims-scan`)에 더해 서류 **보완 요청** 결정과 "원장에 지급 기록" 문구가 들어 있습니다. `/health`의 sha가 이 커밋과 같고(저장소의 main과도 같음), `scripts/verify_hosted.py`가 01:03 UTC에 전체 통과했습니다([기록](verification/hosted-20261029-93a794c.json)). 직전 배포 `02bd3df`의 기록은 [여기](verification/hosted-20261028-02bd3df.json), 그 앞은 `f925d1b`([기록](verification/hosted-20261028-f925d1b.json)). 배포 절차는 [아래](#2026-10-26-배포)
+- 공개 데모가 돌리는 코드: `88a7484`(2026-10-29 12:12 UTC 확인; 그 전은 93a794c·fcd746d·45ccf9a). 스캔 읽기 예시(`#claims-scan`)에 더해 서류 **보완 요청** 결정과 "원장에 지급 기록" 문구가 들어 있습니다. `/health`의 sha가 이 커밋과 같고(저장소의 main과도 같음), `scripts/verify_hosted.py`가 01:03 UTC에 전체 통과했습니다([기록](verification/hosted-20261029-93a794c.json)). 직전 배포 `02bd3df`의 기록은 [여기](verification/hosted-20261028-02bd3df.json), 그 앞은 `f925d1b`([기록](verification/hosted-20261028-f925d1b.json)). 배포 절차는 [아래](#2026-10-26-배포)
 - 깨워 두기: 무료 인스턴스는 15분 동안 요청이 없으면 잠들고, 그 뒤 첫 화면은 89.5초 걸렸습니다(2026-10-27). [아래](#깨워-두기-2026-10-27)
 
 
@@ -178,6 +178,15 @@ Render의 자동 배포는 꺼 둔 채(`render.yaml`), Actions 탭에서 한 번
 - 같은 커밋의 GitHub Actions(`verified-demo`)가 성공으로 끝났습니다.
 - 이 확인은 체험 공간을 셋 썼습니다(검증 스크립트 하나, 브라우저 둘).
 - 하지 않은 것: 공개 서버에서 이어진 입원과 수술분류표 규칙은 화면으로 재현하지 않았습니다(합성 청구 건에 같은 계약의 입원이 둘 있는 경우가 없습니다). 이 규칙들은 단위 테스트가 근거입니다. 라이브 모델 읽기는 켜지 않았습니다.
+
+## 2026-10-29 여섯 번째 배포: 벡터 색인, 담당자 신원(꺼짐), 코드 버전 기록
+
+지원자가 `main`(`88a7484`)을 수동 배포했습니다. 시작 때 `migrate()`가 `fw_vectors`의 채널별 HNSW 색인 셋과 `fw_runs.code_version` 열을 호스팅 데이터베이스에 만들었습니다(공개 데모에는 인코더가 없어 색인은 비어 있습니다).
+
+- `/health`의 sha가 `88a748471869aab56647068bb5eb4200c2e9d2b4`입니다. OIDC 변수가 없으므로 담당자 신원은 익명 그대로이고, 라이브 모델 읽기도 꺼진 채입니다.
+- `scripts/verify_hosted.py`가 공개 서버에서 15개 항목 모두 통과했습니다(12:12 UTC). 기록은 [hosted-20261029-88a7484.json](verification/hosted-20261029-88a7484.json)입니다.
+- 같은 커밋의 GitHub Actions(`verified-demo`, `container-evaluation`)가 성공으로 끝났습니다.
+- 이 확인은 체험 공간을 하나 썼고, 브라우저로 화면을 다시 눌러 보지는 않았습니다(화면이 바뀐 커밋이 아닙니다).
 
 ## 라이브 모델 읽기 켜기 (선택, 기본은 꺼짐)
 
