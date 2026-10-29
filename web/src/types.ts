@@ -31,6 +31,8 @@ export type Decision = {
   review_note?: string | null;
 };
 export type Resubmission = { of_run: string; attempt: number; added: string[]; replaced: string[]; held_by: string; hold_note: string };
+export type Notice = { kind: "request_info" | "decision"; to: string; subject: string; body: string; respond_by?: string | null; created_at: string };
+export type ApprovalRow = { reviewer: string; outcome: string; step?: number; decided_at?: string; key_id?: string; status: "valid" | "altered" | "out_of_order" | "unsigned"; note?: string; total_amount?: number | null };
 export type ClaimOutcome = {
   claim_id: string;
   document_ids?: string[];
@@ -44,6 +46,7 @@ export type ClaimOutcome = {
   pre_review_decision: ClaimDecision;
   human: { outcome: string; reviewer: string; note: string; total_amount?: number | null } | null;
   approvers?: string[];
+  notices?: Notice[];
   payout: { status: string; claim_id: string; amount: number; paid_at?: string | null; run_id?: string | null };
   explanation: string;
   audit: string[];

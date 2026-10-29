@@ -11,7 +11,10 @@ of the case's waiting documents. There is no upload.
 
 from __future__ import annotations
 
+from datetime import date, datetime, timezone
+
 from fitwitness.claims.models import ClaimRequest, Resubmission
+from fitwitness.claims.notices import held_deadline
 
 HELD_CODE = "info_requested"
 
@@ -30,12 +33,15 @@ def held_reason(result: dict | None) -> dict | None:
     return next((r for r in decision.get("reasons", []) if r.get("code") == HELD_CODE), None)
 
 
-def plan(case: dict, run: dict, document_ids: list[str]) -> ClaimRequest:
+def plan(case: dict, run: dict, document_ids: list[str], *, today: date | None = None) -> ClaimRequest:
     """The claim request for the run that continues ``run`` (a stored claim run) with ``document_ids``."""
     if (run["request"] or {}).get("kind") != "claim":
         raise ResubmitError("서류를 접수할 수 있는 것은 청구 심사 실행뿐입니다", conflict=True)
     if run["state"] != "completed" or held_reason(run["result"]) is None:
         raise ResubmitError("보완 요청으로 보류된 청구에만 서류를 접수할 수 있습니다", conflict=True)
+    deadline = held_deadline(run["result"])
+    if deadline is not None and (today or datetime.now(timezone.utc).date()) > deadline:
+        raise ResubmitError(f"서류 보완 접수 기한({deadline.isoformat()})이 지났습니다. 새로 청구해 주세요", conflict=True)
     previous = ClaimRequest.model_validate(run["request"]["claim"])
     waiting = {d["id"]: d for d in case.get("supplementary_documents") or []}
     kinds = {d["id"]: d["kind"] for d in [*case["documents"], *waiting.values()]}

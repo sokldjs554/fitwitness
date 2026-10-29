@@ -67,6 +67,36 @@ def test_a_senior_claim_is_paid_only_after_two_different_people_approve(env):
     assert review["approvers"] == ["김심사", "박팀장"] and review["tier"] == "senior"
 
 
+def test_the_second_approval_is_signed_after_the_first_and_the_chain_verifies(env):
+    from fitwitness.claims import receipt
+    from fitwitness.claims.models import ClaimReview
+
+    repo, jobs, _ = env
+    key = receipt.signing_key(b"k" * 48)
+
+    def signer(run, answer, step, prev):
+        return receipt.sign(key, run["tenant_id"], run["id"], ((run["request"] or {}).get("claim") or {}).get("claim_id", ""), answer, step=step, prev=prev)
+
+    scope, run_id, amount = parked_claim(repo, jobs, senior=True)
+    note = "서류와 금액을 직접 확인했습니다"
+    jobs.resume(scope, run_id, {"outcome": "APPROVE", "reviewer": "김심사", "note": note, "receipt": {"step": 1, "decided_at": "x", "signature": "0" * 64, "key_id": "forged"}}, signer=signer)
+    execute_run(repo, scope, run_id)
+    assert waiting(jobs, scope, run_id)["first_signature"] not in ("", "0" * 64)  # the question for the second approver carries the first signature
+    jobs.resume(scope, run_id, {"outcome": "APPROVE", "reviewer": "박팀장", "note": note}, signer=signer)
+    execute_run(repo, scope, run_id)
+    result = jobs.raw(scope, run_id)["result"]
+    approvals = [ClaimReview.model_validate(a) for a in result["approvals"]]
+    assert [a.reviewer for a in approvals] == ["김심사", "박팀장"] and [a.receipt.step for a in approvals] == [1, 2]
+    assert approvals[1].receipt.prev == approvals[0].receipt.signature and approvals[0].receipt.key_id != "forged"
+    claim_id = result["claim_id"]
+    rows = receipt.verify(key, scope.tenant_id, run_id, claim_id, approvals)
+    assert [r["status"] for r in rows] == ["valid", "valid"]
+    swapped = [approvals[0].model_copy(update={"total_amount": 1}), approvals[1]]
+    assert [r["status"] for r in receipt.verify(key, scope.tenant_id, run_id, claim_id, swapped)] == ["altered", "valid"]
+    assert [r["status"] for r in receipt.verify(key, scope.tenant_id, run_id, claim_id, approvals[::-1])] == ["out_of_order", "out_of_order"]
+    assert [p["amount"] for p in repo.payouts(scope)] == [amount]  # signing changed nothing about the money
+
+
 def test_one_refusal_is_final_at_either_step(env):
     repo, jobs, _ = env
     scope, run_id, _ = parked_claim(repo, jobs, senior=True)

@@ -2826,3 +2826,7 @@ footer button {
 .scan-reasons{margin:10px 0 0}
 .scan-picked{margin:12px 0 0;font-size:11px;line-height:1.6;color:#858a84}
 @media(max-width:860px){.scan-board{grid-template-columns:1fr}.scan-page .doc-image{max-width:100%}.scan-example{padding:14px}.scan-result{grid-template-columns:1fr}}
+.claims-notices { margin: 10px 0 0; border: 1px solid #e3e1da; border-radius: 8px; background: #fff; }
+.claims-notices article { padding: 8px 12px; border-top: 1px solid #efeee9; }
+.claims-notices strong { font-size: 12px; }
+.claims-notices pre { margin: 4px 0 0; font: inherit; font-size: 11px; line-height: 1.7; white-space: pre-wrap; color: #4a4a44; }

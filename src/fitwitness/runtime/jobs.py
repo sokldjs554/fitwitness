@@ -424,8 +424,11 @@ class Jobs:
             self._event(c, scope, run_id, "waiting_input", {**payload, "review_due_at": row["review_due_at"].isoformat()})
             return True
 
-    def resume(self, scope, run_id, human_input):
-        """Store the reviewer's answer and queue the run again; the worker resumes the graph with it."""
+    def resume(self, scope, run_id, human_input, signer=None):
+        """Store the reviewer's answer and queue the run again; the worker resumes the graph with it.
+
+        ``signer(run, answer, step, prev)`` returns the receipt a claim answer is stored with (claims/receipt.py); a
+        receipt the caller sent is dropped, since a receipt is the server's to give."""
         if scope.role == "viewer":
             raise PermissionError("read only")
         current = self.raw(scope, run_id)
@@ -437,10 +440,14 @@ class Jobs:
             from fitwitness.claims.models import ClaimReview
             from fitwitness.claims.review import check_answer
 
-            human_input = ClaimReview.model_validate(human_input).model_dump(mode="json")
+            human_input = {**ClaimReview.model_validate(human_input).model_dump(mode="json"), "receipt": None}
             # The sign-off rules (a reason, a second person) belong to the question that was asked.
             waiting = next((e["payload"] for e in reversed(self.events(scope, run_id)) if e["kind"] == "waiting_input"), {})
-            check_answer(waiting, ClaimReview.model_validate(human_input), escalated=bool(current.get("escalated_at")))
+            answer = ClaimReview.model_validate(human_input)
+            check_answer(waiting, answer, escalated=bool(current.get("escalated_at")))
+            if signer is not None:
+                receipt = signer(current, answer, int(waiting.get("step") or 1), str(waiting.get("first_signature") or ""))
+                human_input["receipt"] = receipt.model_dump(mode="json")
         else:
             from fitwitness.contracts import ReviewInput
 
@@ -612,6 +619,7 @@ class Jobs:
                 c.execute("UPDATE fw_revisions SET supersedes=NULL WHERE tenant_id=%s", (tenant,))
                 c.execute("DELETE FROM fw_revisions WHERE tenant_id=%s", (tenant,))
         with self.repo.plain() as c:
+            c.execute("DELETE FROM fw_corpus_version WHERE tenant_id=ANY(%s)", (expired,))  # the deletes above bumped it
             tables = ("checkpoint_writes", "checkpoint_blobs", "checkpoints")
             present = [c.execute("SELECT to_regclass(%s) AS t", (table,)) for table in tables]
             for table, q in zip(tables, present):

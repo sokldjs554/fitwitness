@@ -12,7 +12,9 @@ from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request, R
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-from fitwitness.contracts import TenantScope, RunRequest, DrawingRevision, SearchRequest, ReviewInput
+from decimal import Decimal
+from fitwitness.api import live
+from fitwitness.contracts import Budget, TenantScope, RunRequest, DrawingRevision, SearchRequest, ReviewInput
 from fitwitness.claims.models import ClaimRequest, ClaimReview, ClaimSupplement, Policy
 from fitwitness.claims.synth import SCENARIO_LABELS
 from fitwitness.runtime.metrics import collect as collect_db_metrics
@@ -63,6 +65,14 @@ def create_app():
                 break
             time.sleep(0.1)
     signer = URLSafeTimedSerializer(key, salt="fitwitness-session-v1")
+    from fitwitness.claims import receipt as receipts
+
+    approval_key = receipts.signing_key(key.encode())
+
+    def sign_answer(run, answer, step, prev):
+        claim_id = ((run.get("request") or {}).get("claim") or {}).get("claim_id", "")
+        return receipts.sign(approval_key, run["tenant_id"], run["id"], claim_id, answer, step=step, prev=prev)
+
     # The per-address session count is stored under a keyed hash of the address: a bare SHA-256 of an IPv4
     # address is undone by trying every address.
     peer_key = hmac.new(key.encode(), b"fitwitness-peer-v1", hashlib.sha256).digest()
@@ -149,6 +159,19 @@ def create_app():
             "no-store" if request.url.path.startswith("/api") else "no-cache"
         )
         return response
+
+    def reserve_live_run(s: TenantScope, idem: str) -> dict:
+        """The model fields of a live claim run, after the visitor's turn and the day's ceiling have both been taken."""
+        cfg = live.load()
+        if not cfg.enabled:
+            raise HTTPException(409, "라이브 모델 읽기는 이 서버에서 꺼져 있습니다")
+        if jobs.admit(f"live-key:{s.tenant_id}:{idem}", 1):  # a repeated key is the same run: it reserves nothing again
+            if not jobs.admit(f"live-session:{s.tenant_id}", cfg.per_session):
+                raise HTTPException(429, f"체험 공간마다 라이브 모델 읽기는 {cfg.per_session}번까지입니다")
+            if not repo.live_reserve(live.today(), cfg.run_usd, cfg.daily_usd):
+                raise HTTPException(429, "오늘의 라이브 모델 호출 한도를 모두 썼습니다. 규칙 읽기로는 계속 쓸 수 있습니다")
+        return {"provider": "anthropic", "model_id": cfg.model,
+                "budget": Budget(max_model_calls=3, max_tool_calls=1, max_tokens=12000, max_cost_usd=cfg.run_usd, deadline_seconds=90)}
 
     def run_quota():
         """The hourly budget for new runs, shared by every route that starts one."""
@@ -277,8 +300,14 @@ def create_app():
 
     @app.get("/api/capabilities")
     def capabilities():
+        cfg = live.load()
         return {
             "providers": {"rules": True, "openai": False, "anthropic": False},
+            # Live model reading of a claim: off unless the operator enabled it (api/live.py). The remaining count is
+            # what the day's ceiling still allows, not a promise: another visitor may take it first.
+            "live": ({"enabled": True, "model": cfg.model, "per_session": cfg.per_session,
+                      "remaining_today": cfg.remaining_runs(Decimal(str(repo.live_reserved(live.today()))))}
+                     if cfg.enabled else {"enabled": False}),
             "models": {
                 "openai": os.getenv("FITWITNESS_OPENAI_MODEL", ""),
                 "anthropic": os.getenv("FITWITNESS_ANTHROPIC_MODEL", ""),
@@ -382,7 +411,7 @@ def create_app():
         from fitwitness.claims.review import ReviewRuleError
 
         try:
-            view = jobs.resume(s, run_id, body.model_dump(mode="json"))
+            view = jobs.resume(s, run_id, body.model_dump(mode="json"), signer=lambda run, answer, step, prev: sign_answer({**run, "tenant_id": s.tenant_id}, answer, step, prev))
         except ReviewRuleError as exc:
             raise HTTPException(422, str(exc))  # the answer breaks the sign-off rules; the run is still waiting
         except ValueError as exc:
@@ -391,6 +420,21 @@ def create_app():
             background.add_task(supervise, s, view.id, False)
         app.state.nudge()
         return view
+
+    @app.get("/api/runs/{run_id}/approvals")
+    def approvals(run_id: str, s: TenantScope = Depends(scope)):
+        """The reviewer answers recorded on a finished claim run, each checked against the server's signature."""
+        from fitwitness.claims.models import ClaimReview
+
+        run = jobs.raw(s, run_id)
+        if not run:
+            raise HTTPException(404, "실행을 찾을 수 없습니다")
+        result = run.get("result") or {}
+        claim_id = ((run.get("request") or {}).get("claim") or {}).get("claim_id", "")
+        answers = [ClaimReview.model_validate(a) for a in result.get("approvals") or []]
+        return {"run_id": run_id, "claim_id": claim_id,
+                "approvals": [{**row, "note": a.note, "total_amount": a.total_amount}
+                              for row, a in zip(receipts.verify(approval_key, s.tenant_id, run_id, claim_id, answers), answers)]}
 
     @app.get("/api/runs/{run_id}/trace")
     def trace(run_id: str, format: Literal["tree", "otlp"] = "tree", s: TenantScope = Depends(scope)):
@@ -422,13 +466,17 @@ def create_app():
         if not case:
             raise HTTPException(404, "청구 건을 찾을 수 없습니다")
         review = "always" if request.headers.get("x-claim-review") == "always" else "rules"
-        claim = ClaimRequest(case_id=case["case_id"], claim_id=case["claim_id"], policy=Policy.model_validate(case["policy"]),
-                             requested=case["requested"], document_ids=[d["id"] for d in case["documents"]],
-                             submitted_at=case["submitted_at"], review=review)
-        body = RunRequest(kind="claim", claim=claim.model_dump(mode="json"), demo_fault=request.headers.get("x-demo-fault") == "1")
         idem = request.headers.get("Idempotency-Key") or str(uuid4())
         if len(idem) > 200:
             raise HTTPException(422, "idempotency key too long")
+        model_fields: dict = {}
+        if request.headers.get("x-claim-live") == "1":
+            model_fields = reserve_live_run(s, idem)
+        claim = ClaimRequest(case_id=case["case_id"], claim_id=case["claim_id"], policy=Policy.model_validate(case["policy"]),
+                             requested=case["requested"], document_ids=[d["id"] for d in case["documents"]],
+                             submitted_at=case["submitted_at"], review=review)
+        body = RunRequest(kind="claim", claim=claim.model_dump(mode="json"), demo_fault=request.headers.get("x-demo-fault") == "1",
+                          **model_fields)
         try:
             view = jobs.enqueue(s, body, idem, quota=run_quota())
         except QuotaExceeded as exc:

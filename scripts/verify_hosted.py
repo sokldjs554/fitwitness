@@ -112,6 +112,11 @@ def verify(base, local=False):
     assert claim["human"]["outcome"] == "REQUEST_INFO" and claim["payout"]["status"] == "skipped", claim["human"]
     assert any(r["rule_id"] == "R-HUMAN-02" for r in claim["decision"]["reasons"])
     assert call("/api/claims/ledger") == ledger_before, "a held claim must not reach the ledger"
+    notice = next(n for n in claim["notices"] if n["kind"] == "request_info")  # the claimant is told what to send, and by when
+    assert notice["respond_by"] and "수술확인서 사본 요청" in notice["body"], notice
+    answers = call(f"/api/runs/{parked['id']}/approvals")["approvals"]  # and the reviewer's answer carries the server's signature
+    assert [a["status"] for a in answers] == ["valid"], answers
+    assert call("/api/capabilities")["live"]["enabled"] in (True, False)
     print("Claim held for documents: nothing paid, nothing refused", flush=True)
     # The claimant's documents continue the same claim: one new run reads the full set, a second click is the same run,
     # and nothing reaches the ledger before the sign-off this claim's amount needs.
@@ -139,6 +144,7 @@ def verify(base, local=False):
             f"all {count} PDF/PNG/STEP/mesh assets and exact-ID search", "idempotency", "worker recovery", "revision invalidation",
             "reverification", "tenant isolation", "origin rejection", "paid API disabled", "private metrics",
             "scan examples and their page pictures", "claim held for documents without payout",
+            "held claim carries a claimant notice with a deadline and a signed reviewer answer",
             "documents sent after a hold continue the same claim"]}
 
 

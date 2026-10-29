@@ -5,6 +5,7 @@ import {
   claimLabels,
   docKindLabels,
   eventNames,
+  type ApprovalRow,
   type ClaimCase,
   type Resubmission,
   type Run,
@@ -29,6 +30,10 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
   const [crash, setCrash] = useState(false);
   const [alwaysReview, setAlwaysReview] = useState(false);
   const [ledger, setLedger] = useState<{ claim_id: string; amount: number; paid_at: string }[]>([]);
+  const [receipts, setReceipts] = useState<ApprovalRow[]>([]);
+  // Model reading of a claim is offered only when the operator switched it on (and it says how many runs the day still allows).
+  const [live, setLive] = useState<{ enabled: boolean; model?: string; remaining_today?: number; per_session?: number }>({ enabled: false });
+  const [useLive, setUseLive] = useState(false);
 
   const loadCases = async () => {
     const list = await api<ClaimCase[]>("/claims/cases");
@@ -36,11 +41,13 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
     if (!selected && list[0]) setSelected(list[0].case_id);
     return list;
   };
+  const loadLive = () => api<{ live?: typeof live }>("/capabilities").then((c) => setLive(c.live ?? { enabled: false })).catch(() => {});
   const loadLedger = () => api<typeof ledger>("/claims/ledger").then(setLedger).catch(() => {});
   useEffect(() => {
     if (!ready) return;
     loadCases().catch((e) => setError(String(e)));
     void loadLedger();
+    void loadLive();
   }, [ready]);
   const current = cases.find((c) => c.case_id === selected);
   useEffect(() => {
@@ -79,6 +86,13 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
     return () => { stopped = true; clearInterval(t); };
   }, [run?.id, run?.state]);
 
+  useEffect(() => {
+    // A finished run with a reviewer's answer carries the server's signature on it; the server checks it when asked.
+    setReceipts([]);
+    if (run?.state !== "completed" || !run.claim?.human) return;
+    api<{ approvals: ApprovalRow[] }>(`/runs/${run.id}/approvals`).then((r) => setReceipts(r.approvals)).catch(() => {});
+  }, [run?.id, run?.state]);
+
   async function start() {
     if (!current) return;
     setBusy(true);
@@ -90,6 +104,7 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
           "Idempotency-Key": crypto.randomUUID(),
           ...(crash ? { "x-demo-fault": "1" } : {}),
           ...(alwaysReview ? { "x-claim-review": "always" } : {}),
+          ...(useLive && live.enabled ? { "x-claim-live": "1" } : {}),
         },
       });
       setRun(r);
@@ -173,6 +188,9 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
   const again = outcome?.resubmission ?? intake?.resubmission ?? null; // this run continues a claim held for documents
   const waitingDocs = (current?.supplementary_documents ?? []).filter((d) => !(runDocIds ?? []).includes(d.id));
   const canSupplement = held && !!run && current?.latest_run?.run_id === run.id; // the newest run of the case, and it is held
+  const deadline = outcome?.notices?.find((n) => n.kind === "request_info")?.respond_by ?? null; // the last day the claimant can still send documents
+  const expired = !!deadline && new Date().toISOString().slice(0, 10) > deadline;
+  const signed = receipts.length > 0 && receipts.every((r) => r.status === "valid");
   const extraction = outcome?.extraction;
   const evidence = extraction?.evidence ?? {};
   const docEvidence = Object.entries(evidence).filter(([, ref]) => ref.doc_id === doc);
@@ -236,6 +254,12 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
                 <div className="claims-actions">
                   <label className="fault-toggle"><input type="checkbox" checked={alwaysReview} onChange={(e) => setAlwaysReview(e.target.checked)} disabled={running} />항상 담당자 확인</label>
                   <label className="fault-toggle"><input type="checkbox" checked={crash} onChange={(e) => setCrash(e.target.checked)} disabled={running} />지급 기록 직후 중단 체험</label>
+                  {live.enabled && (
+                    <label className="fault-toggle" data-testid="claim-live-toggle" title="서류를 모델이 읽습니다. 같은 근거 검사를 거치고, 건당·하루 비용 상한 안에서만 실행됩니다.">
+                      <input type="checkbox" checked={useLive} onChange={(e) => setUseLive(e.target.checked)} disabled={running || (live.remaining_today ?? 0) <= 0} />
+                      모델이 읽기(라이브 · {live.model}) · 오늘 남은 {live.remaining_today ?? 0}회, 공간당 {live.per_session}회
+                    </label>
+                  )}
                   <button className="primary" onClick={start} disabled={!ready || running}>
                     <Play size={13} /> {running ? "심사 중…" : "자동 심사 시작"} <ArrowRight size={14} />
                   </button>
@@ -294,6 +318,7 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
                   <span>
                     <b>심사 보류 · 서류를 기다리는 중입니다.</b>{" "}
                     {outcome?.human?.note && <>요청 내용: “{outcome.human.note}”. </>}
+                    {deadline && <span data-testid="claim-deadline">{expired ? `접수 기한(${deadline})이 지났습니다. 새로 청구해야 합니다. ` : `접수 기한 ${deadline}까지. `}</span>}
                     {waitingDocs.length ? (
                       <>
                         청구인이 보낸 서류를 같은 청구에 붙이면 처음부터 다시 심사하고, 같은 종류의 서류는 새 것으로 바꿉니다.
@@ -317,7 +342,7 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
                   </span>
                   {waitingDocs.length > 0 && (
                     <div className="review-buttons">
-                      <button onClick={() => void supplement()} disabled={busy}>서류 {waitingDocs.length}건 접수 · 다시 심사 <ArrowRight size={13} /></button>
+                      <button onClick={() => void supplement()} disabled={busy || expired}>서류 {waitingDocs.length}건 접수 · 다시 심사 <ArrowRight size={13} /></button>
                     </div>
                   )}
                 </div>
@@ -338,8 +363,24 @@ export function ClaimsDesk({ ready }: { ready: boolean }) {
                     <span className="eyebrow">사람 개입</span>
                     <strong>{outcome.human ? `${outcome.approvers && outcome.approvers.length > 1 ? outcome.approvers.join(" · ") : outcome.human.reviewer} · ${claimLabels[outcome.human.outcome]}` : "없음 · 자동 처리"}</strong>
                     <small>추출 신뢰도 {Math.round(outcome.extraction.confidence * 100)}%{outcome.flags.length ? ` · 정합성 플래그 ${outcome.flags.length}` : ""}</small>
+                    {receipts.length > 0 && (
+                      <small data-testid="claim-receipts" title="서버가 담당자 답변을 받아 서명한 값을 다시 계산해 대조한 결과입니다. 답변한 사람이 누구인지는 증명하지 않습니다.">
+                        {signed ? `담당자 답변 ${receipts.length}건 서명 확인` : `서명 확인 실패: ${receipts.map((r) => r.status).join(", ")}`}
+                      </small>
+                    )}
                   </div>
                 </div>
+              )}
+              {outcome && (outcome.notices?.length ?? 0) > 0 && (
+                <section className="claims-notices" data-testid="claim-notices">
+                  <div className="section-bar"><h2>청구인에게 보낼 안내문</h2><span>합성 발송함 · 실제로 보내지 않습니다</span></div>
+                  {outcome.notices!.map((n) => (
+                    <article key={n.kind + n.created_at}>
+                      <strong>{n.subject}</strong>
+                      <pre>{n.body}</pre>
+                    </article>
+                  ))}
+                </section>
               )}
               <div className="claims-board">
                 <section className="claims-doc">

@@ -159,3 +159,31 @@ Render 배포 `dep-db13nve0tbcc739c69t0`, 코드 `8a1d8b065399bff657bde1db4a25e9
 Render의 자동 배포는 꺼 둔 채(`render.yaml`), Actions 탭에서 한 번 눌러 배포하는 워크플로를 더했습니다. 배포할 커밋(기본은 main의 머리)에 CI(`verified-demo`)가 통과했는지 확인하고, 그 커밋을 배포 훅으로 배포한 뒤, 공개 서버의 `/health`가 그 커밋을 보고할 때까지 기다리고, `scripts/verify_hosted.py`로 공개 HTTPS 검증을 돌려 결과 JSON을 아티팩트로 남깁니다. 이전 커밋을 `ref`로 주면 되돌리기입니다.
 
 필요한 것은 저장소 시크릿 `RENDER_DEPLOY_HOOK_URL`(Render 서비스의 Settings > Deploy Hook) 하나입니다. 없으면 첫 단계에서 멈추고 이유를 적습니다. 이 저장소에서는 아직 등록하지 않았고 한 번도 돌려 보지 않았습니다. 워크플로가 있다는 것이 배포가 자동화됐다는 뜻은 아닙니다.
+
+## 2026-10-29 네 번째 배포: 서류 재접수와 보안 수정
+
+지원자가 `main`(`fcd746d`)을 수동 배포했습니다. 서류 재접수(`/api/runs/{id}/supplement`), 판단하지 못한 담보 옆의 부지급을 담당자에게 보내는 규칙(R-UNDEC-01), 보안 점검의 수정([SECURITY.md](SECURITY.md)), 평가 게이트와 CI 보강이 들어 있습니다. 배포 뒤 확인한 것:
+
+- `/health`의 sha가 `fcd746d13aa006b8df5988b48cde51f675f7bc6f`였습니다.
+- `scripts/verify_hosted.py`가 공개 서버에서 통과했습니다(`status: passed`, 검사 14개). 서류 누락 건을 보류한 뒤 대기 서류를 접수하면 같은 청구가 이어져 지급되고, 원장에는 한 줄만 남는지까지 확인합니다. 기록은 [hosted-20261029-fcd746d.json](verification/hosted-20261029-fcd746d.json)입니다.
+- 이 확인은 체험 공간을 하나 썼습니다. 브라우저로 화면을 다시 눌러 보지는 않았습니다.
+
+## 라이브 모델 읽기 켜기 (선택, 기본은 꺼짐)
+
+공개 데모의 청구 심사는 규칙으로 읽습니다. 서버에서 아래를 모두 설정해야만 방문자가 모델 읽기 경로(추출기, 같은 근거 검사)를 실제로 돌려 볼 수 있고, 하나라도 없으면 `/api/capabilities`의 `live.enabled`가 `false`이고 요청은 409입니다. 이 저장소의 어느 파일에도 키는 없고, 켜는 것은 운영자의 결정입니다.
+
+| 환경 변수 | 뜻 |
+|---|---|
+| `FITWITNESS_LIVE_DEMO=on` | 켬 (정확히 `on`만) |
+| `ANTHROPIC_API_KEY` | 운영자의 키. Render 환경 변수로만 넣습니다 |
+| `FITWITNESS_ANTHROPIC_MODEL` | 쓸 모델 이름 |
+| `FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION`, `..._OUTPUT_USD_PER_MILLION` | 가격표. 호출 전에 최악의 비용을 계산하는 데 씁니다 |
+| `FITWITNESS_LIVE_RUN_USD` | 실행 한 건의 비용 상한. 실행의 예산이 이 값을 넘는 호출을 호출 전에 거절합니다 |
+| `FITWITNESS_LIVE_DAILY_USD` | 하루(UTC) 상한. 실행 한 건이 대기열에 들어가기 전에 `RUN_USD`만큼을 **한 문장으로** 예약하고, 합이 이 값을 넘으면 429입니다 |
+| `FITWITNESS_LIVE_PER_SESSION` | 체험 공간당 라이브 실행 수(기본 2, 최대 10) |
+
+최악의 하루 비용은 `FITWITNESS_LIVE_DAILY_USD`입니다. 예약은 실행이 실제로 쓴 값이 아니라 상한을 기준으로 하므로 실제 지출은 그보다 작고, 반복된 멱등 키는 예약하지 않습니다. 이 경로의 코드는 가짜 모델로 시험했고(상한 계산, 원자적 예약 경쟁, 공간당 제한, 꺼짐 기본값), **실제 모델로 켜서 돌려 본 적은 없습니다.** 처음 켠 뒤에는 적은 상한(예: 일 $1, 건당 $0.03)으로 시작해 한 건을 돌려 비용과 결과를 확인하는 것을 권합니다.
+
+## 시작 때 만들어지는 DB 개체
+
+`Repository.migrate()`가 API와 worker 시작마다 실행되어, 이번에 더한 `fw_corpus_version`(검색 상태의 변경 카운터)과 개정판·사실·벡터 표의 문장 단위 트리거, `fw_live_spend`(라이브 모델 예약)를 만듭니다. 모두 `IF NOT EXISTS`나 `CREATE OR REPLACE`이고 기존 데이터는 건드리지 않습니다. 트리거 함수는 `SECURITY DEFINER`이며 `search_path`를 고정했고, 요청 역할은 `fw_corpus_version`을 자기 테넌트 행만 읽을 수 있습니다.

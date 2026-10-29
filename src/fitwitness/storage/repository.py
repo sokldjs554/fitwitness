@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 from contextlib import contextmanager
-from datetime import datetime, timezone
 from hashlib import sha256
 import json
 import os
@@ -89,6 +88,7 @@ def checkpoint_connection(dsn: str):
 
 
 from fitwitness.contracts import DrawingRevision, Fact, SearchSnapshot, TenantScope
+from fitwitness.storage.corpus_state import CorpusState, active_ids, state_in
 
 SCHEMA = """
 CREATE EXTENSION IF NOT EXISTS vector;
@@ -107,6 +107,61 @@ CREATE TABLE IF NOT EXISTS fw_facts (
  tenant_id text NOT NULL, revision_id text NOT NULL, id text NOT NULL, data jsonb NOT NULL,
  PRIMARY KEY(tenant_id,id), FOREIGN KEY(tenant_id,revision_id) REFERENCES fw_revisions(tenant_id,id)
 );
+"""
+
+
+# A counter per tenant that moves in the same transaction as any write to the searchable tables. The statement-level
+# triggers (one upsert per statement, not per row) are what lets a process keep what it read about a corpus: it keeps
+# it for as long as the counter is the one it read under. The table is readable by the request role for its own
+# tenant and writable only through the trigger function, which runs with its owner's rights. TRUNCATE clears the table,
+# so counters restart under new random epochs and nothing built under an old one can match.
+CORPUS_VERSION = """
+CREATE TABLE IF NOT EXISTS fw_corpus_version (
+ tenant_id text PRIMARY KEY, epoch text NOT NULL DEFAULT md5(random()::text || clock_timestamp()::text),
+ version bigint NOT NULL DEFAULT 1
+);
+ALTER TABLE fw_corpus_version ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+ IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='fw_corpus_version' AND policyname='tenant_read') THEN
+  CREATE POLICY tenant_read ON fw_corpus_version FOR SELECT USING (tenant_id=current_setting('app.tenant',true));
+ END IF;
+END $$;
+GRANT SELECT ON fw_corpus_version TO fitwitness_app;
+CREATE OR REPLACE FUNCTION fw_bump_corpus_version() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp AS $$
+BEGIN
+ INSERT INTO fw_corpus_version (tenant_id) SELECT DISTINCT tenant_id FROM changed
+  ON CONFLICT (tenant_id) DO UPDATE SET version = fw_corpus_version.version + 1;
+ RETURN NULL;
+END $$;
+CREATE OR REPLACE FUNCTION fw_reset_corpus_version() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp AS $$
+BEGIN
+ DELETE FROM fw_corpus_version;
+ RETURN NULL;
+END $$;
+DROP TRIGGER IF EXISTS fw_version_insert ON fw_revisions;
+DROP TRIGGER IF EXISTS fw_version_update ON fw_revisions;
+DROP TRIGGER IF EXISTS fw_version_delete ON fw_revisions;
+DROP TRIGGER IF EXISTS fw_version_truncate ON fw_revisions;
+CREATE TRIGGER fw_version_insert AFTER INSERT ON fw_revisions REFERENCING NEW TABLE AS changed FOR EACH STATEMENT EXECUTE FUNCTION fw_bump_corpus_version();
+CREATE TRIGGER fw_version_update AFTER UPDATE ON fw_revisions REFERENCING NEW TABLE AS changed FOR EACH STATEMENT EXECUTE FUNCTION fw_bump_corpus_version();
+CREATE TRIGGER fw_version_delete AFTER DELETE ON fw_revisions REFERENCING OLD TABLE AS changed FOR EACH STATEMENT EXECUTE FUNCTION fw_bump_corpus_version();
+CREATE TRIGGER fw_version_truncate AFTER TRUNCATE ON fw_revisions FOR EACH STATEMENT EXECUTE FUNCTION fw_reset_corpus_version();
+DROP TRIGGER IF EXISTS fw_version_insert ON fw_facts;
+DROP TRIGGER IF EXISTS fw_version_update ON fw_facts;
+DROP TRIGGER IF EXISTS fw_version_delete ON fw_facts;
+DROP TRIGGER IF EXISTS fw_version_truncate ON fw_facts;
+CREATE TRIGGER fw_version_insert AFTER INSERT ON fw_facts REFERENCING NEW TABLE AS changed FOR EACH STATEMENT EXECUTE FUNCTION fw_bump_corpus_version();
+CREATE TRIGGER fw_version_update AFTER UPDATE ON fw_facts REFERENCING NEW TABLE AS changed FOR EACH STATEMENT EXECUTE FUNCTION fw_bump_corpus_version();
+CREATE TRIGGER fw_version_delete AFTER DELETE ON fw_facts REFERENCING OLD TABLE AS changed FOR EACH STATEMENT EXECUTE FUNCTION fw_bump_corpus_version();
+CREATE TRIGGER fw_version_truncate AFTER TRUNCATE ON fw_facts FOR EACH STATEMENT EXECUTE FUNCTION fw_reset_corpus_version();
+DROP TRIGGER IF EXISTS fw_version_insert ON fw_vectors;
+DROP TRIGGER IF EXISTS fw_version_update ON fw_vectors;
+DROP TRIGGER IF EXISTS fw_version_delete ON fw_vectors;
+DROP TRIGGER IF EXISTS fw_version_truncate ON fw_vectors;
+CREATE TRIGGER fw_version_insert AFTER INSERT ON fw_vectors REFERENCING NEW TABLE AS changed FOR EACH STATEMENT EXECUTE FUNCTION fw_bump_corpus_version();
+CREATE TRIGGER fw_version_update AFTER UPDATE ON fw_vectors REFERENCING NEW TABLE AS changed FOR EACH STATEMENT EXECUTE FUNCTION fw_bump_corpus_version();
+CREATE TRIGGER fw_version_delete AFTER DELETE ON fw_vectors REFERENCING OLD TABLE AS changed FOR EACH STATEMENT EXECUTE FUNCTION fw_bump_corpus_version();
+CREATE TRIGGER fw_version_truncate AFTER TRUNCATE ON fw_vectors FOR EACH STATEMENT EXECUTE FUNCTION fw_reset_corpus_version();
 """
 
 
@@ -165,6 +220,10 @@ class Repository:
                 c.execute(
                     f"GRANT SELECT,INSERT,UPDATE,DELETE ON {name} TO fitwitness_app"
                 )
+            c.execute(CORPUS_VERSION)
+            c.execute(
+                "CREATE TABLE IF NOT EXISTS fw_live_spend (day text PRIMARY KEY, reserved_usd numeric NOT NULL DEFAULT 0, runs integer NOT NULL DEFAULT 0)"
+            )
 
     def warm(self) -> None:
         """Open both pools now (an idle worker does this before a job arrives)."""
@@ -535,6 +594,25 @@ class Repository:
         return {"status": status, "claim_id": claim_id, "amount": int(row["amount"]),
                 "paid_at": row["paid_at"].isoformat(), "run_id": row["run_id"]}
 
+    def live_reserve(self, day: str, amount, ceiling) -> bool:
+        """Set aside ``amount`` of the day's ``ceiling`` for one live model run, or refuse. One statement: concurrent
+        requests cannot together pass the ceiling."""
+        if amount <= 0 or amount > ceiling:
+            return False
+        with self.plain() as c:
+            row = c.execute(
+                "INSERT INTO fw_live_spend(day,reserved_usd,runs) VALUES(%s,%s,1) ON CONFLICT(day) DO UPDATE "
+                "SET reserved_usd=fw_live_spend.reserved_usd+EXCLUDED.reserved_usd, runs=fw_live_spend.runs+1 "
+                "WHERE fw_live_spend.reserved_usd+EXCLUDED.reserved_usd<=%s RETURNING reserved_usd",
+                (day, amount, ceiling),
+            ).fetchone()
+        return row is not None
+
+    def live_reserved(self, day: str):
+        with self.plain() as c:
+            row = c.execute("SELECT reserved_usd FROM fw_live_spend WHERE day=%s", (day,)).fetchone()
+        return row["reserved_usd"] if row else 0
+
     def paid_keys(self, scope, policy_id) -> set[str]:
         with self.connection(scope) as c:
             rows = c.execute("SELECT dedupe_key FROM fw_payout_keys WHERE policy_id=%s", (policy_id,)).fetchall()
@@ -566,22 +644,7 @@ class Repository:
 
     @staticmethod
     def active(revisions):
-        groups = {}
-        for r in revisions:
-            if r.approval != "draft" and datetime.fromisoformat(
-                r.effective_from
-            ) <= datetime.now(timezone.utc):
-                groups.setdefault(r.document_id, []).append(r)
-        active = []
-        conflicts = []
-        for doc, rs in groups.items():
-            superseded = {r.supersedes for r in rs}
-            leaves = [r for r in rs if r.id not in superseded]
-            if len(leaves) == 1 and leaves[0].approval == "approved":
-                active.append(leaves[0].id)
-            elif len(leaves) > 1:
-                conflicts.append(doc)
-        return sorted(active), sorted(conflicts)
+        return active_ids((r.document_id, r.id, r.supersedes, r.approval, r.effective_from) for r in revisions)
 
     def revision_conflicts(self, scope):
         return self.active(self.list_revisions(scope))[1]
@@ -591,7 +654,22 @@ class Repository:
             return self.snapshot_in(c, scope)
 
     def snapshot_in(self, c, scope):
-        return self.corpus_in(c)[0]
+        """The current snapshot. It is read from the database only when the tenant's corpus has changed since this
+        process last read it; otherwise one query for the change counter answers."""
+        return self.state_in(c, scope).snapshot
+
+    def state_in(self, c, scope) -> CorpusState:
+        return state_in(c, self.dsn, scope.tenant_id)
+
+    def corpus_state(self, scope) -> CorpusState:
+        """What search needs of the tenant's active drawings, kept until the corpus changes."""
+        with self.connection(scope) as c:
+            return self.state_in(c, scope)
+
+    def revisions_many(self, scope, revision_ids) -> list[DrawingRevision]:
+        with self.connection(scope) as c:
+            rows = c.execute("SELECT data FROM fw_revisions WHERE id=ANY(%s) ORDER BY id", (list(revision_ids),)).fetchall()
+        return [DrawingRevision.model_validate(r["data"]) for r in rows]
 
     def corpus_in(self, c):
         """Revisions, facts and vector digests of the current tenant on an open connection.

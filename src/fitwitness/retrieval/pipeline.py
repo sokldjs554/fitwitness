@@ -1,6 +1,7 @@
 """Hybrid retrieval with transparent channel scores and snapshot-scoped candidates."""
 
 from collections import defaultdict
+import heapq
 import re
 from rank_bm25 import BM25Okapi
 from fitwitness.contracts import Candidate, Interval, Requirement, SearchRequest
@@ -123,6 +124,113 @@ def reciprocal_rank_fusion(rankings: dict[str, list[str]], k: int = 60):
     return sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))
 
 
+def _bm25(state):
+    """The BM25 index over the state's texts, built on first use and kept with the state."""
+    with state.lock:
+        if "bm25" not in state.memo:
+            index = BM25Okapi([tokenize(t) or ["_"] for t in state.texts])
+            state.memo["bm25"] = index
+        return state.memo["bm25"]
+
+
+def _number_index(state):
+    from fitwitness.retrieval.drawing_number import NumberIndex
+
+    with state.lock:
+        if "numbers" not in state.memo:
+            state.memo["numbers"] = NumberIndex(state.numbers)
+        return state.memo["numbers"]
+
+
+def _search_indexed(scope, request, snapshot, repo, state, encoders, channels, reranker, id_matching, return_pool):
+    """``search`` over a ``CorpusState`` the repository keeps until the corpus changes. It ranks exactly as the
+    reading path below does (the tests compare them); what differs is what it touches: the drawing numbers and the
+    BM25 index are built once per corpus change, and only the candidates that leave it have their facts read."""
+    if state.snapshot.id != snapshot.id:
+        raise ValueError("stale search snapshot")
+    if channels & {"semantic", "image", "image_dino"}:
+        if encoders is None:
+            raise ValueError("dense index encoders are not configured")
+        from fitwitness.retrieval.indexing import require_index
+        require_index(scope, snapshot, repo, encoders)
+    if not state.ids:
+        return []
+    ids = state.ids
+    rankings = {}
+    scores = defaultdict(dict)
+    tokens = tokenize(request.text)
+    if "exact" in channels:
+        if id_matching == "normalized":
+            from fitwitness.retrieval.drawing_number import match_text
+
+            hits = match_text(request.text, _number_index(state))
+            positions = state.positions_by_number()
+            matched_ids = sorted(
+                ((ids[i], *hits[number]) for number in hits for i in positions.get(number, ())),
+                key=lambda x: (-x[1], x[0]),
+            )
+            rankings["exact"] = [rid for rid, _, _ in matched_ids]
+            for rid, score, mode in matched_ids:
+                scores[rid]["exact"] = score
+                scores[rid]["id_mode"] = {"exact": 1.0, "series": 0.5, "fuzzy": 0.25}[mode]
+        else:
+            wanted = set(tokens)
+            exact = [ids[i] for i, number in enumerate(state.numbers) if number.casefold() in wanted]
+            rankings["exact"] = exact
+            for rid in exact:
+                scores[rid]["exact"] = 1.0
+    if "bm25" in channels and tokens:
+        index = _bm25(state)
+        vals = index.get_scores(tokens)
+        wanted = set(tokens)
+        matched = [i for i, freqs in enumerate(index.doc_freqs) if any(t in freqs for t in wanted)]
+        top = heapq.nsmallest(50, matched, key=lambda i: (-vals[i], ids[i]))
+        rankings["bm25"] = [ids[i] for i in top]
+        for i in top:
+            scores[ids[i]]["bm25"] = float(vals[i])
+    if encoders and request.text.strip() and "semantic" in channels:
+        vec = encoders.encode_text([request.text], query=True)[0].tolist()
+        rows = repo.vector_search(scope, "text", vec, snapshot.revision_ids, 50)
+        rankings["semantic"] = [r["revision_id"] for r in rows]
+        for r in rows:
+            scores[r["revision_id"]]["semantic"] = 1 - float(r["distance"])
+    if encoders and request.image_id and channels & {"image", "image_dino"}:
+        data = repo.asset(scope, request.image_id, "png")
+        if not data:
+            raise ValueError("query image not found")
+        for channel, encode in (("image", encoders.encode_image), ("image_dino", getattr(encoders, "encode_image_dino", None))):
+            if channel not in channels or encode is None:
+                continue
+            vec = encode([data])[0].tolist()
+            rows = repo.vector_search(scope, channel, vec, snapshot.revision_ids, 50)
+            rankings[channel] = [r["revision_id"] for r in rows]
+            for r in rows:
+                scores[r["revision_id"]][channel] = 1 - float(r["distance"])
+    ranked = reciprocal_rank_fusion(rankings)
+    exact = set(rankings.get("exact", []))
+    ranked.sort(key=lambda kv: (kv[0] not in exact, -scores[kv[0]].get("exact", 0.0), -kv[1], kv[0]))
+    pool = ranked[: max(20, request.top_k) if request.ranking != 'rrf' else request.top_k]
+    if request.ranking == 'constraints':
+        from fitwitness.retrieval.reranking import widen_pool
+        stated = requirements_for(request)
+        kinds = state.kind_by_id()
+        pool = widen_pool(ranked, kinds, {str(r.value) for r in stated if r.field == "kind" and r.required}, max(20, request.top_k))
+    facts = repo.load_facts_many(scope, [rid for rid, _ in pool])
+    candidates = [Candidate(revision_id=rid, scores={**scores[rid], "rrf": score}, facts=facts[rid]) for rid, score in pool]
+    if request.ranking == 'constraints':
+        from fitwitness.retrieval.reranking import order_constraints
+        candidates = order_constraints(candidates, stated, snapshot.id, kinds=kinds)
+    elif request.ranking == 'cross_encoder' and request.text.strip() and candidates:
+        from fitwitness.retrieval.reranking import order_cross_encoder, configured_reranker
+        from fitwitness.retrieval.indexing import document_text
+        revisions = {r.id: r for r in repo.revisions_many(scope, [c.revision_id for c in candidates])}
+        passages = {c.revision_id: document_text(revisions[c.revision_id], facts[c.revision_id]) for c in candidates}
+        candidates = order_cross_encoder(candidates, request.text, passages, reranker or configured_reranker())
+    if repo.snapshot(scope).id != snapshot.id:
+        raise ValueError("search snapshot changed during retrieval")
+    return candidates if return_pool else candidates[:request.top_k]
+
+
 def search(
     scope, request: SearchRequest, snapshot, repo, encoders=None, channels=None, reranker=None,
     id_matching: str = "normalized", return_pool: bool = False,
@@ -135,6 +243,10 @@ def search(
     evaluation gate's degraded control. ``return_pool`` returns the whole ordered candidate pool
     instead of the first ``top_k``: the evaluation reads the bound an ordering can reach from it."""
     channels = {"exact", "bm25"} if channels is None else channels
+    corpus_state = getattr(repo, "corpus_state", None)
+    if corpus_state is not None:
+        return _search_indexed(scope, request, snapshot, repo, corpus_state(scope), encoders, channels, reranker,
+                               id_matching, return_pool)
     corpus = getattr(repo, "corpus", None)
     if corpus is not None:
         # Staleness check, revisions and facts in one connection.

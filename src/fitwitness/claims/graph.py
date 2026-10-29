@@ -32,6 +32,7 @@ from fitwitness.agents.graph import checkpointer
 
 from fitwitness.agents.budget import BudgetTracker
 from fitwitness.agents.providers import TransientProviderError, create_model
+from fitwitness.claims import notices
 from fitwitness.claims.extract import DECISIVE, extract_documents, ground
 from fitwitness.claims.models import (
     COVERAGE_LABELS, ClaimDecision, ClaimOutcome, ClaimRequest, ClaimReview, Extraction, LineItem, Payout, Reason,
@@ -60,6 +61,7 @@ class State(TypedDict, total=False):
     pre_review_decision: dict
     human: dict | None
     approvers: list[str]
+    approvals: list[dict]  # the reviewers' answers as accepted, with the API's receipts
     payout: dict
     explanation: str
     audit: list[str]
@@ -234,17 +236,20 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
             # An answer that arrived after the deadline was escalated, and an escalated claim is senior whatever its amount.
             need = requirements(product, decision.total_amount, escalated=bool(jobs.raw(scope, run_id).get("escalated_at")))
             approvers = [first.reviewer]
+            answered = [first]
             final_review, decisive = first, first
             if first.outcome == "APPROVE" and need["approvals_required"] > 1:
                 amount = first.total_amount if first.total_amount is not None else decision.total_amount
                 second_answer = interrupt(question(
                     2, f"청구 {claim.claim_id}: {first.reviewer} 님이 {amount:,}원 지급을 승인했습니다. 다른 담당자의 2차 승인이 필요합니다.",
-                    {"first_reviewer": first.reviewer, "first_note": first.note, "total_amount": amount, "approvals_required": 2, "note_required": True}))
+                    {"first_reviewer": first.reviewer, "first_note": first.note, "total_amount": amount, "approvals_required": 2, "note_required": True,
+                     "first_signature": first.receipt.signature if first.receipt else ""}))
                 guard()
                 second = ClaimReview.model_validate(second_answer)
                 if same_person(second.reviewer, first.reviewer):  # resume() refuses this first; the graph does not rely on it
                     raise ReviewRuleError("2차 승인은 1차 승인자와 다른 담당자여야 합니다")
                 approvers.append(second.reviewer)
+                answered.append(second)
                 if second.outcome in ("DENY", "REQUEST_INFO"):
                     final_review = decisive = second  # one refusal, or one request for documents, is final
             reasons = list(decision.reasons)
@@ -269,6 +274,7 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
             emit("human_review", {"reviewer": final_review.reviewer, "approvers": approvers, "tier": need["tier"], "outcome": final.outcome,
                                   "answer": decisive.outcome, "total_amount": final.total_amount, "note": final_review.note})
             return {"decision": final.model_dump(), "human": final_review.model_dump(), "approvers": approvers,
+                    "approvals": [a.model_dump(mode="json") for a in answered],
                     "audit": _audit(state, f"human_review: {decisive.outcome} by {', '.join(approvers)}")}
 
         def payout(state: State):
@@ -329,6 +335,15 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
             if waiting:
                 jobs.wait_input(scope, run_id, token, waiting[0]["question"], waiting[0])
                 return
+            final = ClaimDecision.model_validate(out["decision"])
+            human = ClaimReview.model_validate(out["human"]) if out.get("human") else None
+            before = ClaimDecision.model_validate(out.get("pre_review_decision") or out["decision"])
+            if human is not None and any(r.code == notices.HELD_CODE for r in final.reasons):
+                told = [notices.request_info(claim.claim_id, human, before)]
+            elif final.outcome in ("APPROVE", "DENY"):
+                told = [notices.decision(claim.claim_id, final.outcome, out.get("explanation", ""))]
+            else:
+                told = []
             outcome = ClaimOutcome(
                 claim_id=claim.claim_id,
                 document_ids=list(claim.document_ids),
@@ -339,6 +354,8 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                 pre_review_decision=ClaimDecision.model_validate(out.get("pre_review_decision") or out["decision"]),
                 human=ClaimReview.model_validate(out["human"]) if out.get("human") else None,
                 approvers=out.get("approvers", []),
+                approvals=[ClaimReview.model_validate(a) for a in out.get("approvals", [])],
+                notices=told,
                 payout=Payout.model_validate(out["payout"]),
                 explanation=out.get("explanation", ""),
                 audit=out.get("audit", []),

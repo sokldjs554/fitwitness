@@ -4,6 +4,8 @@ Everything the generator can print is listed here, so the embedded font subset c
 built from this file and the generator can assert it never prints a glyph it lacks.
 """
 
+from fitwitness.claims.surgery_table import SURGERY_GRADES
+
 SURNAMES = ["김", "이", "박", "최", "정", "강", "조", "윤", "장", "임"]
 GIVEN = ["민준", "서연", "지호", "하은", "도윤", "서준", "지우", "예은", "현우", "수아"]
 HOSPITALS = ["서울연합병원", "한빛의료원", "미래대학교병원", "강남제일병원", "푸른내과의원"]
@@ -28,21 +30,13 @@ DIAGNOSES: list[tuple[str, str]] = [
     ("Q21.1", "심방중격결손"),
     ("Z41.1", "미용 목적 성형수술"),
 ]
-# code -> (surgery name, grade 1-5 on the surgery classification table)
-SURGERIES: dict[str, tuple[str, int]] = {
-    "K35.8": ("충수절제술", 2),
-    "K80.2": ("담낭절제술", 3),
-    "S82.3": ("관혈적 정복술 및 내고정술", 3),
-    "M51.2": ("추간판 제거술", 3),
-    "C16.9": ("위아전절제술", 4),
-    "C50.9": ("유방절제술", 4),
-    "I21.9": ("관상동맥 스텐트 삽입술", 4),
-    "K40.9": ("탈장교정술", 2),
-    "N20.0": ("체외충격파쇄석술", 1),
-    "Q21.1": ("심방중격결손 폐쇄술", 5),
-    "Z41.1": ("안면윤곽술", 2),
-    "I63.9": ("혈전제거술", 5),
+# diagnosis code -> (surgery name, grade 1-5): the grade is the classification table's (claims/surgery_table.py)
+_SURGERY_NAMES = {
+    "K35.8": "충수절제술", "K80.2": "담낭절제술", "S82.3": "관혈적 정복술 및 내고정술", "M51.2": "추간판 제거술",
+    "C16.9": "위아전절제술", "C50.9": "유방절제술", "I21.9": "관상동맥 스텐트 삽입술", "K40.9": "탈장교정술",
+    "N20.0": "체외충격파쇄석술", "Q21.1": "심방중격결손 폐쇄술", "Z41.1": "안면윤곽술", "I63.9": "혈전제거술",
 }
+SURGERIES: dict[str, tuple[str, int]] = {code: (name, SURGERY_GRADES[name]) for code, name in _SURGERY_NAMES.items()}
 
 # Every literal the renderer prints. Labels end with ':' so the extractor can key on them.
 LABELS = [

@@ -132,10 +132,19 @@ test("a reviewer can hold a claim for documents: nothing is paid and nothing is 
   await expect(page.getByTestId("claim-rules")).toContainText("R-HUMAN-02");
   await expect(page.getByTestId("claim-explain")).toContainText("보류");
   await expect(page.getByTestId("claims-ledger")).toHaveText(ledger);
+  // the claimant is told what to send and by when, in a message that is composed but not delivered
+  const notices = page.getByTestId("claim-notices");
+  await expect(notices).toContainText("실제로 보내지 않습니다");
+  await expect(notices).toContainText("서류 보완 요청");
+  await expect(notices).toContainText("수술확인서 사본 요청");
+  await expect(notices).toContainText("14일 안에");
+  // the reviewer's answer carries the server's signature, and the screen says that is all it proves
+  await expect(page.getByTestId("claim-receipts")).toContainText("서명 확인");
   // the claimant's documents continue the same claim: the held run stays as it was, a second run reads the full set
   const waiting = page.getByTestId("claim-supplement");
   await expect(waiting).toContainText("서류를 기다리는 중");
   await expect(waiting).toContainText("수술확인서 사본 요청");
+  await expect(page.getByTestId("claim-deadline")).toContainText("접수 기한");
   await waiting.getByRole("button", { name: /서류 \d건 접수/ }).click();
   await expect(page.getByTestId("claim-resubmission")).toContainText("2차 심사", { timeout: 90000 });
   await expect(page.getByTestId("claim-state")).toHaveText(/담당자 확인 대기|심사 완료/, { timeout: 90000 });

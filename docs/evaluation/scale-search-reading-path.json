@@ -1,0 +1,757 @@
+{
+ "what": "How drawing search holds up as the archive grows: synthetic drawings, the real search path, a local database.",
+ "measured_at": "2026-10-27T15:49:56.511388+00:00",
+ "code_sha": "ba0d74471c6b9b3d4dc97bb2f7ef6070a052d61f",
+ "database": "local PostgreSQL 16 (pgserver), same machine",
+ "seed": 20261027,
+ "results": [
+  {
+   "drawings": 1000,
+   "facts": 5000,
+   "seed_ms": 585.1,
+   "summary": {
+    "as_written": {
+     "queries": 10,
+     "top1_correct": 10,
+     "search_ms_median": 458.45,
+     "snapshot_ms_median": 158.2
+    },
+    "reformatted": {
+     "queries": 10,
+     "top1_correct": 10,
+     "search_ms_median": 479.85,
+     "snapshot_ms_median": 162.25
+    },
+    "digit_confusable": {
+     "queries": 10,
+     "top1_correct": 10,
+     "search_ms_median": 461.95000000000005,
+     "snapshot_ms_median": 156.05
+    },
+    "prefix_confusable": {
+     "queries": 10,
+     "top1_correct": 0,
+     "search_ms_median": 466.35,
+     "snapshot_ms_median": 153.7
+    }
+   },
+   "parts_ms": {
+    "corpus_read": 187.3,
+    "exact_id_match": 5.9,
+    "bm25_build_and_score": 23.1
+   },
+   "free_text": {
+    "query": "SUS304 브래킷 구멍 간격 40mm",
+    "search_ms": 678.8,
+    "results": 6
+   },
+   "peak_rss_mb_after": 116.3,
+   "rows": [
+    {
+     "variant": "as_written",
+     "number": "SC-00199-0",
+     "snapshot_ms": 198.3,
+     "search_ms": 456.7,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-00199-0",
+     "snapshot_ms": 211.7,
+     "search_ms": 517.4,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-00199-0",
+     "snapshot_ms": 129.5,
+     "search_ms": 441.1,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-00199-0",
+     "snapshot_ms": 162.6,
+     "search_ms": 482.5,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-00126-2",
+     "snapshot_ms": 141.5,
+     "search_ms": 460.2,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-00126-2",
+     "snapshot_ms": 207.5,
+     "search_ms": 481.9,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-00126-2",
+     "snapshot_ms": 125.8,
+     "search_ms": 463.6,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-00126-2",
+     "snapshot_ms": 159.5,
+     "search_ms": 536.2,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-00114-1",
+     "snapshot_ms": 139.6,
+     "search_ms": 523.4,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-00114-1",
+     "snapshot_ms": 139.6,
+     "search_ms": 496.4,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-00114-1",
+     "snapshot_ms": 198.5,
+     "search_ms": 589.2,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-00114-1",
+     "snapshot_ms": 129.6,
+     "search_ms": 466.8,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-00141-0",
+     "snapshot_ms": 269.0,
+     "search_ms": 558.6,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-00141-0",
+     "snapshot_ms": 206.5,
+     "search_ms": 501.2,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-00141-0",
+     "snapshot_ms": 153.0,
+     "search_ms": 456.1,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-00141-0",
+     "snapshot_ms": 163.9,
+     "search_ms": 492.6,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-00148-1",
+     "snapshot_ms": 126.4,
+     "search_ms": 430.2,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-00148-1",
+     "snapshot_ms": 176.1,
+     "search_ms": 458.1,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-00148-1",
+     "snapshot_ms": 191.1,
+     "search_ms": 428.0,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-00148-1",
+     "snapshot_ms": 181.4,
+     "search_ms": 465.9,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-00119-2",
+     "snapshot_ms": 178.9,
+     "search_ms": 426.1,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-00119-2",
+     "snapshot_ms": 148.4,
+     "search_ms": 449.2,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-00119-2",
+     "snapshot_ms": 171.0,
+     "search_ms": 492.3,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-00119-2",
+     "snapshot_ms": 127.7,
+     "search_ms": 432.7,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-00191-4",
+     "snapshot_ms": 167.9,
+     "search_ms": 400.8,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-00191-4",
+     "snapshot_ms": 134.2,
+     "search_ms": 444.0,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-00191-4",
+     "snapshot_ms": 129.2,
+     "search_ms": 507.3,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-00191-4",
+     "snapshot_ms": 147.9,
+     "search_ms": 442.5,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-00009-1",
+     "snapshot_ms": 137.1,
+     "search_ms": 463.2,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-00009-1",
+     "snapshot_ms": 226.2,
+     "search_ms": 420.4,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-00009-1",
+     "snapshot_ms": 159.1,
+     "search_ms": 406.6,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-00009-1",
+     "snapshot_ms": 167.2,
+     "search_ms": 428.8,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-00118-2",
+     "snapshot_ms": 148.5,
+     "search_ms": 616.8,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-00118-2",
+     "snapshot_ms": 129.2,
+     "search_ms": 477.8,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-00118-2",
+     "snapshot_ms": 264.5,
+     "search_ms": 500.6,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-00118-2",
+     "snapshot_ms": 147.1,
+     "search_ms": 429.0,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-00140-0",
+     "snapshot_ms": 177.9,
+     "search_ms": 444.3,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-00140-0",
+     "snapshot_ms": 137.5,
+     "search_ms": 544.9,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-00140-0",
+     "snapshot_ms": 118.1,
+     "search_ms": 460.3,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-00140-0",
+     "snapshot_ms": 128.7,
+     "search_ms": 479.6,
+     "correct": false
+    }
+   ]
+  },
+  {
+   "drawings": 10000,
+   "facts": 50000,
+   "seed_ms": 4645.6,
+   "summary": {
+    "as_written": {
+     "queries": 10,
+     "top1_correct": 10,
+     "search_ms_median": 6308.75,
+     "snapshot_ms_median": 1740.45
+    },
+    "reformatted": {
+     "queries": 10,
+     "top1_correct": 10,
+     "search_ms_median": 6124.200000000001,
+     "snapshot_ms_median": 1846.0
+    },
+    "digit_confusable": {
+     "queries": 10,
+     "top1_correct": 10,
+     "search_ms_median": 6565.9,
+     "snapshot_ms_median": 1780.35
+    },
+    "prefix_confusable": {
+     "queries": 10,
+     "top1_correct": 0,
+     "search_ms_median": 6575.45,
+     "snapshot_ms_median": 1807.0500000000002
+    }
+   },
+   "parts_ms": {
+    "corpus_read": 4156.8,
+    "exact_id_match": 54.4,
+    "bm25_build_and_score": 227.5
+   },
+   "free_text": {
+    "query": "SUS304 브래킷 구멍 간격 40mm",
+    "search_ms": 10236.5,
+    "results": 6
+   },
+   "peak_rss_mb_after": 598.0,
+   "rows": [
+    {
+     "variant": "as_written",
+     "number": "SC-01830-0",
+     "snapshot_ms": 1640.8,
+     "search_ms": 6802.8,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-01830-0",
+     "snapshot_ms": 1695.3,
+     "search_ms": 6232.6,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-01830-0",
+     "snapshot_ms": 1601.2,
+     "search_ms": 6326.8,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-01830-0",
+     "snapshot_ms": 2447.8,
+     "search_ms": 7132.5,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-01912-2",
+     "snapshot_ms": 1782.9,
+     "search_ms": 6981.8,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-01912-2",
+     "snapshot_ms": 1847.3,
+     "search_ms": 6180.6,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-01912-2",
+     "snapshot_ms": 2011.6,
+     "search_ms": 6693.6,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-01912-2",
+     "snapshot_ms": 1635.6,
+     "search_ms": 6124.7,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-00148-4",
+     "snapshot_ms": 1637.5,
+     "search_ms": 5787.8,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-00148-4",
+     "snapshot_ms": 1768.5,
+     "search_ms": 5960.4,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-00148-4",
+     "snapshot_ms": 2015.9,
+     "search_ms": 6176.8,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-00148-4",
+     "snapshot_ms": 1526.6,
+     "search_ms": 6217.8,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-01894-3",
+     "snapshot_ms": 1730.7,
+     "search_ms": 6435.5,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-01894-3",
+     "snapshot_ms": 1844.7,
+     "search_ms": 6047.8,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-01894-3",
+     "snapshot_ms": 1641.2,
+     "search_ms": 6637.1,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-01894-3",
+     "snapshot_ms": 1755.8,
+     "search_ms": 6586.9,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-00695-0",
+     "snapshot_ms": 1640.6,
+     "search_ms": 6275.3,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-00695-0",
+     "snapshot_ms": 1896.3,
+     "search_ms": 6018.5,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-00695-0",
+     "snapshot_ms": 1747.6,
+     "search_ms": 6959.7,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-00695-0",
+     "snapshot_ms": 1860.9,
+     "search_ms": 7120.6,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-00123-0",
+     "snapshot_ms": 1859.7,
+     "search_ms": 6260.7,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-00123-0",
+     "snapshot_ms": 1716.8,
+     "search_ms": 6067.8,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-00123-0",
+     "snapshot_ms": 1813.1,
+     "search_ms": 6600.7,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-00123-0",
+     "snapshot_ms": 1856.4,
+     "search_ms": 6886.6,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-01635-4",
+     "snapshot_ms": 1735.4,
+     "search_ms": 6342.2,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-01635-4",
+     "snapshot_ms": 1968.0,
+     "search_ms": 7020.9,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-01635-4",
+     "snapshot_ms": 1912.9,
+     "search_ms": 6531.1,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-01635-4",
+     "snapshot_ms": 1802.9,
+     "search_ms": 5998.9,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-01771-3",
+     "snapshot_ms": 1747.4,
+     "search_ms": 6157.9,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-01771-3",
+     "snapshot_ms": 1919.8,
+     "search_ms": 6290.2,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-01771-3",
+     "snapshot_ms": 2128.7,
+     "search_ms": 6121.5,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-01771-3",
+     "snapshot_ms": 1829.9,
+     "search_ms": 6564.0,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-00465-0",
+     "snapshot_ms": 1745.5,
+     "search_ms": 6116.2,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-00465-0",
+     "snapshot_ms": 1814.9,
+     "search_ms": 5937.0,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-00465-0",
+     "snapshot_ms": 1668.6,
+     "search_ms": 6183.2,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-00465-0",
+     "snapshot_ms": 1811.2,
+     "search_ms": 6706.2,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-00861-1",
+     "snapshot_ms": 1796.5,
+     "search_ms": 6723.2,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-00861-1",
+     "snapshot_ms": 1871.4,
+     "search_ms": 6730.2,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-00861-1",
+     "snapshot_ms": 1682.2,
+     "search_ms": 6659.0,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-00861-1",
+     "snapshot_ms": 1695.2,
+     "search_ms": 6404.8,
+     "correct": false
+    }
+   ]
+  },
+  {
+   "drawings": 100000,
+   "facts": 500000,
+   "seed_ms": 86267.4,
+   "summary": {
+    "as_written": {
+     "queries": 2,
+     "top1_correct": 2,
+     "search_ms_median": 83964.55,
+     "snapshot_ms_median": 21125.65
+    },
+    "reformatted": {
+     "queries": 2,
+     "top1_correct": 2,
+     "search_ms_median": 83776.1,
+     "snapshot_ms_median": 20219.25
+    },
+    "digit_confusable": {
+     "queries": 2,
+     "top1_correct": 2,
+     "search_ms_median": 85444.25,
+     "snapshot_ms_median": 22455.7
+    },
+    "prefix_confusable": {
+     "queries": 2,
+     "top1_correct": 0,
+     "search_ms_median": 83735.45,
+     "snapshot_ms_median": 20136.8
+    }
+   },
+   "parts_ms": {
+    "corpus_read": 55177.1,
+    "exact_id_match": 580.5,
+    "bm25_build_and_score": 2488.8
+   },
+   "free_text": {
+    "query": "SUS304 브래킷 구멍 간격 40mm",
+    "search_ms": 127507.5,
+    "results": 6
+   },
+   "peak_rss_mb_after": 5418.8,
+   "rows": [
+    {
+     "variant": "as_written",
+     "number": "SC-16201-3",
+     "snapshot_ms": 21087.2,
+     "search_ms": 83407.8,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-16201-3",
+     "snapshot_ms": 19416.6,
+     "search_ms": 82394.6,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-16201-3",
+     "snapshot_ms": 22794.9,
+     "search_ms": 84823.1,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-16201-3",
+     "snapshot_ms": 19063.8,
+     "search_ms": 85431.9,
+     "correct": false
+    },
+    {
+     "variant": "as_written",
+     "number": "SC-14640-1",
+     "snapshot_ms": 21164.1,
+     "search_ms": 84521.3,
+     "correct": true
+    },
+    {
+     "variant": "reformatted",
+     "number": "SC-14640-1",
+     "snapshot_ms": 21021.9,
+     "search_ms": 85157.6,
+     "correct": true
+    },
+    {
+     "variant": "digit_confusable",
+     "number": "SC-14640-1",
+     "snapshot_ms": 22116.5,
+     "search_ms": 86065.4,
+     "correct": true
+    },
+    {
+     "variant": "prefix_confusable",
+     "number": "SC-14640-1",
+     "snapshot_ms": 21209.8,
+     "search_ms": 82039.0,
+     "correct": false
+    }
+   ]
+  }
+ ]
+}

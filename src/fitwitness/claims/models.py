@@ -140,6 +140,17 @@ class ClaimRequest(Strict):
     resubmission: Resubmission | None = None  # set when this run continues a claim a reviewer held for documents
 
 
+class ApprovalReceipt(Strict):
+    """The server's signature on one reviewer answer: who answered what, on which run and claim, when, and after which
+    earlier answer. Only the API process holds the key; a client cannot send one (it is replaced on arrival)."""
+
+    step: int = Field(ge=1, le=2)
+    decided_at: str
+    prev: str = ""  # the signature of the first answer when this is the second, else empty
+    signature: str  # hex HMAC-SHA256 over the canonical message (claims/receipt.py)
+    key_id: str  # which key signed: the first 8 hex digits of its SHA-256
+
+
 class ClaimReview(Strict):
     """A reviewer's answer for a claim parked in waiting_input."""
 
@@ -147,6 +158,7 @@ class ClaimReview(Strict):
     reviewer: str = Field(min_length=1, max_length=100)
     note: str = Field(default="", max_length=500)
     total_amount: int | None = Field(None, ge=0, le=10**12)  # an adjusted amount when approving: it can lower the proposal, never raise it
+    receipt: ApprovalReceipt | None = None  # set by the API when it accepts the answer
 
 
 class Payout(Strict):
@@ -156,6 +168,17 @@ class Payout(Strict):
     paid_at: str | None = None
     run_id: str | None = None
     duplicate_of: str | None = None
+
+
+class Notice(Strict):
+    """A message to the claimant that the system composed. Nothing is sent: there is no mail or phone channel behind it."""
+
+    kind: Literal["request_info", "decision"]
+    to: str = "청구인"
+    subject: str
+    body: str
+    respond_by: str | None = None  # request_info: the last day the documents can be added to the held claim (ISO date)
+    created_at: str
 
 
 class ClaimOutcome(Strict):
@@ -170,6 +193,8 @@ class ClaimOutcome(Strict):
     pre_review_decision: ClaimDecision
     human: ClaimReview | None = None
     approvers: list[str] = Field(default_factory=list)  # everyone who signed off, in order
+    approvals: list[ClaimReview] = Field(default_factory=list)  # their answers as accepted, each with the API's receipt
+    notices: list[Notice] = Field(default_factory=list)  # what the claimant would be told
     payout: Payout
     explanation: str
     audit: list[str] = Field(default_factory=list)

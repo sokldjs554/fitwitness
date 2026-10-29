@@ -102,8 +102,63 @@ def damerau_levenshtein(a: str, b: str, cap: int = 2) -> int:
     return row[-1]
 
 
+class NumberIndex:
+    """A corpus's drawing numbers split once, so a query does not parse every number again.
+
+    ``match_text`` and ``match_reference`` take one in place of the list of numbers and return the same hits. The
+    parsed numbers are grouped by prefix; the one-edit typo match looks up the strings one edit away from the typed
+    digits instead of measuring the distance to every number with that prefix."""
+
+    def __init__(self, drawing_numbers: Iterable[str]):
+        self.by_prefix: dict[str, list[tuple[str, tuple[str, ...]]]] = {}
+        self._by_digits: dict[str, dict[str, list[tuple[str, tuple[str, ...]]]]] = {}
+        self._ascii = True
+        for dn in drawing_numbers:
+            parts = split_number(dn)
+            if parts:
+                self.by_prefix.setdefault(parts[0], []).append((dn, parts[1]))
+                self._ascii = self._ascii and "".join(parts[1]).isascii()
+
+    @property
+    def prefixes(self) -> set[str]:
+        return set(self.by_prefix)
+
+    def near_digits(self, prefix: str, digits: str) -> list[tuple[str, tuple[str, ...]]] | None:
+        """Numbers of this prefix whose joined digits are within one edit of ``digits`` (a superset of the numbers at
+        distance one: the caller still measures each). None when the digits fall outside what the neighbourhood
+        covers (non-ASCII digits), and the caller scans instead."""
+        if not self._ascii or not digits.isascii():
+            return None
+        table = self._by_digits.get(prefix)
+        if table is None:
+            table = self._by_digits[prefix] = {}
+            for dn, groups in self.by_prefix.get(prefix, []):
+                table.setdefault("".join(groups), []).append((dn, groups))
+        found, seen = [], set()
+        for candidate in _one_edit(digits):
+            if candidate not in seen:
+                seen.add(candidate)
+                found.extend(table.get(candidate, ()))
+        return found
+
+
+def _one_edit(digits: str):
+    """``digits`` and every string one substitution, deletion, insertion or adjacent swap away (digits 0-9)."""
+    yield digits
+    for i in range(len(digits)):
+        yield digits[:i] + digits[i + 1:]
+        for d in "0123456789":
+            if d != digits[i]:
+                yield digits[:i] + d + digits[i + 1:]
+        if i + 1 < len(digits) and digits[i] != digits[i + 1]:
+            yield digits[:i] + digits[i + 1] + digits[i] + digits[i + 2:]
+    for i in range(len(digits) + 1):
+        for d in "0123456789":
+            yield digits[:i] + d + digits[i:]
+
+
 def match_reference(
-    ref: DrawingReference, drawing_numbers: Iterable[str], *, fuzzy: bool = True
+    ref: DrawingReference, drawing_numbers: Iterable[str] | NumberIndex, *, fuzzy: bool = True
 ) -> list[tuple[str, float, MatchMode]]:
     """Rank corpus drawing numbers against one reference.
 
@@ -112,8 +167,13 @@ def match_reference(
     groups than the corpus numbers) scores every member 0.8; one-edit typos score 0.7.
     Fuzzy candidates are only offered when nothing matched exactly, so a correct
     identifier is never diluted by its neighbours."""
-    parsed = [(dn, split_number(dn)) for dn in drawing_numbers]
-    same_prefix = [(dn, groups) for dn, parts in parsed if parts and parts[0] == ref.prefix for groups in [parts[1]]]
+    if isinstance(drawing_numbers, NumberIndex):
+        index = drawing_numbers
+        same_prefix = index.by_prefix.get(ref.prefix, [])
+    else:
+        index = None
+        parsed = [(dn, split_number(dn)) for dn in drawing_numbers]
+        same_prefix = [(dn, groups) for dn, parts in parsed if parts and parts[0] == ref.prefix for groups in [parts[1]]]
     exact = [(dn, ref.confidence, "exact") for dn, groups in same_prefix if groups == ref.groups]
     if exact:
         return sorted(exact, key=lambda x: (-x[1], x[0]))
@@ -122,7 +182,8 @@ def match_reference(
     if partial:
         out.extend((dn, 0.8 * ref.confidence, "series") for dn, groups in same_prefix if groups[: len(ref.groups)] == ref.groups)
     if not out and fuzzy:
-        for dn, groups in same_prefix:
+        near = index.near_digits(ref.prefix, ref.digits) if index is not None else None
+        for dn, groups in (same_prefix if near is None else near):
             if len(groups) != len(ref.groups):
                 continue
             distance = damerau_levenshtein("".join(groups), ref.digits, cap=1)
@@ -131,13 +192,12 @@ def match_reference(
     return sorted(out, key=lambda x: (-x[1], x[0]))
 
 
-def match_text(text: str, drawing_numbers: Iterable[str], *, fuzzy: bool = True) -> dict[str, tuple[float, MatchMode]]:
+def match_text(text: str, drawing_numbers: Iterable[str] | NumberIndex, *, fuzzy: bool = True) -> dict[str, tuple[float, MatchMode]]:
     """All identifier hits for a free-text query: ``{drawing_number: (score, mode)}``."""
-    numbers = list(drawing_numbers)
-    prefixes = {parts[0] for dn in numbers if (parts := split_number(dn))}
+    index = drawing_numbers if isinstance(drawing_numbers, NumberIndex) else NumberIndex(drawing_numbers)
     hits: dict[str, tuple[float, MatchMode]] = {}
-    for ref in extract_references(text, prefixes):
-        for dn, score, mode in match_reference(ref, numbers, fuzzy=fuzzy):
+    for ref in extract_references(text, index.prefixes):
+        for dn, score, mode in match_reference(ref, index, fuzzy=fuzzy):
             if dn not in hits or hits[dn][0] < score:
                 hits[dn] = (score, mode)
     return hits

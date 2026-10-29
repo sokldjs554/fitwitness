@@ -7,8 +7,10 @@ decision can be explained line by line and each rule can be tested on its own.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import date, timedelta
 import re
+from fitwitness.claims.surgery_table import table_grade
 from fitwitness.claims.models import ClaimDecision, Coverage, Extraction, LineItem, Policy, Product, Reason
 
 PRODUCTS: dict[str, Product] = {
@@ -89,6 +91,9 @@ def validate(ex: Extraction, present_docs: set[str]) -> list[str]:
         flags.append("malformed_diagnosis_code")
     if ex.surgery_grade is not None and not (1 <= ex.surgery_grade <= 5):
         flags.append("surgery_grade_out_of_range")
+    listed = table_grade(ex.surgery_name)
+    if listed is not None and ex.surgery_grade is not None and 1 <= ex.surgery_grade <= 5 and listed != ex.surgery_grade:
+        flags.append("surgery_grade_differs_from_table")  # the printed grade and the table disagree: one reading is wrong
     if ex.total_amount is not None and ex.total_amount <= 0:
         flags.append("nonpositive_amount")
     if "admission" in present_docs and (a is None or dch is None):
@@ -103,12 +108,70 @@ def validate(ex: Extraction, present_docs: set[str]) -> list[str]:
     return flags
 
 
+CONTINUATION_DAYS = 180  # a stay that begins this many days or fewer after a stay for the same disease ended continues it
+
+
+@dataclass(frozen=True)
+class Stay:
+    """A hospital stay that was paid, as the ledger remembers it: its dates and the disease (first three characters of
+    the KCD code, "-" when the documents gave none)."""
+
+    admission: date
+    discharge: date
+    disease: str
+
+    @property
+    def nights(self) -> int:
+        return (self.discharge - self.admission).days
+
+
+def stay_key(policy_id: str, admission: str, discharge: str, disease: str) -> str:
+    return f"{policy_id}|stay|{admission}|{discharge}|{disease}"
+
+
+def paid_stays(prior_paid_keys, policy_id: str) -> list[Stay]:
+    """The stays the ledger holds for this policy, read back from their keys."""
+    stays = []
+    for key in prior_paid_keys:
+        head, _, rest = key.partition("|stay|")
+        if head != policy_id or not rest:
+            continue
+        admission, discharge, disease = (rest.split("|") + ["-", "-", "-"])[:3]
+        a, d = parse_date(admission), parse_date(discharge)
+        if a and d and d >= a:
+            stays.append(Stay(a, d, disease or "-"))
+    return sorted(stays, key=lambda s: (s.admission, s.discharge))
+
+
+def continued_stays(stays: list[Stay], admission: date, disease: str) -> list[Stay]:
+    """The earlier paid stays that this one continues, nearest first: the same disease, each beginning no later than
+    ``CONTINUATION_DAYS`` after the previous one ended. A stay with no disease on the documents continues nothing."""
+    if disease == "-":
+        return []
+    chain, anchor = [], admission
+    for stay in sorted((s for s in stays if s.disease == disease and s.discharge <= admission), key=lambda s: s.discharge, reverse=True):
+        gap = (anchor - stay.discharge).days
+        if gap < 0:
+            continue  # overlaps the stay already linked
+        if gap > CONTINUATION_DAYS:
+            break
+        chain.append(stay)
+        anchor = stay.admission
+    return chain
+
+
+def disease_of(code: str | None) -> str:
+    return code[:3].upper() if code else "-"
+
+
 def dedupe_keys(policy: Policy, ex: Extraction, decision: ClaimDecision) -> list[str]:
     """Keys under which this payout is recorded, so the same event cannot be paid twice."""
     keys = []
     for li in decision.line_items:
         if li.coverage == "hospitalization_daily" and ex.admission_date:
             keys.append(f"{policy.policy_id}|hosp|{ex.admission_date}")
+            if parse_date(ex.admission_date) and parse_date(ex.discharge_date):
+                keys.append(stay_key(policy.policy_id, ex.admission_date, ex.discharge_date, disease_of(ex.diagnosis_code)))
         elif li.coverage == "surgery" and ex.surgery_date:
             keys.append(f"{policy.policy_id}|surg|{ex.surgery_date}")
         elif li.coverage == "diagnosis" and ex.diagnosis_code:
@@ -200,19 +263,37 @@ def adjudicate(policy: Policy, product: Product, requested: list[str], ex: Extra
                 reasons.append(Reason(rule_id="R-DUP-01", code="duplicate_claim", severity="deny",
                                       message=f"{a} 입원 건은 이미 지급되었습니다."))
                 continue
+            stays = paid_stays(prior_paid_keys, policy.policy_id)
+            overlapped = [s for s in stays if s.admission < dch and a < s.discharge]
+            if overlapped:
+                # The same days would be paid twice. Which claim they belong to is a person's call, not a rule's.
+                first = overlapped[0]
+                reasons.append(Reason(rule_id="R-HOSP-03", code="overlaps_paid_stay", severity="review",
+                                      message=f"입원 기간({a}~{dch})이 이미 지급된 입원({first.admission}~{first.discharge})과 겹칩니다."))
+                continue
             nights = (dch - a).days
-            payable = max(0, min(nights, cov.max_days or nights) - cov.deductible_days)
+            chain = continued_stays(stays, a, disease_of(ex.diagnosis_code))
+            before = sum(s.nights for s in chain)  # nights of the stays this one continues
+            limit = cov.max_days or (before + nights)
+            payable = max(0, min(before + nights, limit) - cov.deductible_days) - max(0, min(before, limit) - cov.deductible_days)
             amount = payable * (cov.per_day or 0)
-            if amount > 0:
-                items.append(LineItem(coverage=kind, rule_id="R-HOSP-01", amount=amount,
-                                      basis=f"입원 {nights}일 - 면책 {cov.deductible_days}일 = {payable}일 × {cov.per_day:,}원"))
+            if chain:
+                basis = (f"이어진 입원(같은 질병 직전 {len(chain)}회, 누적 {before}일 + 이번 {nights}일): "
+                         f"누적 {before + nights}일 - 면책 {cov.deductible_days}일 중 기지급분을 뺀 {payable}일 × {cov.per_day:,}원")
             else:
-                reasons.append(Reason(rule_id="R-HOSP-01", code="below_deductible", severity="info",
-                                      message=f"입원 {nights}일은 면책 {cov.deductible_days}일 이내입니다."))
+                basis = f"입원 {nights}일 - 면책 {cov.deductible_days}일 = {payable}일 × {cov.per_day:,}원"
+            if amount > 0:
+                items.append(LineItem(coverage=kind, rule_id="R-HOSP-01", amount=amount, basis=basis))
+            else:
+                reasons.append(Reason(rule_id="R-HOSP-01", code="below_deductible" if not chain else "no_days_left", severity="info",
+                                      message=(f"입원 {nights}일은 면책 {cov.deductible_days}일 이내입니다." if not chain else
+                                               f"이어진 입원의 누적 일수가 한도({limit}일)에 이미 닿아 더 지급할 일수가 없습니다.")))
         elif kind == "surgery":
             if ex.surgery_grade is None or not parse_date(ex.surgery_date):
+                listed = table_grade(ex.surgery_name)
+                hint = f" 분류표에는 '{ex.surgery_name}'이(가) {listed}종으로 있습니다." if listed is not None and ex.surgery_grade is None else ""
                 reasons.append(Reason(rule_id="R-SURG-02", code="surgery_grade_missing", severity="review",
-                                      message="수술 등급 또는 수술일을 확인할 수 없습니다."))
+                                      message="수술 등급 또는 수술일을 확인할 수 없습니다." + hint))
                 continue
             if f"{policy.policy_id}|surg|{ex.surgery_date}" in prior_paid_keys:
                 reasons.append(Reason(rule_id="R-DUP-01", code="duplicate_claim", severity="deny",

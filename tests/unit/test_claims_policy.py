@@ -48,7 +48,7 @@ def test_exclusions_waiting_period_and_lapsed_policy_deny():
 def test_duplicates_are_denied_by_dedupe_key():
     paid = run(ex())
     keys = dedupe_keys(POL, ex(), paid)
-    assert keys == ["POL-1|hosp|2025-06-01", "POL-1|surg|2025-06-02"]
+    assert keys == ["POL-1|hosp|2025-06-01", "POL-1|stay|2025-06-01|2025-06-06|K35", "POL-1|surg|2025-06-02"]
     again = run(ex(), prior=keys)
     assert again.outcome == "DENY" and {r.code for r in again.reasons} == {"duplicate_claim"}
 
@@ -93,3 +93,95 @@ def test_a_refusal_next_to_a_coverage_that_could_not_be_judged_goes_to_a_person(
     # a value the documents do not state is the same kind of gap
     no_dates = run(ex(diagnosis_code="I21.9", admission_date=None), requested=("hospitalization_daily", "diagnosis"), policy=cancer)
     assert no_dates.outcome == "REVIEW" and "R-UNDEC-01" in no_dates.rule_ids()
+
+
+def stay(admission, discharge, disease="K35"):
+    return f"POL-1|stay|{admission}|{discharge}|{disease}"
+
+
+def hospital(prior, **kw):
+    return run(ex(**kw), requested=("hospitalization_daily",), prior=prior)
+
+
+def test_a_stay_that_overlaps_a_paid_one_goes_to_a_person_not_to_a_second_payment():
+    d = hospital([stay("2025-06-01", "2025-06-10")], admission_date="2025-06-05", discharge_date="2025-06-12")
+    assert d.outcome == "REVIEW" and d.total_amount == 0
+    assert [r.code for r in d.reasons] == ["overlaps_paid_stay"] and d.reasons[0].rule_id == "R-HOSP-03"
+    # a stay that only touches (leaves the day the other begins) shares no night
+    assert hospital([stay("2025-06-01", "2025-06-10")], admission_date="2025-06-10", discharge_date="2025-06-15").outcome == "APPROVE"
+
+
+def test_a_stay_for_the_same_disease_within_180_days_continues_the_earlier_one():
+    # 5 nights paid as 5 - 3 = 2 days; the next 4 nights bring the total to 9 - 3 = 6 days, so 4 more are due
+    d = hospital([stay("2025-01-01", "2025-01-06")], admission_date="2025-03-01", discharge_date="2025-03-05")
+    assert d.outcome == "APPROVE" and d.total_amount == 4 * 30_000 and "이어진 입원" in d.line_items[0].basis
+    # the same 4 nights as a new stay would pay one day: the deductible applies again
+    apart = hospital([stay("2025-01-01", "2025-01-06", "J18")], admission_date="2025-03-01", discharge_date="2025-03-05")
+    assert apart.total_amount == 1 * 30_000 and "이어진" not in apart.line_items[0].basis
+    # beyond 180 days after the discharge it is a new stay too
+    far = hospital([stay("2025-01-01", "2025-01-06")], admission_date="2025-07-06", discharge_date="2025-07-10")
+    assert far.total_amount == 1 * 30_000
+    near = hospital([stay("2025-01-01", "2025-01-06")], admission_date="2025-07-05", discharge_date="2025-07-09")  # day 180
+    assert near.total_amount == 4 * 30_000
+
+
+def test_a_chain_of_stays_shares_one_limit_of_days():
+    # 114 + 3 nights so far: 114 days paid of the 117 that 120 days less 3 deductible days allow
+    chain = [stay("2025-01-01", "2025-04-25"), stay("2025-05-10", "2025-05-13")]
+    d = hospital(chain, admission_date="2025-06-01", discharge_date="2025-06-20")
+    assert d.outcome == "APPROVE" and d.total_amount == 3 * 30_000
+    full = [stay("2025-01-01", "2025-05-31"), stay("2025-06-05", "2025-06-10")]  # 150 nights: already at the limit
+    over = hospital(full, admission_date="2025-06-20", discharge_date="2025-06-25")
+    assert over.outcome == "DENY" and [r.code for r in over.reasons] == ["no_days_left"]
+
+
+def test_a_chain_is_followed_back_through_every_link():
+    three = [stay("2024-10-01", "2024-10-05"), stay("2025-01-01", "2025-01-06"), stay("2025-04-01", "2025-04-04")]
+    # 4 + 5 + 3 = 12 nights before, 12 - 3 = 9 days paid; this stay's 2 nights make 14 - 3 = 11 days, so 2 more are due
+    d = hospital(three, admission_date="2025-06-01", discharge_date="2025-06-03")
+    assert d.total_amount == 2 * 30_000 and "직전 3회" in d.line_items[0].basis
+    broken = [stay("2024-01-01", "2024-01-05"), stay("2025-01-01", "2025-01-06")]  # the first is more than 180 days before the second
+    assert hospital(broken, admission_date="2025-03-01", discharge_date="2025-03-05").total_amount == 4 * 30_000
+
+
+def test_a_stay_with_no_disease_on_the_documents_continues_nothing():
+    d = hospital([stay("2025-01-01", "2025-01-06", "-")], admission_date="2025-03-01", discharge_date="2025-03-05", diagnosis_code=None)
+    assert d.total_amount == 1 * 30_000
+
+
+def test_another_policys_stays_do_not_count():
+    other = ["POL-2|stay|2025-06-01|2025-06-10|K35"]
+    assert hospital(other, admission_date="2025-06-05", discharge_date="2025-06-12").outcome == "APPROVE"
+
+
+def test_malformed_ledger_keys_are_ignored_not_trusted():
+    junk = ["POL-1|stay|", "POL-1|stay|x|y|z", "POL-1|stay|2025-06-10|2025-06-01|K35"]  # the last ends before it begins
+    assert hospital(junk, admission_date="2025-06-05", discharge_date="2025-06-12").outcome == "APPROVE"
+
+
+def test_a_surgery_grade_that_disagrees_with_the_classification_table_goes_to_a_person():
+    from fitwitness.claims.surgery_table import SURGERY_GRADES, table_grade
+
+    assert table_grade("충수절제술") == 2 and table_grade("충수 절제술") == 2 and table_grade("맹장수술") is None
+    agree = ex(surgery_name="충수절제술", surgery_grade=2)
+    assert "surgery_grade_differs_from_table" not in validate(agree, ALL_DOCS)
+    wrong = ex(surgery_name="충수절제술", surgery_grade=4)  # a misread "2종" would pay 1,000,000 won instead of 300,000
+    flags = validate(wrong, ALL_DOCS)
+    assert "surgery_grade_differs_from_table" in flags
+    held = run(wrong, requested=("surgery",), flags=flags)
+    assert held.outcome == "REVIEW" and held.total_amount == 1_000_000 and any(r.code == "surgery_grade_differs_from_table" for r in held.reasons)
+    # a name the table does not list is not a disagreement: the printed grade stands, as it did before the table existed
+    assert "surgery_grade_differs_from_table" not in validate(ex(surgery_name="맹장수술", surgery_grade=4), ALL_DOCS)
+    assert set(SURGERY_GRADES.values()) <= {1, 2, 3, 4, 5}
+
+
+def test_a_missing_grade_tells_the_reviewer_what_the_table_says():
+    d = run(ex(surgery_name="담낭절제술", surgery_grade=None), requested=("surgery",))
+    assert d.outcome == "REVIEW" and "3종" in d.reasons[0].message and "담낭절제술" in d.reasons[0].message
+
+
+def test_the_document_generator_prints_the_tables_grades():
+    from fitwitness.claims import vocab
+    from fitwitness.claims.surgery_table import SURGERY_GRADES
+
+    assert {name: grade for name, grade in vocab.SURGERIES.values()} == SURGERY_GRADES
