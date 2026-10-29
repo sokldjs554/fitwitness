@@ -6,8 +6,9 @@ The worker, which moves the money, never sees the key; it copies the receipts in
 recomputes the signatures, so an answer edited in the database afterwards, or a second approval attached to a different
 first one, no longer verifies.
 
-What this proves is that the server accepted that answer from that session at that time. It does not prove who the
-reviewer is: the demo has no accounts, and the reviewer is whatever name the caller typed.
+What this proves is that the server accepted that answer from that session at that time. Who answered is proved only
+when the deployment verifies ID tokens (api/identity.py): the account the token named is then part of the signed
+message. In the demo there are no accounts, and the reviewer is whatever name the caller typed.
 """
 
 from __future__ import annotations
@@ -32,6 +33,7 @@ def _message(tenant_id: str, run_id: str, claim_id: str, answer: ClaimReview, st
     return json.dumps({
         "tenant": tenant_id, "run": run_id, "claim": claim_id, "step": step, "reviewer": answer.reviewer,
         "outcome": answer.outcome, "total_amount": answer.total_amount, "note": answer.note, "decided_at": decided_at, "prev": prev,
+        **({"account": answer.account} if answer.account else {}),  # absent, not null, so receipts from before accounts still verify
     }, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
 
 
@@ -57,7 +59,7 @@ def verify(key: bytes, tenant_id: str, run_id: str, claim_id: str, answers: list
                             hashlib.sha256).hexdigest()
         intact = hmac.compare_digest(expected, receipt.signature)
         chained = receipt.prev == previous
-        rows.append({"reviewer": answer.reviewer, "outcome": answer.outcome, "step": receipt.step, "decided_at": receipt.decided_at,
+        rows.append({"reviewer": answer.reviewer, "account": answer.account, "outcome": answer.outcome, "step": receipt.step, "decided_at": receipt.decided_at,
                      "key_id": receipt.key_id, "status": "valid" if intact and chained else ("altered" if not intact else "out_of_order")})
         previous = receipt.signature
     return rows

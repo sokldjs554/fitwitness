@@ -13,7 +13,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from decimal import Decimal
-from fitwitness.api import live
+from fitwitness.api import identity, live
 from fitwitness.contracts import Budget, TenantScope, RunRequest, DrawingRevision, SearchRequest, ReviewInput
 from fitwitness.claims.models import ClaimRequest, ClaimReview, ClaimSupplement, Policy
 from fitwitness.claims.synth import SCENARIO_LABELS
@@ -68,6 +68,11 @@ def create_app():
     from fitwitness.claims import receipt as receipts
 
     approval_key = receipts.signing_key(key.encode())
+
+    # Reviewer identity: with an OIDC issuer configured every answer must carry an ID token, and the reviewer the run
+    # records is the account it proves. Not configured (the public demo): the typed name, as it says on the screen.
+    who = identity.load()
+    verifier = identity.Verifier(who) if who.enabled else None
 
     def sign_answer(run, answer, step, prev):
         claim_id = ((run.get("request") or {}).get("claim") or {}).get("claim_id", "")
@@ -312,6 +317,8 @@ def create_app():
                 "openai": os.getenv("FITWITNESS_OPENAI_MODEL", ""),
                 "anthropic": os.getenv("FITWITNESS_ANTHROPIC_MODEL", ""),
             },
+            # Who a reviewer is: an OIDC account when the operator configured an issuer, else the name typed on the screen.
+            "identity": {"mode": "oidc", "issuer": who.issuer} if verifier is not None else {"mode": "anonymous"},
             "corpus": "synthetic",
             "version": "0.1.0",
         }
@@ -403,6 +410,7 @@ def create_app():
         run_id: str,
         body: ReviewInput | ClaimReview,
         background: BackgroundTasks,
+        request: Request,
         s: TenantScope = Depends(scope),
     ):
         """A reviewer answers a run parked in waiting_input; the worker resumes the graph with it."""
@@ -410,8 +418,16 @@ def create_app():
             raise HTTPException(404, "실행을 찾을 수 없습니다")
         from fitwitness.claims.review import ReviewRuleError
 
+        answer, account = body.model_dump(mode="json"), None
+        if verifier is not None:  # the reviewer is whom the token proves; the typed name and any account in the body are replaced
+            try:
+                person = verifier.verify(identity.bearer(request.headers.get("authorization")))
+            except identity.IdentityError as exc:
+                raise HTTPException(401, str(exc))
+            answer["reviewer"], account = person.name, person.account
         try:
-            view = jobs.resume(s, run_id, body.model_dump(mode="json"), signer=lambda run, answer, step, prev: sign_answer({**run, "tenant_id": s.tenant_id}, answer, step, prev))
+            view = jobs.resume(s, run_id, answer, signer=lambda run, answer, step, prev: sign_answer({**run, "tenant_id": s.tenant_id}, answer, step, prev),
+                               account=account)
         except ReviewRuleError as exc:
             raise HTTPException(422, str(exc))  # the answer breaks the sign-off rules; the run is still waiting
         except ValueError as exc:

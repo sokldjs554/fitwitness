@@ -28,6 +28,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command, interrupt
 
 from fitwitness.runtime.heartbeat import start_heartbeat
+from fitwitness.runtime import version
 from fitwitness.agents.graph import checkpointer
 
 from fitwitness.agents.budget import BudgetTracker
@@ -38,7 +39,7 @@ from fitwitness.claims.models import (
     COVERAGE_LABELS, ClaimDecision, ClaimOutcome, ClaimRequest, ClaimReview, Extraction, LineItem, Payout, Reason,
 )
 from fitwitness.claims.policy import PRODUCTS, adjudicate, dedupe_keys, explain, validate
-from fitwitness.claims.review import ReviewRuleError, requirements, same_person
+from fitwitness.claims.review import ReviewRuleError, requirements, same_reviewer
 from fitwitness.contracts import RunRequest, Strict, Usage
 
 ITEM_FIELDS = {
@@ -243,10 +244,10 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                 second_answer = interrupt(question(
                     2, f"청구 {claim.claim_id}: {first.reviewer} 님이 {amount:,}원 지급을 승인했습니다. 다른 담당자의 2차 승인이 필요합니다.",
                     {"first_reviewer": first.reviewer, "first_note": first.note, "total_amount": amount, "approvals_required": 2, "note_required": True,
-                     "first_signature": first.receipt.signature if first.receipt else ""}))
+                     "first_signature": first.receipt.signature if first.receipt else "", "first_account": first.account or ""}))
                 guard()
                 second = ClaimReview.model_validate(second_answer)
-                if same_person(second.reviewer, first.reviewer):  # resume() refuses this first; the graph does not rely on it
+                if same_reviewer(first.account, first.reviewer, second.account, second.reviewer):  # resume() refuses this first; the graph does not rely on it
                     raise ReviewRuleError("2차 승인은 1차 승인자와 다른 담당자여야 합니다")
                 approvers.append(second.reviewer)
                 answered.append(second)
@@ -271,7 +272,8 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                 final = ClaimDecision(outcome="REVIEW", line_items=[], total_amount=0, reasons=reasons, needs_human=True)
             else:
                 final = ClaimDecision(outcome="DENY", line_items=[], total_amount=0, reasons=reasons)
-            emit("human_review", {"reviewer": final_review.reviewer, "approvers": approvers, "tier": need["tier"], "outcome": final.outcome,
+            emit("human_review", {"reviewer": final_review.reviewer, "approvers": approvers, "accounts": [a.account for a in answered],
+                                  "tier": need["tier"], "outcome": final.outcome,
                                   "answer": decisive.outcome, "total_amount": final.total_amount, "note": final_review.note})
             return {"decision": final.model_dump(), "human": final_review.model_dump(), "approvers": approvers,
                     "approvals": [a.model_dump(mode="json") for a in answered],
@@ -321,7 +323,7 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
 
             existing = graph.get_state(config)
             if existing.values:
-                emit("resumed", {"checkpoint_id": existing.config.get("configurable", {}).get("checkpoint_id")})
+                emit("resumed", {"checkpoint_id": existing.config.get("configurable", {}).get("checkpoint_id"), "code_version": version.current()})
                 budget.usage = Usage.model_validate(jobs.raw(scope, run_id)["usage"])
                 if raw.get("human_input") and pending():
                     out = graph.invoke(Command(resume=raw["human_input"]), config, durability="sync")

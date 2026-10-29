@@ -7,6 +7,7 @@ from time import monotonic
 import psycopg
 from psycopg.types.json import Jsonb
 from fitwitness.contracts import RunRequest, RunView, Usage, Decision, uid
+from fitwitness.runtime import version
 
 
 # Run before an expired workspace's events and runs are deleted, inside the same tenant-scoped transaction:
@@ -78,6 +79,7 @@ class Jobs:
                 ("waited_seconds", "double precision NOT NULL DEFAULT 0"),
                 ("review_due_at", "timestamptz"),
                 ("escalated_at", "timestamptz"),
+                ("code_version", "text"),  # the code that queued the run (runtime/version.py); each resume records its own
             ]:
                 c.execute(f"ALTER TABLE fw_runs ADD COLUMN IF NOT EXISTS {column} {ddl}")
             c.execute(
@@ -155,8 +157,9 @@ class Jobs:
                     raise QuotaExceeded("전체 실행 한도입니다. 잠시 후 다시 시도해 주세요.")
                 run_id = uid()
                 snapshot = self.repo.snapshot_in(c, scope)
+                started = version.current()
                 c.execute(
-                    "INSERT INTO fw_runs(tenant_id,id,idempotency_key,input_hash,request,snapshot_id) VALUES(%s,%s,%s,%s,%s,%s)",
+                    "INSERT INTO fw_runs(tenant_id,id,idempotency_key,input_hash,request,snapshot_id,code_version) VALUES(%s,%s,%s,%s,%s,%s,%s)",
                     (
                         scope.tenant_id,
                         run_id,
@@ -164,6 +167,7 @@ class Jobs:
                         digest,
                         Jsonb(body),
                         snapshot.id,
+                        started,
                     ),
                 )
                 c.execute(
@@ -175,7 +179,7 @@ class Jobs:
                     scope,
                     run_id,
                     "queued",
-                    {"provider": request.provider, "mode": request.mode},
+                    {"provider": request.provider, "mode": request.mode, "code_version": started},
                 )
         return self.get(scope, run_id)
 
@@ -424,11 +428,13 @@ class Jobs:
             self._event(c, scope, run_id, "waiting_input", {**payload, "review_due_at": row["review_due_at"].isoformat()})
             return True
 
-    def resume(self, scope, run_id, human_input, signer=None):
+    def resume(self, scope, run_id, human_input, signer=None, account=None):
         """Store the reviewer's answer and queue the run again; the worker resumes the graph with it.
 
         ``signer(run, answer, step, prev)`` returns the receipt a claim answer is stored with (claims/receipt.py); a
-        receipt the caller sent is dropped, since a receipt is the server's to give."""
+        receipt the caller sent is dropped, since a receipt is the server's to give. ``account`` is the account the API
+        verified from an ID token (api/identity.py), stored in the claim answer the same way: whatever the caller put
+        there is dropped."""
         if scope.role == "viewer":
             raise PermissionError("read only")
         current = self.raw(scope, run_id)
@@ -440,7 +446,7 @@ class Jobs:
             from fitwitness.claims.models import ClaimReview
             from fitwitness.claims.review import check_answer
 
-            human_input = {**ClaimReview.model_validate(human_input).model_dump(mode="json"), "receipt": None}
+            human_input = {**ClaimReview.model_validate(human_input).model_dump(mode="json"), "receipt": None, "account": account or None}
             # The sign-off rules (a reason, a second person) belong to the question that was asked.
             waiting = next((e["payload"] for e in reversed(self.events(scope, run_id)) if e["kind"] == "waiting_input"), {})
             answer = ClaimReview.model_validate(human_input)
@@ -462,7 +468,9 @@ class Jobs:
             c.execute("INSERT INTO fw_dispatch(tenant_id,run_id) VALUES(%s,%s) ON CONFLICT DO NOTHING", (scope.tenant_id, run_id))
             c.execute("DELETE FROM fw_review_due WHERE run_id=%s", (run_id,))
             self._event(c, scope, run_id, "resumed_by_human", {"reviewer": human_input.get("reviewer"),
-                        "decisions": len(human_input.get("decisions") or {}), "outcome": human_input.get("outcome")})
+                        "decisions": len(human_input.get("decisions") or {}), "outcome": human_input.get("outcome"),
+                        # the answer may arrive days later, under another deployment: name both codes
+                        "started_with": current.get("code_version"), "resumed_with": version.current()})
         return self.get(scope, run_id)
 
     def release_crashed(self, scope, run_id, token=None):

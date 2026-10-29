@@ -195,6 +195,20 @@ Render의 자동 배포는 꺼 둔 채(`render.yaml`), Actions 탭에서 한 번
 
 최악의 하루 비용은 `FITWITNESS_LIVE_DAILY_USD`입니다. 예약은 실행이 실제로 쓴 값이 아니라 상한을 기준으로 하므로 실제 지출은 그보다 작고, 반복된 멱등 키는 예약하지 않습니다. 이 경로의 코드는 가짜 모델로 시험했고(상한 계산, 원자적 예약 경쟁, 공간당 제한, 꺼짐 기본값), **실제 모델로 켜서 돌려 본 적은 없습니다.** 처음 켠 뒤에는 적은 상한(예: 일 $1, 건당 $0.03)으로 시작해 한 건을 돌려 비용과 결과를 확인하는 것을 권합니다.
 
+## 담당자 신원 (OIDC)
+
+공개 데모에서 담당자는 화면에 입력한 이름이고, 2차 승인은 다른 이름이면 됩니다. 보험 현업자가 짚은 "계정에 묶인 승인"은 아래 세 변수를 두면 켜집니다(`api/identity.py`, 2026-10-29). 켜지면 `POST /api/runs/{id}/resume`마다 `Authorization: Bearer <ID 토큰>`이 있어야 하고(없거나 틀리면 401, 실행은 대기 그대로), 담당자 이름은 토큰의 `name`(없으면 `preferred_username`·`email`·`sub`)으로 바뀌며, 토큰의 계정 `iss#sub`가 답변에 `account`로 저장되어 승인 영수증에 함께 서명됩니다. 2차 승인은 이름이 같아도 계정이 다르면 되고, 계정이 같으면 이름이 달라도 422입니다. `/api/capabilities`의 `identity.mode`가 `oidc`인지 `anonymous`인지로 켜진 것을 압니다.
+
+| 환경 변수 | 뜻 |
+|---|---|
+| `FITWITNESS_OIDC_ISSUER` | 토큰의 `iss`와 같아야 하는 발급자 URL |
+| `FITWITNESS_OIDC_AUDIENCE` | 토큰의 `aud`에 있어야 하는 이 서비스의 client id |
+| `FITWITNESS_OIDC_JWKS_FILE` 또는 `FITWITNESS_OIDC_JWKS_URL` | 발급자의 서명 키(JWKS). 둘 다 없으면 `<issuer>/.well-known/openid-configuration`에서 처음 쓸 때 찾습니다 |
+
+검사하는 것은 서명(RS256·ES256, 헤더의 `kid`가 가리키는 키), `iss`, `aud`, `exp`·`nbf`(60초 여유), `sub`의 존재입니다. 모르는 `kid`는 키를 다시 받되 1분에 한 번까지입니다. 역할·권한 claim은 읽지 않습니다(누가 승인할 수 있는지는 발급자 쪽에서 토큰을 줄지 말지로 정하는 것이 전제입니다). 시험은 저장소 안의 가짜 발급자(테스트가 만든 RSA·P-256 키와 JWKS 파일)로 했고, 실제 IdP(Keycloak·Entra·Okta 등)에 붙여 본 적은 없습니다. 공개 데모에는 이 변수가 없어 익명이고, 화면도 토큰을 보내지 않습니다(켜면 화면이 아니라 토큰을 가진 클라이언트가 답해야 합니다).
+
+실행마다 그것을 큐에 넣은 코드의 버전(`fw_runs.code_version`, `RENDER_GIT_COMMIT` 또는 `FITWITNESS_GIT_SHA`, 없으면 체크아웃의 HEAD)이 남고, 담당자 답변과 그래프의 재개 이벤트마다 그때의 버전이 남습니다. 며칠 기다리다 재배포 뒤에 답한 청구는 기록에 두 버전이 함께 보입니다(통합 테스트 `test_long_wait_resume.py`: 사흘을 옮긴 뒤 다른 버전으로 두 사람이 승인해 한 번 지급).
+
 ## 시작 때 만들어지는 DB 개체
 
 `Repository.migrate()`가 API와 worker 시작마다 실행되어, 이번에 더한 `fw_corpus_version`(검색 상태의 변경 카운터)과 개정판·사실·벡터 표의 문장 단위 트리거, `fw_live_spend`(라이브 모델 예약)를 만듭니다. 모두 `IF NOT EXISTS`나 `CREATE OR REPLACE`이고 기존 데이터는 건드리지 않습니다. 트리거 함수는 `SECURITY DEFINER`이며 `search_path`를 고정했고, 요청 역할은 `fw_corpus_version`을 자기 테넌트 행만 읽을 수 있습니다.

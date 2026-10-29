@@ -8,6 +8,7 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.types import Command, interrupt
 from fitwitness.runtime.heartbeat import start_heartbeat
+from fitwitness.runtime import version
 from fitwitness.contracts import (
     Candidate,
     Decision,
@@ -101,12 +102,15 @@ def _execute_run(
     repo, scope, run_id, *, encoders=None, fault_after_retrieval=False, lease_token=None
 ):
     jobs = Jobs(repo)
-    raw = jobs.raw(scope, run_id)
-    if not raw:
+    if not jobs.raw(scope, run_id):
         return
     token = jobs.claim(scope, run_id, requested_token=lease_token)
     if not token:
         return
+    # Read the row after the lease: the lease adds the wait that just ended to waited_seconds, and the deadline below
+    # subtracts it. Read before, a claim answered three days later counted those days and died at once (found by
+    # tests/integration/test_long_wait_resume.py, 2026-10-29).
+    raw = jobs.raw(scope, run_id)
     request = RunRequest.model_validate(raw["request"])
     if request.kind == "claim":
         from fitwitness.claims.graph import execute_claim
@@ -431,7 +435,8 @@ def _execute_run(
                     {
                         "checkpoint_id": existing.config.get("configurable", {}).get(
                             "checkpoint_id"
-                        )
+                        ),
+                        "code_version": version.current(),
                     },
                 )
                 # DB reservation ledger is authoritative, including interrupted calls.

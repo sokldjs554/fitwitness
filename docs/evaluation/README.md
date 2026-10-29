@@ -36,6 +36,8 @@ PYTHONPATH=src uv run python -m fitwitness.evaluation.runner \
 
 외부 API provider는 비밀 환경변수의 API 키, 정확한 모델 ID와 현재 단가가 필요합니다. 최종 측정 provider는 Claude Haiku 4.5로 고정했습니다. OpenAI 어댑터 코드는 유지하지만 최종 성능 비교 범위에는 포함하지 않습니다. 익명 웹 요청으로 유료 평가를 시작할 수 없습니다.
 
+**OpenAI는 한 번도 실측하지 않았습니다.** 기록의 `blocked` 항목이 말하듯 키가 연결된 적이 없고, 어댑터는 코드로만 있습니다. 공고가 "OpenAI API·Claude"를 함께 들어서, 같은 24개 사례를 OpenAI 모델로 한 번 재는 수동 워크플로 [`openai-evidence-measure.yml`](../../.github/workflows/openai-evidence-measure.yml)을 2026-10-29에 두었습니다. 저장소 secret `OPENAI_API_KEY`가 있어야 하고, 모델 이름과 현재 가격표, 상한(최대 $0.25, 기본 $0.10)을 실행할 때 입력합니다. 상한은 runner가 호출 전에 최악의 비용으로 지키고, 결과 보고서는 로그에 찍혀 산출물 없이도 옮겨 적을 수 있습니다. 실행 결과는 돌린 뒤에 이 절에 적습니다.
+
 비교 UI는 catalog에서 모델을 선택합니다. Qwen 원본 latest.json과 Claude의 claude.json을 분리하고, API provider 표시 및 null seed를 지원합니다. API 반복은 로컬 모델과 달리 seed 고정을 주장하지 않습니다.
 
 ## 해석 범위

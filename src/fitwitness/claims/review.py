@@ -16,7 +16,8 @@ The checks run when an answer arrives (``Jobs.resume``), so a malformed answer i
 never stored, and again in the graph, which is the part that actually moves money.
 
 Reviewer names are whatever the caller sends. The public demo has no accounts, so the second approver is
-a different *name*; in a deployment this field would be bound to an authenticated identity.
+a different *name*. When the deployment verifies ID tokens (api/identity.py) each answer carries the account the
+token proved, and "a different person" means a different account, whatever the names say.
 """
 
 from __future__ import annotations
@@ -45,6 +46,13 @@ def same_person(a: str, b: str) -> bool:
     return " ".join(a.split()).casefold() == " ".join(b.split()).casefold()
 
 
+def same_reviewer(account_a: str | None, name_a: str, account_b: str | None, name_b: str) -> bool:
+    """Two answers from one person: the same account when both answers carry one, else the same name."""
+    if account_a and account_b:
+        return account_a == account_b
+    return same_person(name_a, name_b)
+
+
 def check_answer(waiting: dict, answer: ClaimReview, *, escalated: bool = False) -> None:
     """Refuse an answer that breaks the rules for the question it answers. ``waiting`` is the question's payload."""
     senior = waiting.get("tier") == "senior" or escalated
@@ -58,5 +66,6 @@ def check_answer(waiting: dict, answer: ClaimReview, *, escalated: bool = False)
         # The sign-off tier was decided on the proposed amount. A reviewer who could raise it would pay more than the
         # people required for that tier agreed to.
         raise ReviewRuleError(f"승인 금액은 심사가 제안한 {proposed:,}원을 넘을 수 없습니다")
-    if step >= 2 and same_person(answer.reviewer, str(waiting.get("first_reviewer") or "")):
+    if step >= 2 and same_reviewer(str(waiting.get("first_account") or "") or None, str(waiting.get("first_reviewer") or ""),
+                                   answer.account, answer.reviewer):
         raise ReviewRuleError("2차 승인은 1차 승인자와 다른 담당자여야 합니다")

@@ -35,6 +35,45 @@ def _touch(conn) -> None:
     conn._fw_used = time.monotonic()
 
 
+# The approximate (HNSW) index on each dense channel, by the width of the vectors the encoders in retrieval/embeddings
+# produce (E5-small 384, OpenCLIP ViT-B/32 512, DINOv2-small 384). The column has no fixed width, so each index is a
+# partial expression index over the rows of that channel and width; a vector of another width in the same channel is
+# stored, excluded from the index, and searched by the exact scan (tests write 3-wide vectors). A search matches an
+# index only when its channel and width are written into the query as literals, never as parameters, because a
+# generic plan cannot prove a parameter equal to the index predicate's constant. Cosine distance, pgvector >= 0.5.
+HNSW_CHANNELS = {"text": 384, "image": 512, "image_dino": 384}
+
+
+def hnsw_index_statements() -> list[str]:
+    """One CREATE INDEX per dense channel, as migrate() runs them; the scale script runs the same after a bulk load."""
+    return [f"CREATE INDEX IF NOT EXISTS fw_vectors_hnsw_{channel} ON fw_vectors USING hnsw ((embedding::vector({dims})) vector_cosine_ops) "
+            f"WHERE channel='{channel}' AND vector_dims(embedding)={dims}" for channel, dims in HNSW_CHANNELS.items()]
+
+
+def hnsw_ef_search() -> int:
+    """How many candidates an index search keeps (pgvector hnsw.ef_search); at least the rows asked for, since the
+    index returns no more than this. pgvector's default of 40 returned fewer than the 50 rows asked for and found a
+    fifth of the exact answer on random vectors (docs/RETRIEVAL.md, the scale record), and at 100,000 drawings the time
+    hardly moved between 40 and 400 while the recall doubled; 400 is the default here, and the operator can trade recall
+    for time with FITWITNESS_HNSW_EF_SEARCH (pgvector allows up to 1000)."""
+    try:
+        return max(1, int(os.getenv("FITWITNESS_HNSW_EF_SEARCH", "400")))
+    except ValueError:
+        return 400
+
+
+def _vector_search_sql(channel: str, dims: int) -> str:
+    """The search as one statement: the index-ordered nearest rows, then a deterministic order among equal distances.
+    The inner ORDER BY names the distance column alone, so the planner can walk the HNSW index and the distance is
+    computed once per row; the tie-break runs over the handful of rows it returns. Parameters: vector, ids, limit."""
+    if channel not in HNSW_CHANNELS and not channel.replace("_", "").isalnum():
+        raise ValueError("invalid channel")
+    dims = int(dims)
+    return (f"SELECT revision_id, distance FROM (SELECT revision_id, embedding::vector({dims}) <=> %s::vector({dims}) AS distance FROM fw_vectors "
+            f"WHERE channel='{channel}' AND vector_dims(embedding)={dims} AND revision_id=ANY(%s) ORDER BY distance LIMIT %s) hits "
+            "ORDER BY distance, revision_id")
+
+
 def pool_for(dsn: str) -> ConnectionPool:
     with _POOLS_LOCK:
         pool = _POOLS.get(dsn)
@@ -183,6 +222,8 @@ class Repository:
                 "CREATE TABLE IF NOT EXISTS fw_vectors (tenant_id text NOT NULL, revision_id text NOT NULL, channel text NOT NULL, embedding vector NOT NULL, PRIMARY KEY(tenant_id,revision_id,channel), FOREIGN KEY(tenant_id,revision_id) REFERENCES fw_revisions(tenant_id,id))"
             )
             c.execute("ALTER TABLE fw_vectors ADD COLUMN IF NOT EXISTS metadata jsonb NOT NULL DEFAULT '{}'::jsonb")
+            for statement in hnsw_index_statements():
+                c.execute(statement)
             c.execute(
                 "CREATE TABLE IF NOT EXISTS fw_saved_tools (tenant_id text NOT NULL, name text NOT NULL, definition jsonb NOT NULL, "
                 "created_by_run text, created_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY(tenant_id,name))"
@@ -750,11 +791,24 @@ class Repository:
         return result
 
     def vector_search(self, scope, channel, vector, revision_ids, top_k):
+        """The ``top_k`` nearest rows of a channel among ``revision_ids`` by cosine distance. Over the HNSW index when the
+        channel and the vector's width have one (HNSW_CHANNELS), else the exact scan; the index's answer is approximate
+        (docs/RETRIEVAL.md records the recall against the exact scan)."""
+        sql = _vector_search_sql(channel, len(vector))
         with self.connection(scope) as c:
-            return c.execute(
-                "SELECT revision_id,embedding <=> %s::vector AS distance FROM fw_vectors WHERE channel=%s AND revision_id=ANY(%s) ORDER BY distance,revision_id LIMIT %s",
-                (str(vector), channel, revision_ids, top_k),
-            ).fetchall()
+            c.execute("SELECT set_config('hnsw.ef_search', %s, true)", (str(max(hnsw_ef_search(), int(top_k))),))
+            # Never a server-side prepared statement: a plan cached for one tenant size or one ef_search can keep the
+            # planner on the primary-key path (every distance computed) long after the index would be the better walk.
+            # Planning this statement costs about a millisecond; the walk it chooses costs hundreds.
+            return c.execute(sql, (str(vector), revision_ids, top_k), prepare=False).fetchall()
+
+    def explain_vector_search(self, scope, channel, vector, revision_ids, top_k) -> str:
+        """The plan PostgreSQL chose for that search, as text: tests and the scale script read whether the index was walked."""
+        sql = _vector_search_sql(channel, len(vector))
+        with self.connection(scope) as c:
+            c.execute("SELECT set_config('hnsw.ef_search', %s, true)", (str(max(hnsw_ef_search(), int(top_k))),))
+            rows = c.execute("EXPLAIN " + sql, (str(vector), revision_ids, top_k), prepare=False).fetchall()
+        return "\n".join(next(iter(r.values())) for r in rows)
 
     def analyze_vectors(self) -> None:
         """Refresh the planner's statistics on the vector table. After a bulk load PostgreSQL plans the first queries without

@@ -1,0 +1,292 @@
+{
+ "what": "The dense channels at 10,000 and 100,000 drawings: what a search through the text and image vectors costs.",
+ "measured_at": "2026-10-29T10:02:59.890807+00:00",
+ "code_sha": "3970d10eccb761df173a94468df2be856261c7ab-dirty",
+ "ann": "HNSW per channel, pgvector 0.6.2",
+ "database": "local PostgreSQL 16 (pgserver), same machine; random vectors",
+ "results": [
+  {
+   "drawings": 10000,
+   "seed_ms": 2591.7,
+   "vectors_written_ms": 4918.4,
+   "analyze_after_load_ms": 78.8,
+   "index": {
+    "build_after_load_ms": 6418.2,
+    "size_mb": {
+     "text": 19.5,
+     "image": 26.1,
+     "image_dino": 0.0
+    },
+    "insert_1000_more_drawings_with_index_ms": 14837.0,
+    "recall": {
+     "exact": "the statement before the index (primary key path), the exact answer and the before time",
+     "text": {
+      "exact_ms_median": 88.05000000000001,
+      "plan": "->  Index Scan using fw_vectors_hnsw_text on fw_vectors  (cost=112.10..333.38 rows=35 width=45)",
+      "ef_40": {
+       "recall_at_50": 0.57,
+       "rows_returned_min": 50,
+       "ms_median": 67.85,
+       "ms_max": 79.3
+      },
+      "ef_100": {
+       "recall_at_50": 0.708,
+       "rows_returned_min": 50,
+       "ms_median": 75.1,
+       "ms_max": 89.8
+      },
+      "ef_200": {
+       "recall_at_50": 0.835,
+       "rows_returned_min": 50,
+       "ms_median": 86.19999999999999,
+       "ms_max": 126.0
+      },
+      "ef_400": {
+       "recall_at_50": 0.927,
+       "rows_returned_min": 50,
+       "ms_median": 78.85,
+       "ms_max": 110.2
+      }
+     },
+     "image": {
+      "exact_ms_median": 154.4,
+      "plan": "->  Index Scan using fw_vectors_hnsw_image on fw_vectors  (cost=136.10..357.38 rows=35 width=45)",
+      "ef_40": {
+       "recall_at_50": 0.555,
+       "rows_returned_min": 50,
+       "ms_median": 102.15,
+       "ms_max": 125.8
+      },
+      "ef_100": {
+       "recall_at_50": 0.715,
+       "rows_returned_min": 50,
+       "ms_median": 80.65,
+       "ms_max": 99.8
+      },
+      "ef_200": {
+       "recall_at_50": 0.83,
+       "rows_returned_min": 50,
+       "ms_median": 88.4,
+       "ms_max": 120.4
+      },
+      "ef_400": {
+       "recall_at_50": 0.91,
+       "rows_returned_min": 50,
+       "ms_median": 88.85,
+       "ms_max": 107.5
+      }
+     }
+    }
+   },
+   "cold_snapshot_ms": 1168.2,
+   "index_check_ms": 289.5,
+   "first_vector_search_ms": 91.7,
+   "second_vector_search_ms": 78.6,
+   "database_during_first_search": [
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id, distance FROM (SELECT revision_id, embedding::vector(384) <="
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id FROM fw_vectors WHERE channel=$1 AND revision_id=ANY($2) ORDE"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "Client/ClientRead",
+      "query": "SELECT set_config('hnsw.ef_search', $1, true)"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "Client/ClientRead",
+      "query": "SELECT epoch,version FROM fw_corpus_version WHERE tenant_id=$1"
+     }
+    ]
+   ],
+   "search_ms_median": {
+    "semantic": 85.15,
+    "image": 84.05,
+    "all_channels": 208.6
+   },
+   "search_ms_max": {
+    "semantic": 397.5,
+    "image": 95.3,
+    "all_channels": 282.5
+   },
+   "peak_rss_mb_after_cold": 104.7,
+   "peak_rss_mb": 104.7
+  },
+  {
+   "drawings": 100000,
+   "seed_ms": 21201.2,
+   "vectors_written_ms": 51666.1,
+   "analyze_after_load_ms": 304.8,
+   "index": {
+    "build_after_load_ms": 130803.9,
+    "size_mb": {
+     "text": 216.8,
+     "image": 289.1,
+     "image_dino": 0.0
+    },
+    "insert_1000_more_drawings_with_index_ms": 28360.0,
+    "recall": {
+     "exact": "the statement before the index (primary key path), the exact answer and the before time",
+     "text": {
+      "exact_ms_median": 1232.75,
+      "plan": "->  Index Scan using fw_vectors_hnsw_text on fw_vectors  (cost=337.10..2586.68 rows=461 width=45)",
+      "ef_40": {
+       "recall_at_50": 0.215,
+       "rows_returned_min": 41,
+       "ms_median": 469.7,
+       "ms_max": 658.5
+      },
+      "ef_100": {
+       "recall_at_50": 0.293,
+       "rows_returned_min": 50,
+       "ms_median": 436.25,
+       "ms_max": 588.9
+      },
+      "ef_200": {
+       "recall_at_50": 0.432,
+       "rows_returned_min": 50,
+       "ms_median": 452.1,
+       "ms_max": 574.7
+      },
+      "ef_400": {
+       "recall_at_50": 0.568,
+       "rows_returned_min": 50,
+       "ms_median": 470.35,
+       "ms_max": 598.7
+      }
+     },
+     "image": {
+      "exact_ms_median": 2666.15,
+      "plan": "->  Index Scan using fw_vectors_hnsw_image on fw_vectors  (cost=361.10..2578.49 rows=454 width=45)",
+      "ef_40": {
+       "recall_at_50": 0.18,
+       "rows_returned_min": 37,
+       "ms_median": 440.85,
+       "ms_max": 560.9
+      },
+      "ef_100": {
+       "recall_at_50": 0.275,
+       "rows_returned_min": 50,
+       "ms_median": 420.9,
+       "ms_max": 504.1
+      },
+      "ef_200": {
+       "recall_at_50": 0.367,
+       "rows_returned_min": 50,
+       "ms_median": 506.5,
+       "ms_max": 573.9
+      },
+      "ef_400": {
+       "recall_at_50": 0.547,
+       "rows_returned_min": 50,
+       "ms_median": 521.1,
+       "ms_max": 550.0
+      }
+     }
+    }
+   },
+   "cold_snapshot_ms": 9613.7,
+   "index_check_ms": 4108.1,
+   "first_vector_search_ms": 445.8,
+   "second_vector_search_ms": 490.7,
+   "database_during_first_search": [
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id FROM fw_vectors WHERE channel=$1 AND revision_id=ANY($2) ORDE"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "Client/ClientRead",
+      "query": "SELECT set_config('role','fitwitness_app',true), set_config('app.tenant',$1,true"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id FROM fw_vectors WHERE channel=$1 AND revision_id=ANY($2) ORDE"
+     },
+     {
+      "state": "active",
+      "wait": "Timeout/VacuumDelay",
+      "query": "autovacuum: VACUUM public.fw_vectors"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id FROM fw_vectors WHERE channel=$1 AND revision_id=ANY($2) ORDE"
+     },
+     {
+      "state": "active",
+      "wait": "Timeout/VacuumDelay",
+      "query": "autovacuum: VACUUM public.fw_vectors"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "SELECT revision_id FROM fw_vectors WHERE channel=$1 AND revision_id=ANY($2) ORDE"
+     },
+     {
+      "state": "active",
+      "wait": "Timeout/VacuumDelay",
+      "query": "autovacuum: VACUUM public.fw_vectors"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "Client/ClientRead",
+      "query": "SELECT set_config('role','fitwitness_app',true), set_config('app.tenant',$1,true"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "None/None",
+      "query": "EXPLAIN SELECT revision_id, distance FROM (SELECT revision_id, embedding::vector"
+     }
+    ],
+    [
+     {
+      "state": "active",
+      "wait": "Client/ClientRead",
+      "query": "SELECT set_config('hnsw.ef_search', $1, true)"
+     }
+    ]
+   ],
+   "search_ms_median": {
+    "semantic": 461.35,
+    "image": 429.35,
+    "all_channels": 1145.6
+   },
+   "search_ms_max": {
+    "semantic": 4138.7,
+    "image": 619.0,
+    "all_channels": 2536.6
+   },
+   "peak_rss_mb_after_cold": 517.0,
+   "peak_rss_mb": 517.0
+  }
+ ]
+}

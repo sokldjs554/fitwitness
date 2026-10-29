@@ -35,7 +35,7 @@ print(Jobs(repo).get(scope, job.id).model_dump_json(indent=2))
 
 키는 채팅·이슈·소스·커밋에 넣지 않습니다. 이 저장소의 Settings → Secrets and variables → Actions → New repository secret에서 `ANTHROPIC_API_KEY`라는 이름으로 저장합니다. 키를 저장하는 것만으로는 API가 호출되지 않습니다.
 
-`.github/workflows/claude-evaluation.yml`은 `feat/fitwitness-foundation`에 아래 문구로 시작하는 커밋이 들어올 때만 유료 실행을 시작합니다. 이 전용 실행 커밋은 사용자의 비용 승인을 받은 뒤 생성합니다. 승인 없는 일반 수정에는 이 문구를 사용하지 않습니다.
+`.github/workflows/openai-evidence-measure.yml`은 수동(workflow_dispatch)으로만 돌고, 모델·가격·상한을 입력받아 runner가 상한을 지킵니다(최대 $0.25). `.github/workflows/claude-evaluation.yml`은 `feat/fitwitness-foundation`에 아래 문구로 시작하는 커밋이 들어올 때만 유료 실행을 시작합니다. 이 전용 실행 커밋은 사용자의 비용 승인을 받은 뒤 생성합니다. 승인 없는 일반 수정에는 이 문구를 사용하지 않습니다.
 
 `eval: claude evidence pilot [max-usd=1]`
 
