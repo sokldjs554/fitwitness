@@ -52,7 +52,7 @@ OpenTelemetry의 GenAI 의미 규약(semantic conventions)은 에이전트 한 �
 - 실제 백엔드로는 **Jaeger 1.76.0 all-in-one 바이너리**를 로컬에서 띄워 청구·도면 실행과 중단 후 복구 실행을 보내고 trace 조회 API로 되읽었습니다. span 수·부모-자식 관계·상태가 맞았고 Jaeger의 경고(음수 지속 시간, 부모 범위 밖의 자식)는 0건이 되도록 고쳤습니다.
 - `deploy/observability/docker-compose.yml`은 위와 같은 버전의 Jaeger 이미지를 쓰지만, 이 개발 환경에는 Docker 데몬이 없어 compose 파일 자체는 실행해 보지 못했습니다.
 - 공개 데모(Render)는 OTLP 백엔드가 없어 전송을 켜지 않았습니다. Langfuse 같은 LLM 전용 관측 도구는 붙이지 않았습니다. 공개 데모가 규칙 엔진이라 모델 호출 trace가 비어 있고, 모델 호출은 운영자 실행에서만 생기기 때문입니다.
-- 알림 규칙과 SLO는 아래 절에 있습니다. 실제로 받은 알림이나 SLO를 지킨 기간의 기록은 없습니다.
+- 알림 규칙과 SLO는 아래 절에 있습니다. 알림이 로컬 수신기까지 가는 것은 확인했고(2026-10-29), 사람이 받은 알림이나 SLO를 지킨 기간의 기록은 없습니다.
 
 ## 알림 규칙과 SLO
 
@@ -90,9 +90,14 @@ OpenTelemetry의 GenAI 의미 규약(semantic conventions)은 에이전트 한 �
 - `promtool check rules`와 `promtool test rules`(Prometheus 3.5.0): 시험 묶음 14개, 알림 검사 26개(알림 13개 모두 울리는 경우와 조용한 경우), 기록 규칙 값 검사 2개가 통과합니다. 문턱값 다섯 군데를 바꿔 보면(대기 300 → 500초, 최소 건수 10 → 5건, 느린 소진 6배 → 14.4배, 모델 오류 3 → 2건, API 최소 요청률 제거) 각각 테스트가 실패합니다. CI의 `prometheus-rules` 작업이 sha256을 고정한 promtool로 매 커밋 이것과 설정 파일 검사를 돌립니다.
 - 실제 Prometheus 3.5.0 바이너리가 로컬 앱(uvicorn, 로컬 PostgreSQL)을 5초마다 긁게 하고 규칙 27개를 평가했습니다. 대상은 `up`, 규칙은 모두 `ok`, 대시보드의 식 23개는 모두 오류 없이 돌았습니다. 디스패치 행이 사라진 실행을 하나 넣었더니(10분 전에 큐에 들어간 것으로) `FitwitnessQueueStalled`가 바로 pending이 되고 5분 뒤 firing이 됐습니다. 같은 DB로 통합 테스트를 돌리는 동안 재시도를 다 쓴 테스트 실행이 실제로 보류함에 가서 `FitwitnessDeadLetter`도 울렸습니다. 기록은 [verification/prometheus-local-20261025.json](verification/prometheus-local-20261025.json)에 있습니다.
 
+**알림이 받는 곳까지 가는 것 (2026-10-29).** 처음에는 Alertmanager가 없어서 울린 알림이 Prometheus 화면에만 보였습니다. `deploy/alertmanager/alertmanager.yml`을 더했습니다. `severity=page`는 `page` 수신처로 가서 1시간마다 다시 알리고, 나머지는 `ticket`으로 가서 12시간마다 다시 알립니다. 수신처 둘은 `scripts/alert-sink.py`로 가는 웹훅이고, 이 스크립트는 받은 내용을 파일에 적을 뿐입니다. 메일·Slack은 운영자의 주소와 키가 있어야 해서 설정하지 않았고, 파일 안에 바꾸는 방법만 적었습니다.
+
+- **CI.** `prometheus-rules` 작업이 sha256을 고정한 Alertmanager 0.28.1의 `amtool check-config`를 돌리고, `scripts/check_alert_routes.py`가 알림 규칙 13개 모두가 자기 등급의 수신처에 닿는지 `amtool config routes test`로 확인합니다. 페이지 경로를 일부러 깨 보면 이 검사가 실패합니다.
+- **로컬에서 끝까지.** 실제 Prometheus 3.5.0과 Alertmanager 0.28.1을 앱·PostgreSQL·수신 스크립트와 함께 띄우고, 10분 전에 큐에 들어간 채 디스패치가 없는 실행 하나와 보류함에 간 실행 하나를 넣었습니다(규칙의 `for` 5분과 Alertmanager의 `group_wait` 30초, `group_interval` 5분은 저장소 설정 그대로). `FitwitnessDeadLetter`는 05:41:46에 울려 05:42:16에 `/ticket`으로, `FitwitnessQueueStalled`는 05:41:46 pending, 05:46:46 firing, 05:47:16에 `/page`로 도착했습니다. 큐 정지를 풀자(05:47:23) 해소 알림(resolved)이 05:52:16에 `/page`로 도착했습니다. 결함이 생기고 알림이 도착하기까지 이 설정에서는 페이지 등급이 5분 30초, 해소 알림은 최대 5분 더입니다. 기록은 [verification/alertmanager-local-20261029.json](verification/alertmanager-local-20261029.json)입니다.
+
 **하지 않은 것.**
 
-- 실제로 받은 알림은 없습니다. Alertmanager와 받는 곳(메일·Slack·당번)을 설정하지 않았고, 울린 알림은 Prometheus의 `/alerts` 화면과 대시보드의 표에만 보입니다.
+- 사람이 받은 알림은 없습니다. 위 수신처는 파일에 적는 스크립트이고, 메일·Slack·당번 호출은 설정하지 않았습니다. `docker compose --profile metrics`로 같은 구성을 띄우는 파일은 고쳤지만 Docker 데몬이 없어 실행하지 못했고, 위 확인은 같은 버전의 바이너리를 직접 띄운 것입니다.
 - 공개 데모(Render 무료)는 아무도 긁지 않습니다. 실제 트래픽에서 문턱값이 맞는지, 거짓 경보가 얼마나 나는지는 모릅니다.
 - Grafana는 이 환경에서 받을 수 없어(dl.grafana.com 차단) 대시보드를 띄워 보지 못했습니다. JSON 형식과 각 패널의 식이 실제 Prometheus에서 도는 것까지만 확인했습니다. `docker compose --profile metrics`도 Docker 데몬이 없어 실행하지 못했습니다.
 

@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-29",
+  "what": "Prometheus 3.5.0 and Alertmanager 0.28.1 (release binaries, sha256 e811827a... and 5ac7ab5e...) with the repository's rules and deploy/alertmanager/alertmanager.yml (only the webhook host changed to 127.0.0.1:19094), scraping a local fitwitness (uvicorn, local PostgreSQL 16 via pgserver) every 5 s with rules evaluated every 5 s; scripts/alert-sink.py was the receiver",
+  "prometheus": {
+    "version": "3.5.0",
+    "revision": "8be3a9560fbdd18a94dedec4b747c35178177202"
+  },
+  "routing": {
+    "group_wait": "30s",
+    "group_interval": "5m",
+    "page_repeat": "1h",
+    "ticket_repeat": "12h",
+    "rule_for": {
+      "FitwitnessQueueStalled": "5m",
+      "FitwitnessDeadLetter": "none"
+    }
+  },
+  "induced": [
+    "05:41:43 UTC: a fw_runs row in state queued with created_at ten minutes back and no fw_dispatch row (a lost dispatch)",
+    "05:41:43 UTC: a fw_runs row in state dead_lettered with a dead_lettered event",
+    "05:47:23 UTC: the queued row set to completed (the stall is over)"
+  ],
+  "deliveries": [
+    {
+      "received_at": "2026-10-29T05:42:16.901631+00:00",
+      "path": "/ticket",
+      "status": "firing",
+      "alertname": "FitwitnessDeadLetter",
+      "severity": "ticket",
+      "startsAt": "2026-10-29T05:41:46.861Z",
+      "endsAt": "0001-01-01T00:00:00Z"
+    },
+    {
+      "received_at": "2026-10-29T05:47:16.872628+00:00",
+      "path": "/page",
+      "status": "firing",
+      "alertname": "FitwitnessQueueStalled",
+      "severity": "page",
+      "startsAt": "2026-10-29T05:46:46.861Z",
+      "endsAt": "0001-01-01T00:00:00Z"
+    },
+    {
+      "received_at": "2026-10-29T05:52:16.901025+00:00",
+      "path": "/page",
+      "status": "resolved",
+      "alertname": "FitwitnessQueueStalled",
+      "severity": "page",
+      "startsAt": "2026-10-29T05:46:46.861Z",
+      "endsAt": "2026-10-29T05:47:26.861Z"
+    },
+    {
+      "received_at": "2026-10-29T05:57:16.906045+00:00",
+      "path": "/ticket",
+      "status": "resolved",
+      "alertname": "FitwitnessDeadLetter",
+      "severity": "ticket",
+      "startsAt": "2026-10-29T05:41:46.861Z",
+      "endsAt": "2026-10-29T05:56:41.861Z"
+    }
+  ],
+  "timeline": {
+    "FitwitnessDeadLetter": "active 05:41:46, firing at once (no for), delivered to /ticket 05:42:16, resolved delivered 05:57:16 (after its 15-minute window)",
+    "FitwitnessQueueStalled": "pending 05:41:46, firing 05:46:46 (for 5m), delivered to /page 05:47:16, resolved delivered 05:52:16 (stall cleared 05:47:23)"
+  },
+  "limits": "the receiver is a local script that writes a file: no person was notified, no mail or chat receiver was configured; the Docker compose file was edited but not run (no Docker daemon); the hosted demo is not scraped"
+}

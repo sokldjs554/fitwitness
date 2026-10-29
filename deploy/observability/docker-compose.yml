@@ -13,7 +13,9 @@
 #   docker compose -f deploy/observability/docker-compose.yml --profile metrics up -d
 #
 # then http://localhost:9090/alerts and http://localhost:3000 (dashboard "fitwitness", anonymous viewer).
-# No Alertmanager: firing alerts show on the Prometheus page and in the dashboard, nobody is notified.
+# Alertmanager (same profile) routes them by severity to webhooks on the host; start the receiver with
+#   python scripts/alert-sink.py --host 0.0.0.0 --port 9094
+# and the deliveries land in artifacts/alerts-received.jsonl. For real mail or chat edit deploy/alertmanager.
 services:
   jaeger:
     image: jaegertracing/all-in-one:1.76.0
@@ -32,6 +34,14 @@ services:
       - ../prometheus/metrics-token:/etc/prometheus/metrics-token:ro
     ports:
       - "127.0.0.1:9090:9090"
+  alertmanager:
+    image: prom/alertmanager:v0.28.1
+    profiles: [metrics]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    volumes:
+      - ../alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    ports:
+      - "127.0.0.1:9093:9093"
   grafana:
     image: grafana/grafana:12.1.1
     profiles: [metrics]

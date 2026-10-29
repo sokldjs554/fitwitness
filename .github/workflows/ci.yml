@@ -88,6 +88,14 @@ jobs:
           sed -e "s|/etc/prometheus/rules/|$PWD/deploy/prometheus/rules/|; s|/etc/prometheus/metrics-token|/tmp/metrics-token|" deploy/prometheus/prometheus.yml > /tmp/prometheus.yml
           $P check config /tmp/prometheus.yml
           python3 -c "import json; json.load(open('deploy/grafana/dashboards/fitwitness.json'))"
+      - name: Alertmanager 0.28.1 (sha256 pinned) - the config, and that every alert reaches its severity's receiver
+        run: |
+          curl -sSfL -o /tmp/alertmanager.tgz https://github.com/prometheus/alertmanager/releases/download/v0.28.1/alertmanager-0.28.1.linux-amd64.tar.gz
+          echo "5ac7ab5e4b8ee5ce4d8fb0988f9cb275efcc3f181b4b408179fafee121693311  /tmp/alertmanager.tgz" | sha256sum -c -
+          tar -xzf /tmp/alertmanager.tgz -C /tmp
+          A=/tmp/alertmanager-0.28.1.linux-amd64/amtool
+          $A check-config deploy/alertmanager/alertmanager.yml
+          python3 scripts/check_alert_routes.py $A deploy/alertmanager/alertmanager.yml deploy/prometheus/rules/fitwitness-alerts.yml
   credential-readiness:
     if: github.event_name == 'push' && github.ref == 'refs/heads/feat/fitwitness-foundation'
     runs-on: ubuntu-latest
