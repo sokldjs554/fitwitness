@@ -100,7 +100,7 @@ jobs:
         if: always()
         run: |
           for f in artifacts/openai-evidence-${{ github.run_id }}/report.json; do
-            [ -f "$f" ] && python3 -c "import json,sys; r=json.load(open(sys.argv[1])); rows=r.pop('runs', None) or []; r['run_rows']={'total': len(rows), 'ok': sum(1 for x in rows if x.get('status')=='ok'), 'error': sum(1 for x in rows if x.get('status')!='ok'), 'cost_usd': sum(float(x.get('cost_usd') or 0) for x in rows), 'first_error': next((x.get('error') for x in rows if x.get('error')), None)}; print(json.dumps(r, ensure_ascii=False, indent=1))" "$f"
+            [ -f "$f" ] && python3 -c "import json,sys; r=json.load(open(sys.argv[1])); rows=[x for x in (r.pop('predictions', None) or []) if x.get('method')!='rules']; r['model_rows']={'total': len(rows), 'ok': sum(1 for x in rows if x.get('status')=='ok'), 'error': sum(1 for x in rows if x.get('status')!='ok'), 'cost_usd': sum(float(x.get('cost_usd') or 0) for x in rows), 'first_error': next((x.get('error') for x in rows if x.get('error')), None)}; print(json.dumps(r, ensure_ascii=False, indent=1))" "$f"
           done
       - uses: actions/upload-artifact@v4
         if: always()
