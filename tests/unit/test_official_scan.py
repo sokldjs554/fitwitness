@@ -1,4 +1,5 @@
 """The scanned-form reader: rules from pixels, registration of the form's grid, and the cell reads (``claims/official_scan.py``)."""
+
 import shutil
 import subprocess
 
@@ -20,7 +21,11 @@ def grid_page(kind: str, *, scale: float = 1.0, dx: float = 0.0, dy: float = 0.0
     pen = ImageDraw.Draw(image)
     layout = LAYOUTS[kind]
     for y, x0, x1, width in layout["h"]:
-        pen.line([((x0 * scale + dx) * PX, (y * scale + dy) * PX), ((x1 * scale + dx) * PX, (y * scale + dy) * PX)], fill=40, width=max(2, round(width * PX)))
+        pen.line(
+            [((x0 * scale + dx) * PX, (y * scale + dy) * PX), ((x1 * scale + dx) * PX, (y * scale + dy) * PX)],
+            fill=40,
+            width=max(2, round(width * PX)),
+        )
     for x, y0, y1 in layout["v"]:
         pen.line([((x * scale + dx) * PX, (y0 * scale + dy) * PX), ((x * scale + dx) * PX, (y1 * scale + dy) * PX)], fill=40, width=3)
     if angle:
@@ -78,32 +83,50 @@ def word(text: str) -> dict:
     return {"text": text, "x0": 0.0, "x1": 1.0, "top": 0.0, "bottom": 1.0, "conf": 90.0}
 
 
-@pytest.mark.parametrize("read, expected", [
-    ([word("김지호"), word("|")], "김지호"),
-    ([word(".강현우")], ".강현우".strip(".")),
-    ([word("장현우"), word("Ee"), word("Sass")], "장현우"),
-    ([word("급성"), word("충수염")], "급성 충수염"),
-    ([word("BaF")], None),
-    ([word("두:."), word(".")], None),  # one syllable and a smudge is not a name
-    ([word("MBASHHSI")], None),
-])
+@pytest.mark.parametrize(
+    "read, expected",
+    [
+        ([word("김지호"), word("|")], "김지호"),
+        ([word(".강현우")], ".강현우".strip(".")),
+        ([word("장현우"), word("Ee"), word("Sass")], "장현우"),
+        ([word("급성"), word("충수염")], "급성 충수염"),
+        ([word("BaF")], None),
+        ([word("두:."), word(".")], None),  # one syllable and a smudge is not a name
+        ([word("MBASHHSI")], None),
+    ],
+)
 def test_a_cell_that_is_not_mostly_hangul_is_not_a_name(read, expected):
     assert S._name(read) == expected
 
 
-needs_tesseract = pytest.mark.skipif(shutil.which("tesseract") is None or "kor" not in subprocess.run(
-    ["tesseract", "--list-langs"], capture_output=True, text=True).stdout, reason="tesseract with Korean data is not installed")
+needs_tesseract = pytest.mark.skipif(
+    shutil.which("tesseract") is None or "kor" not in subprocess.run(["tesseract", "--list-langs"], capture_output=True, text=True).stdout,
+    reason="tesseract with Korean data is not installed",
+)
 
-CASE = dict(insured_name="박지우", diagnosis_name="급성 충수염", diagnosis_code="K35.8", diagnosis_date="2025-12-07",
-            admission_date="2025-12-07", discharge_date="2025-12-17", hospital="푸른내과의원", total_amount=3884730)
+CASE = dict(
+    insured_name="박지우",
+    diagnosis_name="급성 충수염",
+    diagnosis_code="K35.8",
+    diagnosis_date="2025-12-07",
+    admission_date="2025-12-07",
+    discharge_date="2025-12-17",
+    hospital="푸른내과의원",
+    total_amount=3884730,
+)
 
 
 @needs_tesseract
 @pytest.mark.parametrize("level", ["clean", "medium"])
 def test_a_scanned_diagnosis_certificate_is_read_by_its_cells(level):
     got = extract_documents([("d", "diagnosis", scan_pdf(fill("diagnosis", CASE, seed="x"), level, "d"))])
-    assert (got.insured_name, got.diagnosis_code, got.diagnosis_date, got.admission_date, got.discharge_date) == \
-        ("박지우", "K35.8", "2025-12-07", "2025-12-07", "2025-12-17")
+    assert (got.insured_name, got.diagnosis_code, got.diagnosis_date, got.admission_date, got.discharge_date) == (
+        "박지우",
+        "K35.8",
+        "2025-12-07",
+        "2025-12-07",
+        "2025-12-17",
+    )
     assert got.diagnosis_name.replace(" ", "") == "급성충수염" and got.scanned
 
 

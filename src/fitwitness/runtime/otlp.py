@@ -98,8 +98,9 @@ def _attrs(d: dict, prefix: str = "fw.") -> list[dict]:
     return out
 
 
-def trace_to_otlp(trace: dict, *, kind: str | None = None, state: str | None = None,
-                  environment: str | None = None, version: str | None = None) -> dict:
+def trace_to_otlp(
+    trace: dict, *, kind: str | None = None, state: str | None = None, environment: str | None = None, version: str | None = None
+) -> dict:
     """The span tree of ``build_trace`` as an OTLP ``ExportTraceServiceRequest`` (JSON mapping)."""
     run_id = trace["run_id"]
     tid = trace_id(run_id)
@@ -120,9 +121,13 @@ def trace_to_otlp(trace: dict, *, kind: str | None = None, state: str | None = N
         attrs.append({"key": "fw.event.kind", "value": {"stringValue": node["kind"]}})
         if node.get("seq") is not None:
             attrs.append({"key": "fw.event.seq", "value": {"intValue": str(node["seq"])}})
-        span = {"traceId": tid, "spanId": sid, "name": node["name"],
-                "kind": SPAN_KIND_CLIENT if node["kind"] == "model" else SPAN_KIND_INTERNAL,  # a model call leaves the process
-                "attributes": attrs}
+        span = {
+            "traceId": tid,
+            "spanId": sid,
+            "name": node["name"],
+            "kind": SPAN_KIND_CLIENT if node["kind"] == "model" else SPAN_KIND_INTERNAL,  # a model call leaves the process
+            "attributes": attrs,
+        }
         if parent:
             span["parentSpanId"] = parent
         if node["kind"] in ERROR_KINDS:
@@ -154,12 +159,21 @@ def trace_to_otlp(trace: dict, *, kind: str | None = None, state: str | None = N
             root_span["status"] = {"code": 2, "message": "run failed"}
         elif state == "completed":
             root_span["status"] = {"code": 1}
-    resource = [{"key": "service.name", "value": {"stringValue": SERVICE}},
-                {"key": "deployment.environment", "value": {"stringValue": environment or os.getenv("FITWITNESS_ENV", "local")}}]
+    resource = [
+        {"key": "service.name", "value": {"stringValue": SERVICE}},
+        {"key": "deployment.environment", "value": {"stringValue": environment or os.getenv("FITWITNESS_ENV", "local")}},
+    ]
     if version:
         resource.append({"key": "service.version", "value": {"stringValue": version}})
-    return {"resourceSpans": [{"resource": {"attributes": resource}, "schemaUrl": SCHEMA_URL,
-                               "scopeSpans": [{"scope": {"name": "fitwitness.runtime.trace"}, "spans": spans, "schemaUrl": SCHEMA_URL}]}]}
+    return {
+        "resourceSpans": [
+            {
+                "resource": {"attributes": resource},
+                "schemaUrl": SCHEMA_URL,
+                "scopeSpans": [{"scope": {"name": "fitwitness.runtime.trace"}, "spans": spans, "schemaUrl": SCHEMA_URL}],
+            }
+        ]
+    }
 
 
 def endpoint_from_env() -> str | None:
@@ -226,10 +240,16 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--tenant", required=True)
     p.add_argument("--run", required=True)
     p.add_argument("--endpoint", help="full traces URL; defaults to the OTEL_EXPORTER_OTLP_* variables")
-    p.add_argument("--include-open", action="store_true", help="also export a run that is waiting or backing off (it will be exported again when it ends)")
+    p.add_argument(
+        "--include-open",
+        action="store_true",
+        help="also export a run that is waiting or backing off (it will be exported again when it ends)",
+    )
     args = p.parse_args(argv)
     jobs = Jobs(Repository(os.environ["FITWITNESS_DATABASE_URL"]))
-    ok = export_run(jobs, TenantScope(tenant_id=args.tenant, user_id="otlp", role="operator"), args.run, args.endpoint, include_open=args.include_open)
+    ok = export_run(
+        jobs, TenantScope(tenant_id=args.tenant, user_id="otlp", role="operator"), args.run, args.endpoint, include_open=args.include_open
+    )
     print("exported" if ok else "nothing exported (no endpoint, the run has not ended, no events, or the backend did not accept it)")
     return 0 if ok else 1
 

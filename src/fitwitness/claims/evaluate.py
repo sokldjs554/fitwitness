@@ -56,8 +56,15 @@ def on_official_forms(docs: list[tuple[str, str, bytes]], truth: dict, forms: di
     return [(i, k, fill(k, truth, blank=forms[k], seed=i) if k in forms else data) for i, k, data in docs]
 
 
-def run_pipeline(root: Path, case: dict, *, degraded: bool = False, scan: str | None = None, truth: dict | None = None,
-                 forms: dict[str, bytes | None] | None = None) -> tuple[Extraction, ClaimDecision, float]:
+def run_pipeline(
+    root: Path,
+    case: dict,
+    *,
+    degraded: bool = False,
+    scan: str | None = None,
+    truth: dict | None = None,
+    forms: dict[str, bytes | None] | None = None,
+) -> tuple[Extraction, ClaimDecision, float]:
     docs = [(d["id"], d["kind"], (root / case["case_id"] / f"{d['id']}.pdf").read_bytes()) for d in case["documents"]]
     if forms:
         docs = on_official_forms(docs, truth or {}, forms)
@@ -88,7 +95,9 @@ def decide(case: dict, docs: list[tuple[str, str, bytes]], *, degraded: bool | s
         product = product.model_copy(update={"auto_approve_limit": 10**12})  # nobody signs off on large amounts
     elif degraded == "subtle":
         ex = misread(ex)
-        product = product.model_copy(update={"coverages": {k: c.model_copy(update={"deductible_days": 0}) for k, c in product.coverages.items()}})
+        product = product.model_copy(
+            update={"coverages": {k: c.model_copy(update={"deductible_days": 0}) for k, c in product.coverages.items()}}
+        )
     decision = challenge(ex, adjudicate(policy, product, case["requested"], ex, present, prior, flags))
     return ex, decision, (time.perf_counter() - started) * 1000
 
@@ -117,18 +126,39 @@ def _same(field: str, got, want, scan: str | None) -> bool:
 def _score_case(args: tuple) -> dict:
     root, case, g, degraded, scan, forms = args
     ex, decision, ms = run_pipeline(root, case, degraded=degraded, scan=scan, truth=g["truth"], forms=forms)
-    hits = {f: _same(f, getattr(ex, f), g["truth"].get(f), scan) or (f == "discharge_date" and case["scenario"] == "date_conflict")
-            for f in g["visible_fields"]}
+    hits = {
+        f: _same(f, getattr(ex, f), g["truth"].get(f), scan) or (f == "discharge_date" and case["scenario"] == "date_conflict")
+        for f in g["visible_fields"]
+    }
     correct = decision.outcome == g["gold"]["outcome"] and decision.total_amount == g["gold"]["total_amount"]
     wrong_pay = decision.outcome == "APPROVE" and (g["gold"]["outcome"] != "APPROVE" or decision.total_amount != g["gold"]["total_amount"])
     wrong_deny = decision.outcome == "DENY" and g["gold"]["outcome"] != "DENY"  # turned a claimant away who was owed money or a look
-    return {"case_id": case["case_id"], "scenario": case["scenario"], "predicted": decision.outcome, "gold": g["gold"]["outcome"],
-            "amount": decision.total_amount, "gold_amount": g["gold"]["total_amount"], "correct": correct, "wrong_pay": wrong_pay, "wrong_deny": wrong_deny,
-            "confidence": ex.confidence, "rules": decision.rule_ids(), "ms": ms, "hits": hits}
+    return {
+        "case_id": case["case_id"],
+        "scenario": case["scenario"],
+        "predicted": decision.outcome,
+        "gold": g["gold"]["outcome"],
+        "amount": decision.total_amount,
+        "gold_amount": g["gold"]["total_amount"],
+        "correct": correct,
+        "wrong_pay": wrong_pay,
+        "wrong_deny": wrong_deny,
+        "confidence": ex.confidence,
+        "rules": decision.rule_ids(),
+        "ms": ms,
+        "hits": hits,
+    }
 
 
-def evaluate(root: Path, *, degraded: bool = False, scan: str | None = None, workers: int = 1, cases: list[str] | None = None,
-             forms: dict[str, bytes | None] | None = None) -> dict:
+def evaluate(
+    root: Path,
+    *,
+    degraded: bool = False,
+    scan: str | None = None,
+    workers: int = 1,
+    cases: list[str] | None = None,
+    forms: dict[str, bytes | None] | None = None,
+) -> dict:
     manifest = json.loads((root / "manifest.json").read_text())
     gold = json.loads((root / "gold.json").read_text())
     chosen = [c for c in manifest["cases"] if cases is None or c["case_id"] in cases]
@@ -170,8 +200,10 @@ def evaluate(root: Path, *, degraded: bool = False, scan: str | None = None, wor
         "review_rate": round(sum(r["predicted"] == "REVIEW" for r in rows) / n, 4),
         "auto_rate": round(sum(r["predicted"] == "APPROVE" and r["correct"] for r in rows) / max(1, gold_approve), 4),
         "latency_ms_p50": round(statistics.median(latencies), 1),
-        "by_scenario": {s: {"n": c["n"], "decision_accuracy": round(c["correct"] / c["n"], 3), "wrong_pay": c["wrong_pay"],
-                            "review": c["review"]} for s, c in sorted(per_scenario.items())},
+        "by_scenario": {
+            s: {"n": c["n"], "decision_accuracy": round(c["correct"] / c["n"], 3), "wrong_pay": c["wrong_pay"], "review": c["review"]}
+            for s, c in sorted(per_scenario.items())
+        },
         "degraded": degraded,
         "scan": scan,
         "forms": None if forms is None else {k: "real" if v else "redrawn" for k, v in forms.items()},
@@ -208,21 +240,36 @@ def evaluate_resubmission(root: Path, *, scan: str | None = None) -> dict:
         merged = [d for d in case["documents"] if d["kind"] not in kinds] + waiting
         _, after, _ = decide({**case, "documents": merged}, read(case, merged))
         correct = after.outcome == want["outcome"] and after.total_amount == want["total_amount"]
-        rows.append({"case_id": case["case_id"], "scenario": case["scenario"], "added": [d["kind"] for d in waiting],
-                     "before": before.outcome, "after": after.outcome, "gold_after": want["outcome"], "amount": after.total_amount,
-                     "gold_amount": want["total_amount"], "correct": correct,
-                     "wrong_pay": after.outcome == "APPROVE" and not correct, "paid_before": before.outcome == "APPROVE"})
+        rows.append(
+            {
+                "case_id": case["case_id"],
+                "scenario": case["scenario"],
+                "added": [d["kind"] for d in waiting],
+                "before": before.outcome,
+                "after": after.outcome,
+                "gold_after": want["outcome"],
+                "amount": after.total_amount,
+                "gold_amount": want["total_amount"],
+                "correct": correct,
+                "wrong_pay": after.outcome == "APPROVE" and not correct,
+                "paid_before": before.outcome == "APPROVE",
+            }
+        )
     held = [r for r in rows if r["before"] == "REVIEW"]  # only a claim that reaches a reviewer can be held for documents
-    return {"summary": {
-        "cases": len(rows), "scan": scan,
-        "held_before": len(held),
-        "paid_before": sum(r["paid_before"] for r in rows),
-        "not_held": [r["case_id"] for r in rows if r["before"] != "REVIEW"],  # decided without a person before the documents came
-        "correct_after": sum(r["correct"] for r in held),
-        "paid_after": sum(r["after"] == "APPROVE" and r["correct"] for r in held),
-        "review_after": sum(r["after"] == "REVIEW" for r in held),
-        "wrong_pay_after": sum(r["wrong_pay"] for r in held),
-    }, "rows": rows}
+    return {
+        "summary": {
+            "cases": len(rows),
+            "scan": scan,
+            "held_before": len(held),
+            "paid_before": sum(r["paid_before"] for r in rows),
+            "not_held": [r["case_id"] for r in rows if r["before"] != "REVIEW"],  # decided without a person before the documents came
+            "correct_after": sum(r["correct"] for r in held),
+            "paid_after": sum(r["after"] == "APPROVE" and r["correct"] for r in held),
+            "review_after": sum(r["after"] == "REVIEW" for r in held),
+            "wrong_pay_after": sum(r["wrong_pay"] for r in held),
+        },
+        "rows": rows,
+    }
 
 
 if __name__ == "__main__":
@@ -232,15 +279,28 @@ if __name__ == "__main__":
     ap.add_argument("--root", default="var/claims")
     ap.add_argument("--output", default="artifacts/claims-eval.json")
     ap.add_argument("--degraded", action="store_true")
-    ap.add_argument("--scan", choices=["clean", "light", "medium", "heavy"], help="read every document as a scanned page picture through OCR")
+    ap.add_argument(
+        "--scan", choices=["clean", "light", "medium", "heavy"], help="read every document as a scanned page picture through OCR"
+    )
     ap.add_argument("--workers", type=int, default=1)
-    ap.add_argument("--official", action="store_true",
-                    help="write the diagnosis and the fee statement on the statutory forms (redrawn unless --diagnosis-form/--receipt-form is given)")
+    ap.add_argument(
+        "--official",
+        action="store_true",
+        help="write the diagnosis and the fee statement on the statutory forms (redrawn unless --diagnosis-form/--receipt-form is given)",
+    )
     ap.add_argument("--diagnosis-form", help="path of the real blank 별지 제5호의2 진단서 (a downloaded file; not in this repository)")
     ap.add_argument("--receipt-form", help="path of the real blank 별지 제6호 진료비 계산서·영수증")
-    ap.add_argument("--resubmission", action="store_true", help="measure the claims held for documents, decided again with the documents sent afterwards")
-    ap.add_argument("--split", choices=["all", "dev", "test"], default="all",
-                    help="dev = even-numbered cases, test = odd-numbered ones (the confidence floor is chosen on dev and checked on test)")
+    ap.add_argument(
+        "--resubmission",
+        action="store_true",
+        help="measure the claims held for documents, decided again with the documents sent afterwards",
+    )
+    ap.add_argument(
+        "--split",
+        choices=["all", "dev", "test"],
+        default="all",
+        help="dev = even-numbered cases, test = odd-numbered ones (the confidence floor is chosen on dev and checked on test)",
+    )
     a = ap.parse_args()
     if a.resubmission:
         result = evaluate_resubmission(Path(a.root), scan=a.scan)
@@ -252,8 +312,10 @@ if __name__ == "__main__":
     chosen = None if a.split == "all" else [c for i, c in enumerate(ids) if (i % 2 == 0) == (a.split == "dev")]
     forms = None
     if a.official or a.diagnosis_form or a.receipt_form:
-        forms = {"diagnosis": Path(a.diagnosis_form).read_bytes() if a.diagnosis_form else None,
-                 "receipt": Path(a.receipt_form).read_bytes() if a.receipt_form else None}
+        forms = {
+            "diagnosis": Path(a.diagnosis_form).read_bytes() if a.diagnosis_form else None,
+            "receipt": Path(a.receipt_form).read_bytes() if a.receipt_form else None,
+        }
     result = evaluate(Path(a.root), degraded=a.degraded, scan=a.scan, workers=a.workers, cases=chosen, forms=forms)
     Path(a.output).parent.mkdir(parents=True, exist_ok=True)
     Path(a.output).write_text(json.dumps(result, ensure_ascii=False, indent=1))

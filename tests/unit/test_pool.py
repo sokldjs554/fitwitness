@@ -1,14 +1,22 @@
 """Warm workers hand jobs to already-started processes and keep a replacement ready."""
+
 import subprocess, sys, threading, time
 import pytest
 from fitwitness.runtime.pool import WarmWorkers
 
 # One-shot worker (the original protocol): reads one job, exits with its code.
-FAKE = [sys.executable, "-c", "import sys,json; j=json.loads(sys.stdin.readline() or '{}'); time=__import__('time'); time.sleep(j.get('sleep',0)); sys.exit(int(j.get('code',0)))"]
+FAKE = [
+    sys.executable,
+    "-c",
+    "import sys,json; j=json.loads(sys.stdin.readline() or '{}'); time=__import__('time'); time.sleep(j.get('sleep',0)); sys.exit(int(j.get('code',0)))",
+]
 
 # Serving worker: answers {"done": true} after a normal job and waits for the next; a job with
 # a code exits with it, like the real worker's crash.
-LOOP = [sys.executable, "-c", """
+LOOP = [
+    sys.executable,
+    "-c",
+    """
 import sys, json, time
 while True:
     line = sys.stdin.readline()
@@ -19,7 +27,8 @@ while True:
     if j.get('code'):
         sys.exit(int(j['code']))
     print(json.dumps({'done': True}), flush=True)
-"""]
+""",
+]
 
 
 def pool(size=1, cmd=FAKE):

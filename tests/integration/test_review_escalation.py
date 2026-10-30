@@ -1,4 +1,5 @@
 """Two-person approval and missed deadlines, through the real graph and job runner."""
+
 import json
 from pathlib import Path
 from uuid import uuid4
@@ -75,13 +76,28 @@ def test_the_second_approval_is_signed_after_the_first_and_the_chain_verifies(en
     key = receipt.signing_key(b"k" * 48)
 
     def signer(run, answer, step, prev):
-        return receipt.sign(key, run["tenant_id"], run["id"], ((run["request"] or {}).get("claim") or {}).get("claim_id", ""), answer, step=step, prev=prev)
+        return receipt.sign(
+            key, run["tenant_id"], run["id"], ((run["request"] or {}).get("claim") or {}).get("claim_id", ""), answer, step=step, prev=prev
+        )
 
     scope, run_id, amount = parked_claim(repo, jobs, senior=True)
     note = "서류와 금액을 직접 확인했습니다"
-    jobs.resume(scope, run_id, {"outcome": "APPROVE", "reviewer": "김심사", "note": note, "receipt": {"step": 1, "decided_at": "x", "signature": "0" * 64, "key_id": "forged"}}, signer=signer)
+    jobs.resume(
+        scope,
+        run_id,
+        {
+            "outcome": "APPROVE",
+            "reviewer": "김심사",
+            "note": note,
+            "receipt": {"step": 1, "decided_at": "x", "signature": "0" * 64, "key_id": "forged"},
+        },
+        signer=signer,
+    )
     execute_run(repo, scope, run_id)
-    assert waiting(jobs, scope, run_id)["first_signature"] not in ("", "0" * 64)  # the question for the second approver carries the first signature
+    assert waiting(jobs, scope, run_id)["first_signature"] not in (
+        "",
+        "0" * 64,
+    )  # the question for the second approver carries the first signature
     jobs.resume(scope, run_id, {"outcome": "APPROVE", "reviewer": "박팀장", "note": note}, signer=signer)
     execute_run(repo, scope, run_id)
     result = jobs.raw(scope, run_id)["result"]
@@ -93,7 +109,10 @@ def test_the_second_approval_is_signed_after_the_first_and_the_chain_verifies(en
     assert [r["status"] for r in rows] == ["valid", "valid"]
     swapped = [approvals[0].model_copy(update={"total_amount": 1}), approvals[1]]
     assert [r["status"] for r in receipt.verify(key, scope.tenant_id, run_id, claim_id, swapped)] == ["altered", "valid"]
-    assert [r["status"] for r in receipt.verify(key, scope.tenant_id, run_id, claim_id, approvals[::-1])] == ["out_of_order", "out_of_order"]
+    assert [r["status"] for r in receipt.verify(key, scope.tenant_id, run_id, claim_id, approvals[::-1])] == [
+        "out_of_order",
+        "out_of_order",
+    ]
     assert [p["amount"] for p in repo.payouts(scope)] == [amount]  # signing changed nothing about the money
 
 

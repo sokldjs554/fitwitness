@@ -1,6 +1,7 @@
 """A claim that arrives as a picture: simulated scans of the synthetic documents, read with Tesseract.
 
 Skipped where Tesseract and its Korean data are not installed (CI installs them)."""
+
 import json
 import subprocess
 
@@ -80,18 +81,25 @@ def test_a_model_extraction_grounded_on_a_scan_carries_the_scanned_flag_so_a_den
     from fitwitness.claims.extract import extract_documents, ground
     from fitwitness.claims.models import Policy
     from fitwitness.claims.policy import PRODUCTS, adjudicate
+
     root, manifest = corpus
-    case = next(c for c in manifest["cases"] if c["policy"]["product_id"] == "HLTH-A" and "surgery" in c["requested"] and c["scenario"] == "clean")
+    case = next(
+        c for c in manifest["cases"] if c["policy"]["product_id"] == "HLTH-A" and "surgery" in c["requested"] and c["scenario"] == "clean"
+    )
     text = [(d["id"], d["kind"], (root / case["case_id"] / f"{d['id']}.pdf").read_bytes()) for d in case["documents"]]
     scans = [(i, k, scan_pdf(data, "clean", i)) for i, k, data in text]
     policy, product = Policy.model_validate(case["policy"]), PRODUCTS["HLTH-A"]
     outcomes = {}
     for label, docs in (("text", text), ("scan", scans)):
         read = extract_documents(docs)  # the rules reader's values and quotes, as a model would quote them
-        draft = {f: {"value": "Z41.1" if f == "diagnosis_code" else getattr(read, f), "snippet": read.evidence[f].snippet} for f in read.evidence}
+        draft = {
+            f: {"value": "Z41.1" if f == "diagnosis_code" else getattr(read, f), "snippet": read.evidence[f].snippet} for f in read.evidence
+        }
         ex = ground(draft, docs)
-        assert ex.diagnosis_code == "Z41.1", "a wrong value behind a real quote is accepted by grounding"
+        assert ex.diagnosis_code is None, "a wrong value behind a real quote is not grounded: the quoted line does not show it"
         assert ex.scanned is (label == "scan")
+        # What the claim graph then meets is a code that a reading did produce and the exclusion table refuses.
+        ex = ex.model_copy(update={"diagnosis_code": "Z41.1"})
         outcomes[label] = adjudicate(policy, product, ["surgery"], ex, {k for _, k, _ in docs}, set(), [])
     assert outcomes["text"].outcome == "DENY", "an excluded code on a text layer is a denial the rules make on their own"
     assert outcomes["scan"].outcome == "REVIEW" and any(r.rule_id == "R-SCAN-01" for r in outcomes["scan"].reasons)

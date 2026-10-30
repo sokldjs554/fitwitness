@@ -53,8 +53,12 @@ class IdentityConfig:
 
 
 def load() -> IdentityConfig:
-    return IdentityConfig(issuer=os.getenv("FITWITNESS_OIDC_ISSUER", "").strip(), audience=os.getenv("FITWITNESS_OIDC_AUDIENCE", "").strip(),
-                          jwks_file=os.getenv("FITWITNESS_OIDC_JWKS_FILE", "").strip(), jwks_url=os.getenv("FITWITNESS_OIDC_JWKS_URL", "").strip())
+    return IdentityConfig(
+        issuer=os.getenv("FITWITNESS_OIDC_ISSUER", "").strip(),
+        audience=os.getenv("FITWITNESS_OIDC_AUDIENCE", "").strip(),
+        jwks_file=os.getenv("FITWITNESS_OIDC_JWKS_FILE", "").strip(),
+        jwks_url=os.getenv("FITWITNESS_OIDC_JWKS_URL", "").strip(),
+    )
 
 
 def _b64(segment: str) -> bytes:
@@ -112,7 +116,11 @@ class Verifier:
 
         url = self.config.jwks_url
         if not url:
-            url = httpx.get(self.config.issuer.rstrip("/") + "/.well-known/openid-configuration", timeout=5).raise_for_status().json()["jwks_uri"]
+            url = (
+                httpx.get(self.config.issuer.rstrip("/") + "/.well-known/openid-configuration", timeout=5)
+                .raise_for_status()
+                .json()["jwks_uri"]
+            )
         return httpx.get(url, timeout=5).raise_for_status().json()["keys"]
 
     def key(self, kid: str) -> dict:

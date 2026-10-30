@@ -1,16 +1,23 @@
 """Source-only, atomic per-revision dense indexing. Gold is never an input."""
+
 from hashlib import sha256
 import json
 
 
 def document_text(revision, facts):
-    return " ".join([revision.title, revision.drawing_number, revision.kind or ""] +
-                    [f"{f.field} {f.value} {f.unit or ''}" for f in sorted(facts, key=lambda f: (f.field, str(f.value), f.unit or ""))])
+    return " ".join(
+        [revision.title, revision.drawing_number, revision.kind or ""]
+        + [f"{f.field} {f.value} {f.unit or ''}" for f in sorted(facts, key=lambda f: (f.field, str(f.value), f.unit or ""))]
+    )
 
 
 def source_metadata(revision, text, image, fingerprint):
-    return dict(encoder_fingerprint=fingerprint, source_hash=revision.source_hash,
-                text_hash=sha256(text.encode()).hexdigest(), image_hash=sha256(image).hexdigest())
+    return dict(
+        encoder_fingerprint=fingerprint,
+        source_hash=revision.source_hash,
+        text_hash=sha256(text.encode()).hexdigest(),
+        image_hash=sha256(image).hexdigest(),
+    )
 
 
 def index_revision(scope, revision_id, repo, encoders):
@@ -22,8 +29,7 @@ def index_revision(scope, revision_id, repo, encoders):
     if not image:
         raise ValueError("index requires a source preview")
     metadata = source_metadata(revision, text, image, encoders.fingerprint)
-    vectors = {"text": encoders.encode_text([text])[0].tolist(),
-               "image": encoders.encode_image([image])[0].tolist()}
+    vectors = {"text": encoders.encode_text([text])[0].tolist(), "image": encoders.encode_image([image])[0].tolist()}
     if "image_dino" in dense_channels(encoders):
         vectors["image_dino"] = encoders.encode_image_dino([image])[0].tolist()
     # No write happens until every encoder succeeded. Repository checks source
@@ -42,9 +48,7 @@ def require_index(scope, snapshot, repo, encoders):
     metadata = repo.vector_metadata(scope, snapshot.revision_ids)
     for rid in snapshot.revision_ids:
         records = metadata.get(rid, {})
-        if set(records) != dense_channels(encoders) or any(
-            m.get("encoder_fingerprint") != encoders.fingerprint for m in records.values()
-        ):
+        if set(records) != dense_channels(encoders) or any(m.get("encoder_fingerprint") != encoders.fingerprint for m in records.values()):
             raise ValueError("dense index missing or encoder mismatch; rebuild index")
 
 
@@ -53,18 +57,18 @@ def main():
     from fitwitness.contracts import TenantScope
     from fitwitness.storage.repository import Repository
     from fitwitness.retrieval.embeddings import Encoders
+
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--tenant', required=True)
+    p.add_argument("--tenant", required=True)
     args = p.parse_args()
-    scope = TenantScope(tenant_id=args.tenant, user_id='indexer', role='operator')
-    repo = Repository(os.environ['FITWITNESS_DATABASE_URL'])
+    scope = TenantScope(tenant_id=args.tenant, user_id="indexer", role="operator")
+    repo = Repository(os.environ["FITWITNESS_DATABASE_URL"])
     encoders = Encoders()
     for rid in repo.snapshot(scope).revision_ids:
         index_revision(scope, rid, repo, encoders)
     repo.analyze_vectors()  # the planner's statistics catch up now, not at autovacuum's leisure
-    print(json.dumps(dict(indexed=len(repo.snapshot(scope).revision_ids),
-                          encoder_fingerprint=encoders.fingerprint)))
+    print(json.dumps(dict(indexed=len(repo.snapshot(scope).revision_ids), encoder_fingerprint=encoders.fingerprint)))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

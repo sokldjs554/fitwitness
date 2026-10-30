@@ -53,13 +53,21 @@ def load(env=None) -> LiveConfig:
     env = os.environ if env is None else env
     model = env.get("FITWITNESS_ANTHROPIC_MODEL", "")
     run_usd, daily_usd = _money(env.get("FITWITNESS_LIVE_RUN_USD")), _money(env.get("FITWITNESS_LIVE_DAILY_USD"))
-    priced = _money(env.get("FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION")) > 0 and _money(env.get("FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION")) > 0
+    priced = (
+        _money(env.get("FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION")) > 0
+        and _money(env.get("FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION")) > 0
+    )
     try:
         per_session = max(1, min(10, int(env.get("FITWITNESS_LIVE_PER_SESSION", "2"))))
     except ValueError:
         per_session = 2
-    on = (env.get("FITWITNESS_LIVE_DEMO") == "on" and bool(env.get("ANTHROPIC_API_KEY")) and bool(model) and priced
-          and 0 < run_usd <= daily_usd)
+    on = (
+        env.get("FITWITNESS_LIVE_DEMO") == "on"
+        and bool(env.get("ANTHROPIC_API_KEY"))
+        and bool(model)
+        and priced
+        and 0 < run_usd <= daily_usd
+    )
     return LiveConfig(enabled=on, model=model, run_usd=run_usd, daily_usd=daily_usd, per_session=per_session)
 
 

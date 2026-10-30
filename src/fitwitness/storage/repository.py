@@ -46,8 +46,11 @@ HNSW_CHANNELS = {"text": 384, "image": 512, "image_dino": 384}
 
 def hnsw_index_statements() -> list[str]:
     """One CREATE INDEX per dense channel, as migrate() runs them; the scale script runs the same after a bulk load."""
-    return [f"CREATE INDEX IF NOT EXISTS fw_vectors_hnsw_{channel} ON fw_vectors USING hnsw ((embedding::vector({dims})) vector_cosine_ops) "
-            f"WHERE channel='{channel}' AND vector_dims(embedding)={dims}" for channel, dims in HNSW_CHANNELS.items()]
+    return [
+        f"CREATE INDEX IF NOT EXISTS fw_vectors_hnsw_{channel} ON fw_vectors USING hnsw ((embedding::vector({dims})) vector_cosine_ops) "
+        f"WHERE channel='{channel}' AND vector_dims(embedding)={dims}"
+        for channel, dims in HNSW_CHANNELS.items()
+    ]
 
 
 def hnsw_ef_search() -> int:
@@ -69,9 +72,11 @@ def _vector_search_sql(channel: str, dims: int) -> str:
     if channel not in HNSW_CHANNELS and not channel.replace("_", "").isalnum():
         raise ValueError("invalid channel")
     dims = int(dims)
-    return (f"SELECT revision_id, distance FROM (SELECT revision_id, embedding::vector({dims}) <=> %s::vector({dims}) AS distance FROM fw_vectors "
-            f"WHERE channel='{channel}' AND vector_dims(embedding)={dims} AND revision_id=ANY(%s) ORDER BY distance LIMIT %s) hits "
-            "ORDER BY distance, revision_id")
+    return (
+        f"SELECT revision_id, distance FROM (SELECT revision_id, embedding::vector({dims}) <=> %s::vector({dims}) AS distance FROM fw_vectors "
+        f"WHERE channel='{channel}' AND vector_dims(embedding)={dims} AND revision_id=ANY(%s) ORDER BY distance LIMIT %s) hits "
+        "ORDER BY distance, revision_id"
+    )
 
 
 def pool_for(dsn: str) -> ConnectionPool:
@@ -247,8 +252,17 @@ class Repository:
                 "CREATE TABLE IF NOT EXISTS fw_payout_keys (tenant_id text NOT NULL, dedupe_key text NOT NULL, claim_id text NOT NULL, "
                 "policy_id text NOT NULL, PRIMARY KEY(tenant_id,dedupe_key))"
             )
-            for name in ["fw_revisions", "fw_assets", "fw_facts", "fw_vectors", "fw_saved_tools",
-                         "fw_claim_cases", "fw_claim_docs", "fw_payouts", "fw_payout_keys"]:
+            for name in [
+                "fw_revisions",
+                "fw_assets",
+                "fw_facts",
+                "fw_vectors",
+                "fw_saved_tools",
+                "fw_claim_cases",
+                "fw_claim_docs",
+                "fw_payouts",
+                "fw_payout_keys",
+            ]:
                 c.execute(f"ALTER TABLE {name} ENABLE ROW LEVEL SECURITY")
                 c.execute(f"ALTER TABLE {name} FORCE ROW LEVEL SECURITY")
                 if not c.execute(
@@ -258,9 +272,7 @@ class Repository:
                     c.execute(
                         f"CREATE POLICY tenant_scope ON {name} USING (tenant_id=current_setting('app.tenant',true)) WITH CHECK (tenant_id=current_setting('app.tenant',true))"
                     )
-                c.execute(
-                    f"GRANT SELECT,INSERT,UPDATE,DELETE ON {name} TO fitwitness_app"
-                )
+                c.execute(f"GRANT SELECT,INSERT,UPDATE,DELETE ON {name} TO fitwitness_app")
             c.execute(CORPUS_VERSION)
             c.execute(
                 "CREATE TABLE IF NOT EXISTS fw_live_spend (day text PRIMARY KEY, reserved_usd numeric NOT NULL DEFAULT 0, runs integer NOT NULL DEFAULT 0)"
@@ -322,18 +334,14 @@ class Repository:
     def lock(c, tenant_id):
         c.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s,0))", (tenant_id,))
 
-    def add_revision(
-        self, scope: TenantScope, revision: DrawingRevision, payload: bytes
-    ) -> str:
+    def add_revision(self, scope: TenantScope, revision: DrawingRevision, payload: bytes) -> str:
         if scope.role == "viewer" or revision.tenant_id != scope.tenant_id:
             raise PermissionError("write scope mismatch")
         if sha256(payload).hexdigest() != revision.source_hash:
             raise ValueError("source hash mismatch")
         with self.connection(scope) as c:
             self.lock(c, scope.tenant_id)
-            old = c.execute(
-                "SELECT data FROM fw_revisions WHERE id=%s", (revision.id,)
-            ).fetchone()
+            old = c.execute("SELECT data FROM fw_revisions WHERE id=%s", (revision.id,)).fetchone()
             if old:
                 if old["data"] != revision.model_dump(mode="json"):
                     raise ValueError("revision is immutable")
@@ -344,9 +352,7 @@ class Repository:
                     (revision.supersedes,),
                 ).fetchone()
                 if not parent or parent["document_id"] != revision.document_id:
-                    raise ValueError(
-                        "supersedes must refer to an existing revision of this document"
-                    )
+                    raise ValueError("supersedes must refer to an existing revision of this document")
             c.execute(
                 "INSERT INTO fw_revisions VALUES (%s,%s,%s,%s,%s)",
                 (
@@ -363,15 +369,15 @@ class Repository:
             )
         return revision.id
 
-    def seed_revision(self, scope: TenantScope, revision: DrawingRevision, payload: bytes, facts: list[Fact],
-                      assets: dict[str, bytes]) -> bool:
+    def seed_revision(
+        self, scope: TenantScope, revision: DrawingRevision, payload: bytes, facts: list[Fact], assets: dict[str, bytes]
+    ) -> bool:
         """add_revision + save_facts + put_asset in one transaction (demo workspace seeding).
 
         Returns False when the revision already exists. Same checks as the separate methods."""
         return self.seed_revisions(scope, [(revision, payload, facts, assets)]) == 1
 
-    def seed_revisions(self, scope: TenantScope,
-                       items: list[tuple[DrawingRevision, bytes, list[Fact], dict[str, bytes]]]) -> int:
+    def seed_revisions(self, scope: TenantScope, items: list[tuple[DrawingRevision, bytes, list[Fact], dict[str, bytes]]]) -> int:
         """Several drawings (revision, PDF, facts, other assets) in one transaction.
 
         A demo workspace is twenty drawings; one transaction and one existence query for all
@@ -405,12 +411,16 @@ class Repository:
                 with c.cursor() as cur:
                     cur.executemany(
                         "INSERT INTO fw_revisions VALUES (%s,%s,%s,%s,%s)",
-                        [(scope.tenant_id, r.id, r.document_id, r.supersedes, Jsonb(r.model_dump(mode="json")))
-                         for r, *_ in new])
+                        [(scope.tenant_id, r.id, r.document_id, r.supersedes, Jsonb(r.model_dump(mode="json"))) for r, *_ in new],
+                    )
                     cur.executemany(
                         "INSERT INTO fw_assets VALUES (%s,%s,%s,%s) ON CONFLICT DO NOTHING",
-                        [(scope.tenant_id, r.id, kind, blob) for r, payload, _, assets in new
-                         for kind, blob in [("pdf", payload), *assets.items()]])
+                        [
+                            (scope.tenant_id, r.id, kind, blob)
+                            for r, payload, _, assets in new
+                            for kind, blob in [("pdf", payload), *assets.items()]
+                        ],
+                    )
                     rows = [(scope.tenant_id, r.id, f.id, Jsonb(f.model_dump(mode="json"))) for r, _, facts, _ in new for f in facts]
                     if rows:
                         cur.executemany("INSERT INTO fw_facts VALUES (%s,%s,%s,%s)", rows)
@@ -426,24 +436,32 @@ class Repository:
             raise PermissionError("read only")
         with self.connection(scope) as c:
             existing = {
-                row["case_id"] for row in c.execute(
+                row["case_id"]
+                for row in c.execute(
                     "SELECT case_id FROM fw_claim_cases WHERE case_id=ANY(%s)", ([case["case_id"] for case, _, _ in items],)
                 ).fetchall()
             }
             new = [(case, docs, keys) for case, docs, keys in items if case["case_id"] not in existing]
             if new:
                 with c.cursor() as cur:
-                    cur.executemany("INSERT INTO fw_claim_cases (tenant_id,case_id,data) VALUES (%s,%s,%s)",
-                                    [(scope.tenant_id, case["case_id"], Jsonb(case)) for case, _, _ in new])
+                    cur.executemany(
+                        "INSERT INTO fw_claim_cases (tenant_id,case_id,data) VALUES (%s,%s,%s)",
+                        [(scope.tenant_id, case["case_id"], Jsonb(case)) for case, _, _ in new],
+                    )
                     cur.executemany(
                         "INSERT INTO fw_claim_docs (tenant_id,id,case_id,kind,issued_at,pdf,png) VALUES (%s,%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING",
-                        [(scope.tenant_id, d["id"], d["case_id"], d["kind"], d["issued_at"], pdf, png)
-                         for _, docs, _ in new for d, pdf, png in docs])
+                        [
+                            (scope.tenant_id, d["id"], d["case_id"], d["kind"], d["issued_at"], pdf, png)
+                            for _, docs, _ in new
+                            for d, pdf, png in docs
+                        ],
+                    )
                     keys = [(scope.tenant_id, key, "PRIOR", case["policy"]["policy_id"]) for case, _, prior in new for key in prior]
                     if keys:
                         cur.executemany(
                             "INSERT INTO fw_payout_keys (tenant_id,dedupe_key,claim_id,policy_id) VALUES (%s,%s,%s,%s) ON CONFLICT DO NOTHING",
-                            keys)
+                            keys,
+                        )
         return len(new)
 
     def documents(self, scope) -> list[dict]:
@@ -474,9 +492,7 @@ class Repository:
 
     def get_revision(self, scope, revision_id):
         with self.connection(scope) as c:
-            r = c.execute(
-                "SELECT data FROM fw_revisions WHERE id=%s", (revision_id,)
-            ).fetchone()
+            r = c.execute("SELECT data FROM fw_revisions WHERE id=%s", (revision_id,)).fetchone()
         return DrawingRevision.model_validate(r["data"]) if r else None
 
     def list_revisions(self, scope):
@@ -508,10 +524,7 @@ class Repository:
         if not rev:
             raise ValueError("revision not found")
         for f in facts:
-            if (
-                f.source.revision_id != revision_id
-                or f.source.source_hash != rev.source_hash
-            ):
+            if f.source.revision_id != revision_id or f.source.source_hash != rev.source_hash:
                 raise ValueError("fact source mismatch")
         with self.connection(scope) as c:
             self.lock(c, scope.tenant_id)
@@ -554,8 +567,10 @@ class Repository:
     def saved_tools(self, scope):
         with self.connection(scope) as c:
             rows = c.execute("SELECT name,definition,created_by_run,created_at FROM fw_saved_tools ORDER BY name").fetchall()
-        return [{"name": r["name"], **r["definition"], "created_by_run": r["created_by_run"],
-                 "created_at": r["created_at"].isoformat()} for r in rows]
+        return [
+            {"name": r["name"], **r["definition"], "created_by_run": r["created_by_run"], "created_at": r["created_at"].isoformat()}
+            for r in rows
+        ]
 
     def saved_tool(self, scope, name):
         with self.connection(scope) as c:
@@ -607,18 +622,32 @@ class Repository:
             self.lock(c, scope.tenant_id)
             row = c.execute("SELECT amount,paid_at,run_id FROM fw_payouts WHERE claim_id=%s", (claim_id,)).fetchone()
             if row is None:
-                if run_id and lease_token and not c.execute(
-                    "SELECT 1 FROM fw_runs WHERE id=%s AND lease_token=%s AND state='running' AND lease_until>now() FOR UPDATE",
-                    (run_id, lease_token),
-                ).fetchone():
+                if (
+                    run_id
+                    and lease_token
+                    and not c.execute(
+                        "SELECT 1 FROM fw_runs WHERE id=%s AND lease_token=%s AND state='running' AND lease_until>now() FOR UPDATE",
+                        (run_id, lease_token),
+                    ).fetchone()
+                ):
                     raise LeaseLost("실행이 취소되거나 소유권이 만료되어 지급하지 않았습니다")
-                other = c.execute(
-                    "SELECT claim_id FROM fw_payout_keys WHERE dedupe_key = ANY(%s) AND claim_id <> %s LIMIT 1",
-                    (list(dedupe_keys), claim_id),
-                ).fetchone() if dedupe_keys else None
+                other = (
+                    c.execute(
+                        "SELECT claim_id FROM fw_payout_keys WHERE dedupe_key = ANY(%s) AND claim_id <> %s LIMIT 1",
+                        (list(dedupe_keys), claim_id),
+                    ).fetchone()
+                    if dedupe_keys
+                    else None
+                )
                 if other:
-                    return {"status": "duplicate", "claim_id": claim_id, "amount": 0, "paid_at": None, "run_id": None,
-                            "duplicate_of": other["claim_id"]}
+                    return {
+                        "status": "duplicate",
+                        "claim_id": claim_id,
+                        "amount": 0,
+                        "paid_at": None,
+                        "run_id": None,
+                        "duplicate_of": other["claim_id"],
+                    }
                 c.execute(
                     "INSERT INTO fw_payouts (tenant_id,claim_id,policy_id,amount,line_items,run_id) VALUES (%s,%s,%s,%s,%s,%s)",
                     (scope.tenant_id, claim_id, policy_id, amount, Jsonb(line_items), run_id),
@@ -632,8 +661,13 @@ class Repository:
                 status = "paid"
             else:
                 status = "already_paid"
-        return {"status": status, "claim_id": claim_id, "amount": int(row["amount"]),
-                "paid_at": row["paid_at"].isoformat(), "run_id": row["run_id"]}
+        return {
+            "status": status,
+            "claim_id": claim_id,
+            "amount": int(row["amount"]),
+            "paid_at": row["paid_at"].isoformat(),
+            "run_id": row["run_id"],
+        }
 
     def live_reserve(self, day: str, amount, ceiling) -> bool:
         """Set aside ``amount`` of the day's ``ceiling`` for one live model run, or refuse. One statement: concurrent
@@ -671,16 +705,21 @@ class Repository:
     def payouts(self, scope) -> list[dict]:
         with self.connection(scope) as c:
             rows = c.execute("SELECT claim_id,policy_id,amount,line_items,run_id,paid_at FROM fw_payouts ORDER BY paid_at DESC").fetchall()
-        return [{**{k: r[k] for k in ("claim_id", "policy_id", "line_items", "run_id")}, "amount": int(r["amount"]),
-                 "paid_at": r["paid_at"].isoformat()} for r in rows]
+        return [
+            {
+                **{k: r[k] for k in ("claim_id", "policy_id", "line_items", "run_id")},
+                "amount": int(r["amount"]),
+                "paid_at": r["paid_at"].isoformat(),
+            }
+            for r in rows
+        ]
 
     def load_facts_many(self, scope, revision_ids):
         result = {rid: [] for rid in revision_ids}
         with self.connection(scope) as c:
-            rows = c.execute('SELECT revision_id,data FROM fw_facts WHERE revision_id=ANY(%s) ORDER BY id',
-                             (revision_ids,)).fetchall()
+            rows = c.execute("SELECT revision_id,data FROM fw_facts WHERE revision_id=ANY(%s) ORDER BY id", (revision_ids,)).fetchall()
         for row in rows:
-            result[row['revision_id']].append(Fact.model_validate(row['data']))
+            result[row["revision_id"]].append(Fact.model_validate(row["data"]))
         return result
 
     @staticmethod
@@ -756,38 +795,42 @@ class Repository:
     def save_index(self, scope, revision_id, vectors, metadata):
         from fitwitness.retrieval.indexing import document_text, source_metadata
         import math
-        if scope.role == 'viewer':
-            raise PermissionError('read only')
-        if not {'text', 'image'} <= set(vectors) <= {'text', 'image', 'image_dino'} or any(
-            not v or not all(math.isfinite(x) for x in v) or sum(x*x for x in v) == 0
-            for v in vectors.values()
+
+        if scope.role == "viewer":
+            raise PermissionError("read only")
+        if not {"text", "image"} <= set(vectors) <= {"text", "image", "image_dino"} or any(
+            not v or not all(math.isfinite(x) for x in v) or sum(x * x for x in v) == 0 for v in vectors.values()
         ):
-            raise ValueError('invalid vector index')
+            raise ValueError("invalid vector index")
         with self.connection(scope) as c:
             self.lock(c, scope.tenant_id)
-            row = c.execute('SELECT data FROM fw_revisions WHERE id=%s', (revision_id,)).fetchone()
+            row = c.execute("SELECT data FROM fw_revisions WHERE id=%s", (revision_id,)).fetchone()
             if not row:
-                raise ValueError('revision not found')
-            revision = DrawingRevision.model_validate(row['data'])
-            facts = [Fact.model_validate(r['data']) for r in c.execute(
-                'SELECT data FROM fw_facts WHERE revision_id=%s ORDER BY id', (revision_id,))]
+                raise ValueError("revision not found")
+            revision = DrawingRevision.model_validate(row["data"])
+            facts = [
+                Fact.model_validate(r["data"])
+                for r in c.execute("SELECT data FROM fw_facts WHERE revision_id=%s ORDER BY id", (revision_id,))
+            ]
             image = c.execute("SELECT data FROM fw_assets WHERE revision_id=%s AND kind='png'", (revision_id,)).fetchone()
-            if not image or metadata != source_metadata(revision, document_text(revision, facts),
-                                                       bytes(image['data']), metadata.get('encoder_fingerprint')):
-                raise ValueError('index source changed during encoding')
+            if not image or metadata != source_metadata(
+                revision, document_text(revision, facts), bytes(image["data"]), metadata.get("encoder_fingerprint")
+            ):
+                raise ValueError("index source changed during encoding")
             for channel, vector in vectors.items():
-                c.execute('INSERT INTO fw_vectors (tenant_id,revision_id,channel,embedding,metadata) '
-                          'VALUES(%s,%s,%s,%s::vector,%s) ON CONFLICT(tenant_id,revision_id,channel) '
-                          'DO UPDATE SET embedding=excluded.embedding,metadata=excluded.metadata',
-                          (scope.tenant_id, revision_id, channel, str(vector), Jsonb(metadata)))
+                c.execute(
+                    "INSERT INTO fw_vectors (tenant_id,revision_id,channel,embedding,metadata) "
+                    "VALUES(%s,%s,%s,%s::vector,%s) ON CONFLICT(tenant_id,revision_id,channel) "
+                    "DO UPDATE SET embedding=excluded.embedding,metadata=excluded.metadata",
+                    (scope.tenant_id, revision_id, channel, str(vector), Jsonb(metadata)),
+                )
 
     def vector_metadata(self, scope, revision_ids):
         with self.connection(scope) as c:
-            rows = c.execute('SELECT revision_id,channel,metadata FROM fw_vectors WHERE revision_id=ANY(%s)',
-                             (revision_ids,)).fetchall()
+            rows = c.execute("SELECT revision_id,channel,metadata FROM fw_vectors WHERE revision_id=ANY(%s)", (revision_ids,)).fetchall()
         result = {}
         for r in rows:
-            result.setdefault(r['revision_id'], {})[r['channel']] = r['metadata']
+            result.setdefault(r["revision_id"], {})[r["channel"]] = r["metadata"]
         return result
 
     def vector_search(self, scope, channel, vector, revision_ids, top_k):

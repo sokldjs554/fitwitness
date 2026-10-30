@@ -44,7 +44,9 @@ def degrade(image: Image.Image, level: str, seed: int) -> Image.Image:
     rng = np.random.default_rng(seed)
     image = image.convert("L")
     if p["rotate"]:
-        image = image.rotate(float(rng.choice([-1, 1]) * rng.uniform(0.6, 1.0) * p["rotate"]), resample=Image.BICUBIC, expand=False, fillcolor=255)
+        image = image.rotate(
+            float(rng.choice([-1, 1]) * rng.uniform(0.6, 1.0) * p["rotate"]), resample=Image.BICUBIC, expand=False, fillcolor=255
+        )
     if p["blur"]:
         image = image.filter(ImageFilter.GaussianBlur(p["blur"]))
     if p["contrast"] != 1.0:

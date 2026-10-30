@@ -6,8 +6,18 @@ def test_trace_groups_role_events_and_measures_latency():
     events = [
         {"seq": 1, "kind": "queued", "timestamp": t0, "payload": {}},
         {"seq": 2, "kind": "retrieved", "timestamp": "2026-10-06T00:00:01+00:00", "payload": {"candidates": []}},
-        {"seq": 3, "kind": "model", "timestamp": "2026-10-06T00:00:03+00:00", "payload": {"role": "planner", "latency_ms": 1500, "model_id": "m"}},
-        {"seq": 4, "kind": "tool", "timestamp": "2026-10-06T00:00:03.2+00:00", "payload": {"role": "planner", "name": "query_dimensions", "latency_ms": 50, "fact_ids": ["a"]}},
+        {
+            "seq": 3,
+            "kind": "model",
+            "timestamp": "2026-10-06T00:00:03+00:00",
+            "payload": {"role": "planner", "latency_ms": 1500, "model_id": "m"},
+        },
+        {
+            "seq": 4,
+            "kind": "tool",
+            "timestamp": "2026-10-06T00:00:03.2+00:00",
+            "payload": {"role": "planner", "name": "query_dimensions", "latency_ms": 50, "fact_ids": ["a"]},
+        },
         {"seq": 5, "kind": "completed", "timestamp": "2026-10-06T00:00:04+00:00", "payload": {"candidates": 1}},
     ]
     trace = build_trace("r1", events)

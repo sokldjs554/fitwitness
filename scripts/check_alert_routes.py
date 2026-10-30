@@ -1,4 +1,5 @@
 """Every alert rule must reach the receiver its severity names: page -> page, ticket -> ticket."""
+
 import re
 import subprocess
 import sys
@@ -11,7 +12,19 @@ alerts = re.findall(r"- alert: (\w+)\n(?:(?!- alert:).*\n)*?\s+labels: \{severit
 assert len(alerts) == len(re.findall(r"- alert: ", text)) and alerts, "an alert rule without a severity label"
 for name, severity in alerts:
     receiver = EXPECTED[severity]
-    done = subprocess.run([AMTOOL, "config", "routes", "test", f"--config.file={CONFIG}", f"--verify.receivers={receiver}",
-                           f"severity={severity}", f"alertname={name}"], capture_output=True, text=True)
+    done = subprocess.run(
+        [
+            AMTOOL,
+            "config",
+            "routes",
+            "test",
+            f"--config.file={CONFIG}",
+            f"--verify.receivers={receiver}",
+            f"severity={severity}",
+            f"alertname={name}",
+        ],
+        capture_output=True,
+        text=True,
+    )
     assert done.returncode == 0, (name, severity, done.stdout, done.stderr)
 print(f"{len(alerts)} alert rules route to their severity's receiver")

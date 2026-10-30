@@ -87,9 +87,7 @@ def extract_pdf(data: bytes, revision: DrawingRevision) -> list[Fact]:
                         unit = None
                         certainty = "verified"
                         if field in ("hole_spacing", "width", "thickness"):
-                            if len(values) != 2 or not re.fullmatch(
-                                r"\d+(\.\d+)?", values[0]
-                            ):
+                            if len(values) != 2 or not re.fullmatch(r"\d+(\.\d+)?", values[0]):
                                 continue
                             value = Interval(low=values[0], high=values[0])
                             unit = values[1]

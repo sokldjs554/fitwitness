@@ -5,6 +5,7 @@
 Used by the offline container check: the claims path (reading, rules, counterexample review, payout ledger) must
 finish without any outside connection. A case either completes or waits for a person (amount above the auto limit,
 a missing grade); anything else fails the check."""
+
 import argparse
 import json
 import time
@@ -20,8 +21,9 @@ def main():
 
     def call(path, data=None):
         body = None if data is None else json.dumps(data).encode()
-        req = Request(base + path, data=body, method="GET" if data is None else "POST",
-                      headers={"Origin": base, "Content-Type": "application/json"})
+        req = Request(
+            base + path, data=body, method="GET" if data is None else "POST", headers={"Origin": base, "Content-Type": "application/json"}
+        )
         with client.open(req, timeout=60) as r:
             return json.loads(r.read())
 

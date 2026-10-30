@@ -1,4 +1,5 @@
 """The exported trace must be a valid OTLP request, not something that merely looks like one."""
+
 import json
 import pytest
 from fitwitness.runtime.otlp import END_STATES, endpoint_from_env, headers_from_env, trace_id, trace_to_otlp
@@ -10,16 +11,20 @@ from google.protobuf import json_format  # noqa: E402
 
 def ev(seq, kind, at, payload=None):
     from datetime import datetime, timedelta, timezone
+
     base = datetime(2026, 10, 7, 9, 0, 0, tzinfo=timezone.utc)
     return {"seq": seq, "kind": kind, "timestamp": base + timedelta(milliseconds=at), "payload": payload or {}}
 
 
 EVENTS = [
-    ev(1, "queued", 0), ev(2, "started", 5), ev(3, "intent", 10),
+    ev(1, "queued", 0),
+    ev(2, "started", 5),
+    ev(3, "intent", 10),
     ev(4, "model", 1500, {"role": "planner", "model_id": "m", "latency_ms": 1400.0, "input_tokens": 120}),
     ev(5, "tool", 1600, {"role": "planner", "name": "query_dimensions", "latency_ms": 50.0, "items": 3, "arguments": {"a": 1}}),
     ev(6, "tool", 1700, {"role": "challenger", "name": "query_dimensions", "latency_ms": 40.0}),
-    ev(7, "verified", 1800, {"match": 1}), ev(8, "completed", 1900, {"candidates": 1}),
+    ev(7, "verified", 1800, {"match": 1}),
+    ev(8, "completed", 1900, {"candidates": 1}),
 ]
 
 
@@ -38,7 +43,9 @@ def parsed(payload):
             for sp in ss["spans"]:
                 for key in ("traceId", "spanId", "parentSpanId"):
                     if key in sp:
-                        assert len(sp[key]) == {"traceId": 32}.get(key, 16) and int(sp[key], 16) >= 0, f"{key} must be hex of the right length"
+                        assert len(sp[key]) == {"traceId": 32}.get(key, 16) and int(sp[key], 16) >= 0, (
+                            f"{key} must be hex of the right length"
+                        )
                         sp[key] = base64.b64encode(bytes.fromhex(sp[key])).decode()
     return json_format.Parse(json.dumps(wire), proto.ExportTraceServiceRequest())
 
@@ -119,11 +126,25 @@ def test_configuration_follows_the_standard_variables(monkeypatch):
 def test_model_tool_and_role_spans_carry_gen_ai_attributes():
     """A backend that knows the GenAI conventions can find the agent, the model call and the tool call by name."""
     from fitwitness.runtime.otlp import SCHEMA_URL
-    events = [ev(1, "queued", 0), ev(2, "started", 5),
-              ev(3, "model", 1500, {"role": "planner", "provider": "anthropic", "model_id": "claude-x", "latency_ms": 1400.0,
-                                    "usage": {"input_tokens": 120, "output_tokens": 30, "total_tokens": 150}}),
-              ev(4, "tool", 1600, {"role": "planner", "name": "query_dimensions", "latency_ms": 50.0}),
-              ev(5, "completed", 1900, {"candidates": 1})]
+
+    events = [
+        ev(1, "queued", 0),
+        ev(2, "started", 5),
+        ev(
+            3,
+            "model",
+            1500,
+            {
+                "role": "planner",
+                "provider": "anthropic",
+                "model_id": "claude-x",
+                "latency_ms": 1400.0,
+                "usage": {"input_tokens": 120, "output_tokens": 30, "total_tokens": 150},
+            },
+        ),
+        ev(4, "tool", 1600, {"role": "planner", "name": "query_dimensions", "latency_ms": 50.0}),
+        ev(5, "completed", 1900, {"candidates": 1}),
+    ]
     payload = trace_to_otlp(build_trace("run-3", events), kind="drawing", state="completed")
     request = parsed(payload)
     rs = request.resource_spans[0]

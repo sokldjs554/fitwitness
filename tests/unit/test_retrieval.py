@@ -3,9 +3,7 @@ from fitwitness.contracts import SearchRequest
 
 
 def funcs():
-    assert importlib.util.find_spec("fitwitness.retrieval.pipeline"), (
-        "retrieval pipeline missing"
-    )
+    assert importlib.util.find_spec("fitwitness.retrieval.pipeline"), "retrieval pipeline missing"
     from fitwitness.retrieval.pipeline import (
         reciprocal_rank_fusion,
         extract_requirements,

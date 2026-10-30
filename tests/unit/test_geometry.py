@@ -23,9 +23,7 @@ def test_geometry_distance_is_zero_symmetric_and_axis_permutation_invariant():
     assert geometry_distance(A, A)["distance"] == pytest.approx(0)
     permuted = {**A, "bbox_mm": [30.0, 10.0, 20.0]}
     assert geometry_distance(A, permuted)["distance"] == pytest.approx(0)
-    assert geometry_distance(A, B)["distance"] == pytest.approx(
-        geometry_distance(B, A)["distance"]
-    )
+    assert geometry_distance(A, B)["distance"] == pytest.approx(geometry_distance(B, A)["distance"])
 
 
 def test_geometry_ranking_prefers_closest_shape():

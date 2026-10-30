@@ -36,7 +36,14 @@ from fitwitness.agents.providers import TransientProviderError, create_model
 from fitwitness.claims import notices
 from fitwitness.claims.extract import DECISIVE, extract_documents, ground
 from fitwitness.claims.models import (
-    COVERAGE_LABELS, ClaimDecision, ClaimOutcome, ClaimRequest, ClaimReview, Extraction, Payout, Reason,
+    COVERAGE_LABELS,
+    ClaimDecision,
+    ClaimOutcome,
+    ClaimRequest,
+    ClaimReview,
+    Extraction,
+    Payout,
+    Reason,
 )
 from fitwitness.claims.policy import PRODUCTS, adjudicate, adjust_items, dedupe_keys, explain, validate
 from fitwitness.claims.review import ReviewRuleError, requirements, same_reviewer
@@ -110,13 +117,21 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
         def intake(state: State):
             guard()
             again = claim.resubmission
-            emit("intake", {"claim_id": claim.claim_id, "product": product.name, "requested": claim.requested,
-                            "documents": [{"id": d, "kind": k} for d, k, _ in documents],
-                            **({"resubmission": again.model_dump()} if again else {})})
+            emit(
+                "intake",
+                {
+                    "claim_id": claim.claim_id,
+                    "product": product.name,
+                    "requested": claim.requested,
+                    "documents": [{"id": d, "kind": k} for d, k, _ in documents],
+                    **({"resubmission": again.model_dump()} if again else {}),
+                },
+            )
             line = f"intake: {len(documents)} documents, requested={','.join(claim.requested)}"
             if again:
-                line += f"; attempt {again.attempt} of the claim held in run {again.of_run[:8]}, added {','.join(again.added)}" + \
-                        (f", replacing {','.join(again.replaced)}" if again.replaced else "")
+                line += f"; attempt {again.attempt} of the claim held in run {again.of_run[:8]}, added {','.join(again.added)}" + (
+                    f", replacing {','.join(again.replaced)}" if again.replaced else ""
+                )
             return {"audit": _audit(state, line)}
 
         def extract(state: State):
@@ -128,8 +143,9 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                 source = "rules"
             else:
                 # The model proposes; the document decides. Only grounded snippets survive.
-                texts = "\n\n".join(f"### [{k}] {d}\n" + "\n".join(f"{label} {text}" for label, text, _ in _pairs(pdf, d))
-                                    for d, k, pdf in documents)
+                texts = "\n\n".join(
+                    f"### [{k}] {d}\n" + "\n".join(f"{label} {text}" for label, text, _ in _pairs(pdf, d)) for d, k, pdf in documents
+                )
                 draft, metadata = model.structured(ClaimDraft, EXTRACT_PROMPT, texts, role="extractor")
                 emit("model", metadata)
                 candidate = draft_candidate(draft)
@@ -137,17 +153,35 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                 ex = Extraction.model_validate({**ex.model_dump(), "evidence": ex.evidence})
                 proposed = {k: v.get("value") for k, v in candidate.items()}  # what the model said, before grounding
                 source = "model+grounding"
-            emit("tool", {"role": "extractor", "name": "extract_documents", "arguments": {"documents": len(documents), "source": source},
-                          "items": sum(1 for f in Extraction.FIELDS if getattr(ex, f) is not None),
-                          "latency_ms": (time.monotonic() - started) * 1000})
-            emit("extracted", {"fields": {f: getattr(ex, f) for f in Extraction.FIELDS if getattr(ex, f) is not None},
-                               "evidence": {f: {"doc_id": r.doc_id, "page": r.page} for f, r in ex.evidence.items()},
-                               "confidence": ex.confidence,
-                               # the model path only: the proposal as sent, and the fields grounding did not accept
-                               **({"proposed": proposed, "dropped": sorted(set(proposed) - set(ex.evidence))} if proposed is not None else {})})
+            emit(
+                "tool",
+                {
+                    "role": "extractor",
+                    "name": "extract_documents",
+                    "arguments": {"documents": len(documents), "source": source},
+                    "items": sum(1 for f in Extraction.FIELDS if getattr(ex, f) is not None),
+                    "latency_ms": (time.monotonic() - started) * 1000,
+                },
+            )
+            emit(
+                "extracted",
+                {
+                    "fields": {f: getattr(ex, f) for f in Extraction.FIELDS if getattr(ex, f) is not None},
+                    "evidence": {f: {"doc_id": r.doc_id, "page": r.page} for f, r in ex.evidence.items()},
+                    "confidence": ex.confidence,
+                    # the model path only: the proposal as sent, and the fields grounding did not accept
+                    **({"proposed": proposed, "dropped": sorted(set(proposed) - set(ex.evidence))} if proposed is not None else {}),
+                },
+            )
             ungrounded = sorted((set(proposed) - set(ex.evidence)) & DECISIVE) if proposed else []
-            return {"extraction": ex.model_dump(mode="json"), "ungrounded": ungrounded,
-                    "audit": _audit(state, f"extract[{source}]: confidence={ex.confidence:.2f}" + (f", ungrounded={','.join(ungrounded)}" if ungrounded else ""))}
+            return {
+                "extraction": ex.model_dump(mode="json"),
+                "ungrounded": ungrounded,
+                "audit": _audit(
+                    state,
+                    f"extract[{source}]: confidence={ex.confidence:.2f}" + (f", ungrounded={','.join(ungrounded)}" if ungrounded else ""),
+                ),
+            }
 
         def validate_node(state: State):
             guard()
@@ -161,9 +195,16 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
             ex = Extraction.model_validate(state["extraction"])
             prior = repo.paid_keys(scope, claim.policy.policy_id)
             decision = adjudicate(claim.policy, product, list(claim.requested), ex, present, prior, state.get("flags", []))
-            emit("adjudicated", {"outcome": decision.outcome, "total_amount": decision.total_amount, "rules": decision.rule_ids(),
-                                 "line_items": [li.model_dump() for li in decision.line_items],
-                                 "reasons": [r.model_dump() for r in decision.reasons]})
+            emit(
+                "adjudicated",
+                {
+                    "outcome": decision.outcome,
+                    "total_amount": decision.total_amount,
+                    "rules": decision.rule_ids(),
+                    "line_items": [li.model_dump() for li in decision.line_items],
+                    "reasons": [r.model_dump() for r in decision.reasons],
+                },
+            )
             return {"decision": decision.model_dump(), "audit": _audit(state, f"adjudicate: {decision.outcome} {decision.total_amount:,}")}
 
         def challenge(state: State):
@@ -175,37 +216,77 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
             for li in decision.line_items:
                 missing = [f for f in ITEM_FIELDS[li.coverage] if f not in ex.evidence]
                 if missing:
-                    reasons.append(Reason(rule_id="R-CHAL-01", code="unevidenced_line_item", severity="review",
-                                          message=f"{COVERAGE_LABELS[li.coverage]} 항목의 근거 위치가 없습니다: {', '.join(missing)}"))
+                    reasons.append(
+                        Reason(
+                            rule_id="R-CHAL-01",
+                            code="unevidenced_line_item",
+                            severity="review",
+                            message=f"{COVERAGE_LABELS[li.coverage]} 항목의 근거 위치가 없습니다: {', '.join(missing)}",
+                        )
+                    )
             # A decisive value the model read from somewhere that is not a row of the document (a remark, or nowhere)
             # was dropped at grounding; a model that read a remark is a reason for a person to look before paying.
             for f in state.get("ungrounded") or []:
-                reasons.append(Reason(rule_id="R-CHAL-02", code="ungrounded_decisive_field", severity="review",
-                                      message=f"모델이 {f} 값을 서류의 항목이 아닌 곳에서 읽어 근거 없이 버려졌습니다"))
+                reasons.append(
+                    Reason(
+                        rule_id="R-CHAL-02",
+                        code="ungrounded_decisive_field",
+                        severity="review",
+                        message=f"모델이 {f} 값을 서류의 항목이 아닌 곳에서 읽어 근거 없이 버려졌습니다",
+                    )
+                )
             # Opt-in: a model reads what is about to be paid and looks for a reason not to. Its answer can only add a
             # review reason; it never pays more or denies (claims/audit.py). Skipped when a reason already parks the claim.
-            if claim.audit == "model" and model is not None and decision.outcome == "APPROVE" and not any(r.severity == "review" for r in reasons):
+            if (
+                claim.audit == "model"
+                and model is not None
+                and decision.outcome == "APPROVE"
+                and not any(r.severity == "review" for r in reasons)
+            ):
                 from fitwitness.claims.audit import as_reason, audit
 
-                verdict, meta = audit(model, claim.policy, product, list(claim.requested), documents, ex, decision,
-                                      sorted(repo.paid_keys(scope, claim.policy.policy_id)))
+                verdict, meta = audit(
+                    model,
+                    claim.policy,
+                    product,
+                    list(claim.requested),
+                    documents,
+                    ex,
+                    decision,
+                    sorted(repo.paid_keys(scope, claim.policy.policy_id)),
+                )
                 emit("model", meta)
-                emit("audited", {"agree": verdict.agree, "recommendation": verdict.recommendation,
-                                 "concerns": [c.model_dump() for c in verdict.concerns]})
+                emit(
+                    "audited",
+                    {
+                        "agree": verdict.agree,
+                        "recommendation": verdict.recommendation,
+                        "concerns": [c.model_dump() for c in verdict.concerns],
+                    },
+                )
                 extra = as_reason(verdict)
                 if extra is not None:
                     reasons.append(extra)
             if claim.review == "always" and decision.outcome == "APPROVE":
-                reasons.append(Reason(rule_id="R-REV-00", code="review_requested", severity="review",
-                                      message="청구인이 담당자 확인을 요청했습니다."))
+                reasons.append(
+                    Reason(rule_id="R-REV-00", code="review_requested", severity="review", message="청구인이 담당자 확인을 요청했습니다.")
+                )
             outcome = decision.outcome
             if outcome == "APPROVE" and any(r.severity == "review" for r in reasons):
                 outcome = "REVIEW"
-            final = ClaimDecision(outcome=outcome, line_items=decision.line_items, total_amount=decision.total_amount,
-                                  reasons=reasons, needs_human=(outcome == "REVIEW"))
-            emit("challenged", {"outcome": final.outcome, "added": [r.code for r in reasons[len(decision.reasons):]]})
-            return {"decision": final.model_dump(), "pre_review_decision": final.model_dump(),
-                    "audit": _audit(state, f"challenge: {final.outcome}")}
+            final = ClaimDecision(
+                outcome=outcome,
+                line_items=decision.line_items,
+                total_amount=decision.total_amount,
+                reasons=reasons,
+                needs_human=(outcome == "REVIEW"),
+            )
+            emit("challenged", {"outcome": final.outcome, "added": [r.code for r in reasons[len(decision.reasons) :]]})
+            return {
+                "decision": final.model_dump(),
+                "pre_review_decision": final.model_dump(),
+                "audit": _audit(state, f"challenge: {final.outcome}"),
+            }
 
         def route(state: State):
             return "review" if ClaimDecision.model_validate(state["decision"]).outcome == "REVIEW" else "payout"
@@ -222,18 +303,33 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                     "total_amount": decision.total_amount,
                     "reasons": [r.model_dump() for r in decision.reasons if r.severity != "info"],
                     "line_items": [li.model_dump() for li in decision.line_items],
-                    "tier": need["tier"], "approvals_required": need["approvals_required"], "note_required": need["note_required"],
-                    "threshold": need["threshold"], "step": step,
-                    "accepts": {"outcome": "APPROVE|DENY|REQUEST_INFO", "reviewer": "string", "note": "string", "total_amount": "int, optional adjustment"},
+                    "tier": need["tier"],
+                    "approvals_required": need["approvals_required"],
+                    "note_required": need["note_required"],
+                    "threshold": need["threshold"],
+                    "step": step,
+                    "accepts": {
+                        "outcome": "APPROVE|DENY|REQUEST_INFO",
+                        "reviewer": "string",
+                        "note": "string",
+                        "total_amount": "int, optional adjustment",
+                    },
                     **(extra or {}),
                 }
 
-            answer = interrupt(question(1, f"청구 {claim.claim_id}: 자동 심사 결과 {decision.outcome}, 제안 지급액 {decision.total_amount:,}원. 승인, 부지급 또는 서류 보완 요청을 결정해 주세요."
-                                        + (" 상급 검토 건이므로 승인에는 사유와 다른 담당자의 2차 승인이 필요합니다." if need["tier"] == "senior" else "")))
+            answer = interrupt(
+                question(
+                    1,
+                    f"청구 {claim.claim_id}: 자동 심사 결과 {decision.outcome}, 제안 지급액 {decision.total_amount:,}원. 승인, 부지급 또는 서류 보완 요청을 결정해 주세요."
+                    + (" 상급 검토 건이므로 승인에는 사유와 다른 담당자의 2차 승인이 필요합니다." if need["tier"] == "senior" else ""),
+                )
+            )
             guard()
             first = ClaimReview.model_validate(answer)
             if first.outcome == "APPROVE" and first.total_amount is not None and first.total_amount > decision.total_amount:
-                raise ReviewRuleError("승인 금액은 심사가 제안한 금액을 넘을 수 없습니다")  # resume() refuses this first; the graph moves the money
+                raise ReviewRuleError(
+                    "승인 금액은 심사가 제안한 금액을 넘을 수 없습니다"
+                )  # resume() refuses this first; the graph moves the money
             # An answer that arrived after the deadline was escalated, and an escalated claim is senior whatever its amount.
             need = requirements(product, decision.total_amount, escalated=bool(jobs.raw(scope, run_id).get("escalated_at")))
             approvers = [first.reviewer]
@@ -241,22 +337,41 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
             final_review, decisive = first, first
             if first.outcome == "APPROVE" and need["approvals_required"] > 1:
                 amount = first.total_amount if first.total_amount is not None else decision.total_amount
-                second_answer = interrupt(question(
-                    2, f"청구 {claim.claim_id}: {first.reviewer} 님이 {amount:,}원 지급을 승인했습니다. 다른 담당자의 2차 승인이 필요합니다.",
-                    {"first_reviewer": first.reviewer, "first_note": first.note, "total_amount": amount, "approvals_required": 2, "note_required": True,
-                     "first_signature": first.receipt.signature if first.receipt else "", "first_account": first.account or ""}))
+                second_answer = interrupt(
+                    question(
+                        2,
+                        f"청구 {claim.claim_id}: {first.reviewer} 님이 {amount:,}원 지급을 승인했습니다. 다른 담당자의 2차 승인이 필요합니다.",
+                        {
+                            "first_reviewer": first.reviewer,
+                            "first_note": first.note,
+                            "total_amount": amount,
+                            "approvals_required": 2,
+                            "note_required": True,
+                            "first_signature": first.receipt.signature if first.receipt else "",
+                            "first_account": first.account or "",
+                        },
+                    )
+                )
                 guard()
                 second = ClaimReview.model_validate(second_answer)
-                if same_reviewer(first.account, first.reviewer, second.account, second.reviewer):  # resume() refuses this first; the graph does not rely on it
+                if same_reviewer(
+                    first.account, first.reviewer, second.account, second.reviewer
+                ):  # resume() refuses this first; the graph does not rely on it
                     raise ReviewRuleError("2차 승인은 1차 승인자와 다른 담당자여야 합니다")
                 approvers.append(second.reviewer)
                 answered.append(second)
                 if second.outcome in ("DENY", "REQUEST_INFO"):
                     final_review = decisive = second  # one refusal, or one request for documents, is final
             reasons = list(decision.reasons)
-            for r in ([first] if decisive is first else [first, decisive]):
-                reasons.append(Reason(rule_id="R-HUMAN-01", code="reviewer_decision", severity="info",
-                                      message=f"담당자({r.reviewer}) 결정: {'보완 요청' if r.outcome == 'REQUEST_INFO' else r.outcome}. {r.note}".strip()))
+            for r in [first] if decisive is first else [first, decisive]:
+                reasons.append(
+                    Reason(
+                        rule_id="R-HUMAN-01",
+                        code="reviewer_decision",
+                        severity="info",
+                        message=f"담당자({r.reviewer}) 결정: {'보완 요청' if r.outcome == 'REQUEST_INFO' else r.outcome}. {r.note}".strip(),
+                    )
+                )
             if decisive.outcome == "APPROVE":
                 items, total = decision.line_items, decision.total_amount
                 if first.total_amount is not None and first.total_amount != total:
@@ -266,17 +381,37 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
             elif decisive.outcome == "REQUEST_INFO":
                 # Held, not decided: no payment, no refusal, and the reason says what is missing. The claimant's
                 # answer is a new run of the same claim (claims/resubmit.py); this run stays as the record of the hold.
-                reasons.append(Reason(rule_id="R-HUMAN-02", code="info_requested", severity="review",
-                                      message=f"서류 보완 요청({decisive.reviewer}): {decisive.note.strip()}"))
+                reasons.append(
+                    Reason(
+                        rule_id="R-HUMAN-02",
+                        code="info_requested",
+                        severity="review",
+                        message=f"서류 보완 요청({decisive.reviewer}): {decisive.note.strip()}",
+                    )
+                )
                 final = ClaimDecision(outcome="REVIEW", line_items=[], total_amount=0, reasons=reasons, needs_human=True)
             else:
                 final = ClaimDecision(outcome="DENY", line_items=[], total_amount=0, reasons=reasons)
-            emit("human_review", {"reviewer": final_review.reviewer, "approvers": approvers, "accounts": [a.account for a in answered],
-                                  "tier": need["tier"], "outcome": final.outcome,
-                                  "answer": decisive.outcome, "total_amount": final.total_amount, "note": final_review.note})
-            return {"decision": final.model_dump(), "human": final_review.model_dump(), "approvers": approvers,
-                    "approvals": [a.model_dump(mode="json") for a in answered],
-                    "audit": _audit(state, f"human_review: {decisive.outcome} by {', '.join(approvers)}")}
+            emit(
+                "human_review",
+                {
+                    "reviewer": final_review.reviewer,
+                    "approvers": approvers,
+                    "accounts": [a.account for a in answered],
+                    "tier": need["tier"],
+                    "outcome": final.outcome,
+                    "answer": decisive.outcome,
+                    "total_amount": final.total_amount,
+                    "note": final_review.note,
+                },
+            )
+            return {
+                "decision": final.model_dump(),
+                "human": final_review.model_dump(),
+                "approvers": approvers,
+                "approvals": [a.model_dump(mode="json") for a in answered],
+                "audit": _audit(state, f"human_review: {decisive.outcome} by {', '.join(approvers)}"),
+            }
 
         def payout(state: State):
             guard()
@@ -285,9 +420,18 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
             if decision.outcome != "APPROVE" or decision.total_amount <= 0:
                 receipt = Payout(status="skipped", claim_id=claim.claim_id, amount=0)
             else:
-                receipt = Payout(**repo.pay(scope, claim.claim_id, claim.policy.policy_id, decision.total_amount,
-                                            dedupe_keys(claim.policy, ex, decision), [li.model_dump() for li in decision.line_items], run_id,
-                                            lease_token=token))
+                receipt = Payout(
+                    **repo.pay(
+                        scope,
+                        claim.claim_id,
+                        claim.policy.policy_id,
+                        decision.total_amount,
+                        dedupe_keys(claim.policy, ex, decision),
+                        [li.model_dump() for li in decision.line_items],
+                        run_id,
+                        lease_token=token,
+                    )
+                )
                 if request.demo_fault and jobs.mark_fault_consumed(scope, run_id):
                     # The dangerous crash: the ledger row exists, the checkpoint for this node does not yet.
                     emit("interrupted", {"reason": "체험용 중단: 지급 기록 직후 worker 오류", "retry": True})
@@ -295,14 +439,26 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
             emit("payout", receipt.model_dump(mode="json"))
             explanation = explain(decision)
             if receipt.status == "duplicate":
-                explanation += f"\n- 같은 사건이 청구 {receipt.duplicate_of} 로 이미 지급되어 이 청구는 지급하지 않았습니다. 담당자 확인이 필요합니다."
+                explanation += (
+                    f"\n- 같은 사건이 청구 {receipt.duplicate_of} 로 이미 지급되어 이 청구는 지급하지 않았습니다. 담당자 확인이 필요합니다."
+                )
             emit("explained", {"text": explanation})
-            return {"payout": receipt.model_dump(mode="json"), "explanation": explanation,
-                    "audit": _audit(state, f"payout: {receipt.status} {receipt.amount:,}")}
+            return {
+                "payout": receipt.model_dump(mode="json"),
+                "explanation": explanation,
+                "audit": _audit(state, f"payout: {receipt.status} {receipt.amount:,}"),
+            }
 
         builder = StateGraph(State)
-        for name, fn in [("intake", intake), ("extract", extract), ("validate", validate_node), ("adjudicate", adjudicate_node),
-                         ("challenge", challenge), ("review", review), ("payout", payout)]:
+        for name, fn in [
+            ("intake", intake),
+            ("extract", extract),
+            ("validate", validate_node),
+            ("adjudicate", adjudicate_node),
+            ("challenge", challenge),
+            ("review", review),
+            ("payout", payout),
+        ]:
             builder.add_node(name, fn)
         builder.add_edge(START, "intake")
         builder.add_edge("intake", "extract")
@@ -322,7 +478,10 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
 
             existing = graph.get_state(config)
             if existing.values:
-                emit("resumed", {"checkpoint_id": existing.config.get("configurable", {}).get("checkpoint_id"), "code_version": version.current()})
+                emit(
+                    "resumed",
+                    {"checkpoint_id": existing.config.get("configurable", {}).get("checkpoint_id"), "code_version": version.current()},
+                )
                 budget.usage = Usage.model_validate(jobs.raw(scope, run_id)["usage"])
                 if raw.get("human_input") and pending():
                     out = graph.invoke(Command(resume=raw["human_input"]), config, durability="sync")

@@ -8,9 +8,7 @@ ROOT = Path("var/corpus/input/FW-F000-V0")
 
 
 def funcs():
-    assert importlib.util.find_spec("fitwitness.ingest.pdf"), (
-        "source extraction missing"
-    )
+    assert importlib.util.find_spec("fitwitness.ingest.pdf"), "source extraction missing"
     from fitwitness.ingest.pdf import extract_pdf
     from fitwitness.ingest.cad import extract_step
 
@@ -58,9 +56,7 @@ def test_step_geometry_is_measured_from_original_bytes():
     data = (ROOT / "model.step").read_bytes()
     features = cad(data)
     assert features["bbox_mm"] == pytest.approx([65, 30, 4])
-    assert features["volume_mm3"] == pytest.approx(
-        65 * 30 * 4 - 2 * 3.141592653589793 * 9 * 4, rel=1e-5
-    )
+    assert features["volume_mm3"] == pytest.approx(65 * 30 * 4 - 2 * 3.141592653589793 * 9 * 4, rel=1e-5)
     assert features["source_hash"] == hashlib.sha256(data).hexdigest()
     assert len(features["mesh"]["faces"]) > 10
 

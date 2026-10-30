@@ -1,4 +1,5 @@
 """The terminal-style search: what it accepts, what it refuses, and that nothing it is given is ever run by a shell."""
+
 from pathlib import Path
 
 import re
@@ -14,23 +15,42 @@ HASH = "a" * 64
 
 
 def revision(rid, number, label="A", title="브래킷", family="F1"):
-    return DrawingRevision(id=rid, tenant_id="t", document_id=f"d-{rid}", drawing_number=number, family_id=family,
-                           revision_label=label, source_hash=HASH, title=title)
+    return DrawingRevision(
+        id=rid,
+        tenant_id="t",
+        document_id=f"d-{rid}",
+        drawing_number=number,
+        family_id=family,
+        revision_label=label,
+        source_hash=HASH,
+        title=title,
+    )
 
 
 def fact(rid, field, value, unit="mm", certainty="verified"):
-    return Fact(field=field, value=value, unit=unit, certainty=certainty,
-                source=SourceRef(revision_id=rid, source_hash=HASH, page=1, bbox=(0.1, 0.1, 0.2, 0.2)))
+    return Fact(
+        field=field,
+        value=value,
+        unit=unit,
+        certainty=certainty,
+        source=SourceRef(revision_id=rid, source_hash=HASH, page=1, bbox=(0.1, 0.1, 0.2, 0.2)),
+    )
 
 
 @pytest.fixture
 def workspace():
-    revs = [revision("r1", "BS-1201", "A"), revision("r2", "BS-1202", "B"), revision("r3", "BS-1301", "A", "플레이트", "F2"),
-            revision("r4", "BS 9/9", "C")]
-    facts = {"r1": [fact("r1", "material", "SUS304", None), fact("r1", "width", "120")],
-             "r2": [fact("r2", "material", "SUS316", None), fact("r2", "width", "95")],
-             "r3": [fact("r3", "width", "130")],
-             "r4": [fact("r4", "material", "SUS304", None, "uncertain")]}
+    revs = [
+        revision("r1", "BS-1201", "A"),
+        revision("r2", "BS-1202", "B"),
+        revision("r3", "BS-1301", "A", "플레이트", "F2"),
+        revision("r4", "BS 9/9", "C"),
+    ]
+    facts = {
+        "r1": [fact("r1", "material", "SUS304", None), fact("r1", "width", "120")],
+        "r2": [fact("r2", "material", "SUS316", None), fact("r2", "width", "95")],
+        "r3": [fact("r3", "width", "130")],
+        "r4": [fact("r4", "material", "SUS304", None, "uncertain")],
+    }
     ws = S.Workspace(revs, facts)
     yield ws
     ws.close()
@@ -52,7 +72,9 @@ def test_pipelines_and_counts_work_and_the_score_counts_lines(workspace):
     hits = workspace.search("grep -rn fact . | sort | head -n 20")
     assert {h["revision_id"] for h in hits} == {"r1", "r2", "r3", "r4"}
     assert next(h for h in hits if h["revision_id"] == "r1")["scores"] == {"shell": 2.0}
-    assert ids(workspace.search("grep -rc material . | head -5")) == ["r1", "r2", "r4"] or sorted(ids(workspace.search("grep -rc material ."))) == ["r1", "r2", "r4"]
+    assert ids(workspace.search("grep -rc material . | head -5")) == ["r1", "r2", "r4"] or sorted(
+        ids(workspace.search("grep -rc material ."))
+    ) == ["r1", "r2", "r4"]
     assert workspace.search("grep -rl no-such-text .") == []
     assert len(workspace.search("grep -rl width .", top_k=2)) == 2
 
@@ -66,11 +88,51 @@ def test_hits_are_candidates_the_rest_of_the_system_already_understands(workspac
 
 
 HOSTILE = [
-    "rm -rf /", "ls; rm -rf /", "ls && ls", "ls || ls", "ls &", "grep a . > out.txt", "grep a < /etc/passwd", "cat /etc/passwd", "cat ../../etc/passwd",
-    "cat ~/.ssh/id_rsa", "head -n 3 $(ls)", "find . -exec cat {} +", "find . -delete", "find . -fprint /tmp/x", "find / -name x", "find . -newer x",
-    "grep -f /etc/passwd .", "grep -P x .", "grep --file=/etc/passwd .", "grep -r a /", "grep -r a ..", "ls -l /", "sort -o out .", "sort --output=out x",
-    "cut -f1 -d", "echo hi", "env", "python -c 1", "sh -c ls", "curl http://x", "nc -l 1", "xargs rm", "tee x", "grep", "grep -A x a .", "head -n abc x",
-    "ls | ls | ls | ls", "", "   ", "grep 'unterminated .", "a" * 500, "grep -m 99999999 a .", "find . -maxdepth 99", "cat \x00x", "grep a .\nrm x",
+    "rm -rf /",
+    "ls; rm -rf /",
+    "ls && ls",
+    "ls || ls",
+    "ls &",
+    "grep a . > out.txt",
+    "grep a < /etc/passwd",
+    "cat /etc/passwd",
+    "cat ../../etc/passwd",
+    "cat ~/.ssh/id_rsa",
+    "head -n 3 $(ls)",
+    "find . -exec cat {} +",
+    "find . -delete",
+    "find . -fprint /tmp/x",
+    "find / -name x",
+    "find . -newer x",
+    "grep -f /etc/passwd .",
+    "grep -P x .",
+    "grep --file=/etc/passwd .",
+    "grep -r a /",
+    "grep -r a ..",
+    "ls -l /",
+    "sort -o out .",
+    "sort --output=out x",
+    "cut -f1 -d",
+    "echo hi",
+    "env",
+    "python -c 1",
+    "sh -c ls",
+    "curl http://x",
+    "nc -l 1",
+    "xargs rm",
+    "tee x",
+    "grep",
+    "grep -A x a .",
+    "head -n abc x",
+    "ls | ls | ls | ls",
+    "",
+    "   ",
+    "grep 'unterminated .",
+    "a" * 500,
+    "grep -m 99999999 a .",
+    "find . -maxdepth 99",
+    "cat \x00x",
+    "grep a .\nrm x",
 ]
 
 
@@ -80,11 +142,14 @@ def test_everything_outside_the_closed_set_is_refused(command, workspace):
         workspace.search(command)
 
 
-@pytest.mark.parametrize("command, hint", [
-    ("grep -L 'fact material' *.txt", "--include='*.txt'"),  # typed by Claude in run 40208075780
-    ("cat ./*.txt", "globs are not expanded"),
-    ("grep -L 'material' . | head -20", "add -r"),  # typed by Claude in run 40207958626
-])
+@pytest.mark.parametrize(
+    "command, hint",
+    [
+        ("grep -L 'fact material' *.txt", "--include='*.txt'"),  # typed by Claude in run 40208075780
+        ("cat ./*.txt", "globs are not expanded"),
+        ("grep -L 'material' . | head -20", "add -r"),  # typed by Claude in run 40207958626
+    ],
+)
 def test_a_command_that_would_fail_for_want_of_a_shell_is_refused_with_how_to_type_it(command, hint, workspace):
     with pytest.raises(S.ShellRefused, match=re.escape(hint)):
         workspace.search(command)

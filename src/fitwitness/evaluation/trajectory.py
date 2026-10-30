@@ -89,8 +89,14 @@ def _claim_run(repo, jobs, scope, case: dict):
     from fitwitness.agents.graph import execute_run
     from fitwitness.claims.models import ClaimRequest, Policy
 
-    claim = ClaimRequest(case_id=case["case_id"], claim_id=case["claim_id"], policy=Policy.model_validate(case["policy"]),
-                         requested=case["requested"], document_ids=[d["id"] for d in case["documents"]], submitted_at=case["submitted_at"])
+    claim = ClaimRequest(
+        case_id=case["case_id"],
+        claim_id=case["claim_id"],
+        policy=Policy.model_validate(case["policy"]),
+        requested=case["requested"],
+        document_ids=[d["id"] for d in case["documents"]],
+        submitted_at=case["submitted_at"],
+    )
     job = jobs.enqueue(scope, RunRequest(kind="claim", claim=claim.model_dump(mode="json")), str(uuid4()))
     execute_run(repo, scope, job.id)
     return job.id
@@ -113,8 +119,13 @@ def _snapshot(repo, jobs, scope, run_id: str) -> dict:
     view = jobs.get(scope, run_id)
     events = jobs.events(scope, run_id)
     waiting = next((e["payload"] for e in reversed(events) if e["kind"] == "waiting_input"), None)
-    return {"state": view.state, "signature": signature(events), "ledger": [(p["claim_id"], p["amount"]) for p in repo.payouts(scope)],
-            "proposed": (waiting or {}).get("total_amount"), "approvals_required": (waiting or {}).get("approvals_required") or 1}
+    return {
+        "state": view.state,
+        "signature": signature(events),
+        "ledger": [(p["claim_id"], p["amount"]) for p in repo.payouts(scope)],
+        "proposed": (waiting or {}).get("total_amount"),
+        "approvals_required": (waiting or {}).get("approvals_required") or 1,
+    }
 
 
 @contextmanager
@@ -168,7 +179,11 @@ def claim_invariants(case: dict, gold: dict, first: dict, answers: dict, rerun: 
     if "approve" in answers:
         after = answers["approve"]
         owed = (first.get("proposed") or 0) > 0  # approving a claim whose proposed amount is zero pays nothing
-        if owed and (len(after["ledger"]) != 1 or after["ledger"][0][1] != first["proposed"] or sum(t == "payout:paid" for t in after["signature"]) != 1):
+        if owed and (
+            len(after["ledger"]) != 1
+            or after["ledger"][0][1] != first["proposed"]
+            or sum(t == "payout:paid" for t in after["signature"]) != 1
+        ):
             bad.append("approving a parked claim must pay the proposed amount exactly once")
         if not owed and after["ledger"]:
             bad.append("approving a claim with nothing owed must not pay")
@@ -193,8 +208,9 @@ def claim_invariants(case: dict, gold: dict, first: dict, answers: dict, rerun: 
     return bad
 
 
-def run_claim_trajectories(repo, jobs, root: Path, *, degraded: bool = False, branches_per_scenario: int = 3,
-                           cases_per_scenario: int | None = None) -> dict:
+def run_claim_trajectories(
+    repo, jobs, root: Path, *, degraded: bool = False, branches_per_scenario: int = 3, cases_per_scenario: int | None = None
+) -> dict:
     """Every claim of the corpus once; the reviewer and rerun branches for the first few of each scenario."""
     manifest = json.loads((root / "manifest.json").read_text())
     gold = json.loads((root / "gold.json").read_text())
@@ -220,9 +236,17 @@ def run_claim_trajectories(repo, jobs, root: Path, *, degraded: bool = False, br
         if with_branches and first["ledger"]:
             again = _claim_run(repo, jobs, scope, case)
             rerun = _snapshot(repo, jobs, scope, again)
-        rows.append({"case_id": case["case_id"], "scenario": case["scenario"], "gold": gold[case["case_id"]]["gold"]["outcome"],
-                     "first": first, "answers": answers, "rerun": rerun,
-                     "violations": claim_invariants(case, gold[case["case_id"]], first, answers, rerun)})
+        rows.append(
+            {
+                "case_id": case["case_id"],
+                "scenario": case["scenario"],
+                "gold": gold[case["case_id"]]["gold"]["outcome"],
+                "first": first,
+                "answers": answers,
+                "rerun": rerun,
+                "violations": claim_invariants(case, gold[case["case_id"]], first, answers, rerun),
+            }
+        )
     return {"rows": rows, "degraded": degraded}
 
 
@@ -237,7 +261,23 @@ def _seed_family(repo, root: Path, family: str = "FW-F000") -> TenantScope:
     for e in manifest["document_entries"]:
         if e["family_id"] != family or e["is_revision_update"]:
             continue
-        rev = DrawingRevision(tenant_id=scope.tenant_id, **{k: e[k] for k in ("id", "document_id", "drawing_number", "family_id", "revision_label", "supersedes", "kind", "title", "source_hash")})
+        rev = DrawingRevision(
+            tenant_id=scope.tenant_id,
+            **{
+                k: e[k]
+                for k in (
+                    "id",
+                    "document_id",
+                    "drawing_number",
+                    "family_id",
+                    "revision_label",
+                    "supersedes",
+                    "kind",
+                    "title",
+                    "source_hash",
+                )
+            },
+        )
         data = (root / e["pdf"]).read_bytes()
         repo.add_revision(scope, rev, data)
         repo.save_facts(scope, rev.id, extract_pdf(data, rev))
@@ -284,9 +324,14 @@ class ScriptedShell:
 
         self.calls.append(role)
         if role == "planner":
-            return SearchPlan(operations=[ToolRequest(name="search_shell", arguments={"command": self.command})], stop=False), {"role": role}
+            return SearchPlan(operations=[ToolRequest(name="search_shell", arguments={"command": self.command})], stop=False), {
+                "role": role
+            }
         self.looked_up = [c["revision_id"] for c in context["candidates"] if not c["inspected"]][:2]
-        ops = [ToolRequest(name="query_dimensions", arguments={"revision_id": rid, "fields": ["hole_spacing", "material"]}) for rid in self.looked_up]
+        ops = [
+            ToolRequest(name="query_dimensions", arguments={"revision_id": rid, "fields": ["hole_spacing", "material"]})
+            for rid in self.looked_up
+        ]
         return SearchPlan(operations=ops, stop=True), {"role": role}
 
 
@@ -308,8 +353,14 @@ def drawing_invariants(name: str, events: list[dict], state: str) -> list[str]:
     if first_tool >= 0 and first_tool > first_verified:
         bad.append(f"{name}: verdict before the first lookup")
     # one lookup per (revision, fields): never the same query twice
-    queries = [json.dumps(e["payload"].get("arguments") or {"revision_id": e["payload"].get("revision_id"), "fields": e["payload"].get("fields")}, sort_keys=True)
-               for e in events if e["kind"] == "tool" and (e["payload"] or {}).get("name") == "query_dimensions"]
+    queries = [
+        json.dumps(
+            e["payload"].get("arguments") or {"revision_id": e["payload"].get("revision_id"), "fields": e["payload"].get("fields")},
+            sort_keys=True,
+        )
+        for e in events
+        if e["kind"] == "tool" and (e["payload"] or {}).get("name") == "query_dimensions"
+    ]
     if len(queries) != len(set(queries)):
         bad.append(f"{name}: the same lookup ran twice")
     if name == "rules" and retrieved is not None and sum(t == "tool:query_dimensions" for t in sig) != len(retrieved["candidates"]):
@@ -331,7 +382,11 @@ def run_drawing_trajectories(repo, jobs, root: Path) -> dict:
     run = jobs.enqueue(scope, req, str(uuid4()))
     execute_run(repo, scope, run.id)
     events = jobs.events(scope, run.id)
-    out["rules"] = {"state": jobs.get(scope, run.id).state, "signature": signature(events), "violations": drawing_invariants("rules", events, jobs.get(scope, run.id).state)}
+    out["rules"] = {
+        "state": jobs.get(scope, run.id).state,
+        "signature": signature(events),
+        "violations": drawing_invariants("rules", events, jobs.get(scope, run.id).state),
+    }
 
     # 2. the rules provider with a reviewer: stops at unknown evidence, takes the answer, finishes
     scope = _seed_family(repo, root)
@@ -397,7 +452,11 @@ def run_drawing_trajectories(repo, jobs, root: Path) -> dict:
     state = jobs.get(scope, run.id).state
     violations = drawing_invariants("shell_agent", events, state)
     sig = signature(events)
-    searched_first = "tool:search_shell" in sig and "tool:query_dimensions" in sig and sig.index("tool:search_shell") < sig.index("tool:query_dimensions")
+    searched_first = (
+        "tool:search_shell" in sig
+        and "tool:query_dimensions" in sig
+        and sig.index("tool:search_shell") < sig.index("tool:query_dimensions")
+    )
     if not searched_first:
         violations.append("shell_agent: the command search must come before the lookups")
     searched = next((e["payload"] for e in events if e["kind"] == "tool" and (e["payload"] or {}).get("name") == "search_shell"), None)
@@ -421,9 +480,13 @@ def build_reference(claims: dict, drawing: dict) -> dict:
         if row["rerun"] is not None:
             entry["rerun"] = row["rerun"]["signature"]
         ref_claims[row["case_id"]] = entry
-    ref_drawing = {"rules": drawing["rules"]["signature"], "review_before": drawing["review"]["before"]["signature"],
-                   "review_after": (drawing["review"]["after"] or {}).get("signature"), "multi_agent": drawing["multi_agent"]["signature"],
-                   "shell_agent": drawing["shell_agent"]["signature"]}
+    ref_drawing = {
+        "rules": drawing["rules"]["signature"],
+        "review_before": drawing["review"]["before"]["signature"],
+        "review_after": (drawing["review"]["after"] or {}).get("signature"),
+        "multi_agent": drawing["multi_agent"]["signature"],
+        "shell_agent": drawing["shell_agent"]["signature"],
+    }
     return {"version": VERSION, "claims": ref_claims, "drawing": ref_drawing}
 
 
@@ -456,17 +519,25 @@ def score(claims: dict, drawing: dict | None, reference: dict | None) -> dict:
             violations += [f"drawing/{name}: {v}" for v in snap["violations"]]
         if reference is not None:
             ref = reference.get("drawing", {})
-            for label, expected, actual in [("rules", ref.get("rules"), drawing["rules"]["signature"]),
-                                            ("review_before", ref.get("review_before"), drawing["review"]["before"]["signature"]),
-                                            ("review_after", ref.get("review_after"), (drawing["review"]["after"] or {}).get("signature")),
-                                            ("multi_agent", ref.get("multi_agent"), drawing["multi_agent"]["signature"]),
-                                            ("shell_agent", ref.get("shell_agent"), drawing["shell_agent"]["signature"])]:
+            for label, expected, actual in [
+                ("rules", ref.get("rules"), drawing["rules"]["signature"]),
+                ("review_before", ref.get("review_before"), drawing["review"]["before"]["signature"]),
+                ("review_after", ref.get("review_after"), (drawing["review"]["after"] or {}).get("signature")),
+                ("multi_agent", ref.get("multi_agent"), drawing["multi_agent"]["signature"]),
+                ("shell_agent", ref.get("shell_agent"), drawing["shell_agent"]["signature"]),
+            ]:
                 compared += 1
                 matched += _compare(expected, actual, f"drawing/{label}", mismatches)
     graph_wrong_pay = sum(1 for v in violations if "paid" in v and "gold says" in v)
-    return {"compared": compared, "matched": matched, "match_rate": (matched / compared) if (reference is not None and compared) else None,
-            "invariant_violations": len(violations), "graph_wrong_pay": graph_wrong_pay,
-            "mismatches": mismatches[:20], "violations": violations[:20]}
+    return {
+        "compared": compared,
+        "matched": matched,
+        "match_rate": (matched / compared) if (reference is not None and compared) else None,
+        "invariant_violations": len(violations),
+        "graph_wrong_pay": graph_wrong_pay,
+        "mismatches": mismatches[:20],
+        "violations": violations[:20],
+    }
 
 
 def run_trajectories(repo, jobs, root: Path, claims_root: Path, reference_path: Path | None = None, *, adopt: bool = False) -> dict:

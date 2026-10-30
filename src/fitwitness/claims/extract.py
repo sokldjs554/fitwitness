@@ -18,25 +18,46 @@ from fitwitness.claims.models import EvidenceRef, Extraction
 
 # label -> (field, document kinds where it is authoritative)
 LABELS: dict[str, str] = {
-    "환자성명:": "insured_name", "성명:": "insured_name", "환자:": "insured_name", "환자명:": "insured_name",
-    "병명:": "diagnosis_name", "질병분류기호:": "diagnosis_code", "진단일:": "diagnosis_date",
-    "입원일:": "admission_date", "퇴원일:": "discharge_date",
-    "수술명:": "surgery_name", "수술일:": "surgery_date", "수술분류:": "surgery_grade", "관련진단:": "diagnosis_code",
-    "합계:": "total_amount", "발행기관:": "hospital",
+    "환자성명:": "insured_name",
+    "성명:": "insured_name",
+    "환자:": "insured_name",
+    "환자명:": "insured_name",
+    "병명:": "diagnosis_name",
+    "질병분류기호:": "diagnosis_code",
+    "진단일:": "diagnosis_date",
+    "입원일:": "admission_date",
+    "퇴원일:": "discharge_date",
+    "수술명:": "surgery_name",
+    "수술일:": "surgery_date",
+    "수술분류:": "surgery_grade",
+    "관련진단:": "diagnosis_code",
+    "합계:": "total_amount",
+    "발행기관:": "hospital",
 }
 # When two documents disagree, the one that is authoritative for the field wins.
-AUTHORITY = {"diagnosis_code": "diagnosis", "diagnosis_name": "diagnosis", "diagnosis_date": "diagnosis",
-             "admission_date": "admission", "discharge_date": "admission",
-             "surgery_name": "surgery", "surgery_date": "surgery", "surgery_grade": "surgery",
-             "total_amount": "receipt", "insured_name": "diagnosis", "hospital": "diagnosis"}
+AUTHORITY = {
+    "diagnosis_code": "diagnosis",
+    "diagnosis_name": "diagnosis",
+    "diagnosis_date": "diagnosis",
+    "admission_date": "admission",
+    "discharge_date": "admission",
+    "surgery_name": "surgery",
+    "surgery_date": "surgery",
+    "surgery_grade": "surgery",
+    "total_amount": "receipt",
+    "insured_name": "diagnosis",
+    "hospital": "diagnosis",
+}
 # What a payment depends on. A scanner's doubt about one of these is a reason for a person to look
 # (R-CONF-01); its doubt about a hospital's name or a procedure's wording is not, since nothing is paid
 # on them. (The synthetic policies carry no name to compare the insured's against; a real system would
 # add insured_name here.)
 DECISIVE = {"diagnosis_code", "diagnosis_date", "admission_date", "discharge_date", "surgery_date", "surgery_grade", "total_amount"}
 DATE_RES = [
-    re.compile(r"^(\d{4})-(\d{1,2})-(\d{1,2})$"), re.compile(r"^(\d{4})\.(\d{1,2})\.(\d{1,2})$"),
-    re.compile(r"^(\d{4})/(\d{1,2})/(\d{1,2})$"), re.compile(r"^(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일$"),
+    re.compile(r"^(\d{4})-(\d{1,2})-(\d{1,2})$"),
+    re.compile(r"^(\d{4})\.(\d{1,2})\.(\d{1,2})$"),
+    re.compile(r"^(\d{4})/(\d{1,2})/(\d{1,2})$"),
+    re.compile(r"^(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일$"),
 ]
 
 
@@ -70,8 +91,17 @@ def normalise_amount(text: str) -> int | None:
 
 def _kind(field: str) -> str:
     """What kind of value a field holds, for the OCR reader's rule on how many words it may span."""
-    return ("date" if field.endswith("_date") else "code" if field == "diagnosis_code" else "amount" if field == "total_amount"
-            else "grade" if field == "surgery_grade" else "name")
+    return (
+        "date"
+        if field.endswith("_date")
+        else "code"
+        if field == "diagnosis_code"
+        else "amount"
+        if field == "total_amount"
+        else "grade"
+        if field == "surgery_grade"
+        else "name"
+    )
 
 
 def _text_pairs(page, n: int, doc_id: str) -> list[tuple[str, str, EvidenceRef]]:
@@ -100,8 +130,12 @@ def _text_pairs(page, n: int, doc_id: str) -> list[tuple[str, str, EvidenceRef]]
             if not values:
                 continue
             group = row[start:i]
-            bbox = (min(w["x0"] for w in group) / page.width, min(w["top"] for w in group) / page.height,
-                    max(w["x1"] for w in group) / page.width, max(w["bottom"] for w in group) / page.height)
+            bbox = (
+                min(w["x0"] for w in group) / page.width,
+                min(w["top"] for w in group) / page.height,
+                max(w["x1"] for w in group) / page.width,
+                max(w["bottom"] for w in group) / page.height,
+            )
             text = " ".join(values)
             pairs.append((label, text, EvidenceRef(doc_id=doc_id, page=n, bbox=bbox, snippet=f"{label} {text}", nested=nested)))
     return pairs
@@ -132,8 +166,15 @@ def read_pairs_scored(data: bytes, doc_id: str) -> list[tuple[str, str, Evidence
                 if form is not None:
                     out += [(label, text, ref, conf, "ocr") for label, text, ref, conf in form]
                     continue
-                out += [(label, text, ref, conf, "ocr") for label, text, ref, conf in ocr.read_pairs_ocr(
-                    data, doc_id, n - 1, {**{label: _kind(field) for label, field in LABELS.items()}, **dict.fromkeys(ocr.PART_LABELS, "amount")})]
+                out += [
+                    (label, text, ref, conf, "ocr")
+                    for label, text, ref, conf in ocr.read_pairs_ocr(
+                        data,
+                        doc_id,
+                        n - 1,
+                        {**{label: _kind(field) for label, field in LABELS.items()}, **dict.fromkeys(ocr.PART_LABELS, "amount")},
+                    )
+                ]
     return out
 
 
@@ -177,8 +218,17 @@ def extract_documents(documents: list[tuple[str, str, bytes]]) -> Extraction:
     for field, (raw, ref, _, conf, source) in values.items():
         confirmed = False
         if source == "ocr":  # a scanner confuses letters with digits; fix only where the field's shape demands a digit
-            raw = ocr.repair_date(raw) if field.endswith("_date") else ocr.repair_code(raw) if field == "diagnosis_code" \
-                else ocr.repair_amount(raw) if field == "total_amount" else ocr.repair_grade(raw) if field == "surgery_grade" else raw
+            raw = (
+                ocr.repair_date(raw)
+                if field.endswith("_date")
+                else ocr.repair_code(raw)
+                if field == "diagnosis_code"
+                else ocr.repair_amount(raw)
+                if field == "total_amount"
+                else ocr.repair_grade(raw)
+                if field == "surgery_grade"
+                else raw
+            )
         if field.endswith("_date"):
             iso = normalise_date(raw)
             if iso is None:
@@ -216,7 +266,12 @@ def ground(candidate: dict, documents: list[tuple[str, str, bytes]]) -> Extracti
     ``candidate`` is {field: {"value": ..., "snippet": "..."}} as a model would return it.
     A field whose snippet cannot be found is dropped, not trusted, and lowers confidence."""
     # a model may quote a remark, but a remark is not a place a value is read from
-    scored = [(doc_id, label, text, ref, source) for doc_id, _, data in documents for label, text, ref, _, source in read_pairs_scored(data, doc_id) if not ref.nested]
+    scored = [
+        (doc_id, label, text, ref, source)
+        for doc_id, _, data in documents
+        for label, text, ref, _, source in read_pairs_scored(data, doc_id)
+        if not ref.nested
+    ]
     pairs = [(doc_id, label, text, ref) for doc_id, label, text, ref, _ in scored]
     out: dict = {}
     evidence: dict[str, EvidenceRef] = {}
@@ -237,7 +292,9 @@ def ground(candidate: dict, documents: list[tuple[str, str, bytes]]) -> Extracti
         evidence[field] = hit
     # What the model read came through OCR when any document had no text layer: a denial resting on it is a
     # person's call (policy R-SCAN-01), on this path as on the rules reader's.
-    return Extraction(**out, evidence=evidence, confidence=max(0.0, 1.0 - 0.2 * dropped), scanned=any(source == "ocr" for *_, source in scored))
+    return Extraction(
+        **out, evidence=evidence, confidence=max(0.0, 1.0 - 0.2 * dropped), scanned=any(source == "ocr" for *_, source in scored)
+    )
 
 
 def agrees(field: str, value, snippet: str) -> bool:
@@ -249,7 +306,7 @@ def agrees(field: str, value, snippet: str) -> bool:
     if kind == "grade":
         return any(int(d) == value for d in re.findall(r"\d", snippet))
     if kind == "date":
-        return any(normalise_date(snippet[m.start():]) == value for m in re.finditer(r"\d", snippet)) or str(value) in snippet
+        return any(normalise_date(snippet[m.start() :]) == value for m in re.finditer(r"\d", snippet)) or str(value) in snippet
     compact = lambda text: re.sub(r"\s+", "", str(text)).upper()
     return compact(value) in compact(snippet)
 

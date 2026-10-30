@@ -1,4 +1,5 @@
 """The agent can define bounded, tenant-scoped search tools and reuse them."""
+
 import pytest
 from uuid import uuid4
 from pydantic import ValidationError
@@ -52,7 +53,9 @@ def test_saved_search_rejects_facts_that_cite_another_revision(env):
     with_facts = next(h for h in hits if h["facts"])
     forged = {**with_facts, "revision_id": "someone-else"}
     with pytest.raises(ValueError):
-        EvidenceSession([], t.available).observe(ToolRequest(name="run_saved_search", arguments={"name": "bracket_lookup", "query": "x"}), [forged])
+        EvidenceSession([], t.available).observe(
+            ToolRequest(name="run_saved_search", arguments={"name": "bracket_lookup", "query": "x"}), [forged]
+        )
 
 
 def test_saved_tools_are_tenant_scoped_and_bounded(env):
@@ -100,10 +103,12 @@ def test_graph_run_can_define_and_reuse_a_tool(env, monkeypatch):
         def plan(self, context, role="planner"):
             seen.append((role, [t["name"] for t in context["saved_tools"]]))
             if role == "planner" and not context["saved_tools"]:
-                return SearchPlan(operations=[
-                    ToolRequest(name="define_search_tool", arguments=DEFINITION),
-                    ToolRequest(name="run_saved_search", arguments={"name": "bracket_lookup", "query": "구멍 간격 40mm SUS304"}),
-                ]), {"role": role}
+                return SearchPlan(
+                    operations=[
+                        ToolRequest(name="define_search_tool", arguments=DEFINITION),
+                        ToolRequest(name="run_saved_search", arguments={"name": "bracket_lookup", "query": "구멍 간격 40mm SUS304"}),
+                    ]
+                ), {"role": role}
             return SearchPlan(stop=True), {"role": role}
 
     monkeypatch.setattr(mod, "create_model", lambda *a: Planner())

@@ -1,4 +1,5 @@
 """Each payout rule on its own, against the policy table."""
+
 from fitwitness.claims.models import Extraction, Policy
 from fitwitness.claims.policy import PRODUCTS, adjudicate, adjust_items, dedupe_keys, explain, validate
 
@@ -7,8 +8,16 @@ ALL_DOCS = {"diagnosis", "admission", "surgery", "receipt"}
 
 
 def ex(**kw):
-    base = dict(diagnosis_code="K35.8", diagnosis_date="2025-06-01", admission_date="2025-06-01", discharge_date="2025-06-06",
-                surgery_date="2025-06-02", surgery_grade=2, insured_name="김민준", hospital="한빛의료원")
+    base = dict(
+        diagnosis_code="K35.8",
+        diagnosis_date="2025-06-01",
+        admission_date="2025-06-01",
+        discharge_date="2025-06-06",
+        surgery_date="2025-06-02",
+        surgery_grade=2,
+        insured_name="김민준",
+        hospital="한빛의료원",
+    )
     base.update(kw)
     return Extraction(**base)
 
@@ -65,7 +74,11 @@ def test_a_refusal_resting_on_a_scan_goes_to_a_person_but_a_lapsed_policy_is_sti
     excluded = run(ex(diagnosis_code="Z41.1", scanned=True), requested=("surgery",))
     assert excluded.outcome == "REVIEW" and excluded.needs_human and "R-SCAN-01" in excluded.rule_ids()
     assert run(ex(diagnosis_code="Z41.1"), requested=("surgery",)).outcome == "DENY"  # the same claim from a text layer
-    early = run(ex(diagnosis_code="C16.9", diagnosis_date="2025-02-01", scanned=True), requested=("diagnosis",), policy=POL.model_copy(update={"product_id": "CANCER-B"}))
+    early = run(
+        ex(diagnosis_code="C16.9", diagnosis_date="2025-02-01", scanned=True),
+        requested=("diagnosis",),
+        policy=POL.model_copy(update={"product_id": "CANCER-B"}),
+    )
     assert early.outcome == "REVIEW" and {"R-WAIT-01", "R-SCAN-01"} <= set(early.rule_ids())
     lapsed = run(ex(scanned=True), policy=POL.model_copy(update={"status": "lapsed"}))
     assert lapsed.outcome == "DENY"  # the contract's status is not something the scan said
@@ -169,7 +182,11 @@ def test_a_surgery_grade_that_disagrees_with_the_classification_table_goes_to_a_
     flags = validate(wrong, ALL_DOCS)
     assert "surgery_grade_differs_from_table" in flags
     held = run(wrong, requested=("surgery",), flags=flags)
-    assert held.outcome == "REVIEW" and held.total_amount == 1_000_000 and any(r.code == "surgery_grade_differs_from_table" for r in held.reasons)
+    assert (
+        held.outcome == "REVIEW"
+        and held.total_amount == 1_000_000
+        and any(r.code == "surgery_grade_differs_from_table" for r in held.reasons)
+    )
     # a name the table does not list is not a disagreement: the printed grade stands, as it did before the table existed
     assert "surgery_grade_differs_from_table" not in validate(ex(surgery_name="맹장수술", surgery_grade=4), ALL_DOCS)
     assert set(SURGERY_GRADES.values()) <= {1, 2, 3, 4, 5}

@@ -55,9 +55,7 @@ def extract_step(data: bytes, *, include_mesh: bool = True) -> dict:
                 }
             values["source_hash"] = sha256(data).hexdigest()
             values["feature_hash"] = sha256(
-                json.dumps(
-                    {k: v for k, v in values.items() if k != "mesh"}, sort_keys=True
-                ).encode()
+                json.dumps({k: v for k, v in values.items() if k != "mesh"}, sort_keys=True).encode()
             ).hexdigest()
             return values
     except ValueError:

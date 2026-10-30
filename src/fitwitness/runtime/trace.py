@@ -26,15 +26,30 @@ def build_trace(run_id: str, events: list[dict]) -> dict:
         return {"run_id": run_id, "duration_ms": 0, "spans": []}
     start = _ts(events[0]["timestamp"])
     end = _ts(events[-1]["timestamp"])
-    root = {"name": "run", "kind": "run", "start_ms": 0.0, "duration_ms": (end - start) * 1000, "attrs": {"first": events[0]["kind"], "last": events[-1]["kind"]}, "children": []}
+    root = {
+        "name": "run",
+        "kind": "run",
+        "start_ms": 0.0,
+        "duration_ms": (end - start) * 1000,
+        "attrs": {"first": events[0]["kind"], "last": events[-1]["kind"]},
+        "children": [],
+    }
     roles: dict[str, dict] = {}
     for e in events:
         at = (_ts(e["timestamp"]) - start) * 1000
         payload = e.get("payload") or {}
         latency = float(payload.get("latency_ms") or 0)
-        span = {"name": e["kind"] if e["kind"] not in ("model", "tool") else f"{e['kind']}:{payload.get('name') or payload.get('model_id') or ''}".rstrip(":"),
-                "kind": e["kind"], "seq": e["seq"], "start_ms": max(0.0, at - latency), "duration_ms": latency,
-                "attrs": {k: v for k, v in payload.items() if k not in ("fact_ids",) and not isinstance(v, (list, dict))}, "children": []}
+        span = {
+            "name": e["kind"]
+            if e["kind"] not in ("model", "tool")
+            else f"{e['kind']}:{payload.get('name') or payload.get('model_id') or ''}".rstrip(":"),
+            "kind": e["kind"],
+            "seq": e["seq"],
+            "start_ms": max(0.0, at - latency),
+            "duration_ms": latency,
+            "attrs": {k: v for k, v in payload.items() if k not in ("fact_ids",) and not isinstance(v, (list, dict))},
+            "children": [],
+        }
         usage = payload.get("usage") if isinstance(payload.get("usage"), dict) else None
         if usage:  # a model call's token counts, as scalars the exporter can name
             span["attrs"].update({f"usage_{k}": usage[k] for k in ("input_tokens", "output_tokens") if isinstance(usage.get(k), int)})
@@ -48,7 +63,9 @@ def build_trace(run_id: str, events: list[dict]) -> dict:
             parent["children"].append(span)
         else:
             root["children"].append(span)
-    totals = {"model_ms": sum(s["duration_ms"] for r in root["children"] for s in r.get("children", []) + [r] if s["kind"] == "model"),
-              "tool_ms": sum(s["duration_ms"] for r in root["children"] for s in r.get("children", []) + [r] if s["kind"] == "tool"),
-              "events": len(events)}
+    totals = {
+        "model_ms": sum(s["duration_ms"] for r in root["children"] for s in r.get("children", []) + [r] if s["kind"] == "model"),
+        "tool_ms": sum(s["duration_ms"] for r in root["children"] for s in r.get("children", []) + [r] if s["kind"] == "tool"),
+        "events": len(events),
+    }
     return {"run_id": run_id, "started_at_unix": start, "duration_ms": root["duration_ms"], "totals": totals, "spans": [root]}

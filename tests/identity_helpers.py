@@ -25,8 +25,12 @@ class FakeIssuer:
 
     def jwks(self) -> dict:
         r, e = self.rsa.public_key().public_numbers(), self.ec.public_key().public_numbers()
-        return {"keys": [{"kty": "RSA", "kid": "rsa-1", "alg": "RS256", "use": "sig", "n": _uint(r.n), "e": _uint(r.e)},
-                         {"kty": "EC", "kid": "ec-1", "alg": "ES256", "crv": "P-256", "use": "sig", "x": _uint(e.x, 32), "y": _uint(e.y, 32)}]}
+        return {
+            "keys": [
+                {"kty": "RSA", "kid": "rsa-1", "alg": "RS256", "use": "sig", "n": _uint(r.n), "e": _uint(r.e)},
+                {"kty": "EC", "kid": "ec-1", "alg": "ES256", "crv": "P-256", "use": "sig", "x": _uint(e.x, 32), "y": _uint(e.y, 32)},
+            ]
+        }
 
     def write_jwks(self, path) -> str:
         path.write_text(json.dumps(self.jwks()))
@@ -34,8 +38,14 @@ class FakeIssuer:
 
     def token(self, sub="u1", name="김심사", *, alg="RS256", kid=None, key=None, exp=None, nbf=None, iss=None, aud=None, **extra) -> str:
         header = {"alg": alg, "typ": "JWT", "kid": kid or ("rsa-1" if alg == "RS256" else "ec-1")}
-        claims = {"iss": self.issuer if iss is None else iss, "aud": self.audience if aud is None else aud, "sub": sub,
-                  "exp": int(time.time()) + 600 if exp is None else exp, "iat": int(time.time()), **extra}
+        claims = {
+            "iss": self.issuer if iss is None else iss,
+            "aud": self.audience if aud is None else aud,
+            "sub": sub,
+            "exp": int(time.time()) + 600 if exp is None else exp,
+            "iat": int(time.time()),
+            **extra,
+        }
         if name is not None:
             claims["name"] = name
         if nbf is not None:

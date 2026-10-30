@@ -58,9 +58,7 @@ class Dispatcher:
                             break
                         if (tenant, run_id) in active:
                             continue
-                        if raw["lease_until"] and raw["lease_until"] > datetime.now(
-                            timezone.utc
-                        ):
+                        if raw["lease_until"] and raw["lease_until"] > datetime.now(timezone.utc):
                             continue
                         if raw.get("next_attempt_at") and raw["next_attempt_at"] > datetime.now(timezone.utc):
                             continue  # backing off; the retry is not due yet

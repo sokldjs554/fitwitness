@@ -28,6 +28,7 @@ on hold-out 1 (dev) the (variant, arm) with the highest correct - 2 x (wrong + r
 going to fewer wrong values; hold-out 2 (test) is then read once with the chosen variant and compared with the
 recorded baseline on the same pages. If the baseline wins on dev, test is not read.
 """
+
 import argparse
 import glob
 import io
@@ -51,8 +52,13 @@ Image.MAX_IMAGE_PIXELS = None
 FIELDS = ("drawing_number", "material", "scale")
 EVAL = Path("docs/evaluation")
 SETS = {"holdout1": EVAL / "title-block-holdout-gold.json", "holdout2": EVAL / "title-block-holdout2-gold.json"}
-TESSERACT = {"holdout1": {"before the change": EVAL / "title-block-holdout.json"},
-             "holdout2": {"before the change": EVAL / "title-block-holdout2-before-the-change.json", "after the change": EVAL / "title-block-holdout2.json"}}
+TESSERACT = {
+    "holdout1": {"before the change": EVAL / "title-block-holdout.json"},
+    "holdout2": {
+        "before the change": EVAL / "title-block-holdout2-before-the-change.json",
+        "after the change": EVAL / "title-block-holdout2.json",
+    },
+}
 MODEL = "claude-haiku-4-5-20251001"
 # One reading: the call and, when its output fails the schema, the client's one repair. The repair is reserved at
 # its worst case before it is sent, and $0.02 was not enough for both (run 40208747697: four repairs blocked).
@@ -66,13 +72,15 @@ PROMPT_PAGE = (
     "Then read exactly what is printed in the title block's drawing number cell, material cell and scale cell, copying the "
     "characters as printed (for example LJT04.25, HT200, 1:2). Use null for a cell that is absent, empty or unreadable. "
     "Do not take a value from the parts list, the views, the notes or a view label such as 2:1 beside a detail, and do not "
-    "guess a value the block does not print.")
+    "guess a value the block does not print."
+)
 PROMPT_CROP = (
     "This image is the title block cut from a mechanical drawing page, often from a Chinese textbook; cells may be labelled "
     "图号, 材料, 比例 or in Korean 도번, 재질, 척도. Read exactly what is printed in its drawing number cell, material cell and "
     "scale cell, copying the characters as printed (for example LJT04.25, HT200, 1:2). Use null for a cell that is absent, "
     "empty or unreadable. Do not take a value from a parts list (明细栏 or 부품표) or from the drawing, and do not guess a value "
-    "the block does not print. Return title_block_bbox as null.")
+    "the block does not print. Return title_block_bbox as null."
+)
 
 
 class Cell(Strict):
@@ -100,7 +108,8 @@ PROMPT_PAGE_LABEL = (
     "digits) and keep '.', '-' and '/' as printed. Use null for the value and an empty visible_text when the title block has "
     "no labelled cell for it, or the cell is empty or unreadable. A ratio beside a view or a detail (such as 2:1 under a "
     "detail view) is not the scale; a value from the parts list, the views or the notes is not a title block value; a guess "
-    "is worse than null.")
+    "is worse than null."
+)
 PROMPT_CROP_LABEL = (
     "This image is the title block cut from a mechanical drawing page, often from a Chinese textbook. For each of "
     "drawing_number, material and scale, find the cell whose printed label names it (图号 or 代号, 材料, 比例; in Korean 도번, "
@@ -110,12 +119,15 @@ PROMPT_CROP_LABEL = (
     "O from 0 and I from 1 by their place (a run of digits stays digits) and keep '.', '-' and '/' as printed. Use null for "
     "the value and an empty visible_text when there is no labelled cell for it, or the cell is empty or unreadable. A value "
     "from a parts list (明细栏 or 부품표) or from the drawing is not a title block value; a guess is worse than null. Return "
-    "title_block_bbox as null.")
+    "title_block_bbox as null."
+)
 VARIANTS = {"baseline": (PROMPT_PAGE, PROMPT_CROP), "label": (PROMPT_PAGE_LABEL, PROMPT_CROP_LABEL)}
 # Label words a grounded value's visible_text must hold (after removing spaces and upper-casing).
-LABELS = {"drawing_number": ("图号", "圖號", "代号", "도번", "도면번호", "DWGNO", "DRAWINGNO"),
-          "material": ("材料", "材质", "재질", "재료", "MATERIAL"),
-          "scale": ("比例", "척도", "축척", "SCALE")}
+LABELS = {
+    "drawing_number": ("图号", "圖號", "代号", "도번", "도면번호", "DWGNO", "DRAWINGNO"),
+    "material": ("材料", "材质", "재질", "재료", "MATERIAL"),
+    "scale": ("比例", "척도", "축척", "SCALE"),
+}
 ARMS = ("page", "crop", "page_grounded", "crop_grounded")
 
 
@@ -152,11 +164,17 @@ def read(image_bytes: bytes, prompt: str):
     except Exception as exc:  # noqa: BLE001 - the failure is the finding; it goes in the row
         error = f"{type(exc).__name__}: {str(exc)[:300]}"
     usage = tracker.usage
-    return reading, {"error": error, "latency_ms": round((time.perf_counter() - started) * 1000, 1),
-                     "input_tokens": usage.input_tokens, "output_tokens": usage.output_tokens,
-                     "cost_usd": float(usage.cost_usd or 0), "reserved_left_usd": float(usage.reserved_cost_usd),
-                     "image_sha256": sha256(image_bytes).hexdigest(), "events": events,
-                     "schema_errors": [e["payload"] for e in events if e["kind"] in ("model_error", "model_schema_error")]}
+    return reading, {
+        "error": error,
+        "latency_ms": round((time.perf_counter() - started) * 1000, 1),
+        "input_tokens": usage.input_tokens,
+        "output_tokens": usage.output_tokens,
+        "cost_usd": float(usage.cost_usd or 0),
+        "reserved_left_usd": float(usage.reserved_cost_usd),
+        "image_sha256": sha256(image_bytes).hexdigest(),
+        "events": events,
+        "schema_errors": [e["payload"] for e in events if e["kind"] in ("model_error", "model_schema_error")],
+    }
 
 
 def values(reading):
@@ -191,8 +209,12 @@ def score(rows, arm):
                 wrong += have is not None and norm(have) != norm(want)
             elif have is not None:
                 none_but_read += 1
-    return {"correct": correct, "expected": expected, "wrong_values_reported": wrong,
-            "readings_where_the_block_has_no_such_cell": none_but_read}
+    return {
+        "correct": correct,
+        "expected": expected,
+        "wrong_values_reported": wrong,
+        "readings_where_the_block_has_no_such_cell": none_but_read,
+    }
 
 
 def main() -> int:
@@ -200,9 +222,13 @@ def main() -> int:
     ap.add_argument("--images", required=True, type=Path, help="a directory holding images/<xx>/<sha1>.png")
     ap.add_argument("--max-cost-usd", type=float, required=True)
     ap.add_argument("--output", required=True, type=Path)
-    ap.add_argument("--only", nargs="*", default=None, help="read only these 8-character image keys (a rerun of pages a run could not read)")
+    ap.add_argument(
+        "--only", nargs="*", default=None, help="read only these 8-character image keys (a rerun of pages a run could not read)"
+    )
     ap.add_argument("--variant", choices=sorted(VARIANTS), default="baseline")
-    ap.add_argument("--sets", choices=["all", *SETS], default="all", help="holdout1 is the prompt experiment's dev split, holdout2 its test")
+    ap.add_argument(
+        "--sets", choices=["all", *SETS], default="all", help="holdout1 is the prompt experiment's dev split, holdout2 its test"
+    )
     args = ap.parse_args()
     prompt_page, prompt_crop = VARIANTS[args.variant]
     assert 0 < args.max_cost_usd <= 1.0
@@ -225,12 +251,24 @@ def main() -> int:
     missing = sorted(k for _, k, _ in todo if k not in files)
     if missing:
         raise SystemExit(f"missing images: {missing}")
-    protocol = {"model": MODEL, "pages": len(todo), "only": args.only, "sets": {n: sum(1 for s, _, _ in todo if s == n) for n in SETS},
-                "variant": args.variant, "prompt_page": prompt_page, "prompt_crop": prompt_crop, "labels": LABELS, "schema": TitleBlock.model_json_schema(),
-                "page_long_edge_px": 1600, "crop_margin": 0.03, "call_cap_usd": str(CALL_CAP), "ceiling_usd": str(ceiling),
-                "code_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
-                "script_sha256": sha256(Path(__file__).read_bytes()).hexdigest(),
-                "started_at": datetime.now(timezone.utc).isoformat()}
+    protocol = {
+        "model": MODEL,
+        "pages": len(todo),
+        "only": args.only,
+        "sets": {n: sum(1 for s, _, _ in todo if s == n) for n in SETS},
+        "variant": args.variant,
+        "prompt_page": prompt_page,
+        "prompt_crop": prompt_crop,
+        "labels": LABELS,
+        "schema": TitleBlock.model_json_schema(),
+        "page_long_edge_px": 1600,
+        "crop_margin": 0.03,
+        "call_cap_usd": str(CALL_CAP),
+        "ceiling_usd": str(ceiling),
+        "code_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+        "script_sha256": sha256(Path(__file__).read_bytes()).hexdigest(),
+        "started_at": datetime.now(timezone.utc).isoformat(),
+    }
     (args.output / "protocol.json").write_text(json.dumps(protocol, ensure_ascii=False, indent=2))
     spent, rows, skipped = Decimal(0), [], []
     for name, key, expected in todo:
@@ -251,31 +289,58 @@ def main() -> int:
             spent += Decimal(str(second_meta["cost_usd"])) + Decimal(str(second_meta["reserved_left_usd"]))
         else:
             second, second_meta = first, None
-        row = {"set": name, "image": key, "page_px": list(page.size), "expected": expected,
-               "bbox": list(first.title_block_bbox) if first and first.title_block_bbox else None, "crop_box": list(crop_box) if crop_box else None,
-               "page": values(first), "crop": values(second),
-               "page_grounded": grounded(first), "crop_grounded": grounded(second),
-               "visible_text": {"page": {f: getattr(first, f).visible_text for f in FIELDS} if first else None,
-                                "crop": {f: getattr(second, f).visible_text for f in FIELDS} if second else None},
-               "calls": [m for m in (first_meta, second_meta) if m]}
+        row = {
+            "set": name,
+            "image": key,
+            "page_px": list(page.size),
+            "expected": expected,
+            "bbox": list(first.title_block_bbox) if first and first.title_block_bbox else None,
+            "crop_box": list(crop_box) if crop_box else None,
+            "page": values(first),
+            "crop": values(second),
+            "page_grounded": grounded(first),
+            "crop_grounded": grounded(second),
+            "visible_text": {
+                "page": {f: getattr(first, f).visible_text for f in FIELDS} if first else None,
+                "crop": {f: getattr(second, f).visible_text for f in FIELDS} if second else None,
+            },
+            "calls": [m for m in (first_meta, second_meta) if m],
+        }
         rows.append(row)
         with (args.output / "rows.jsonl").open("a") as f:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
         print(name, key, {f: (row["crop"][f], expected[f]) for f in FIELDS}, "spent", spent, flush=True)
     calls = [c for r in rows for c in r["calls"]]
-    summary = {n: {arm: score([r for r in rows if r["set"] == n], arm) for arm in ARMS} | {"drawings": sum(r["set"] == n for r in rows)}
-               for n in SETS}
+    summary = {
+        n: {arm: score([r for r in rows if r["set"] == n], arm) for arm in ARMS} | {"drawings": sum(r["set"] == n for r in rows)}
+        for n in SETS
+    }
     summary["all"] = {arm: score(rows, arm) for arm in ARMS} | {"drawings": len(rows)}
     for s in summary.values():
         s["merit"] = {arm: merit(s[arm]) for arm in ARMS}
     tesseract = {n: {k: json.loads(p.read_text())["summary"] for k, p in v.items()} for n, v in TESSERACT.items()}
-    report = {"status": "measured" if rows else "not measured", "protocol": protocol, "summary": summary,
-              "tesseract_records": tesseract, "spent_usd": float(spent), "skipped": skipped,
-              "calls": len(calls), "call_errors": sum(bool(c["error"]) for c in calls),
-              "latency_ms_median": sorted(c["latency_ms"] for c in calls)[len(calls) // 2] if calls else None,
-              "rows": [{k: v for k, v in r.items() if k != "calls"} | {"calls": [{k: v for k, v in c.items() if k != "events"} for c in r["calls"]]} for r in rows]}
+    report = {
+        "status": "measured" if rows else "not measured",
+        "protocol": protocol,
+        "summary": summary,
+        "tesseract_records": tesseract,
+        "spent_usd": float(spent),
+        "skipped": skipped,
+        "calls": len(calls),
+        "call_errors": sum(bool(c["error"]) for c in calls),
+        "latency_ms_median": sorted(c["latency_ms"] for c in calls)[len(calls) // 2] if calls else None,
+        "rows": [
+            {k: v for k, v in r.items() if k != "calls"} | {"calls": [{k: v for k, v in c.items() if k != "events"} for c in r["calls"]]}
+            for r in rows
+        ],
+    }
     (args.output / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
-    print(json.dumps({"summary": summary, "spent_usd": float(spent), "skipped": len(skipped), "call_errors": report["call_errors"]}, ensure_ascii=False))
+    print(
+        json.dumps(
+            {"summary": summary, "spent_usd": float(spent), "skipped": len(skipped), "call_errors": report["call_errors"]},
+            ensure_ascii=False,
+        )
+    )
     return 0
 
 

@@ -1,15 +1,28 @@
 """The model-path injection harness, without a database or a model: what it builds from the event log,
 what it asks the runtime for, and how it counts."""
+
 from decimal import Decimal
 
 from fitwitness.claims.injection import KINDS
 from fitwitness.evaluation.claims_injection_model import DEFAULT_CASES, from_events, request_for, scope_for, summarise
 
-CASE = {"case_id": "CLM-00000", "claim_id": "CLM-00000", "scenario": "clean",
-        "policy": {"policy_id": "POL-00000", "insured_id": "INS-0000", "product_id": "HLTH-A",
-                   "effective_from": "2025-06-16", "effective_to": "2030-06-15", "status": "active"},
-        "requested": ["hospitalization_daily"], "submitted_at": "2025-12-22", "prior_paid_keys": [],
-        "documents": [{"id": "CLM-00000-ADM", "case_id": "CLM-00000", "kind": "admission", "issued_at": "2025-12-20", "pages": 1}]}
+CASE = {
+    "case_id": "CLM-00000",
+    "claim_id": "CLM-00000",
+    "scenario": "clean",
+    "policy": {
+        "policy_id": "POL-00000",
+        "insured_id": "INS-0000",
+        "product_id": "HLTH-A",
+        "effective_from": "2025-06-16",
+        "effective_to": "2030-06-15",
+        "status": "active",
+    },
+    "requested": ["hospitalization_daily"],
+    "submitted_at": "2025-12-22",
+    "prior_paid_keys": [],
+    "documents": [{"id": "CLM-00000-ADM", "case_id": "CLM-00000", "kind": "admission", "issued_at": "2025-12-20", "pages": 1}],
+}
 DOCS = [("CLM-00000-ADM", "admission", b"%PDF"), ("CLM-00000-RCP", "receipt", b"%PDF")]
 
 
@@ -18,14 +31,32 @@ def ev(seq, kind, payload):
 
 
 def test_the_decision_is_read_back_from_the_events_including_the_challenge_step():
-    events = [ev(1, "started", {}), ev(2, "intake", {}),
-              ev(3, "extracted", {"fields": {"admission_date": "2025-12-10", "discharge_date": "2025-12-20", "total_amount": 1234000},
-                                  "evidence": {"admission_date": {"doc_id": "CLM-00000-ADM", "page": 1}}, "confidence": 0.8}),
-              ev(4, "validated", {"flags": []}),
-              ev(5, "adjudicated", {"outcome": "APPROVE", "total_amount": 210000, "rules": ["R-HOSP-01"],
-                                    "line_items": [{"coverage": "hospitalization_daily", "rule_id": "R-HOSP-01", "amount": 210000, "basis": "7일"}],
-                                    "reasons": []}),
-              ev(6, "challenged", {"outcome": "REVIEW", "added": ["unevidenced_line_item"]})]
+    events = [
+        ev(1, "started", {}),
+        ev(2, "intake", {}),
+        ev(
+            3,
+            "extracted",
+            {
+                "fields": {"admission_date": "2025-12-10", "discharge_date": "2025-12-20", "total_amount": 1234000},
+                "evidence": {"admission_date": {"doc_id": "CLM-00000-ADM", "page": 1}},
+                "confidence": 0.8,
+            },
+        ),
+        ev(4, "validated", {"flags": []}),
+        ev(
+            5,
+            "adjudicated",
+            {
+                "outcome": "APPROVE",
+                "total_amount": 210000,
+                "rules": ["R-HOSP-01"],
+                "line_items": [{"coverage": "hospitalization_daily", "rule_id": "R-HOSP-01", "amount": 210000, "basis": "7일"}],
+                "reasons": [],
+            },
+        ),
+        ev(6, "challenged", {"outcome": "REVIEW", "added": ["unevidenced_line_item"]}),
+    ]
     ex, decision = from_events(events)
     assert (ex.admission_date, ex.total_amount, ex.confidence) == ("2025-12-10", 1234000, 0.8)
     assert ex.evidence == {}, "where a field was read is reported separately; the comparison needs values and the decision"
@@ -51,12 +82,37 @@ def test_every_print_gets_a_tenant_of_its_own():
 
 
 def test_the_summary_counts_pairs_and_leaves_incomparable_runs_aside():
-    base = {"path": "model", "case_id": "CLM-00000", "scenario": "clean", "fields_changed": [], "decision_changed": False,
-            "sent_to_review": False, "unsafe_change": False, "wrong_pay": False, "wrong_deny": False, "clean_matches_gold": True}
-    rows = [{**base, "kind": "instruction_ko"},
-            {**base, "kind": "fake_amount", "fields_changed": ["total_amount"], "decision_changed": True, "unsafe_change": True, "wrong_pay": True},
-            {**base, "kind": "approval_claim", "decision_changed": True, "sent_to_review": True},
-            {"path": "model", "case_id": "CLM-00002", "scenario": "format_variance", "kind": "fake_code", "incomparable": "skipped under the ceiling"}]
+    base = {
+        "path": "model",
+        "case_id": "CLM-00000",
+        "scenario": "clean",
+        "fields_changed": [],
+        "decision_changed": False,
+        "sent_to_review": False,
+        "unsafe_change": False,
+        "wrong_pay": False,
+        "wrong_deny": False,
+        "clean_matches_gold": True,
+    }
+    rows = [
+        {**base, "kind": "instruction_ko"},
+        {
+            **base,
+            "kind": "fake_amount",
+            "fields_changed": ["total_amount"],
+            "decision_changed": True,
+            "unsafe_change": True,
+            "wrong_pay": True,
+        },
+        {**base, "kind": "approval_claim", "decision_changed": True, "sent_to_review": True},
+        {
+            "path": "model",
+            "case_id": "CLM-00002",
+            "scenario": "format_variance",
+            "kind": "fake_code",
+            "incomparable": "skipped under the ceiling",
+        },
+    ]
     s = summarise(rows)
     assert (s["cases"], s["pairs"], s["incomparable"]) == (2, 3, 1)
     assert s["wrong_pay_count"] == 1 and s["unsafe_decision_changes"] == 1 and s["fields_changed_pairs"] == 1

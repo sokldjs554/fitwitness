@@ -1,4 +1,5 @@
 """The shell-search evaluation through the real graph on the thirty test drawings, with a script in the model's place."""
+
 from decimal import Decimal
 from pathlib import Path
 
@@ -23,22 +24,37 @@ class Typist:
         from fitwitness.agents.tools import SearchPlan, ToolRequest
 
         if not context["observations"]:
-            return SearchPlan(operations=[ToolRequest(name="search_shell", arguments={"command": self.command, "top_k": 50})]), {"role": role}
+            return SearchPlan(operations=[ToolRequest(name="search_shell", arguments={"command": self.command, "top_k": 50})]), {
+                "role": role
+            }
         todo = [c["revision_id"] for c in context["candidates"] if not c["examined_fields"]][:8]
         ops = [ToolRequest(name="query_dimensions", arguments={"revision_id": r, "fields": ["material"]}) for r in todo]
         return SearchPlan(operations=ops, stop=not ops), {"role": role}
 
 
 def request(case):
-    return RunRequest(search=SearchRequest(text=case["query"]), provider="anthropic", model_id="scripted", mode="react",
-                      budget=Budget(max_cost_usd=Decimal("0.03"), **S.BUDGET))
+    return RunRequest(
+        search=SearchRequest(text=case["query"]),
+        provider="anthropic",
+        model_id="scripted",
+        mode="react",
+        budget=Budget(max_cost_usd=Decimal("0.03"), **S.BUDGET),
+    )
 
 
 def test_a_command_finds_the_whole_set_the_ranked_channels_cut_short_and_the_score_says_so(env, monkeypatch):  # noqa: F811
     repo, jobs, _ = env
     case = next(c for c in S.cases(ROOT) if c["id"] == "material_common")
     assert len(case["answer"]) == 18 and case["query"] == "SUS304 도면을 모두 찾아 주세요"
-    rules = S.run_one(repo, jobs, ROOT, "test", case, RunRequest(search=SearchRequest(text=case["query"]), provider="rules", budget=Budget(max_tokens=64000)), "rules")
+    rules = S.run_one(
+        repo,
+        jobs,
+        ROOT,
+        "test",
+        case,
+        RunRequest(search=SearchRequest(text=case["query"]), provider="rules", budget=Budget(max_tokens=64000)),
+        "rules",
+    )
     assert rules["found"] == 6 and rules["confirmed"] == 6  # the ranked channels return six of the eighteen
     monkeypatch.setattr(graph, "create_model", lambda *a: Typist("grep -rl 'fact material = SUS304' ."))
     row = S.run_one(repo, jobs, ROOT, "test", case, request(case), "shell")

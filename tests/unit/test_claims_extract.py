@@ -1,4 +1,5 @@
 """Reading synthetic claim PDFs back: values, source positions and format tolerance."""
+
 import json
 import pytest
 from fitwitness.claims.extract import extract_documents, ground, normalise_amount, normalise_date
@@ -17,7 +18,13 @@ def docs_of(root, case):
 
 
 def test_dates_and_amounts_in_every_printed_format_normalise():
-    assert normalise_date("2025-06-01") == normalise_date("2025.6.1") == normalise_date("2025/06/01") == normalise_date("2025년 6월 1일") == "2025-06-01"
+    assert (
+        normalise_date("2025-06-01")
+        == normalise_date("2025.6.1")
+        == normalise_date("2025/06/01")
+        == normalise_date("2025년 6월 1일")
+        == "2025-06-01"
+    )
     assert normalise_date("2O25-06-01") is None and normalise_date("2025-13-01") is None
     assert normalise_amount("1,234,000원") == normalise_amount("금 1,234,000원정") == normalise_amount("1234000원") == 1234000
 
@@ -45,7 +52,11 @@ def test_noise_lowers_confidence_and_keeps_unparseable_text_for_the_validator(co
     assert noisy
     for case in noisy:
         ex = extract_documents(docs_of(root, case))
-        bad = [f for f in ("admission_date", "discharge_date", "diagnosis_date", "surgery_date") if getattr(ex, f) and len(getattr(ex, f)) != 10 or (getattr(ex, f) and not getattr(ex, f)[:4].isdigit())]
+        bad = [
+            f
+            for f in ("admission_date", "discharge_date", "diagnosis_date", "surgery_date")
+            if getattr(ex, f) and len(getattr(ex, f)) != 10 or (getattr(ex, f) and not getattr(ex, f)[:4].isdigit())
+        ]
         assert ex.confidence < 1.0 or not bad
 
 
@@ -74,7 +85,9 @@ def test_a_label_repeated_in_a_remark_does_not_replace_the_form_row_and_a_differ
 
     def doc(name, rows):
         path = tmp_path / f"{name}.pdf"
-        render_document(path, "진료비 계산서·영수증", rows, date(2026, 1, 5), vocab.HOSPITALS[0], vocab.DOCTORS[0], "2026-100001", "위와 같이 확인함.")
+        render_document(
+            path, "진료비 계산서·영수증", rows, date(2026, 1, 5), vocab.HOSPITALS[0], vocab.DOCTORS[0], "2026-100001", "위와 같이 확인함."
+        )
         return path.read_bytes()
 
     base = [("환자명:", "김민준"), ("합계:", "1,234,500 원")]
@@ -93,8 +106,16 @@ def test_a_field_label_inside_a_remark_never_becomes_the_value_and_cannot_ground
     import fitwitness.claims.vocab as vocab
 
     path = tmp_path / "adm.pdf"
-    render_document(path, "입퇴원확인서", [("성명:", "김민준"), ("진료과:", "내과"), ("비고:", "입원일: 2019-01-01 (정정)")],
-                    date(2026, 1, 5), vocab.HOSPITALS[0], vocab.DOCTORS[0], "2026-100002", "위와 같이 확인함.")
+    render_document(
+        path,
+        "입퇴원확인서",
+        [("성명:", "김민준"), ("진료과:", "내과"), ("비고:", "입원일: 2019-01-01 (정정)")],
+        date(2026, 1, 5),
+        vocab.HOSPITALS[0],
+        vocab.DOCTORS[0],
+        "2026-100002",
+        "위와 같이 확인함.",
+    )
     data = path.read_bytes()
     nested = [(label, ref.nested) for label, _, ref in read_pairs(data, "a")]
     assert ("입원일:", True) in nested and ("성명:", False) in nested
@@ -111,11 +132,15 @@ def test_the_models_draft_reaches_grounding_in_the_shape_ground_reads():
     from fitwitness.claims.extract import ground
     from fitwitness.claims.graph import ClaimDraft, DraftField, draft_candidate
 
-    draft = ClaimDraft(admission_date=DraftField(value="2025-12-10", snippet="입원일: 2025-12-10"),
-                       total_amount=DraftField(value=1234000, snippet="합계: 1,234,000 원"))
+    draft = ClaimDraft(
+        admission_date=DraftField(value="2025-12-10", snippet="입원일: 2025-12-10"),
+        total_amount=DraftField(value=1234000, snippet="합계: 1,234,000 원"),
+    )
     candidate = draft_candidate(draft)
-    assert candidate == {"admission_date": {"value": "2025-12-10", "snippet": "입원일: 2025-12-10"},
-                         "total_amount": {"value": 1234000, "snippet": "합계: 1,234,000 원"}}
+    assert candidate == {
+        "admission_date": {"value": "2025-12-10", "snippet": "입원일: 2025-12-10"},
+        "total_amount": {"value": 1234000, "snippet": "합계: 1,234,000 원"},
+    }
     ex = ground(candidate, [])
     assert ex.admission_date is None and ex.total_amount is None, "a snippet found in no document is not a value"
     assert ex.confidence == pytest.approx(0.6)
@@ -149,7 +174,12 @@ def test_a_real_snippet_does_not_ground_a_different_value(corpus):
     assert ex.total_amount is None and "total_amount" not in ex.evidence
     other_day = f"{truth['admission_date'][:8]}{'28' if not truth['admission_date'].endswith('28') else '27'}"
     assert ground({"admission_date": {"value": other_day, "snippet": f"입원일: {truth['admission_date']}"}}, docs).admission_date is None
-    assert ground({"admission_date": {"value": truth["admission_date"].replace("-", "."), "snippet": f"입원일: {truth['admission_date']}"}}, docs).admission_date == truth["admission_date"]
+    assert (
+        ground(
+            {"admission_date": {"value": truth["admission_date"].replace("-", "."), "snippet": f"입원일: {truth['admission_date']}"}}, docs
+        ).admission_date
+        == truth["admission_date"]
+    )
 
 
 def test_the_value_must_agree_with_its_snippet_whatever_the_field_kind():

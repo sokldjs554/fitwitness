@@ -46,16 +46,28 @@ class StubModel:
 
     def structured(self, schema, prompt, payload, role="auditor"):
         assert schema is AuditVerdict
-        return AuditVerdict(agree=True, recommendation="pay"), {"role": role, "attempt": 1, "repair": 0, "latency_ms": 0.0, "provider": "stub",
-                                                                  "model_id": "stub", "usage": {"input_tokens": len(payload) // 4, "output_tokens": 20}}
+        return AuditVerdict(agree=True, recommendation="pay"), {
+            "role": role,
+            "attempt": 1,
+            "repair": 0,
+            "latency_ms": 0.0,
+            "provider": "stub",
+            "model_id": "stub",
+            "usage": {"input_tokens": len(payload) // 4, "output_tokens": 20},
+        }
 
 
 def judge(gold: dict, decision, verdict: AuditVerdict | None) -> dict:
     """What the verdict did to a decision the gold can judge."""
     should_flag = decision.outcome != gold["outcome"] or decision.total_amount != gold["total_amount"]
     flagged = verdict is not None and verdict.recommendation != "pay"
-    return {"should_flag": should_flag, "flagged": flagged, "caught": should_flag and flagged, "false_flag": flagged and not should_flag,
-            "missed": should_flag and not flagged}
+    return {
+        "should_flag": should_flag,
+        "flagged": flagged,
+        "caught": should_flag and flagged,
+        "false_flag": flagged and not should_flag,
+        "missed": should_flag and not flagged,
+    }
 
 
 def _client(provider: str, model: str, cap: Decimal):
@@ -70,8 +82,17 @@ def _client(provider: str, model: str, cap: Decimal):
     return client, budget
 
 
-def evaluate(root: Path, *, provider: str, model: str, ceiling: Decimal, cap: Decimal, split: str = "all", mode: str = "degraded",
-             max_cases: int | None = None) -> dict:
+def evaluate(
+    root: Path,
+    *,
+    provider: str,
+    model: str,
+    ceiling: Decimal,
+    cap: Decimal,
+    split: str = "all",
+    mode: str = "degraded",
+    max_cases: int | None = None,
+) -> dict:
     manifest = json.loads((root / "manifest.json").read_text())
     gold = json.loads((root / "gold.json").read_text())
     chosen = [c for c in manifest["cases"] if SPLITS[split](int(c["case_id"].split("-")[-1]))][: max_cases or None]
@@ -94,8 +115,16 @@ def evaluate(root: Path, *, provider: str, model: str, ceiling: Decimal, cap: De
         ledger.reserve(cap)
         started, verdict, meta, error = time.perf_counter(), None, {}, None
         try:
-            verdict, meta = audit(client, Policy.model_validate(case["policy"]), PRODUCTS[case["policy"]["product_id"]], list(case["requested"]), docs, ex,
-                                  decision, list(case["prior_paid_keys"]))
+            verdict, meta = audit(
+                client,
+                Policy.model_validate(case["policy"]),
+                PRODUCTS[case["policy"]["product_id"]],
+                list(case["requested"]),
+                docs,
+                ex,
+                decision,
+                list(case["prior_paid_keys"]),
+            )
         except Exception as exc:  # noqa: BLE001 - the failure is the finding
             error = f"{type(exc).__name__}: {str(exc)[:300]}"
         usage = budget.usage if budget is not None else None
@@ -104,14 +133,24 @@ def evaluate(root: Path, *, provider: str, model: str, ceiling: Decimal, cap: De
         if failures_in_a_row >= 3:
             stopped = f"three failures in a row; last: {error}"
         verdict_dump = verdict.model_dump() if verdict else None
-        rows.append({"case_id": case["case_id"], "scenario": case["scenario"], "gold": [g["gold"]["outcome"], g["gold"]["total_amount"]],
-                     "decision": [decision.outcome, decision.total_amount, decision.rule_ids()],
-                     **judge(g["gold"], decision, verdict), "verdict": verdict_dump, "error": error,
-                     "latency_ms": round((time.perf_counter() - started) * 1000, 1),
-                     "cost_usd": float(usage.cost_usd or 0) if usage is not None else 0.0, "charged_usd": charged,
-                     "input_tokens": usage.input_tokens if usage is not None else 0, "output_tokens": usage.output_tokens if usage is not None else 0,
-                     "model_errors": [e["payload"] for e in events if e["kind"] in ("model_error", "model_schema_error")],
-                     "repairs": sum(1 for e in events if e["kind"] == "model" and (e["payload"] or {}).get("repair"))})
+        rows.append(
+            {
+                "case_id": case["case_id"],
+                "scenario": case["scenario"],
+                "gold": [g["gold"]["outcome"], g["gold"]["total_amount"]],
+                "decision": [decision.outcome, decision.total_amount, decision.rule_ids()],
+                **judge(g["gold"], decision, verdict),
+                "verdict": verdict_dump,
+                "error": error,
+                "latency_ms": round((time.perf_counter() - started) * 1000, 1),
+                "cost_usd": float(usage.cost_usd or 0) if usage is not None else 0.0,
+                "charged_usd": charged,
+                "input_tokens": usage.input_tokens if usage is not None else 0,
+                "output_tokens": usage.output_tokens if usage is not None else 0,
+                "model_errors": [e["payload"] for e in events if e["kind"] in ("model_error", "model_schema_error")],
+                "repairs": sum(1 for e in events if e["kind"] == "model" and (e["payload"] or {}).get("repair")),
+            }
+        )
     return {"summary": summarise(rows, mode, ledger), "rows": rows, "skipped": skipped, "stopped": stopped}
 
 
@@ -133,17 +172,25 @@ def summarise(rows: list[dict], mode: str, ledger: Ledger | None = None) -> dict
     codes_caught: Counter = Counter(c["code"] for r in rows if r["caught"] for c in (r["verdict"] or {}).get("concerns", []))
     codes_false: Counter = Counter(c["code"] for r in rows if r["false_flag"] for c in (r["verdict"] or {}).get("concerns", []))
     return {
-        "mode": mode, "audited": len(rows), "failed_calls": sum(1 for r in rows if r["error"]),
-        "wrong_payments": len(positives), "caught": sum(r["caught"] for r in positives),
+        "mode": mode,
+        "audited": len(rows),
+        "failed_calls": sum(1 for r in rows if r["error"]),
+        "wrong_payments": len(positives),
+        "caught": sum(r["caught"] for r in positives),
         "catch_rate": round(sum(r["caught"] for r in positives) / len(positives), 4) if positives else None,
-        "correct_payments": len(negatives), "false_flags": sum(r["false_flag"] for r in negatives),
+        "correct_payments": len(negatives),
+        "false_flags": sum(r["false_flag"] for r in negatives),
         "false_flag_rate": round(sum(r["false_flag"] for r in negatives) / len(negatives), 4) if negatives else None,
         "by_scenario": {s: dict(c) for s, c in sorted(by_scenario.items())},
-        "concern_codes_on_caught": dict(codes_caught.most_common()), "concern_codes_on_false_flags": dict(codes_false.most_common()),
-        "cost_usd": round(sum(r["cost_usd"] for r in rows), 6), "spent_usd": float(ledger.spent) if ledger else None,
+        "concern_codes_on_caught": dict(codes_caught.most_common()),
+        "concern_codes_on_false_flags": dict(codes_false.most_common()),
+        "cost_usd": round(sum(r["cost_usd"] for r in rows), 6),
+        "spent_usd": float(ledger.spent) if ledger else None,
         "latency_ms_median": round(statistics.median(r["latency_ms"] for r in rows), 1) if rows else None,
-        "input_tokens": sum(r["input_tokens"] for r in rows), "output_tokens": sum(r["output_tokens"] for r in rows),
-        "model_errors": sum(len(r["model_errors"]) for r in rows), "repairs": sum(r["repairs"] for r in rows),
+        "input_tokens": sum(r["input_tokens"] for r in rows),
+        "output_tokens": sum(r["output_tokens"] for r in rows),
+        "model_errors": sum(len(r["model_errors"]) for r in rows),
+        "repairs": sum(r["repairs"] for r in rows),
     }
 
 
@@ -158,7 +205,12 @@ def main(argv: list[str] | None = None) -> int:
     import argparse
 
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--provider", choices=["anthropic", "openai", "stub"], default="anthropic", help="stub agrees with every decision (free): checks the harness, not the model")
+    p.add_argument(
+        "--provider",
+        choices=["anthropic", "openai", "stub"],
+        default="anthropic",
+        help="stub agrees with every decision (free): checks the harness, not the model",
+    )
     p.add_argument("--model", default=None)
     p.add_argument("--root", default="var/claims")
     p.add_argument("--split", choices=list(SPLITS), default="all")
@@ -173,22 +225,53 @@ def main(argv: list[str] | None = None) -> int:
     if args.provider == "stub":
         args.model = args.model or ""
     else:
-        args.model = args.model or ("claude-haiku-4-5-20251001" if args.provider == "anthropic" else os.environ.get("FITWITNESS_OPENAI_MODEL", ""))
+        args.model = args.model or (
+            "claude-haiku-4-5-20251001" if args.provider == "anthropic" else os.environ.get("FITWITNESS_OPENAI_MODEL", "")
+        )
         assert args.model, "no model id: pass --model or set FITWITNESS_OPENAI_MODEL"
     started = datetime.now(timezone.utc)
-    report = evaluate(Path(args.root), provider=args.provider, model=args.model, ceiling=Decimal(str(args.max_cost_usd)), cap=Decimal(str(args.per_call_usd)),
-                      split=args.split, mode=args.mode, max_cases=args.max_cases)
+    report = evaluate(
+        Path(args.root),
+        provider=args.provider,
+        model=args.model,
+        ceiling=Decimal(str(args.max_cost_usd)),
+        cap=Decimal(str(args.per_call_usd)),
+        split=args.split,
+        mode=args.mode,
+        max_cases=args.max_cases,
+    )
     prefix = f"FITWITNESS_{args.provider.upper()}"
-    report["protocol"] = {"code_sha": _sha(), "started_at": started.isoformat(), "provider": args.provider, "model": args.model, "split": args.split, "mode": args.mode,
-                          "max_cases": args.max_cases, "ceiling_usd": str(args.max_cost_usd), "per_call_cap_usd": str(args.per_call_usd),
-                          "pricing_usd_per_million": {"input": os.getenv(f"{prefix}_INPUT_USD_PER_MILLION"), "output": os.getenv(f"{prefix}_OUTPUT_USD_PER_MILLION")},
-                          "what_is_audited": "every APPROVE decision of the split in this mode; a wrong payment is one whose outcome or amount differs from the gold"}
+    report["protocol"] = {
+        "code_sha": _sha(),
+        "started_at": started.isoformat(),
+        "provider": args.provider,
+        "model": args.model,
+        "split": args.split,
+        "mode": args.mode,
+        "max_cases": args.max_cases,
+        "ceiling_usd": str(args.max_cost_usd),
+        "per_call_cap_usd": str(args.per_call_usd),
+        "pricing_usd_per_million": {
+            "input": os.getenv(f"{prefix}_INPUT_USD_PER_MILLION"),
+            "output": os.getenv(f"{prefix}_OUTPUT_USD_PER_MILLION"),
+        },
+        "what_is_audited": "every APPROVE decision of the split in this mode; a wrong payment is one whose outcome or amount differs from the gold",
+    }
     out = Path(args.output)
     out.mkdir(parents=True, exist_ok=True)
     (out / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1, default=str))
     s = report["summary"]
-    print("== claims-audit", json.dumps({k: v for k, v in s.items() if k not in ("by_scenario", "concern_codes_on_caught", "concern_codes_on_false_flags")}, ensure_ascii=False),
-          "skipped", len(report["skipped"]), "stopped", report["stopped"])
+    print(
+        "== claims-audit",
+        json.dumps(
+            {k: v for k, v in s.items() if k not in ("by_scenario", "concern_codes_on_caught", "concern_codes_on_false_flags")},
+            ensure_ascii=False,
+        ),
+        "skipped",
+        len(report["skipped"]),
+        "stopped",
+        report["stopped"],
+    )
     return 0
 
 

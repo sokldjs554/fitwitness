@@ -47,6 +47,7 @@ class Jobs:
             return max(1, int(os.getenv("FITWITNESS_REVIEW_TTL_SECONDS", "86400")))
         except ValueError:
             return 86400
+
     LEASE_RECHECK_SECONDS = 2.0
 
     def __init__(self, repo):
@@ -86,9 +87,7 @@ class Jobs:
                 "CREATE TABLE IF NOT EXISTS fw_dispatch (tenant_id text NOT NULL,run_id text NOT NULL,created_at timestamptz NOT NULL DEFAULT now(),PRIMARY KEY(tenant_id,run_id))"
             )
             c.execute("ALTER TABLE fw_dispatch ENABLE ROW LEVEL SECURITY")
-            if not c.execute(
-                "SELECT 1 FROM pg_policies WHERE tablename='fw_dispatch' AND policyname='tenant_scope'"
-            ).fetchone():
+            if not c.execute("SELECT 1 FROM pg_policies WHERE tablename='fw_dispatch' AND policyname='tenant_scope'").fetchone():
                 c.execute(
                     "CREATE POLICY tenant_scope ON fw_dispatch USING (tenant_id=current_setting('app.tenant',true)) WITH CHECK (tenant_id=current_setting('app.tenant',true))"
                 )
@@ -99,9 +98,7 @@ class Jobs:
                 "CREATE TABLE IF NOT EXISTS fw_review_due (tenant_id text NOT NULL,run_id text NOT NULL,due_at timestamptz NOT NULL,PRIMARY KEY(tenant_id,run_id))"
             )
             c.execute("ALTER TABLE fw_review_due ENABLE ROW LEVEL SECURITY")
-            if not c.execute(
-                "SELECT 1 FROM pg_policies WHERE tablename='fw_review_due' AND policyname='tenant_scope'"
-            ).fetchone():
+            if not c.execute("SELECT 1 FROM pg_policies WHERE tablename='fw_review_due' AND policyname='tenant_scope'").fetchone():
                 c.execute(
                     "CREATE POLICY tenant_scope ON fw_review_due USING (tenant_id=current_setting('app.tenant',true)) WITH CHECK (tenant_id=current_setting('app.tenant',true))"
                 )
@@ -125,9 +122,7 @@ class Jobs:
                     c.execute(
                         f"CREATE POLICY tenant_scope ON {name} USING (tenant_id=current_setting('app.tenant',true)) WITH CHECK (tenant_id=current_setting('app.tenant',true))"
                     )
-                c.execute(
-                    f"GRANT SELECT,INSERT,UPDATE,DELETE ON {name} TO fitwitness_app"
-                )
+                c.execute(f"GRANT SELECT,INSERT,UPDATE,DELETE ON {name} TO fitwitness_app")
 
     def enqueue(self, scope, request: RunRequest, idempotency_key: str, quota: tuple[str, int] | None = None):
         """Queue a run. ``quota`` is an admission bucket and its limit, spent only when a new run is created: a repeated
@@ -138,21 +133,15 @@ class Jobs:
         digest = sha256(json.dumps(body, sort_keys=True).encode()).hexdigest()
         with self.repo.connection(scope) as c:
             self.repo.lock(c, scope.tenant_id)
-            row = c.execute(
-                "SELECT * FROM fw_runs WHERE idempotency_key=%s", (idempotency_key,)
-            ).fetchone()
+            row = c.execute("SELECT * FROM fw_runs WHERE idempotency_key=%s", (idempotency_key,)).fetchone()
             if row:
                 if row["input_hash"] != digest:
                     raise ValueError("idempotency key reused with a different request")
                 run_id = row["id"]
             else:
-                count = c.execute(
-                    "SELECT count(*) AS n FROM fw_runs WHERE state IN ('queued','running','retry_wait')"
-                ).fetchone()["n"]
+                count = c.execute("SELECT count(*) AS n FROM fw_runs WHERE state IN ('queued','running','retry_wait')").fetchone()["n"]
                 if count >= 3:
-                    raise ValueError(
-                        "동시 실행 제한: 기존 실행이 끝난 후 다시 시도해 주세요"
-                    )
+                    raise ValueError("동시 실행 제한: 기존 실행이 끝난 후 다시 시도해 주세요")
                 if quota and not self.admit(*quota):
                     raise QuotaExceeded("전체 실행 한도입니다. 잠시 후 다시 시도해 주세요.")
                 run_id = uid()
@@ -197,9 +186,7 @@ class Jobs:
             if not r:
                 return None
             stale = (
-                r["state"] == "completed"
-                and r["request"].get("kind") != "claim"
-                and self.repo.snapshot_in(c, scope).id != r["snapshot_id"]
+                r["state"] == "completed" and r["request"].get("kind") != "claim" and self.repo.snapshot_in(c, scope).id != r["snapshot_id"]
             )
         if stale:
             self.invalidate(scope)
@@ -226,17 +213,10 @@ class Jobs:
 
     def claim(self, scope, run_id, lease_seconds=30, requested_token=None):
         with self.repo.connection(scope) as c:
-            r = c.execute(
-                "SELECT * FROM fw_runs WHERE id=%s FOR UPDATE", (run_id,)
-            ).fetchone()
+            r = c.execute("SELECT * FROM fw_runs WHERE id=%s FOR UPDATE", (run_id,)).fetchone()
             if not r or r["state"] not in ["queued", "running", "retry_wait"]:
                 return None
-            if (
-                r["lease_token"]
-                and c.execute(
-                    "SELECT %s > now() AS active", (r["lease_until"],)
-                ).fetchone()["active"]
-            ):
+            if r["lease_token"] and c.execute("SELECT %s > now() AS active", (r["lease_until"],)).fetchone()["active"]:
                 return None
             if (
                 r["state"] == "retry_wait"
@@ -251,9 +231,7 @@ class Jobs:
                 "waited_seconds=waited_seconds+COALESCE(EXTRACT(EPOCH FROM (now()-paused_since)),0),paused_since=NULL,next_attempt_at=NULL WHERE id=%s",
                 (token, lease_seconds, run_id),
             )
-            self._event(
-                c, scope, run_id, "started", {"recovered": r["state"] == "running"}
-            )
+            self._event(c, scope, run_id, "started", {"recovered": r["state"] == "running"})
             return token
 
     def heartbeat(self, scope, run_id, token):
@@ -314,14 +292,10 @@ class Jobs:
     def finalize(self, scope, run_id, snapshot_id, decisions, lease_token, usage=None):
         with self.repo.connection(scope) as c:
             self.repo.lock(c, scope.tenant_id)
-            r = c.execute(
-                "SELECT * FROM fw_runs WHERE id=%s FOR UPDATE", (run_id,)
-            ).fetchone()
+            r = c.execute("SELECT * FROM fw_runs WHERE id=%s FOR UPDATE", (run_id,)).fetchone()
             if not r or r["state"] != "running" or r["lease_token"] != lease_token:
                 return False
-            if not c.execute(
-                "SELECT %s>now() AS active", (r["lease_until"],)
-            ).fetchone()["active"]:
+            if not c.execute("SELECT %s>now() AS active", (r["lease_until"],)).fetchone()["active"]:
                 return False
             if self.repo.snapshot_in(c, scope).id != snapshot_id:
                 c.execute(
@@ -384,7 +358,13 @@ class Jobs:
                     "next_attempt_at=now()+(%s * interval '1 second'),paused_since=now() WHERE id=%s",
                     (attempt, error[:500], delay, run_id),
                 )
-                self._event(c, scope, run_id, "retry_scheduled", {"attempt": attempt, "max_attempts": max_attempts, "delay_seconds": delay, "error": error[:500]})
+                self._event(
+                    c,
+                    scope,
+                    run_id,
+                    "retry_scheduled",
+                    {"attempt": attempt, "max_attempts": max_attempts, "delay_seconds": delay, "error": error[:500]},
+                )
                 return
             c.execute(
                 "UPDATE fw_runs SET state='failed',attempts=%s,error=%s,lease_token=NULL WHERE id=%s",
@@ -475,10 +455,20 @@ class Jobs:
                 raise ValueError("실행이 담당자 검토 대기 상태가 아닙니다")
             c.execute("INSERT INTO fw_dispatch(tenant_id,run_id) VALUES(%s,%s) ON CONFLICT DO NOTHING", (scope.tenant_id, run_id))
             c.execute("DELETE FROM fw_review_due WHERE run_id=%s", (run_id,))
-            self._event(c, scope, run_id, "resumed_by_human", {"reviewer": human_input.get("reviewer"),
-                        "decisions": len(human_input.get("decisions") or {}), "outcome": human_input.get("outcome"),
-                        # the answer may arrive days later, under another deployment: name both codes
-                        "started_with": current.get("code_version"), "resumed_with": version.current()})
+            self._event(
+                c,
+                scope,
+                run_id,
+                "resumed_by_human",
+                {
+                    "reviewer": human_input.get("reviewer"),
+                    "decisions": len(human_input.get("decisions") or {}),
+                    "outcome": human_input.get("outcome"),
+                    # the answer may arrive days later, under another deployment: name both codes
+                    "started_with": current.get("code_version"),
+                    "resumed_with": version.current(),
+                },
+            )
         return self.get(scope, run_id)
 
     def release_crashed(self, scope, run_id, token=None):
@@ -574,8 +564,17 @@ class Jobs:
                 ).fetchone()
                 c.execute("DELETE FROM fw_review_due WHERE run_id=%s", (row["run_id"],))
                 if hit:
-                    self._event(c, scope, row["run_id"], "review_escalated",
-                                {"level": "senior", "waited_seconds": round(float(hit["waited"] or 0), 1), "ttl_seconds": self.review_ttl_seconds()})
+                    self._event(
+                        c,
+                        scope,
+                        row["run_id"],
+                        "review_escalated",
+                        {
+                            "level": "senior",
+                            "waited_seconds": round(float(hit["waited"] or 0), 1),
+                            "ttl_seconds": self.review_ttl_seconds(),
+                        },
+                    )
                     moved += 1
         return moved
 
@@ -606,9 +605,7 @@ class Jobs:
 
     def register_session(self, scope):
         with self.repo.plain() as c:
-            c.execute(
-                "CREATE TABLE IF NOT EXISTS fw_sessions (tenant_id text PRIMARY KEY,expires_at timestamptz NOT NULL)"
-            )
+            c.execute("CREATE TABLE IF NOT EXISTS fw_sessions (tenant_id text PRIMARY KEY,expires_at timestamptz NOT NULL)")
             c.execute(
                 "INSERT INTO fw_sessions VALUES(%s,now()+interval '1 hour')",
                 (scope.tenant_id,),
@@ -618,13 +615,8 @@ class Jobs:
         from fitwitness.contracts import TenantScope
 
         with self.repo.plain() as c:
-            c.execute(
-                "CREATE TABLE IF NOT EXISTS fw_sessions (tenant_id text PRIMARY KEY,expires_at timestamptz NOT NULL)"
-            )
-            expired = [
-                r["tenant_id"]
-                for r in c.execute("SELECT tenant_id FROM fw_sessions WHERE expires_at<now() LIMIT 20").fetchall()
-            ]
+            c.execute("CREATE TABLE IF NOT EXISTS fw_sessions (tenant_id text PRIMARY KEY,expires_at timestamptz NOT NULL)")
+            expired = [r["tenant_id"] for r in c.execute("SELECT tenant_id FROM fw_sessions WHERE expires_at<now() LIMIT 20").fetchall()]
         if not expired:
             return
         # One transaction for every expired workspace instead of two connections per tenant.

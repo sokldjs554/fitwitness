@@ -85,8 +85,12 @@ def summarise(records: list[dict], journeys: list[dict]) -> dict:
         statuses = defaultdict(int)
         for r in rows:
             statuses[str(r["status"])] += 1
-        endpoints[name] = {"requests": len(rows), "outcomes": dict(counts), "statuses": dict(statuses),
-                           **{f"p{q}_ms": _round(percentile(ok, q)) for q in (50, 95, 99)}}
+        endpoints[name] = {
+            "requests": len(rows),
+            "outcomes": dict(counts),
+            "statuses": dict(statuses),
+            **{f"p{q}_ms": _round(percentile(ok, q)) for q in (50, 95, 99)},
+        }
     done = [j for j in journeys if j["finished"]]
     total = [j["ms"] for j in done]
     check = [c for j in journeys for c in j["checks_ms"]]
@@ -123,8 +127,17 @@ def _round(v):
 
 async def visitor(client_args: dict, checks: int, delay: float, records: list[dict], step: int) -> dict:
     await asyncio.sleep(delay)
-    journey = {"finished": False, "ms": None, "checks_ms": [], "runs_started": 0, "runs_completed": 0,
-               "run_states": [], "run_ids": [], "failure": None, "failure_kind": None}
+    journey = {
+        "finished": False,
+        "ms": None,
+        "checks_ms": [],
+        "runs_started": 0,
+        "runs_completed": 0,
+        "run_states": [],
+        "run_ids": [],
+        "failure": None,
+        "failure_kind": None,
+    }
     started = time.perf_counter()
     async with httpx.AsyncClient(**client_args) as http:
 
@@ -141,8 +154,9 @@ async def visitor(client_args: dict, checks: int, delay: float, records: list[di
                 journey["failure_kind"] = journey["failure_kind"] or f"{endpoint}: {error}"
                 return None
             finally:
-                records.append({"step": step, "endpoint": endpoint, "status": status, "error": error,
-                                "ms": (time.perf_counter() - t0) * 1000})
+                records.append(
+                    {"step": step, "endpoint": endpoint, "status": status, "error": error, "ms": (time.perf_counter() - t0) * 1000}
+                )
 
         def failed(endpoint: str, resp) -> bool:
             if resp is not None and resp.status_code < 400:
@@ -205,9 +219,11 @@ def queue_waits(dsn: str, run_ids: list[str]) -> dict:
         ).fetchall()
     waits = [float(w) * 1000 for _, w, _ in rows if w is not None]
     works = [float(x) * 1000 for _, _, x in rows if x is not None]
-    return {"runs": len(rows),
-            "queue_wait_ms": {f"p{q}": _round(percentile(waits, q)) for q in (50, 95, 99)} | {"max": _round(max(waits) if waits else None)},
-            "started_to_last_event_ms": {f"p{q}": _round(percentile(works, q)) for q in (50, 95, 99)}}
+    return {
+        "runs": len(rows),
+        "queue_wait_ms": {f"p{q}": _round(percentile(waits, q)) for q in (50, 95, 99)} | {"max": _round(max(waits) if waits else None)},
+        "started_to_last_event_ms": {f"p{q}": _round(percentile(works, q)) for q in (50, 95, 99)},
+    }
 
 
 def reset_admission(dsn: str) -> None:
@@ -252,9 +268,17 @@ async def sample_server(pid: int, stop: asyncio.Event, out: dict) -> None:
             await asyncio.wait_for(stop.wait(), 0.5)
         except asyncio.TimeoutError:
             pass
-    out.update({"samples": len(rss), "pss_mib_max": _round(max(pss) if pss else None), "pss_mib_p50": _round(percentile(pss, 50)),
-                "rss_mib_max": _round(max(rss) if rss else None), "cpu_percent_p50": _round(percentile(cpu, 50)),
-                "cpu_percent_p95": _round(percentile(cpu, 95)), "processes_max": max(procs) if procs else None})
+    out.update(
+        {
+            "samples": len(rss),
+            "pss_mib_max": _round(max(pss) if pss else None),
+            "pss_mib_p50": _round(percentile(pss, 50)),
+            "rss_mib_max": _round(max(rss) if rss else None),
+            "cpu_percent_p50": _round(percentile(cpu, 50)),
+            "cpu_percent_p95": _round(percentile(cpu, 95)),
+            "processes_max": max(procs) if procs else None,
+        }
+    )
 
 
 async def run_step(args, visitors: int) -> dict:
@@ -296,9 +320,13 @@ def environment(args) -> dict:
 
     import psutil
 
-    out = {"date_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "cpus": os.cpu_count(),
-           "memory_gib": round(psutil.virtual_memory().total / 2**30, 1), "python": platform.python_version(),
-           "platform": platform.platform()}
+    out = {
+        "date_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "cpus": os.cpu_count(),
+        "memory_gib": round(psutil.virtual_memory().total / 2**30, 1),
+        "python": platform.python_version(),
+        "platform": platform.platform(),
+    }
     try:
         out["server_health"] = httpx.get(args.url + "/health", timeout=10).json()
     except httpx.HTTPError as exc:
@@ -306,8 +334,13 @@ def environment(args) -> dict:
     if args.server_pid:
         env = psutil.Process(args.server_pid).environ()
         # Only the knobs that change capacity; secrets and connection strings are not recorded.
-        knobs = ("FITWITNESS_WARM_WORKERS", "FITWITNESS_DB_POOL_MAX", "FITWITNESS_SESSION_LIMIT_PER_PEER",
-                 "OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS")
+        knobs = (
+            "FITWITNESS_WARM_WORKERS",
+            "FITWITNESS_DB_POOL_MAX",
+            "FITWITNESS_SESSION_LIMIT_PER_PEER",
+            "OPENBLAS_NUM_THREADS",
+            "OMP_NUM_THREADS",
+        )
         out["server_settings"] = {k: env.get(k, "default") for k in knobs}
         out["server_command"] = " ".join(psutil.Process(args.server_pid).cmdline()[1:])
     if args.dsn:
@@ -328,8 +361,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--pause", type=float, default=5.0, help="seconds between steps")
     p.add_argument("--dsn", help="the server's database, to read queue waits (and to reset admission buckets)")
     p.add_argument("--reset-admission", action="store_true", help="empty the hourly session/run buckets before each step")
-    p.add_argument("--same-peer", dest="distinct_peers", action="store_false",
-                   help="send every visitor from one address (by default each gets its own X-Forwarded-For)")
+    p.add_argument(
+        "--same-peer",
+        dest="distinct_peers",
+        action="store_false",
+        help="send every visitor from one address (by default each gets its own X-Forwarded-For)",
+    )
     p.add_argument("--server-pid", type=int, help="the API's process id, to sample its memory and CPU (same machine)")
     p.add_argument("--label", default="")
     p.add_argument("--output", required=True)
@@ -345,17 +382,34 @@ def main(argv: list[str] | None = None) -> int:
         result = asyncio.run(run_step(args, n))
         results.append(result)
         s = result["summary"]
-        print(json.dumps({"visitors": n, "wall_s": result["wall_seconds"], "finished": s["visitors_finished"],
-                          "outcomes": s["outcomes"], "journey_ms": s["journey_ms"], "check_ms": s["check_ms"],
-                          "queue": (result.get("server") or {}).get("queue_wait_ms")}, ensure_ascii=False), flush=True)
+        print(
+            json.dumps(
+                {
+                    "visitors": n,
+                    "wall_s": result["wall_seconds"],
+                    "finished": s["visitors_finished"],
+                    "outcomes": s["outcomes"],
+                    "journey_ms": s["journey_ms"],
+                    "check_ms": s["check_ms"],
+                    "queue": (result.get("server") or {}).get("queue_wait_ms"),
+                },
+                ensure_ascii=False,
+            ),
+            flush=True,
+        )
         time.sleep(args.pause)
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     existing = json.loads(out.read_text()) if out.exists() else {"profiles": []}
     existing["profiles"] = [x for x in existing.get("profiles", []) if x.get("label") != args.label]
-    existing["profiles"].append({"label": args.label, "environment": env,
-                                 "settings": {k: v for k, v in vars(args).items() if k not in ("output", "dsn", "server_pid")},
-                                 "steps": results})
+    existing["profiles"].append(
+        {
+            "label": args.label,
+            "environment": env,
+            "settings": {k: v for k, v in vars(args).items() if k not in ("output", "dsn", "server_pid")},
+            "steps": results,
+        }
+    )
     out.write_text(json.dumps(existing, ensure_ascii=False, indent=2) + "\n")
     return 0
 

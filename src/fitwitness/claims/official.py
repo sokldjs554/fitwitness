@@ -99,12 +99,20 @@ def _words(page) -> list[dict]:
         return any(abs(c["top"] - s["top"]) < 4 and min(c["x1"], s["x1"]) - max(c["x0"], s["x0"]) > 0.3 * width for c in near)
 
     dropped = {(round(c["x0"], 2), round(c["top"], 2)) for c in page.chars if not c["text"].strip() and covered(c)}
-    return page.filter(lambda o: o.get("object_type") != "char" or (round(o["x0"], 2), round(o["top"], 2)) not in dropped or o["text"].strip()).extract_words(return_chars=True)
+    return page.filter(
+        lambda o: o.get("object_type") != "char" or (round(o["x0"], 2), round(o["top"], 2)) not in dropped or o["text"].strip()
+    ).extract_words(return_chars=True)
 
 
 def _make(chars: list[dict]) -> dict:
-    return {"text": "".join(c["text"] for c in chars), "x0": min(c["x0"] for c in chars), "x1": max(c["x1"] for c in chars),
-            "top": min(c["top"] for c in chars), "bottom": max(c["bottom"] for c in chars), "chars": chars}
+    return {
+        "text": "".join(c["text"] for c in chars),
+        "x0": min(c["x0"] for c in chars),
+        "x1": max(c["x1"] for c in chars),
+        "top": min(c["top"] for c in chars),
+        "bottom": max(c["bottom"] for c in chars),
+        "chars": chars,
+    }
 
 
 def _cut(word: dict, k: int) -> tuple[dict, dict] | None:
@@ -113,7 +121,7 @@ def _cut(word: dict, k: int) -> tuple[dict, dict] | None:
     for i, ch in enumerate(word["chars"]):
         used += len(_n(ch["text"]))
         if used >= k:
-            return (_make(word["chars"][: i + 1]), _make(word["chars"][i + 1:])) if word["chars"][i + 1:] else None
+            return (_make(word["chars"][: i + 1]), _make(word["chars"][i + 1 :])) if word["chars"][i + 1 :] else None
     return None
 
 
@@ -171,7 +179,7 @@ def _separate(words: list[dict], anchors: list[str]) -> list[dict]:
         parts = _cut(last, consumed) if consumed < len(_n(last["text"])) else None
         if parts:
             i = next(i for i, w in enumerate(words) if w is last)
-            words[i:i + 1] = list(parts)
+            words[i : i + 1] = list(parts)
     return words
 
 

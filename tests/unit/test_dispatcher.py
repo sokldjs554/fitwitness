@@ -1,4 +1,5 @@
 """The dispatcher's two slots, without a database: a finished run must hand its slot to the next queued run."""
+
 import threading
 import time
 

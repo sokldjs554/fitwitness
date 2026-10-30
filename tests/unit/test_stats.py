@@ -1,11 +1,12 @@
 """Intervals for the committed numbers (``evaluation/stats.py``)."""
+
 import pytest
 from fitwitness.evaluation import stats as S
 
 
 def test_wilson_is_wide_at_zero_errors_and_bounded_by_the_unit_interval():
-    assert S.wilson(0, 120) == [0.0, 0.031]       # no wrong payment in 120 claims: up to 3.1% is still consistent
-    assert S.wilson(72, 72) == [0.9493, 1.0]      # 72/72 verdicts: the lower bound, not 100%, is the claim
+    assert S.wilson(0, 120) == [0.0, 0.031]  # no wrong payment in 120 claims: up to 3.1% is still consistent
+    assert S.wilson(72, 72) == [0.9493, 1.0]  # 72/72 verdicts: the lower bound, not 100%, is the claim
     assert S.wilson(18, 18)[0] == pytest.approx(0.8241, abs=1e-4)
     assert S.wilson(11, 11)[0] == pytest.approx(0.7412, abs=1e-4)
     assert S.wilson(1, 0) is None

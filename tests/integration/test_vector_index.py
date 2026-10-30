@@ -39,10 +39,13 @@ def bulk(repo, count, dims, channel):
     for start in range(0, count, 2500):
         repo.seed_revisions(scope, [drawing(scope, i, rng) for i in range(start, min(count, start + 2500))])
     with repo.plain() as c:
-        c.execute("INSERT INTO fw_vectors (tenant_id,revision_id,channel,embedding,metadata) "
-                  "SELECT r.tenant_id, r.id, %s, x.v, '{}'::jsonb FROM fw_revisions r CROSS JOIN LATERAL "
-                  "(SELECT ('['||string_agg(random()::text, ',')||']')::vector AS v FROM generate_series(1, %s) WHERE r.id IS NOT NULL) x "
-                  "WHERE r.tenant_id=%s", (channel, dims, scope.tenant_id))
+        c.execute(
+            "INSERT INTO fw_vectors (tenant_id,revision_id,channel,embedding,metadata) "
+            "SELECT r.tenant_id, r.id, %s, x.v, '{}'::jsonb FROM fw_revisions r CROSS JOIN LATERAL "
+            "(SELECT ('['||string_agg(random()::text, ',')||']')::vector AS v FROM generate_series(1, %s) WHERE r.id IS NOT NULL) x "
+            "WHERE r.tenant_id=%s",
+            (channel, dims, scope.tenant_id),
+        )
         c.execute("ANALYZE fw_vectors")
     return scope, repo.snapshot(scope).revision_ids, [rng.random() for _ in range(dims)]
 
@@ -50,14 +53,18 @@ def bulk(repo, count, dims, channel):
 def exact(repo, scope, channel, vector, ids, k):
     with repo.connection(scope) as c:
         c.execute("SELECT set_config('enable_indexscan','off',true), set_config('enable_bitmapscan','off',true)")
-        rows = c.execute("SELECT revision_id FROM fw_vectors WHERE channel=%s AND revision_id=ANY(%s) ORDER BY embedding <=> %s::vector, revision_id LIMIT %s",
-                         (channel, ids, str(vector), k)).fetchall()
+        rows = c.execute(
+            "SELECT revision_id FROM fw_vectors WHERE channel=%s AND revision_id=ANY(%s) ORDER BY embedding <=> %s::vector, revision_id LIMIT %s",
+            (channel, ids, str(vector), k),
+        ).fetchall()
     return [r["revision_id"] for r in rows]
 
 
 def test_migrate_builds_one_index_per_dense_channel(repo):
     with repo.plain() as c:
-        rows = c.execute("SELECT indexname, indexdef FROM pg_indexes WHERE tablename='fw_vectors' AND indexname LIKE 'fw_vectors_hnsw_%'").fetchall()
+        rows = c.execute(
+            "SELECT indexname, indexdef FROM pg_indexes WHERE tablename='fw_vectors' AND indexname LIKE 'fw_vectors_hnsw_%'"
+        ).fetchall()
     defs = {r["indexname"]: r["indexdef"] for r in rows}
     assert set(defs) == {f"fw_vectors_hnsw_{ch}" for ch in HNSW_CHANNELS}
     for channel, dims in HNSW_CHANNELS.items():
@@ -100,7 +107,9 @@ def test_a_vector_of_another_width_is_stored_outside_the_index_and_found_by_the_
     hits = [r["revision_id"] for r in repo.vector_search(scope, "text", probe, ids, 5)]
     assert hits == exact(repo, scope, "text", probe, ids, 5)
     with repo.plain() as c:  # the 3-wide rows are not in the 384-wide index, so no insert had to cast them
-        n = c.execute("SELECT count(*) FROM fw_vectors WHERE tenant_id=%s AND vector_dims(embedding)=3", (scope.tenant_id,)).fetchone()["count"]
+        n = c.execute("SELECT count(*) FROM fw_vectors WHERE tenant_id=%s AND vector_dims(embedding)=3", (scope.tenant_id,)).fetchone()[
+            "count"
+        ]
     assert n == 12
 
 

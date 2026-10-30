@@ -36,18 +36,83 @@ MIN_READING = 0.60  # a value read less surely than this is not reported at all
 LANGS = ("chi_sim", "kor", "eng")
 
 LABELS = {
-    "材料": "material", "材质": "material", "材料名称": "material", "재질": "material", "소재": "material",
-    "MATERIAL": "material", "MATL": "material", "MAT": "material",
-    "比例": "scale", "축척": "scale", "SCALE": "scale",
-    "图号": "drawing_number", "图样代号": "drawing_number", "图纸编号": "drawing_number", "도번": "drawing_number", "도면번호": "drawing_number",
-    "DWGNO": "drawing_number", "DRAWINGNO": "drawing_number", "PARTNO": "drawing_number",
+    "材料": "material",
+    "材质": "material",
+    "材料名称": "material",
+    "재질": "material",
+    "소재": "material",
+    "MATERIAL": "material",
+    "MATL": "material",
+    "MAT": "material",
+    "比例": "scale",
+    "축척": "scale",
+    "SCALE": "scale",
+    "图号": "drawing_number",
+    "图样代号": "drawing_number",
+    "图纸编号": "drawing_number",
+    "도번": "drawing_number",
+    "도면번호": "drawing_number",
+    "DWGNO": "drawing_number",
+    "DRAWINGNO": "drawing_number",
+    "PARTNO": "drawing_number",
 }
 # Labels that are not fields we read but end a value ("the cell to the right" must not be one of these).
-OTHER_LABELS = {"数量", "重量", "质量", "单位", "制图", "审核", "设计", "批准", "工艺", "名称", "代号", "序号", "备注", "单件", "总计", "标记", "处数", "分区",
-                "수량", "중량", "단위", "설계", "검도", "승인", "QTY", "WEIGHT", "UNIT", "NAME", "DRAWN", "CHECKED", "APPROVED", "TITLE"}
+OTHER_LABELS = {
+    "数量",
+    "重量",
+    "质量",
+    "单位",
+    "制图",
+    "审核",
+    "设计",
+    "批准",
+    "工艺",
+    "名称",
+    "代号",
+    "序号",
+    "备注",
+    "单件",
+    "总计",
+    "标记",
+    "处数",
+    "分区",
+    "수량",
+    "중량",
+    "단위",
+    "설계",
+    "검도",
+    "승인",
+    "QTY",
+    "WEIGHT",
+    "UNIT",
+    "NAME",
+    "DRAWN",
+    "CHECKED",
+    "APPROVED",
+    "TITLE",
+}
 # Prefixes that make a hyphenated code something else: a page footer ("Page-271"), a figure, a standard.
-NOT_A_NUMBER = ("PAGE", "FIG", "FIGURE", "TABLE", "TAB", "GB", "GBT", "ISO", "DIN", "JIS", "ANSI", "ASME", "ASTM", "IEC", "EN",
-                "RA", "RZ", "RY", "SR")  # the last four: surface roughness and spherical radius, "Ra1.6", "SR12.5"
+NOT_A_NUMBER = (
+    "PAGE",
+    "FIG",
+    "FIGURE",
+    "TABLE",
+    "TAB",
+    "GB",
+    "GBT",
+    "ISO",
+    "DIN",
+    "JIS",
+    "ANSI",
+    "ASME",
+    "ASTM",
+    "IEC",
+    "EN",
+    "RA",
+    "RZ",
+    "RY",
+    "SR",
+)  # the last four: surface roughness and spherical radius, "Ra1.6", "SR12.5"
 SEPARATORS = set("|丨/\\:：;-_.,'\"`~!l")
 # A drawing number: a hyphenated code ("DJZ-02", "QF02-10", "WLJSQ475-00") or three or more letters and digits ("ZPT19").
 # Two letters and digits ("HT200", "ZL107", "LY12", "Q235") are material designations, not numbers.
@@ -64,7 +129,23 @@ _ALLOY = r"(?:Mn|Cr|Si|Mo|V|Al|Ni|B|Ti|W|Nb|Cu)"
 GRADE_CAST = re.compile(r"^(?:HT\d{3}|QT\d{3}-\d{1,2}|ZL\d{3}|ZG\d{2,3}(?:-\d{2,3})?|Q\d{3}[A-F]?)$")
 GRADE_ALLOY = re.compile(rf"^\d{{2}}{_ALLOY}\d?(?:{_ALLOY}\d?)*A?$")
 # Words of the blocks themselves; three of them in one corner mean a title block, so an unlabelled grade in it is the material.
-BLOCK_WORDS = {"设计", "制图", "审核", "工艺", "批准", "标记", "处数", "分区", "比例", "质量", "标准化", "签名", "年月日", "更改文件号", "阶段标记"}
+BLOCK_WORDS = {
+    "设计",
+    "制图",
+    "审核",
+    "工艺",
+    "批准",
+    "标记",
+    "处数",
+    "分区",
+    "比例",
+    "质量",
+    "标准化",
+    "签名",
+    "年月日",
+    "更改文件号",
+    "阶段标记",
+}
 
 
 @dataclass
@@ -119,7 +200,9 @@ def _tokens(image, lang: str) -> list[ocr.Token]:
         x0, y0 = int(width * left), int(height * top)
         crop = image.crop((x0, y0, width, height))
         for scale in SCALES:
-            shown = crop if scale == 1.0 else crop.resize((max(1, int(crop.width * scale)), max(1, int(crop.height * scale))), Image.LANCZOS)
+            shown = (
+                crop if scale == 1.0 else crop.resize((max(1, int(crop.width * scale)), max(1, int(crop.height * scale))), Image.LANCZOS)
+            )
             # sparse text finds boxed cells on a real scan; block mode reads a clean, evenly laid-out sheet better
             for t in [t for psm in ((11, 6) if scale == 1.0 else (11,)) for t in ocr.recognise(shown, lang=lang, timeout=120.0, psm=psm)]:
                 if t.conf < MIN_CONF:
@@ -146,9 +229,17 @@ def _merge(tokens: list[ocr.Token]) -> list[ocr.Token]:
     for t in sorted(clean, key=lambda t: (round((t.top + t.bottom) / 2 / 30), t.x0)):
         last = out[-1] if out else None
         h = min(t.bottom - t.top, last.bottom - last.top) if last else 0
-        if last and _cjk(last.text) and _cjk(t.text) and len(last.text) + len(t.text) <= 4 \
-                and abs((last.top + last.bottom) - (t.top + t.bottom)) < 0.7 * h and 0 <= t.x0 - last.x1 < 0.6 * h:
-            out[-1] = ocr.Token(last.text + t.text, last.x0, t.x1, min(last.top, t.top), max(last.bottom, t.bottom), min(last.conf, t.conf), last.line)
+        if (
+            last
+            and _cjk(last.text)
+            and _cjk(t.text)
+            and len(last.text) + len(t.text) <= 4
+            and abs((last.top + last.bottom) - (t.top + t.bottom)) < 0.7 * h
+            and 0 <= t.x0 - last.x1 < 0.6 * h
+        ):
+            out[-1] = ocr.Token(
+                last.text + t.text, last.x0, t.x1, min(last.top, t.top), max(last.bottom, t.bottom), min(last.conf, t.conf), last.line
+            )
         else:
             out.append(t)
     return out
@@ -169,8 +260,15 @@ def _value_right_of(label: ocr.Token, words: list[ocr.Token], taken: set[int]) -
     A token much taller than the label is a cell border read together with its neighbours, a token that
     looks like a drawing number belongs to the number's cell, and a token another field already used is taken."""
     h = label.bottom - label.top
-    row = [w for w in words if w is not label and id(w) not in taken and abs((w.top + w.bottom) / 2 - (label.top + label.bottom) / 2) < 0.7 * h
-           and 0 <= w.x0 - label.x1 < 1.6 * h and (w.bottom - w.top) <= 1.6 * h]
+    row = [
+        w
+        for w in words
+        if w is not label
+        and id(w) not in taken
+        and abs((w.top + w.bottom) / 2 - (label.top + label.bottom) / 2) < 0.7 * h
+        and 0 <= w.x0 - label.x1 < 1.6 * h
+        and (w.bottom - w.top) <= 1.6 * h
+    ]
     for w in sorted(row, key=lambda w: w.x0):
         text = _clean(w.text)
         if not text or all(c in SEPARATORS for c in text):
@@ -200,7 +298,12 @@ def _cell_value(image, label: ocr.Token, lang: str, field: str) -> ocr.Token | N
     start two glyphs after the label's left edge."""
     h = label.bottom - label.top
     start = label.x0 + 2.1 * h if label.x1 - label.x0 > 2.6 * h else label.x1
-    box = (int(start), max(0, int(label.top - 0.2 * h)), int(min(image.width, start + 5 * h)), min(image.height, int(label.bottom + 0.2 * h)))
+    box = (
+        int(start),
+        max(0, int(label.top - 0.2 * h)),
+        int(min(image.width, start + 5 * h)),
+        min(image.height, int(label.bottom + 0.2 * h)),
+    )
     if box[2] - box[0] < 20 or box[3] - box[1] < 10:
         return None
     cell = image.crop(box)
@@ -215,7 +318,15 @@ def _cell_value(image, label: ocr.Token, lang: str, field: str) -> ocr.Token | N
             continue
         if field == "scale" and not SCALE.match(text):
             continue
-        return ocr.Token(text, box[0] + (t.x0 - 20) / factor, box[0] + (t.x1 - 20) / factor, box[1] + (t.top - 20) / factor, box[1] + (t.bottom - 20) / factor, t.conf, t.line)
+        return ocr.Token(
+            text,
+            box[0] + (t.x0 - 20) / factor,
+            box[0] + (t.x1 - 20) / factor,
+            box[1] + (t.top - 20) / factor,
+            box[1] + (t.bottom - 20) / factor,
+            t.conf,
+            t.line,
+        )
     return None
 
 
@@ -233,7 +344,12 @@ def _dotted(text: str) -> bool:
 def _number(text: str) -> bool:
     t = _canonical(text)
     prefix = re.match(r"[A-Z]+", t)
-    return (bool(NUMBER.match(t)) or bool(DOTTED.match(t))) and any(c.isdigit() for c in t) and len(t) >= 4 and not (prefix and prefix.group(0) in NOT_A_NUMBER)
+    return (
+        (bool(NUMBER.match(t)) or bool(DOTTED.match(t)))
+        and any(c.isdigit() for c in t)
+        and len(t) >= 4
+        and not (prefix and prefix.group(0) in NOT_A_NUMBER)
+    )
 
 
 def _grade(text: str) -> str | None:
@@ -245,7 +361,9 @@ def _grade(text: str) -> str | None:
 
 def _overlaps(a: ocr.Token, b: ocr.Token) -> bool:
     h = max(a.bottom - a.top, b.bottom - b.top)
-    return abs((a.top + a.bottom) / 2 - (b.top + b.bottom) / 2) < 0.7 * h and min(a.x1, b.x1) - max(a.x0, b.x0) > 0.3 * min(a.x1 - a.x0, b.x1 - b.x0)
+    return abs((a.top + a.bottom) / 2 - (b.top + b.bottom) / 2) < 0.7 * h and min(a.x1, b.x1) - max(a.x0, b.x0) > 0.3 * min(
+        a.x1 - a.x0, b.x1 - b.x0
+    )
 
 
 def _flat(text: str) -> str:
@@ -270,7 +388,12 @@ def read_words(words: list[ocr.Token], size: tuple[int, int], cell=None) -> list
     width, height = size
     readings: list[Reading] = []
     taken: set[int] = set()
-    box = lambda ts: (min(t.x0 for t in ts) / width, min(t.top for t in ts) / height, max(t.x1 for t in ts) / width, max(t.bottom for t in ts) / height)  # noqa: E731
+    box = lambda ts: (
+        min(t.x0 for t in ts) / width,
+        min(t.top for t in ts) / height,
+        max(t.x1 for t in ts) / width,
+        max(t.bottom for t in ts) / height,
+    )  # noqa: E731
     # The drawing number has no label on a Chinese (GB) block: find it by its shape, below the parts-list header if there is one.
     header = [w for w in words if _norm(w.text) in ("代号", "序号")]
     floor = max((w.bottom for w in header), default=0)
@@ -299,7 +422,12 @@ def read_words(words: list[ocr.Token], size: tuple[int, int], cell=None) -> list
     # material label is on the page (an assembly's parts list has a "材料" column and lists the materials of its parts, not one of its own),
     # below any parts-list header, and only when the corner holds one grade.
     labelled = any(LABELS.get(_norm(w.text)) == "material" for w in words)
-    if not any(r.field == "material" for r in readings) and not labelled and not header and sum(1 for w in words if _norm(w.text) in BLOCK_WORDS) >= 3:
+    if (
+        not any(r.field == "material" for r in readings)
+        and not labelled
+        and not header
+        and sum(1 for w in words if _norm(w.text) in BLOCK_WORDS) >= 3
+    ):
         grades: dict[str, list[ocr.Token]] = {}
         for w in words:
             if (g := _grade(w.text)) and w.conf >= MIN_READING * 100 and id(w) not in taken:

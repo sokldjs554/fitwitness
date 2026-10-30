@@ -1,4 +1,5 @@
 """The real-model trajectory evaluation without a model: the cases, the ledger and the path checks (``evaluation/agent_trajectory.py``)."""
+
 from decimal import Decimal
 from pathlib import Path
 
@@ -43,7 +44,10 @@ def _events(*kinds_and_payloads):
 def test_path_checks_see_an_uninspected_candidate_behind_a_wrong_verdict():
     expected = {"a": "match", "b": "mismatch", "c": "unknown"}
     events = _events(
-        ("queued", {}), ("started", {}), ("intent", {}), ("retrieved", {"candidates": [{"revision_id": x} for x in "abc"]}),
+        ("queued", {}),
+        ("started", {}),
+        ("intent", {}),
+        ("retrieved", {"candidates": [{"revision_id": x} for x in "abc"]}),
         ("agent_plan", {"role": "planner", "operations": [1, 2], "stop": False}),
         ("tool", {"name": "query_dimensions", "arguments": {"revision_id": "a", "fields": ["width"]}}),
         ("tool", {"name": "query_dimensions", "arguments": {"revision_id": "b", "fields": ["width"]}}),
@@ -65,11 +69,13 @@ def test_path_checks_see_an_uninspected_candidate_behind_a_wrong_verdict():
 
 def test_a_verdict_before_any_lookup_and_a_repeated_lookup_are_violations():
     events = _events(
-        ("intent", {}), ("retrieved", {"candidates": [{"revision_id": "a"}]}),
+        ("intent", {}),
+        ("retrieved", {"candidates": [{"revision_id": "a"}]}),
         ("verified", {}),
         ("tool", {"name": "query_dimensions", "arguments": {"revision_id": "a", "fields": ["width"]}}),
         ("tool", {"name": "query_dimensions", "arguments": {"revision_id": "a", "fields": ["width"]}}),
-        ("budget_stop", {"reason": "x"}), ("completed", {"state": "completed"}),
+        ("budget_stop", {"reason": "x"}),
+        ("completed", {"state": "completed"}),
     )
     checks = A.path_checks(events, {"a": "match"}, {"a": "match"}, "react")
     text = " ".join(checks["violations"])
@@ -78,12 +84,32 @@ def test_a_verdict_before_any_lookup_and_a_repeated_lookup_are_violations():
 
 
 def test_the_summary_counts_failure_classes_and_cost_per_mode():
-    base = dict(total=2, state="completed", coverage_before_verdict=1.0, challenger_turn=False, violations=[], stop="plan_stop",
-                model_calls=1, tool_calls=5, model_errors=[], cost_usd=0.004, latency_ms=100.0,
-                actual={"a": "match", "b": "mismatch"}, expected={"a": "match", "b": "mismatch"})
+    base = dict(
+        total=2,
+        state="completed",
+        coverage_before_verdict=1.0,
+        challenger_turn=False,
+        violations=[],
+        stop="plan_stop",
+        model_calls=1,
+        tool_calls=5,
+        model_errors=[],
+        cost_usd=0.004,
+        latency_ms=100.0,
+        actual={"a": "match", "b": "mismatch"},
+        expected={"a": "match", "b": "mismatch"},
+    )
     rows = [
         {**base, "provider": "rules", "mode": "fixed", "family_id": "F1", "correct": 2, "failures": {}, "cost_usd": 0.0},
-        {**base, "provider": "anthropic", "mode": "react", "family_id": "F1", "correct": 1, "failures": {"b": {"class": "not_inspected"}}, "actual": {"a": "match", "b": "unknown"}},
+        {
+            **base,
+            "provider": "anthropic",
+            "mode": "react",
+            "family_id": "F1",
+            "correct": 1,
+            "failures": {"b": {"class": "not_inspected"}},
+            "actual": {"a": "match", "b": "unknown"},
+        },
         {**base, "provider": "anthropic", "mode": "react", "family_id": "F1", "correct": 2, "failures": {}, "coverage_before_verdict": 0.8},
     ]
     s = A.summarise(rows, A.Ledger(Decimal("0.5")))
@@ -93,9 +119,18 @@ def test_the_summary_counts_failure_classes_and_cost_per_mode():
 
 
 def test_a_provider_that_refuses_the_first_call_stops_the_batch_and_a_real_run_does_not():
-    refused = {"provider": "anthropic", "state": "failed", "model_calls": 1, "input_tokens": 0, "output_tokens": 0,
-               "error": "AnthropicInvalidRequestError: Error code: 400 - credit balance is too low"}
+    refused = {
+        "provider": "anthropic",
+        "state": "failed",
+        "model_calls": 1,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "error": "AnthropicInvalidRequestError: Error code: 400 - credit balance is too low",
+    }
     assert A.rejected(refused).startswith("provider rejected")
     assert A.rejected({**refused, "provider": "rules"}) is None
     assert A.rejected({**refused, "state": "completed"}) is None
-    assert A.rejected({**refused, "input_tokens": 2012, "output_tokens": 418, "error": "ValueError: model output failed schema validation"}) is None
+    assert (
+        A.rejected({**refused, "input_tokens": 2012, "output_tokens": 418, "error": "ValueError: model output failed schema validation"})
+        is None
+    )

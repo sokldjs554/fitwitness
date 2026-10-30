@@ -20,16 +20,9 @@ class BudgetTracker:
             raise RuntimeError("실행 시간 예산 초과")
         if not resources:
             return
-        if (
-            self.usage.input_tokens
-            + self.usage.output_tokens
-            + self.usage.reserved_tokens
-            >= self.budget.max_tokens
-        ):
+        if self.usage.input_tokens + self.usage.output_tokens + self.usage.reserved_tokens >= self.budget.max_tokens:
             raise BudgetExhausted("토큰 예산 초과")
-        if (
-            self.usage.cost_usd or 0
-        ) + self.usage.reserved_cost_usd >= self.budget.max_cost_usd:
+        if (self.usage.cost_usd or 0) + self.usage.reserved_cost_usd >= self.budget.max_cost_usd:
             raise BudgetExhausted("비용 예산 초과")
 
     def tool(self):
@@ -46,21 +39,11 @@ class BudgetTracker:
         self.usage.model_calls += 1
 
     def reserve(self, input_bound, output_bound, input_rate, output_rate):
-        projected = (
-            Decimal(input_bound) * input_rate + Decimal(output_bound) * output_rate
-        ) / 1000000
-        if (
-            self.usage.cost_usd or 0
-        ) + self.usage.reserved_cost_usd + projected > self.budget.max_cost_usd:
+        projected = (Decimal(input_bound) * input_rate + Decimal(output_bound) * output_rate) / 1000000
+        if (self.usage.cost_usd or 0) + self.usage.reserved_cost_usd + projected > self.budget.max_cost_usd:
             raise BudgetExhausted("비용 예산 초과: 호출 전 차단")
         tokens = input_bound + output_bound
-        if (
-            self.usage.input_tokens
-            + self.usage.output_tokens
-            + self.usage.reserved_tokens
-            + tokens
-            > self.budget.max_tokens
-        ):
+        if self.usage.input_tokens + self.usage.output_tokens + self.usage.reserved_tokens + tokens > self.budget.max_tokens:
             raise BudgetExhausted("토큰 예산 초과: 호출 전 차단")
         self.model()
         self.usage.reserved_cost_usd += projected
@@ -78,7 +61,5 @@ class BudgetTracker:
             self.current_reservation = None
         self.usage.input_tokens += i
         self.usage.output_tokens += o
-        self.usage.cost_usd = (self.usage.cost_usd or Decimal(0)) + (
-            Decimal(i) * input_rate + Decimal(o) * output_rate
-        ) / 1000000
+        self.usage.cost_usd = (self.usage.cost_usd or Decimal(0)) + (Decimal(i) * input_rate + Decimal(o) * output_rate) / 1000000
         self.persist(self.usage)

@@ -26,9 +26,7 @@ _HANGUL = re.compile(r"[가-힣]+")
 # Korean kind names with the particles a query may attach, compiled once: tokenize() runs on
 # every indexed text for every search, and compiling these per token dominated its cost.
 _KOREAN_KINDS = [
-    (name, kind, re.compile(re.escape(name) + r"(?:을|를|이|가|은|는|에|용)?"))
-    for name, kind in KINDS.items()
-    if _HANGUL.fullmatch(name)
+    (name, kind, re.compile(re.escape(name) + r"(?:을|를|이|가|은|는|에|용)?")) for name, kind in KINDS.items() if _HANGUL.fullmatch(name)
 ]
 
 
@@ -70,16 +68,14 @@ def extract_requirements(text: str) -> list[Requirement]:
             )
             covered.append(m.span())
     for m in re.finditer(
-        r"(?<![\d.])\d{1,12}(?:\.\d{1,12})?\s*(?:mm|cm|in|kg|MPa|N|m)(?![a-z])", text, re.I  # bounded and anchored: a long run of digits was quadratic
+        r"(?<![\d.])\d{1,12}(?:\.\d{1,12})?\s*(?:mm|cm|in|kg|MPa|N|m)(?![a-z])",
+        text,
+        re.I,  # bounded and anchored: a long run of digits was quadratic
     ):
         if not any(a <= m.start() and m.end() <= b for a, b in covered):
-            reqs.append(
-                Requirement(field="unparsed_constraint", value=m[0], source_text=m[0])
-            )
+            reqs.append(Requirement(field="unparsed_constraint", value=m[0], source_text=m[0]))
     if re.search(r"이상|이하|초과|미만|제외|아닌|not|except|[<>≤≥±~]", text, re.I):
-        reqs.append(
-            Requirement(field="unparsed_constraint", value=text, source_text=text)
-        )
+        reqs.append(Requirement(field="unparsed_constraint", value=text, source_text=text))
     for key, kind in KINDS.items():
         if key in tokenize(text):
             reqs.append(Requirement(field="kind", value=kind, source_text=key))
@@ -215,31 +211,41 @@ def _search_indexed(scope, request, snapshot, repo, state, encoders, channels, r
     ranked = reciprocal_rank_fusion(rankings)
     exact = set(rankings.get("exact", []))
     ranked.sort(key=lambda kv: (kv[0] not in exact, -scores[kv[0]].get("exact", 0.0), -kv[1], kv[0]))
-    pool = ranked[: max(20, request.top_k) if request.ranking != 'rrf' else request.top_k]
-    if request.ranking == 'constraints':
+    pool = ranked[: max(20, request.top_k) if request.ranking != "rrf" else request.top_k]
+    if request.ranking == "constraints":
         from fitwitness.retrieval.reranking import widen_pool
+
         stated = requirements_for(request)
         kinds = state.kind_by_id()
         pool = widen_pool(ranked, kinds, {str(r.value) for r in stated if r.field == "kind" and r.required}, max(20, request.top_k))
     facts = repo.load_facts_many(scope, [rid for rid, _ in pool])
     candidates = [Candidate(revision_id=rid, scores={**scores[rid], "rrf": score}, facts=facts[rid]) for rid, score in pool]
-    if request.ranking == 'constraints':
+    if request.ranking == "constraints":
         from fitwitness.retrieval.reranking import order_constraints
+
         candidates = order_constraints(candidates, stated, snapshot.id, kinds=kinds)
-    elif request.ranking == 'cross_encoder' and request.text.strip() and candidates:
+    elif request.ranking == "cross_encoder" and request.text.strip() and candidates:
         from fitwitness.retrieval.reranking import order_cross_encoder, configured_reranker
         from fitwitness.retrieval.indexing import document_text
+
         revisions = {r.id: r for r in repo.revisions_many(scope, [c.revision_id for c in candidates])}
         passages = {c.revision_id: document_text(revisions[c.revision_id], facts[c.revision_id]) for c in candidates}
         candidates = order_cross_encoder(candidates, request.text, passages, reranker or configured_reranker())
     if repo.snapshot(scope).id != snapshot.id:
         raise ValueError("search snapshot changed during retrieval")
-    return candidates if return_pool else candidates[:request.top_k]
+    return candidates if return_pool else candidates[: request.top_k]
 
 
 def search(
-    scope, request: SearchRequest, snapshot, repo, encoders=None, channels=None, reranker=None,
-    id_matching: str = "normalized", return_pool: bool = False,
+    scope,
+    request: SearchRequest,
+    snapshot,
+    repo,
+    encoders=None,
+    channels=None,
+    reranker=None,
+    id_matching: str = "normalized",
+    return_pool: bool = False,
 ) -> list[Candidate]:
     """Hybrid search over the active snapshot.
 
@@ -251,8 +257,7 @@ def search(
     channels = {"exact", "bm25"} if channels is None else channels
     corpus_state = getattr(repo, "corpus_state", None)
     if corpus_state is not None:
-        return _search_indexed(scope, request, snapshot, repo, corpus_state(scope), encoders, channels, reranker,
-                               id_matching, return_pool)
+        return _search_indexed(scope, request, snapshot, repo, corpus_state(scope), encoders, channels, reranker, id_matching, return_pool)
     corpus = getattr(repo, "corpus", None)
     if corpus is not None:
         # Staleness check, revisions and facts in one connection.
@@ -267,6 +272,7 @@ def search(
         if encoders is None:
             raise ValueError("dense index encoders are not configured")
         from fitwitness.retrieval.indexing import require_index
+
         require_index(scope, snapshot, repo, encoders)
     allowed = set(snapshot.revision_ids)
     if revisions is None:
@@ -277,14 +283,7 @@ def search(
     if not revisions:
         return []
     texts = [
-        r.title
-        + " "
-        + r.drawing_number
-        + " "
-        + r.kind
-        + " "
-        + " ".join(f"{f.field} {f.value}" for f in facts[r.id])
-        for r in revisions
+        r.title + " " + r.drawing_number + " " + r.kind + " " + " ".join(f"{f.field} {f.value}" for f in facts[r.id]) for r in revisions
     ]
     rankings = {}
     scores = defaultdict(dict)
@@ -310,9 +309,7 @@ def search(
     if "bm25" in channels and tokens:
         vals = BM25Okapi([tokenize(t) or ["_"] for t in texts]).get_scores(tokens)
         ordered = sorted(zip(revisions, vals), key=lambda rv: (-rv[1], rv[0].id))
-        matched = {
-            r.id for r, t in zip(revisions, texts) if set(tokens) & set(tokenize(t))
-        }
+        matched = {r.id for r, t in zip(revisions, texts) if set(tokens) & set(tokenize(t))}
         rankings["bm25"] = [r.id for r, v in ordered if r.id in matched][:50]
         for r, v in ordered:
             if r.id in matched:
@@ -340,27 +337,25 @@ def search(
     # Explicit IDs remain the first results, not arbitrary prefix matches.
     exact = set(rankings.get("exact", []))
     ranked.sort(key=lambda kv: (kv[0] not in exact, -scores[kv[0]].get("exact", 0.0), -kv[1], kv[0]))
-    pool = ranked[: max(20, request.top_k) if request.ranking != 'rrf' else request.top_k]
-    if request.ranking == 'constraints':
+    pool = ranked[: max(20, request.top_k) if request.ranking != "rrf" else request.top_k]
+    if request.ranking == "constraints":
         from fitwitness.retrieval.reranking import widen_pool
+
         stated = requirements_for(request)
         kinds = {r.id: r.kind for r in revisions}
         # A stated part kind brings candidates of that kind from deeper in the fused ranking into the pool.
         pool = widen_pool(ranked, kinds, {str(r.value) for r in stated if r.field == "kind" and r.required}, max(20, request.top_k))
-    candidates = [
-        Candidate(
-            revision_id=rid, scores={**scores[rid], "rrf": score}, facts=facts[rid]
-        )
-        for rid, score in pool
-    ]
-    if request.ranking == 'constraints':
+    candidates = [Candidate(revision_id=rid, scores={**scores[rid], "rrf": score}, facts=facts[rid]) for rid, score in pool]
+    if request.ranking == "constraints":
         from fitwitness.retrieval.reranking import order_constraints
-        candidates=order_constraints(candidates,stated,snapshot.id,kinds=kinds)
-    elif request.ranking == 'cross_encoder' and request.text.strip() and candidates:
+
+        candidates = order_constraints(candidates, stated, snapshot.id, kinds=kinds)
+    elif request.ranking == "cross_encoder" and request.text.strip() and candidates:
         from fitwitness.retrieval.reranking import order_cross_encoder, configured_reranker
         from fitwitness.retrieval.indexing import document_text
-        passages={r.id:document_text(r,facts[r.id]) for r in revisions}
-        candidates=order_cross_encoder(candidates,request.text,passages,reranker or configured_reranker())
+
+        passages = {r.id: document_text(r, facts[r.id]) for r in revisions}
+        candidates = order_cross_encoder(candidates, request.text, passages, reranker or configured_reranker())
     if repo.snapshot(scope).id != snapshot.id:
         raise ValueError("search snapshot changed during retrieval")
-    return candidates if return_pool else candidates[:request.top_k]
+    return candidates if return_pool else candidates[: request.top_k]

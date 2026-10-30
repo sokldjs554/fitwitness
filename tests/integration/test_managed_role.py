@@ -1,4 +1,5 @@
 """Managed Postgres grants ADMIN to a role creator, not necessarily SET."""
+
 import os
 from uuid import uuid4
 import psycopg

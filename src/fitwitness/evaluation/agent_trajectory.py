@@ -63,9 +63,17 @@ def family_cases(root: Path, split: str = "test") -> list[dict]:
                 expected[e["id"]] = "unknown"
             else:
                 expected[e["id"]] = "match"
-        cases.append({"family_id": family, "kind": base["kind"], "dimension": dimension, "need": need,
-                      "query": f"{KIND_WORD[base['kind']]} {DIMENSION_WORD[dimension]} {need}mm SUS304",
-                      "revision_ids": [e["id"] for e in entries], "expected": expected})
+        cases.append(
+            {
+                "family_id": family,
+                "kind": base["kind"],
+                "dimension": dimension,
+                "need": need,
+                "query": f"{KIND_WORD[base['kind']]} {DIMENSION_WORD[dimension]} {need}mm SUS304",
+                "revision_ids": [e["id"] for e in entries],
+                "expected": expected,
+            }
+        )
     return cases
 
 
@@ -129,8 +137,11 @@ def path_checks(events: list[dict], expected: dict[str, str], actual: dict[str, 
         got = actual.get(rid)
         if got == want:
             continue
-        failures[rid] = {"expected": want, "actual": got,
-                         "class": "run_incomplete" if got is None else "not_inspected" if rid not in looked_up else "inspected_wrong"}
+        failures[rid] = {
+            "expected": want,
+            "actual": got,
+            "class": "run_incomplete" if got is None else "not_inspected" if rid not in looked_up else "inspected_wrong",
+        }
     return {
         "retrieved": len(retrieved_ids),
         "coverage_before_verdict": round(len(looked_up_before & set(retrieved_ids)) / len(retrieved_ids), 3) if retrieved_ids else None,
@@ -155,13 +166,29 @@ def _row(case: dict, mode: str, provider: str, view, events: list[dict], latency
     actual = {d.revision_id: d.verdict.value if hasattr(d.verdict, "value") else d.verdict for d in view.decisions}
     checks = path_checks(events, case["expected"], actual, mode if provider != "rules" else "rules", view.state)
     usage = view.usage
-    return {"family_id": case["family_id"], "kind": case["kind"], "query": case["query"], "mode": mode, "provider": provider,
-            "run_id": view.id, "state": view.state, "error": error, "latency_ms": round(latency_ms, 1),
-            "correct": sum(actual.get(r) == v for r, v in case["expected"].items()), "total": len(case["expected"]),
-            "expected": case["expected"], "actual": actual,
-            "model_calls": usage.model_calls, "tool_calls": usage.tool_calls, "input_tokens": usage.input_tokens,
-            "output_tokens": usage.output_tokens, "cost_usd": float(usage.cost_usd or 0), "reserved_left_usd": float(usage.reserved_cost_usd),
-            **checks, "events": events}
+    return {
+        "family_id": case["family_id"],
+        "kind": case["kind"],
+        "query": case["query"],
+        "mode": mode,
+        "provider": provider,
+        "run_id": view.id,
+        "state": view.state,
+        "error": error,
+        "latency_ms": round(latency_ms, 1),
+        "correct": sum(actual.get(r) == v for r, v in case["expected"].items()),
+        "total": len(case["expected"]),
+        "expected": case["expected"],
+        "actual": actual,
+        "model_calls": usage.model_calls,
+        "tool_calls": usage.tool_calls,
+        "input_tokens": usage.input_tokens,
+        "output_tokens": usage.output_tokens,
+        "cost_usd": float(usage.cost_usd or 0),
+        "reserved_left_usd": float(usage.reserved_cost_usd),
+        **checks,
+        "events": events,
+    }
 
 
 def run_one(repo, jobs, root: Path, case: dict, request: RunRequest) -> dict:
@@ -200,14 +227,30 @@ def summarise(rows: list[dict], ledger: Ledger | None) -> dict:
         done = [r for r in group if r["state"] == "completed"]
         verdicts = sum(r["total"] for r in group)
         by_mode[mode] = {
-            "runs": len(group), "completed": len(done),
+            "runs": len(group),
+            "completed": len(done),
             "accuracy": round(sum(r["correct"] for r in group) / verdicts, 4) if verdicts else None,
-            "agreement_with_rules": round(mean(sum(r["actual"].get(k) == rules[r["family_id"]]["actual"].get(k) for k in r["expected"]) / r["total"]
-                                              for r in group if r["family_id"] in rules), 4) if rules and group else None,
-            "coverage_before_verdict": round(mean(r["coverage_before_verdict"] for r in group if r["coverage_before_verdict"] is not None), 3) if any(r["coverage_before_verdict"] is not None for r in group) else None,
+            "agreement_with_rules": round(
+                mean(
+                    sum(r["actual"].get(k) == rules[r["family_id"]]["actual"].get(k) for k in r["expected"]) / r["total"]
+                    for r in group
+                    if r["family_id"] in rules
+                ),
+                4,
+            )
+            if rules and group
+            else None,
+            "coverage_before_verdict": round(
+                mean(r["coverage_before_verdict"] for r in group if r["coverage_before_verdict"] is not None), 3
+            )
+            if any(r["coverage_before_verdict"] is not None for r in group)
+            else None,
             "challenger_turns": sum(r["challenger_turn"] for r in group),
             "invariant_violations": sum(len(r["violations"]) for r in group),
-            "failure_classes": {c: sum(1 for r in group for f in r["failures"].values() if f["class"] == c) for c in ("not_inspected", "inspected_wrong", "run_incomplete")},
+            "failure_classes": {
+                c: sum(1 for r in group for f in r["failures"].values() if f["class"] == c)
+                for c in ("not_inspected", "inspected_wrong", "run_incomplete")
+            },
             "stops": {s: sum(1 for r in group if r["stop"] == s) for s in sorted({r["stop"] for r in group}, key=str)},
             "model_calls_mean": round(mean(r["model_calls"] for r in group), 2),
             "tool_calls_mean": round(mean(r["tool_calls"] for r in group), 2),
@@ -217,7 +260,11 @@ def summarise(rows: list[dict], ledger: Ledger | None) -> dict:
             "cost_usd": round(sum(r["cost_usd"] for r in group), 6),
             "latency_ms_p50": round(median(r["latency_ms"] for r in group), 1),
         }
-    return {"by_mode": by_mode, "spent_usd": float(ledger.spent) if ledger else 0.0, "ceiling_usd": float(ledger.ceiling) if ledger else 0.0}
+    return {
+        "by_mode": by_mode,
+        "spent_usd": float(ledger.spent) if ledger else 0.0,
+        "ceiling_usd": float(ledger.ceiling) if ledger else 0.0,
+    }
 
 
 def run(args) -> dict:
@@ -238,11 +285,19 @@ def run(args) -> dict:
     modes = [m for m in args.modes.split(",") if m]
     assert set(modes) <= set(MODES), modes
     protocol = {
-        "split": args.split, "families": [c["family_id"] for c in cases], "queries": {c["family_id"]: c["query"] for c in cases},
-        "provider": args.provider, "model": args.model, "modes": modes, "ceiling_usd": str(ceiling), "per_run_cap_usd": str(cap),
+        "split": args.split,
+        "families": [c["family_id"] for c in cases],
+        "queries": {c["family_id"]: c["query"] for c in cases},
+        "provider": args.provider,
+        "model": args.model,
+        "modes": modes,
+        "ceiling_usd": str(ceiling),
+        "per_run_cap_usd": str(cap),
         "budget": {"max_model_calls": 4, "max_tool_calls": 16, "max_tokens": 64000, "deadline_seconds": 240},
-        "pricing_usd_per_million": {"input": os.getenv(f"FITWITNESS_{args.provider.upper()}_INPUT_USD_PER_MILLION"),
-                                    "output": os.getenv(f"FITWITNESS_{args.provider.upper()}_OUTPUT_USD_PER_MILLION")},
+        "pricing_usd_per_million": {
+            "input": os.getenv(f"FITWITNESS_{args.provider.upper()}_INPUT_USD_PER_MILLION"),
+            "output": os.getenv(f"FITWITNESS_{args.provider.upper()}_OUTPUT_USD_PER_MILLION"),
+        },
         "code_sha": git_sha(),
         "module_hash": sha256(Path(__file__).read_bytes()).hexdigest(),
         "started_at": datetime.now(timezone.utc).isoformat(),
@@ -256,34 +311,66 @@ def run(args) -> dict:
         rows.append(row)
         with (out / "runs.jsonl").open("a") as f:
             f.write(json.dumps(row, ensure_ascii=False, default=str) + "\n")
-        print(row["provider"], row["mode"], row["family_id"], row["state"], f"{row['correct']}/{row['total']}",
-              "coverage", row["coverage_before_verdict"], "stop", row["stop"], "cost", row["cost_usd"], flush=True)
+        print(
+            row["provider"],
+            row["mode"],
+            row["family_id"],
+            row["state"],
+            f"{row['correct']}/{row['total']}",
+            "coverage",
+            row["coverage_before_verdict"],
+            "stop",
+            row["stop"],
+            "cost",
+            row["cost_usd"],
+            flush=True,
+        )
 
     for case in cases:  # the reference path, free
-        record(run_one(repo, jobs, root, case, RunRequest(search=SearchRequest(text=case["query"]), provider="rules", budget=Budget(max_tokens=64000))))
+        record(
+            run_one(
+                repo,
+                jobs,
+                root,
+                case,
+                RunRequest(search=SearchRequest(text=case["query"]), provider="rules", budget=Budget(max_tokens=64000)),
+            )
+        )
     for mode in modes:
         for case in cases:
             if stop_reason:
                 skipped.append({"family_id": case["family_id"], "mode": mode, "reason": stop_reason})
                 continue
             if not ledger.fits(cap):
-                skipped.append({"family_id": case["family_id"], "mode": mode, "reason": f"ceiling: spent {ledger.spent} + cap {cap} > {ceiling}"})
+                skipped.append(
+                    {"family_id": case["family_id"], "mode": mode, "reason": f"ceiling: spent {ledger.spent} + cap {cap} > {ceiling}"}
+                )
                 continue
             ledger.reserve(cap)
-            request = RunRequest(search=SearchRequest(text=case["query"]), provider=args.provider, model_id=args.model, mode=mode,
-                                 budget=Budget(max_cost_usd=cap, max_tokens=64000, max_model_calls=4, max_tool_calls=16, deadline_seconds=240))
+            request = RunRequest(
+                search=SearchRequest(text=case["query"]),
+                provider=args.provider,
+                model_id=args.model,
+                mode=mode,
+                budget=Budget(max_cost_usd=cap, max_tokens=64000, max_model_calls=4, max_tool_calls=16, deadline_seconds=240),
+            )
             row = run_one(repo, jobs, root, case, request)
             row["charged_usd"] = float(ledger.settle(cap, Charged(Decimal(str(row["cost_usd"])), Decimal(str(row["reserved_left_usd"])))))
             record(row)
             stop_reason = rejected(row)
-    report = {"status": "measured" if any(r["provider"] != "rules" and r["state"] == "completed" for r in rows) else "not measured",
-              "stopped": stop_reason, "protocol": protocol, "summary": summarise(rows, ledger), "skipped": skipped,
-              "rows": [{k: v for k, v in r.items() if k != "events"} for r in rows],
-              "limitations": [
-                  "합성 도면 test split 6개 family, family마다 질의 하나, 모드마다 한 번 실행입니다. 반복이 없어 모델의 변동은 보지 못합니다.",
-                  "판정은 결정적 검증기가 내리고 모델은 어떤 도구를 언제 부를지와 멈출 때만 고릅니다. 정확도는 모델의 판단력이 아니라 경로의 충분함을 잽니다.",
-                  "검색은 도번·BM25 채널만 쓰고, 한 family의 도면 다섯 장만 색인된 작업 공간입니다.",
-              ]}
+    report = {
+        "status": "measured" if any(r["provider"] != "rules" and r["state"] == "completed" for r in rows) else "not measured",
+        "stopped": stop_reason,
+        "protocol": protocol,
+        "summary": summarise(rows, ledger),
+        "skipped": skipped,
+        "rows": [{k: v for k, v in r.items() if k != "events"} for r in rows],
+        "limitations": [
+            "합성 도면 test split 6개 family, family마다 질의 하나, 모드마다 한 번 실행입니다. 반복이 없어 모델의 변동은 보지 못합니다.",
+            "판정은 결정적 검증기가 내리고 모델은 어떤 도구를 언제 부를지와 멈출 때만 고릅니다. 정확도는 모델의 판단력이 아니라 경로의 충분함을 잽니다.",
+            "검색은 도번·BM25 채널만 쓰고, 한 family의 도면 다섯 장만 색인된 작업 공간입니다.",
+        ],
+    }
     (out / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str))
     return report
 
@@ -291,7 +378,11 @@ def run(args) -> dict:
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
-    p.add_argument("--model", default=None, help="the provider's model id (default: Claude Haiku 4.5 for anthropic, FITWITNESS_OPENAI_MODEL for openai)")
+    p.add_argument(
+        "--model",
+        default=None,
+        help="the provider's model id (default: Claude Haiku 4.5 for anthropic, FITWITNESS_OPENAI_MODEL for openai)",
+    )
     p.add_argument("--modes", default=",".join(MODES))
     p.add_argument("--max-cost-usd", type=float, required=True, help="hard ceiling for the whole run")
     p.add_argument("--per-run-usd", type=float, default=0.04, help="budget of one graph run; reserved before it starts")
@@ -300,7 +391,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--families", nargs="*")
     p.add_argument("--output", required=True)
     args = p.parse_args(argv)
-    args.model = args.model or ("claude-haiku-4-5-20251001" if args.provider == "anthropic" else os.environ.get("FITWITNESS_OPENAI_MODEL", ""))
+    args.model = args.model or (
+        "claude-haiku-4-5-20251001" if args.provider == "anthropic" else os.environ.get("FITWITNESS_OPENAI_MODEL", "")
+    )
     assert args.model, "no model id: pass --model or set FITWITNESS_OPENAI_MODEL"
     assert 0 < args.max_cost_usd <= 1.0, "the ceiling is at most 1 USD"
     assert 0 < args.per_run_usd <= 0.1

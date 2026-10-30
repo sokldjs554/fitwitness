@@ -102,16 +102,26 @@ def to_requirements(understood: UnderstoodQuery, query: str) -> tuple[list[Requi
         if interval.low > interval.high:
             dropped.append({"field": c.field, "value": [c.low, c.high], "quote": c.quote, "reason": "inverted"})
             continue
-        reqs.append(Requirement(field=c.field, operator="eq" if interval.low == interval.high else "range", value=interval, unit=c.unit, source_text=c.quote))
+        reqs.append(
+            Requirement(
+                field=c.field, operator="eq" if interval.low == interval.high else "range", value=interval, unit=c.unit, source_text=c.quote
+            )
+        )
     if understood.material:
         if grounded(understood.material_quote, query):
-            reqs.append(Requirement(field="material", value=re.sub(r"\s+", "", understood.material).upper(), source_text=understood.material_quote))
+            reqs.append(
+                Requirement(field="material", value=re.sub(r"\s+", "", understood.material).upper(), source_text=understood.material_quote)
+            )
         else:
-            dropped.append({"field": "material", "value": understood.material, "quote": understood.material_quote, "reason": "quote not in query"})
+            dropped.append(
+                {"field": "material", "value": understood.material, "quote": understood.material_quote, "reason": "quote not in query"}
+            )
     for material, quote in zip(understood.excluded_materials, understood.excluded_quotes + [""] * len(understood.excluded_materials)):
         if grounded(quote, query):
             # Not a condition the verifier can check (it has no negation); kept, unrequired, so the trace shows it.
-            reqs.append(Requirement(field="excluded_material", value=re.sub(r"\s+", "", material).upper(), required=False, source_text=quote))
+            reqs.append(
+                Requirement(field="excluded_material", value=re.sub(r"\s+", "", material).upper(), required=False, source_text=quote)
+            )
         else:
             dropped.append({"field": "excluded_material", "value": material, "quote": quote, "reason": "quote not in query"})
     return reqs, dropped
@@ -122,7 +132,11 @@ def merge(rules: list[Requirement], proposed: list[Requirement]) -> tuple[list[R
     kept = list(rules)
     added, replaced, disagreements = [], [], []
     for p in proposed:
-        covering = [r for r in kept if r.source_text and _norm(r.source_text) in _norm(p.source_text) and r.field in (p.field, "unparsed_constraint", "material")]
+        covering = [
+            r
+            for r in kept
+            if r.source_text and _norm(r.source_text) in _norm(p.source_text) and r.field in (p.field, "unparsed_constraint", "material")
+        ]
         if p.field == "excluded_material":
             # "AL6061 말고": the rules' material pattern may have read the excluded material as the wanted one.
             for r in covering:

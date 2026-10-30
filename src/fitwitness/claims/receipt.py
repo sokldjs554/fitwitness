@@ -30,15 +30,29 @@ def signing_key(secret: bytes) -> bytes:
 
 
 def _message(tenant_id: str, run_id: str, claim_id: str, answer: ClaimReview, step: int, decided_at: str, prev: str) -> bytes:
-    return json.dumps({
-        "tenant": tenant_id, "run": run_id, "claim": claim_id, "step": step, "reviewer": answer.reviewer,
-        "outcome": answer.outcome, "total_amount": answer.total_amount, "note": answer.note, "decided_at": decided_at, "prev": prev,
-        **({"account": answer.account} if answer.account else {}),  # absent, not null, so receipts from before accounts still verify
-    }, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+    return json.dumps(
+        {
+            "tenant": tenant_id,
+            "run": run_id,
+            "claim": claim_id,
+            "step": step,
+            "reviewer": answer.reviewer,
+            "outcome": answer.outcome,
+            "total_amount": answer.total_amount,
+            "note": answer.note,
+            "decided_at": decided_at,
+            "prev": prev,
+            **({"account": answer.account} if answer.account else {}),  # absent, not null, so receipts from before accounts still verify
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode()
 
 
-def sign(key: bytes, tenant_id: str, run_id: str, claim_id: str, answer: ClaimReview, *, step: int, prev: str = "",
-         now: datetime | None = None) -> ApprovalReceipt:
+def sign(
+    key: bytes, tenant_id: str, run_id: str, claim_id: str, answer: ClaimReview, *, step: int, prev: str = "", now: datetime | None = None
+) -> ApprovalReceipt:
     decided_at = (now or datetime.now(timezone.utc)).isoformat()
     signature = hmac.new(key, _message(tenant_id, run_id, claim_id, answer, step, decided_at, prev), hashlib.sha256).hexdigest()
     return ApprovalReceipt(step=step, decided_at=decided_at, prev=prev, signature=signature, key_id=sha256(key).hexdigest()[:8])
@@ -55,11 +69,21 @@ def verify(key: bytes, tenant_id: str, run_id: str, claim_id: str, answers: list
             rows.append({"reviewer": answer.reviewer, "outcome": answer.outcome, "status": "unsigned"})
             previous = ""
             continue
-        expected = hmac.new(key, _message(tenant_id, run_id, claim_id, answer, receipt.step, receipt.decided_at, receipt.prev),
-                            hashlib.sha256).hexdigest()
+        expected = hmac.new(
+            key, _message(tenant_id, run_id, claim_id, answer, receipt.step, receipt.decided_at, receipt.prev), hashlib.sha256
+        ).hexdigest()
         intact = hmac.compare_digest(expected, receipt.signature)
         chained = receipt.prev == previous
-        rows.append({"reviewer": answer.reviewer, "account": answer.account, "outcome": answer.outcome, "step": receipt.step, "decided_at": receipt.decided_at,
-                     "key_id": receipt.key_id, "status": "valid" if intact and chained else ("altered" if not intact else "out_of_order")})
+        rows.append(
+            {
+                "reviewer": answer.reviewer,
+                "account": answer.account,
+                "outcome": answer.outcome,
+                "step": receipt.step,
+                "decided_at": receipt.decided_at,
+                "key_id": receipt.key_id,
+                "status": "valid" if intact and chained else ("altered" if not intact else "out_of_order"),
+            }
+        )
         previous = receipt.signature
     return rows

@@ -39,7 +39,12 @@ from fitwitness.contracts import Budget, RunRequest, TenantScope
 from fitwitness.evaluation.agent_trajectory import Ledger, rejected
 
 DEFAULT_CASES = ["CLM-00000", "CLM-00002"]  # two claims the rules path pays in full: a remark that moves money shows there
-CHALLENGE_RULES = {"unevidenced_line_item": "R-CHAL-01", "ungrounded_decisive_field": "R-CHAL-02", "model_audit": "R-AUD-01", "review_requested": "R-REV-00"}
+CHALLENGE_RULES = {
+    "unevidenced_line_item": "R-CHAL-01",
+    "ungrounded_decisive_field": "R-CHAL-02",
+    "model_audit": "R-AUD-01",
+    "review_requested": "R-REV-00",
+}
 SUMMARY_KEYS = ("fields_changed", "decision_changed", "sent_to_review", "unsafe_change", "wrong_pay", "wrong_deny")
 
 
@@ -51,8 +56,9 @@ def scope_for(case_id: str, kind: str) -> TenantScope:
 def seed(repo, scope: TenantScope, case: dict, docs: list[tuple[str, str, bytes]]) -> dict:
     """The twin's case row and document bytes, as the API would have stored an upload."""
     issued = {d["id"]: d["issued_at"] for d in case["documents"]}
-    rows = [{"id": i, "case_id": case["case_id"], "kind": k, "issued_at": issued.get(i, case["submitted_at"]), "pages": 1}
-            for i, k, _ in docs]
+    rows = [
+        {"id": i, "case_id": case["case_id"], "kind": k, "issued_at": issued.get(i, case["submitted_at"]), "pages": 1} for i, k, _ in docs
+    ]
     twin = {**case, "documents": rows}
     repo.save_claim_case(scope, twin)
     for row, (_, _, pdf) in zip(rows, docs):
@@ -61,12 +67,23 @@ def seed(repo, scope: TenantScope, case: dict, docs: list[tuple[str, str, bytes]
 
 
 def request_for(case: dict, docs: list[tuple[str, str, bytes]], provider: str, model: str, cap: Decimal) -> RunRequest:
-    claim = ClaimRequest(case_id=case["case_id"], claim_id=case["claim_id"], policy=Policy.model_validate(case["policy"]),
-                         requested=case["requested"], document_ids=[i for i, _, _ in docs], submitted_at=case["submitted_at"])
+    claim = ClaimRequest(
+        case_id=case["case_id"],
+        claim_id=case["claim_id"],
+        policy=Policy.model_validate(case["policy"]),
+        requested=case["requested"],
+        document_ids=[i for i, _, _ in docs],
+        submitted_at=case["submitted_at"],
+    )
     # The extraction is one structured call whose reservation is the prompt's bytes plus the schema; a four-document
     # claim is well over the default token allowance, so the allowance is raised and the money cap does the limiting.
-    return RunRequest(kind="claim", claim=claim.model_dump(mode="json"), provider=provider, model_id=model,
-                      budget=Budget(max_cost_usd=cap, max_model_calls=4, max_tokens=48000, deadline_seconds=180))
+    return RunRequest(
+        kind="claim",
+        claim=claim.model_dump(mode="json"),
+        provider=provider,
+        model_id=model,
+        budget=Budget(max_cost_usd=cap, max_model_calls=4, max_tokens=48000, deadline_seconds=180),
+    )
 
 
 def from_events(events: list[dict]) -> tuple[Extraction, ClaimDecision] | None:
@@ -83,13 +100,17 @@ def from_events(events: list[dict]) -> tuple[Extraction, ClaimDecision] | None:
     outcome = adj["outcome"]
     if "challenged" in by:
         outcome = by["challenged"]["outcome"]
-        reasons += [Reason(rule_id=CHALLENGE_RULES.get(code, "R-CHAL-01"), code=code, severity="review", message=code)
-                    for code in by["challenged"].get("added", [])]
+        reasons += [
+            Reason(rule_id=CHALLENGE_RULES.get(code, "R-CHAL-01"), code=code, severity="review", message=code)
+            for code in by["challenged"].get("added", [])
+        ]
     decision = ClaimDecision(outcome=outcome, line_items=adj.get("line_items", []), total_amount=adj["total_amount"], reasons=reasons)
     return ex, decision
 
 
-def run_one(repo, jobs, scope: TenantScope, case: dict, docs: list[tuple[str, str, bytes]], request: RunRequest) -> tuple[dict, tuple | None, object]:
+def run_one(
+    repo, jobs, scope: TenantScope, case: dict, docs: list[tuple[str, str, bytes]], request: RunRequest
+) -> tuple[dict, tuple | None, object]:
     from fitwitness.agents.graph import execute_run
 
     seed(repo, scope, case, docs)
@@ -105,17 +126,27 @@ def run_one(repo, jobs, scope: TenantScope, case: dict, docs: list[tuple[str, st
     got = from_events(events)
     extracted = next((e["payload"] for e in events if e["kind"] == "extracted"), {}) or {}
     usage = view.usage
-    row = {"run_id": view.id, "tenant": scope.tenant_id, "provider": request.provider, "state": view.state, "error": error,
-           "latency_ms": round((time.perf_counter() - started) * 1000, 1),
-           "model_calls": usage.model_calls, "input_tokens": usage.input_tokens, "output_tokens": usage.output_tokens,
-           "cost_usd": float(usage.cost_usd or 0), "reserved_left_usd": float(usage.reserved_cost_usd),
-           "model_errors": [e["payload"] for e in events if e["kind"] in ("model_error", "model_schema_error")],
-           "repairs": sum(1 for e in events if e["kind"] == "model" and (e["payload"] or {}).get("repair")),
-           "extracted": got[0].model_dump(mode="json", exclude={"evidence", "scanned"}) if got else None,
-           "grounded_fields": sorted((extracted.get("evidence") or {}).keys()),
-           "proposed": extracted.get("proposed"), "dropped": extracted.get("dropped"),
-           "decision": [got[1].outcome, got[1].total_amount, got[1].rule_ids()] if got else None,
-           "events": events}
+    row = {
+        "run_id": view.id,
+        "tenant": scope.tenant_id,
+        "provider": request.provider,
+        "state": view.state,
+        "error": error,
+        "latency_ms": round((time.perf_counter() - started) * 1000, 1),
+        "model_calls": usage.model_calls,
+        "input_tokens": usage.input_tokens,
+        "output_tokens": usage.output_tokens,
+        "cost_usd": float(usage.cost_usd or 0),
+        "reserved_left_usd": float(usage.reserved_cost_usd),
+        "model_errors": [e["payload"] for e in events if e["kind"] in ("model_error", "model_schema_error")],
+        "repairs": sum(1 for e in events if e["kind"] == "model" and (e["payload"] or {}).get("repair")),
+        "extracted": got[0].model_dump(mode="json", exclude={"evidence", "scanned"}) if got else None,
+        "grounded_fields": sorted((extracted.get("evidence") or {}).keys()),
+        "proposed": extracted.get("proposed"),
+        "dropped": extracted.get("dropped"),
+        "decision": [got[1].outcome, got[1].total_amount, got[1].rule_ids()] if got else None,
+        "events": events,
+    }
     return row, got, view
 
 
@@ -130,7 +161,9 @@ def summarise(rows: list[dict]) -> dict:
         for k in SUMMARY_KEYS[1:]:
             c[k] += r[k]
     return {
-        "cases": len({r["case_id"] for r in rows}), "pairs": len(pairs), "incomparable": len(rows) - len(pairs),
+        "cases": len({r["case_id"] for r in rows}),
+        "pairs": len(pairs),
+        "incomparable": len(rows) - len(pairs),
         "fields_changed_pairs": sum(bool(r["fields_changed"]) for r in pairs),
         "decision_changed_pairs": sum(r["decision_changed"] for r in pairs),
         "sent_to_review_pairs": sum(r["sent_to_review"] for r in pairs),
@@ -145,8 +178,18 @@ def summarise(rows: list[dict]) -> dict:
     }
 
 
-def evaluate(repo, jobs, root: Path, *, provider: str, model: str, ceiling: Decimal, cap: Decimal,
-             cases: list[str] | None = None, kinds: list[str] | None = None) -> dict:
+def evaluate(
+    repo,
+    jobs,
+    root: Path,
+    *,
+    provider: str,
+    model: str,
+    ceiling: Decimal,
+    cap: Decimal,
+    cases: list[str] | None = None,
+    kinds: list[str] | None = None,
+) -> dict:
     from fitwitness.claims.evaluate import decide
 
     manifest = json.loads((root / "manifest.json").read_text())
@@ -193,25 +236,55 @@ def evaluate(repo, jobs, root: Path, *, provider: str, model: str, ceiling: Deci
                 if model_clean and model_inj:
                     p0, p1 = clean_row.get("proposed") or {}, row.get("proposed") or {}
                     moved = sorted(f for f in set(p0) | set(p1) if p0.get(f) != p1.get(f))
-                    model_rows.append({"path": "model", **compare(case, g["gold"], (*model_clean, 0.0), (*model_inj, 0.0), kind),
-                                       "clean_run_id": clean_row["run_id"], "run_id": row["run_id"],
-                                       "model_clean_matches_rules_clean": (model_clean[1].outcome, model_clean[1].total_amount)
-                                       == (rules_clean[1].outcome, rules_clean[1].total_amount),
-                                       "grounded_fields": row["grounded_fields"],
-                                       # the remark's effect on the model itself, before grounding: what it proposed differently
-                                       "proposed_changed": moved, "proposed_values": {f: [p0.get(f), p1.get(f)] for f in moved},
-                                       "dropped_by_grounding": [clean_row.get("dropped") or [], row.get("dropped") or []]})
+                    model_rows.append(
+                        {
+                            "path": "model",
+                            **compare(case, g["gold"], (*model_clean, 0.0), (*model_inj, 0.0), kind),
+                            "clean_run_id": clean_row["run_id"],
+                            "run_id": row["run_id"],
+                            "model_clean_matches_rules_clean": (model_clean[1].outcome, model_clean[1].total_amount)
+                            == (rules_clean[1].outcome, rules_clean[1].total_amount),
+                            "grounded_fields": row["grounded_fields"],
+                            # the remark's effect on the model itself, before grounding: what it proposed differently
+                            "proposed_changed": moved,
+                            "proposed_values": {f: [p0.get(f), p1.get(f)] for f in moved},
+                            "dropped_by_grounding": [clean_row.get("dropped") or [], row.get("dropped") or []],
+                        }
+                    )
                 else:
-                    model_rows.append({"path": "model", "case_id": case["case_id"], "scenario": case["scenario"], "kind": kind,
-                                       "incomparable": "clean run has no decision" if not model_clean else
-                                                       "injected run has no decision" if row else "skipped under the ceiling",
-                                       "clean_run_id": clean_row["run_id"] if clean_row else None, "run_id": row["run_id"] if row else None})
-    return {"summary": {"model": summarise(model_rows), "rules": summarise(rules_rows),
-                        "spent_usd": float(ledger.spent), "ceiling_usd": float(ceiling), "runs": len(runs),
-                        "completed": sum(r["state"] == "completed" for r in runs), "waiting_input": sum(r["state"] == "waiting_input" for r in runs),
-                        "failed": sum(r["state"] not in ("completed", "waiting_input") for r in runs),
-                        "model_errors": sum(len(r["model_errors"]) for r in runs), "repairs": sum(r["repairs"] for r in runs)},
-            "rows": model_rows + rules_rows, "runs": runs, "skipped": skipped, "stopped": stopped}
+                    model_rows.append(
+                        {
+                            "path": "model",
+                            "case_id": case["case_id"],
+                            "scenario": case["scenario"],
+                            "kind": kind,
+                            "incomparable": "clean run has no decision"
+                            if not model_clean
+                            else "injected run has no decision"
+                            if row
+                            else "skipped under the ceiling",
+                            "clean_run_id": clean_row["run_id"] if clean_row else None,
+                            "run_id": row["run_id"] if row else None,
+                        }
+                    )
+    return {
+        "summary": {
+            "model": summarise(model_rows),
+            "rules": summarise(rules_rows),
+            "spent_usd": float(ledger.spent),
+            "ceiling_usd": float(ceiling),
+            "runs": len(runs),
+            "completed": sum(r["state"] == "completed" for r in runs),
+            "waiting_input": sum(r["state"] == "waiting_input" for r in runs),
+            "failed": sum(r["state"] not in ("completed", "waiting_input") for r in runs),
+            "model_errors": sum(len(r["model_errors"]) for r in runs),
+            "repairs": sum(r["repairs"] for r in runs),
+        },
+        "rows": model_rows + rules_rows,
+        "runs": runs,
+        "skipped": skipped,
+        "stopped": stopped,
+    }
 
 
 def _sha() -> str | None:
@@ -228,9 +301,17 @@ def main(argv: list[str] | None = None) -> int:
     from fitwitness.storage.repository import Repository
 
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--provider", choices=["anthropic", "openai", "rules"], default="anthropic",
-                   help="rules runs the same harness without a model (free): the clean and injected prints then differ only by what the rules reader does")
-    p.add_argument("--model", default=None, help="the provider's model id (default: Claude Haiku 4.5 for anthropic, FITWITNESS_OPENAI_MODEL for openai)")
+    p.add_argument(
+        "--provider",
+        choices=["anthropic", "openai", "rules"],
+        default="anthropic",
+        help="rules runs the same harness without a model (free): the clean and injected prints then differ only by what the rules reader does",
+    )
+    p.add_argument(
+        "--model",
+        default=None,
+        help="the provider's model id (default: Claude Haiku 4.5 for anthropic, FITWITNESS_OPENAI_MODEL for openai)",
+    )
     p.add_argument("--root", default="var/claims")
     p.add_argument("--cases", nargs="*", default=None, help=f"case ids (default {' '.join(DEFAULT_CASES)})")
     p.add_argument("--kinds", nargs="*", default=None, choices=list(KINDS))
@@ -243,27 +324,49 @@ def main(argv: list[str] | None = None) -> int:
     if args.provider == "rules":
         args.model = args.model or ""
     else:
-        args.model = args.model or ("claude-haiku-4-5-20251001" if args.provider == "anthropic" else os.environ.get("FITWITNESS_OPENAI_MODEL", ""))
+        args.model = args.model or (
+            "claude-haiku-4-5-20251001" if args.provider == "anthropic" else os.environ.get("FITWITNESS_OPENAI_MODEL", "")
+        )
         assert args.model, "no model id: pass --model or set FITWITNESS_OPENAI_MODEL"
     ceiling, cap = Decimal(str(args.max_cost_usd)), Decimal(str(args.per_run_usd))
     repo = Repository(os.environ["FITWITNESS_DATABASE_URL"])
     jobs = Jobs(repo)
     started = datetime.now(timezone.utc)
-    report = evaluate(repo, jobs, Path(args.root), provider=args.provider, model=args.model, ceiling=ceiling, cap=cap,
-                      cases=args.cases, kinds=args.kinds)
+    report = evaluate(
+        repo, jobs, Path(args.root), provider=args.provider, model=args.model, ceiling=ceiling, cap=cap, cases=args.cases, kinds=args.kinds
+    )
     prefix = f"FITWITNESS_{args.provider.upper()}"
     report["protocol"] = {
-        "code_sha": _sha(), "started_at": started.isoformat(), "provider": args.provider, "model": args.model,
-        "cases": args.cases or DEFAULT_CASES, "kinds": args.kinds or list(KINDS), "ceiling_usd": str(ceiling), "per_run_cap_usd": str(cap),
-        "pricing_usd_per_million": {"input": os.getenv(f"{prefix}_INPUT_USD_PER_MILLION"), "output": os.getenv(f"{prefix}_OUTPUT_USD_PER_MILLION")},
+        "code_sha": _sha(),
+        "started_at": started.isoformat(),
+        "provider": args.provider,
+        "model": args.model,
+        "cases": args.cases or DEFAULT_CASES,
+        "kinds": args.kinds or list(KINDS),
+        "ceiling_usd": str(ceiling),
+        "per_run_cap_usd": str(cap),
+        "pricing_usd_per_million": {
+            "input": os.getenv(f"{prefix}_INPUT_USD_PER_MILLION"),
+            "output": os.getenv(f"{prefix}_OUTPUT_USD_PER_MILLION"),
+        },
         "comparison": "each injected print against the clean print of the same path (model vs model, rules vs rules); gold only says whether the clean print was right",
     }
     out = Path(args.output)
     out.mkdir(parents=True, exist_ok=True)
     (out / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1, default=str))
     s = report["summary"]
-    print("== claims-injection-model spent", s["spent_usd"], "ceiling", s["ceiling_usd"], "runs", s["runs"], "skipped", len(report["skipped"]),
-          "stopped", report["stopped"])
+    print(
+        "== claims-injection-model spent",
+        s["spent_usd"],
+        "ceiling",
+        s["ceiling_usd"],
+        "runs",
+        s["runs"],
+        "skipped",
+        len(report["skipped"]),
+        "stopped",
+        report["stopped"],
+    )
     print("== model", json.dumps({k: v for k, v in s["model"].items() if k != "by_kind"}, ensure_ascii=False))
     print("== rules", json.dumps({k: v for k, v in s["rules"].items() if k != "by_kind"}, ensure_ascii=False))
     return 0

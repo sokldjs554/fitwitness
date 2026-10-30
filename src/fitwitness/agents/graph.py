@@ -69,9 +69,7 @@ def checkpointer(dsn: str):
         yield PostgresSaver(conn)
 
 
-def execute_run(
-    repo, scope, run_id, *, encoders=None, fault_after_retrieval=False, lease_token=None
-):
+def execute_run(repo, scope, run_id, *, encoders=None, fault_after_retrieval=False, lease_token=None):
     ensure_checkpointer(repo.dsn)
     # A per-run DB session lock spans every model call and checkpoint write.
     # Another production worker cannot claim this run while the process is alive.
@@ -98,9 +96,7 @@ def execute_run(
             )
 
 
-def _execute_run(
-    repo, scope, run_id, *, encoders=None, fault_after_retrieval=False, lease_token=None
-):
+def _execute_run(repo, scope, run_id, *, encoders=None, fault_after_retrieval=False, lease_token=None):
     jobs = Jobs(repo)
     if not jobs.raw(scope, run_id):
         return
@@ -126,13 +122,12 @@ def _execute_run(
         budget = BudgetTracker(request.budget)
         budget.usage = Usage.model_validate(raw["usage"])
     except Exception as exc:
-        jobs.fail(scope, run_id, token, f"실행 준비 실패: {type(exc).__name__}: {str(exc)[:300]}",
-                  retryable=not isinstance(exc, ValueError))
+        jobs.fail(
+            scope, run_id, token, f"실행 준비 실패: {type(exc).__name__}: {str(exc)[:300]}", retryable=not isinstance(exc, ValueError)
+        )
         raise
     # Deadline counts from creation, minus the time the run spent parked for a retry or a reviewer.
-    budget.start -= max(
-        0, (datetime.now(timezone.utc) - raw["created_at"]).total_seconds() - float(raw.get("waited_seconds") or 0)
-    )
+    budget.start -= max(0, (datetime.now(timezone.utc) - raw["created_at"]).total_seconds() - float(raw.get("waited_seconds") or 0))
     budget.persist = lambda usage: jobs.save_usage(scope, run_id, token, usage)
     stop = threading.Event()
     lost = threading.Event()
@@ -144,16 +139,13 @@ def _execute_run(
     try:
         if encoders is None:
             from fitwitness.retrieval.embeddings import configured_encoders
+
             encoders = configured_encoders()
         if snapshot.id != raw["snapshot_id"]:
             jobs.finalize(scope, run_id, raw["snapshot_id"], [], token)
             return
         tools = EvidenceTools(scope, snapshot, repo, budget, encoders, run_id=run_id, facts=facts)
-        model = (
-            create_model(request.provider, request.model_id, budget)
-            if request.provider != "rules"
-            else None
-        )
+        model = create_model(request.provider, request.model_id, budget) if request.provider != "rules" else None
 
         def guard(check_budget=True):
             budget.check(resources=check_budget)
@@ -164,7 +156,7 @@ def _execute_run(
             model.guard = guard
             model.emit = emit
             # Operator opt-in; anonymous rules demo cannot invoke vision.
-            if os.getenv('FITWITNESS_VISION','off') == 'enabled':
+            if os.getenv("FITWITNESS_VISION", "off") == "enabled":
                 tools.vision = model
 
         def intent(state):
@@ -177,8 +169,16 @@ def _execute_run(
 
                 proposed, dropped, meta = understand(model, request.search.text)
                 reqs, changes = merge(reqs, proposed)
-                emit("understood", {**changes, "dropped": dropped, "proposed": meta.get("proposed"),
-                                    "usage": meta.get("usage"), "latency_ms": meta.get("latency_ms")})
+                emit(
+                    "understood",
+                    {
+                        **changes,
+                        "dropped": dropped,
+                        "proposed": meta.get("proposed"),
+                        "usage": meta.get("usage"),
+                        "latency_ms": meta.get("latency_ms"),
+                    },
+                )
             emit("intent", {"requirements": [r.model_dump(mode="json") for r in reqs]})
             return {
                 "requirements": [r.model_dump(mode="json") for r in reqs],
@@ -189,24 +189,15 @@ def _execute_run(
         def retrieve(state):
             guard()
             budget.tool()
-            channels = {"exact", "bm25"} | (
-                {"semantic", "image"} if encoders else set()
-            )
+            channels = {"exact", "bm25"} | ({"semantic", "image"} if encoders else set())
             # The conditions the intent node settled (the model's grounded additions included) order the candidates.
             stated = [Requirement.model_validate(r) for r in state.get("requirements", [])]
-            candidates = search(
-                scope, request.search.model_copy(update={"requirements": stated}), snapshot, repo, encoders, channels
-            )
+            candidates = search(scope, request.search.model_copy(update={"requirements": stated}), snapshot, repo, encoders, channels)
             if model:
                 candidates = EvidenceSession(candidates, tools.available).candidates
             emit(
                 "retrieved",
-                {
-                    "candidates": [
-                        {"revision_id": c.revision_id, "scores": c.scores}
-                        for c in candidates
-                    ]
-                },
+                {"candidates": [{"revision_id": c.revision_id, "scores": c.scores} for c in candidates]},
             )
             guard()
             return {
@@ -223,9 +214,7 @@ def _execute_run(
                     {"reason": "체험용 worker 종료; 검색 checkpoint 보존"},
                 )
                 os._exit(86)
-            candidates = [
-                Candidate.model_validate(c) for c in state.get("candidates", [])
-            ]
+            candidates = [Candidate.model_validate(c) for c in state.get("candidates", [])]
             reqs = [Requirement.model_validate(r) for r in state["requirements"]]
             observations = list(state.get("observations", []))
             plan = None
@@ -234,11 +223,20 @@ def _execute_run(
                 session = EvidenceSession(candidates, tools.available, restored=True)
                 # How many more plans this run may ask for after this one: none in the fixed structure, otherwise what
                 # the iteration cap and the model call budget leave. A saved tool defined in the last plan never runs.
-                turns_left = 0 if request.mode == "fixed" else max(0, min(2 - state.get("iterations", 0), budget.budget.max_model_calls - budget.usage.model_calls - 1))
-                context = session.context(request.search.text, state["requirements"], observations,
-                                          state.get("decisions", []) if role == "challenger" else [],
-                                          saved_tools=tools.saved_tools(), turns_left=turns_left,
-                                          retrieval={"ranked_top_k": request.search.top_k, "active_drawings": len(snapshot.revision_ids)})
+                turns_left = (
+                    0
+                    if request.mode == "fixed"
+                    else max(0, min(2 - state.get("iterations", 0), budget.budget.max_model_calls - budget.usage.model_calls - 1))
+                )
+                context = session.context(
+                    request.search.text,
+                    state["requirements"],
+                    observations,
+                    state.get("decisions", []) if role == "challenger" else [],
+                    saved_tools=tools.saved_tools(),
+                    turns_left=turns_left,
+                    retrieval={"ranked_top_k": request.search.top_k, "active_drawings": len(snapshot.revision_ids)},
+                )
                 try:
                     plan, metadata = model.plan(context, role=role)
                     emit("model", metadata)
@@ -276,9 +274,17 @@ def _execute_run(
                     visited.add(key)
                     executed += 1
                     observations.append({"tool": op.model_dump(mode="json"), "result": result})
-                    emit("tool", {"role": role, "name": op.name, "arguments": op.arguments,
-                                  "items": len(result), "latency_ms": (time.monotonic() - started) * 1000,
-                                  "fact_ids": [f.id for c in session.candidates for f in c.facts]})
+                    emit(
+                        "tool",
+                        {
+                            "role": role,
+                            "name": op.name,
+                            "arguments": op.arguments,
+                            "items": len(result),
+                            "latency_ms": (time.monotonic() - started) * 1000,
+                            "fact_ids": [f.id for c in session.candidates for f in c.facts],
+                        },
+                    )
                 if plan.operations and not executed:
                     # A plan whose every tool failed gets one more turn, with the errors in its observations, to correct
                     # itself (a command typed without -r, a saved search not yet defined). A second such plan, or a plan
@@ -301,9 +307,7 @@ def _execute_run(
                     )
                     started = time.monotonic()
                     result = tools.execute(op)
-                    observations.append(
-                        {"tool": op.model_dump(mode="json"), "result": result}
-                    )
+                    observations.append({"tool": op.model_dump(mode="json"), "result": result})
                     emit(
                         "tool",
                         {
@@ -365,21 +369,29 @@ def _execute_run(
                 if d.verdict == "unknown"
             ]
             question = f"확인 필요 후보 {len(pending)}건: 담당자 결정을 기다립니다"
-            answer = interrupt({
-                "question": question,
-                "pending": pending,
-                "accepts": {"decisions": {"<revision_id>": "match | mismatch | unknown"}, "reviewer": "string", "note": "string"},
-            })
+            answer = interrupt(
+                {
+                    "question": question,
+                    "pending": pending,
+                    "accepts": {"decisions": {"<revision_id>": "match | mismatch | unknown"}, "reviewer": "string", "note": "string"},
+                }
+            )
             review_input = ReviewInput.model_validate(answer)
             changed = []
             for d in decisions:
                 wanted = review_input.decisions.get(d.revision_id)
                 if wanted is None or wanted == d.verdict:
                     continue
-                d.evidence.append(Evidence(
-                    requirement_id="review", candidate_revision_id=d.revision_id, field="review", verdict=wanted,
-                    summary=f"담당자 {review_input.reviewer} 확인: {review_input.note or '추가 설명 없음'}", verifier_version="human-v1",
-                ))
+                d.evidence.append(
+                    Evidence(
+                        requirement_id="review",
+                        candidate_revision_id=d.revision_id,
+                        field="review",
+                        verdict=wanted,
+                        summary=f"담당자 {review_input.reviewer} 확인: {review_input.note or '추가 설명 없음'}",
+                        verifier_version="human-v1",
+                    )
+                )
                 d.verdict = wanted
                 d.reviewed_by = review_input.reviewer
                 d.review_note = review_input.note or None
@@ -399,7 +411,8 @@ def _execute_run(
                 return finish(state)
             return (
                 "inspect"
-                if model and request.mode != "fixed"
+                if model
+                and request.mode != "fixed"
                 and EvidenceSession.needs_more(state.get("decisions", []), state["iterations"], state.get("stop", False))
                 and budget.usage.tool_calls < budget.budget.max_tool_calls
                 and budget.usage.model_calls < budget.budget.max_model_calls
@@ -417,6 +430,7 @@ def _execute_run(
         builder.add_edge("retrieve", "inspect")
         if model and request.mode == "fitwitness":
             builder.add_node("challenge", lambda state: inspect(state, role="challenger"))
+
             def challenge_route(state):
                 if budget.usage.model_calls >= budget.budget.max_model_calls or budget.usage.tool_calls >= budget.budget.max_tool_calls:
                     emit("budget_stop", {"role": "challenger", "reason": "call limit reached; inspected decisions retained"})
@@ -427,6 +441,7 @@ def _execute_run(
                     emit("budget_stop", {"role": "challenger", "reason": str(exc)})
                     return finish(state)
                 return "challenge"
+
             builder.add_conditional_edges("inspect", challenge_route)
             builder.add_conditional_edges("challenge", route)
         else:
@@ -443,9 +458,7 @@ def _execute_run(
                 emit(
                     "resumed",
                     {
-                        "checkpoint_id": existing.config.get("configurable", {}).get(
-                            "checkpoint_id"
-                        ),
+                        "checkpoint_id": existing.config.get("configurable", {}).get("checkpoint_id"),
                         "code_version": version.current(),
                     },
                 )

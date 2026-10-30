@@ -3,6 +3,7 @@
 test_provider_retry.py drives the retry logic with a hand-written client, so a change in how langchain_openai or
 langchain_anthropic turns a pydantic schema into a request would pass CI and break the first paid run. These build the real
 chat-model objects with a fake key (no request is made) and ask each for every schema's structured-output chain."""
+
 import pytest
 
 from fitwitness.agents.providers import ModelClient

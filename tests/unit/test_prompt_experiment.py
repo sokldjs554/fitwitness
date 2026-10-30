@@ -1,4 +1,5 @@
 """The prompt comparison: the dev/test protocol is enforced by the code, and the numbers are computed as stated."""
+
 import json
 from argparse import Namespace
 from pathlib import Path
@@ -36,14 +37,29 @@ class FakeModel:
         usage = dict(input_tokens=100, output_tokens=40 if schema is P.PredictionCoT else 10, cost_usd=0.0, request_id=None)
         if schema is P.PredictionCoT:
             return json.dumps({"rationale": "x", "verdict": verdict, "citations": citations}), usage
-        if system.startswith("Classify engineering requirements using ONLY the supplied PDF facts. All requirements are mandatory.\nCheck") and "Output exactly one JSON object with keys rationale" not in system:
+        if (
+            system.startswith("Classify engineering requirements using ONLY the supplied PDF facts. All requirements are mandatory.\nCheck")
+            and "Output exactly one JSON object with keys rationale" not in system
+        ):
             return "not json", usage  # the procedure variant fails to answer in the required form
         return json.dumps({"verdict": verdict, "citations": citations}), usage
 
 
 def args(tmp_path, **kw):
-    return Namespace(split="dev", output=str(tmp_path / "out"), corpus=str(ROOT), repeats=1, variants=None, dev_report=None, limit=0,
-                     provider="local", model_path="-", model="", max_cost_usd=None, **kw)
+    return Namespace(
+        split="dev",
+        output=str(tmp_path / "out"),
+        corpus=str(ROOT),
+        repeats=1,
+        variants=None,
+        dev_report=None,
+        limit=0,
+        provider="local",
+        model_path="-",
+        model="",
+        max_cost_usd=None,
+        **kw,
+    )
 
 
 def test_the_baseline_prompt_is_the_published_one_and_the_examples_come_from_train_families_only():
@@ -57,7 +73,11 @@ def test_the_baseline_prompt_is_the_published_one_and_the_examples_come_from_tra
 
 def test_a_dev_run_measures_every_variant_on_the_dev_families_and_names_a_winner(tmp_path):
     report = P.run(args(tmp_path), model=FakeModel())
-    assert report["split"] == "dev" and report["protocol"]["families"] == split_families(ROOT, "dev") and report["protocol"]["case_count"] == 36
+    assert (
+        report["split"] == "dev"
+        and report["protocol"]["families"] == split_families(ROOT, "dev")
+        and report["protocol"]["case_count"] == 36
+    )
     rows = [json.loads(line) for line in (tmp_path / "out" / "predictions.jsonl").read_text().splitlines()]
     assert len(rows) == 36 * 4 and {r["variant"] for r in rows} == set(P.VARIANTS)
     v = report["variants"]
@@ -80,7 +100,9 @@ def test_the_test_split_needs_the_dev_report_and_runs_only_the_baseline_and_the_
         P.run(Namespace(**{**vars(args(tmp_path)), "split": "test"}), model=FakeModel())
     dev = P.run(args(tmp_path), model=FakeModel())
     model = FakeModel()
-    test_args = Namespace(**{**vars(args(tmp_path)), "split": "test", "output": str(tmp_path / "test"), "dev_report": str(tmp_path / "out" / "report.json")})
+    test_args = Namespace(
+        **{**vars(args(tmp_path)), "split": "test", "output": str(tmp_path / "test"), "dev_report": str(tmp_path / "out" / "report.json")}
+    )
     report = P.run(test_args, model=model)
     assert report["protocol"]["families"] == FAMILIES and report["protocol"]["variants"] == ["baseline", dev["winner"]]
     assert report["protocol"]["case_count"] == 24 and len(model.calls) == 24 * 2
@@ -90,21 +112,36 @@ def test_the_test_split_needs_the_dev_report_and_runs_only_the_baseline_and_the_
 def test_editing_a_prompt_after_the_dev_run_voids_the_dev_report(tmp_path, monkeypatch):
     P.run(args(tmp_path), model=FakeModel())
     monkeypatch.setattr(P, "PROCEDURE", P.PROCEDURE + "\nBe careful.")
-    test_args = Namespace(**{**vars(args(tmp_path)), "split": "test", "output": str(tmp_path / "test"), "dev_report": str(tmp_path / "out" / "report.json")})
+    test_args = Namespace(
+        **{**vars(args(tmp_path)), "split": "test", "output": str(tmp_path / "test"), "dev_report": str(tmp_path / "out" / "report.json")}
+    )
     with pytest.raises(ValueError, match="not for these prompts"):
         P.run(test_args, model=FakeModel())
 
 
 def test_winner_rule_and_paired_difference():
-    metrics = {"a": dict(accuracy=.8, false_acceptances=1, output_tokens=10), "b": dict(accuracy=.9, false_acceptances=3, output_tokens=50),
-               "c": dict(accuracy=.9, false_acceptances=1, output_tokens=90), "d": dict(accuracy=.9, false_acceptances=1, output_tokens=20)}
+    metrics = {
+        "a": dict(accuracy=0.8, false_acceptances=1, output_tokens=10),
+        "b": dict(accuracy=0.9, false_acceptances=3, output_tokens=50),
+        "c": dict(accuracy=0.9, false_acceptances=1, output_tokens=90),
+        "d": dict(accuracy=0.9, false_acceptances=1, output_tokens=20),
+    }
     assert P.choose_winner(metrics) == "d"
     rows = []
     for fam in ("f1", "f2", "f3"):
         for case in ("c1", "c2"):
             for variant, hit in (("baseline", case == "c1"), ("x", True)):
-                rows.append(dict(case_id=f"{fam}-{case}", family_id=fam, repeat=0, variant=variant, status="ok",
-                                 predicted="match" if hit else "mismatch", expected="match"))
+                rows.append(
+                    dict(
+                        case_id=f"{fam}-{case}",
+                        family_id=fam,
+                        repeat=0,
+                        variant=variant,
+                        status="ok",
+                        predicted="match" if hit else "mismatch",
+                        expected="match",
+                    )
+                )
     d = P.paired_difference(rows, "x")
     assert d["pairs"] == 6 and d["difference"] == pytest.approx(0.5) and d["ci95"][0] <= 0.5 <= d["ci95"][1]
     assert P.paired_difference(rows, "missing")["difference"] is None
@@ -123,7 +160,11 @@ class FakeClient:
             def invoke(self, messages):
                 outer.calls += 1
                 raw = type("Raw", (), {"usage_metadata": outer.usage, "id": "req-1"})()
-                return {"raw": raw, "parsed": schema(verdict="match", citations=["F1"]) if schema is P.Prediction else None, "parsing_error": None}
+                return {
+                    "raw": raw,
+                    "parsed": schema(verdict="match", citations=["F1"]) if schema is P.Prediction else None,
+                    "parsing_error": None,
+                }
 
         return Bound()
 

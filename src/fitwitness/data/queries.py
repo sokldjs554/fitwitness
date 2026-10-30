@@ -82,20 +82,12 @@ def build_queries(docs, gold):
                         scale = 10 if r["unit"] == "cm" else 1
                         checks.append(
                             "match"
-                            if Decimal(r["value"]["low"]) * scale
-                            <= Decimal(actual)
-                            <= Decimal(r["value"]["high"]) * scale
+                            if Decimal(r["value"]["low"]) * scale <= Decimal(actual) <= Decimal(r["value"]["high"]) * scale
                             else "mismatch"
                         )
                     else:
                         checks.append("match" if actual == r["value"] else "mismatch")
-                verdicts[d["id"]] = (
-                    "mismatch"
-                    if "mismatch" in checks
-                    else "unknown"
-                    if "unknown" in checks
-                    else "match"
-                )
+                verdicts[d["id"]] = "mismatch" if "mismatch" in checks else "unknown" if "unknown" in checks else "match"
             queries.append(
                 {
                     "id": f"{family}-Q{i}",
@@ -105,9 +97,7 @@ def build_queries(docs, gold):
                     "image_id": base["id"] if category == "image" else None,
                     "requirements": requirements,
                     "apply_updates": use_updates,
-                    "expected_matches": [
-                        rid for rid, v in verdicts.items() if v == "match"
-                    ],
+                    "expected_matches": [rid for rid, v in verdicts.items() if v == "match"],
                     "expected_verdicts": verdicts,
                 }
             )

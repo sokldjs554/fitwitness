@@ -1,4 +1,5 @@
 """The trajectory suite against the real graphs: clean on the real pipeline, loud on a broken one."""
+
 import json
 from pathlib import Path
 import pytest
@@ -39,6 +40,7 @@ def test_a_broken_claim_graph_is_seen_by_the_path_checks(env):
     assert scored["invariant_violations"] >= 1 and scored["graph_wrong_pay"] >= 1
     # and the graph is back to normal afterwards
     import fitwitness.claims.graph as graph
+
     assert graph.adjudicate.__name__ == "adjudicate"
 
 
@@ -51,6 +53,8 @@ def test_drawing_paths_are_clean_and_match_the_reference(env):
     assert drawing["multi_agent"]["signature"] == ref["multi_agent"]
     assert "tool_skipped" in drawing["multi_agent"]["signature"]
     assert drawing["shell_agent"]["signature"] == ref["shell_agent"]
-    assert drawing["shell_agent"]["signature"].index("tool:search_shell") < drawing["shell_agent"]["signature"].index("tool:query_dimensions")
+    assert drawing["shell_agent"]["signature"].index("tool:search_shell") < drawing["shell_agent"]["signature"].index(
+        "tool:query_dimensions"
+    )
     assert drawing["review"]["before"]["signature"] == ref["review_before"]
     assert drawing["review"]["after"]["signature"] == ref["review_after"]

@@ -33,7 +33,11 @@ def test_a_signed_answer_verifies_and_any_edit_breaks_it():
 
 def test_a_receipt_belongs_to_one_tenant_run_and_claim():
     first = signed(answer())
-    assert check([first], run="run-2") == ["altered"] and check([first], tenant="t-2") == ["altered"] and check([first], claim="CLM-2") == ["altered"]
+    assert (
+        check([first], run="run-2") == ["altered"]
+        and check([first], tenant="t-2") == ["altered"]
+        and check([first], claim="CLM-2") == ["altered"]
+    )
     assert check([first], key=receipt.signing_key(b"y" * 48)) == ["altered"]
 
 
@@ -51,8 +55,12 @@ def test_an_answer_without_a_receipt_is_unsigned_not_valid():
 
 
 def held(note="진단서를 보내 주세요", reason="진단서"):
-    before = ClaimDecision(outcome="REVIEW", reasons=[Reason(rule_id="R-REQ-01", code="missing_documents", severity="review",
-                                                              message=f"diagnosis 심사에 필요한 서류 누락: {reason}")])
+    before = ClaimDecision(
+        outcome="REVIEW",
+        reasons=[
+            Reason(rule_id="R-REQ-01", code="missing_documents", severity="review", message=f"diagnosis 심사에 필요한 서류 누락: {reason}")
+        ],
+    )
     return notices.request_info("CLM-1", answer(outcome="REQUEST_INFO", note=note), before, now=NOW), before
 
 
@@ -65,14 +73,35 @@ def test_the_hold_notice_says_what_is_missing_and_until_when():
 
 def test_a_decision_notice_carries_the_explanation():
     notice = notices.decision("CLM-1", "APPROVE", "보험금 150,000원을 지급합니다.", now=NOW)
-    assert notice.kind == "decision" and "지급 안내" in notice.subject and notice.body.startswith("보험금 150,000원") and notice.respond_by is None
+    assert (
+        notice.kind == "decision"
+        and "지급 안내" in notice.subject
+        and notice.body.startswith("보험금 150,000원")
+        and notice.respond_by is None
+    )
 
 
 def run_record(deadline="2026-11-16", state="completed"):
     notice, _ = held()
-    result = {"decision": {"reasons": [{"code": "info_requested"}]}, "human": {"reviewer": "r"}, "notices": [notice.model_dump(mode="json") | {"respond_by": deadline}]}
-    claim = {"case_id": "C1", "claim_id": "CLM-1", "policy": {"policy_id": "P", "insured_id": "I", "product_id": "HLTH-A", "effective_from": "2025-01-01", "effective_to": "2030-01-01"},
-             "requested": ["diagnosis"], "document_ids": ["d1"], "submitted_at": "2026-10-01"}
+    result = {
+        "decision": {"reasons": [{"code": "info_requested"}]},
+        "human": {"reviewer": "r"},
+        "notices": [notice.model_dump(mode="json") | {"respond_by": deadline}],
+    }
+    claim = {
+        "case_id": "C1",
+        "claim_id": "CLM-1",
+        "policy": {
+            "policy_id": "P",
+            "insured_id": "I",
+            "product_id": "HLTH-A",
+            "effective_from": "2025-01-01",
+            "effective_to": "2030-01-01",
+        },
+        "requested": ["diagnosis"],
+        "document_ids": ["d1"],
+        "submitted_at": "2026-10-01",
+    }
     return {"id": "run-1", "state": state, "request": {"kind": "claim", "claim": claim}, "result": result}
 
 

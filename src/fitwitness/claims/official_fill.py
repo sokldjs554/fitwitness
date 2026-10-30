@@ -113,8 +113,9 @@ def _put_date(c, iso: str, markers: tuple[float, float, float], top: float, rng:
         _put(c, Slot(marker - 2.0, top, 10.0, "right"), text, rng, jitter)
 
 
-def fill(kind: str, values: dict, *, blank: bytes | None = None, seed: str | None = None, jitter: float = 1.5,
-         decoys: bool = True) -> bytes:
+def fill(
+    kind: str, values: dict, *, blank: bytes | None = None, seed: str | None = None, jitter: float = 1.5, decoys: bool = True
+) -> bytes:
     """The form with ``values`` written on it, as a one page PDF with a text layer.
 
     ``kind`` is "diagnosis" or "receipt". ``blank`` is the real blank form's bytes; without it the

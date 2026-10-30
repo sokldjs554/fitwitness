@@ -28,11 +28,16 @@ def test_every_other_token_is_refused(issuer):
     fake, verifier = issuer
     now = int(time.time())
     refused = {
-        "no token": "", "not a token": "abc", "unsigned": fake.token(alg="none"),
-        "another key, same kid": fake.token(key=fake.other), "unknown kid": fake.token(kid="rsa-9"),
+        "no token": "",
+        "not a token": "abc",
+        "unsigned": fake.token(alg="none"),
+        "another key, same kid": fake.token(key=fake.other),
+        "unknown kid": fake.token(kid="rsa-9"),
         "wrong key for the algorithm": fake.token(alg="RS256", kid="ec-1"),
-        "expired": fake.token(exp=now - 120), "not yet valid": fake.token(nbf=now + 120),
-        "another issuer": fake.token(iss="https://other.test"), "another audience": fake.token(aud="someone-else"),
+        "expired": fake.token(exp=now - 120),
+        "not yet valid": fake.token(nbf=now + 120),
+        "another issuer": fake.token(iss="https://other.test"),
+        "another audience": fake.token(aud="someone-else"),
         "no subject": fake.token(sub=""),
     }
     for why, token in refused.items():

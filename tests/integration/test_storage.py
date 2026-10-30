@@ -5,9 +5,7 @@ from fitwitness.contracts import DrawingRevision, TenantScope
 
 
 def api():
-    assert importlib.util.find_spec("fitwitness.storage.repository"), (
-        "PostgreSQL repository missing"
-    )
+    assert importlib.util.find_spec("fitwitness.storage.repository"), "PostgreSQL repository missing"
     from fitwitness.storage.repository import Repository
 
     return Repository
@@ -66,9 +64,7 @@ def test_conflicting_approved_revisions_are_unresolved(repo, scopes):
     old = doc(a)
     repo.add_revision(a, old, b"pdf")
     for label in ["10", "11"]:
-        v = old.model_copy(
-            update={"id": str(uuid4()), "revision_label": label, "supersedes": old.id}
-        )
+        v = old.model_copy(update={"id": str(uuid4()), "revision_label": label, "supersedes": old.id})
         repo.add_revision(a, v, b"pdf")
     assert len(repo.snapshot(a).revision_ids) == 0
     assert repo.revision_conflicts(a) == [old.document_id]
@@ -105,9 +101,7 @@ def test_snapshot_changes_on_new_revision(repo, scopes):
 
 def test_actual_postgres_and_rls_role(repo, scopes):
     with repo.connection(scopes[0]) as c:
-        row = c.execute(
-            "select current_user, rolsuper, rolbypassrls from pg_roles where rolname=current_user"
-        ).fetchone()
+        row = c.execute("select current_user, rolsuper, rolbypassrls from pg_roles where rolname=current_user").fetchone()
         assert row["current_user"] == "fitwitness_app"
         assert row["rolsuper"] is False and row["rolbypassrls"] is False
 

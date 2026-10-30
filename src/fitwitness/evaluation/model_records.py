@@ -5,6 +5,7 @@ written to docs/evaluation/model-records.json (``python -m fitwitness.evaluation
 /api/evaluations/models, and scripts/verify-research.py checks that the committed file still equals what the
 records give. The user-test card is the one exception: its numbers come from the written records in
 docs/user-test, which have no machine-readable form."""
+
 from __future__ import annotations
 
 import hashlib
@@ -15,8 +16,16 @@ ROOT = Path(__file__).resolve().parents[3]
 E = ROOT / "docs/evaluation"
 OUT = E / "model-records.json"
 REPO = "https://github.com/sokldjs554/fitwitness/blob/main/"
-SOURCES = ["agent-trajectory", "claims-model", "claims-audit", "query-understanding", "shell-search-model", "title-block-vlm",
-           "title-block-vlm-prompts", "openai"]
+SOURCES = [
+    "agent-trajectory",
+    "claims-model",
+    "claims-audit",
+    "query-understanding",
+    "shell-search-model",
+    "title-block-vlm",
+    "title-block-vlm-prompts",
+    "openai",
+]
 MODES = {"fixed": "단일 계획", "react": "반복 계획", "fitwitness": "탐색 + 반례 검토"}
 
 
@@ -56,35 +65,60 @@ def trajectory():
         "posting": "주요업무 1 · Agentic System Design",
         "question": "모델이 도구를 고르고 멈추는 그래프가 실제 모델로 끝까지 도는가",
         "model": t["model"],
-        "measured": t["runs"][0]["started_at"][:10] + ("" if last["started_at"][:10] == t["runs"][0]["started_at"][:10] else " ~ " + last["started_at"][:10]),
+        "measured": t["runs"][0]["started_at"][:10]
+        + ("" if last["started_at"][:10] == t["runs"][0]["started_at"][:10] else " ~ " + last["started_at"][:10]),
         "cost_usd": _usd(t["total_spent_usd"]),
         "headline": [
             {"label": f"{len(t['runs'])}차 세 구조 완료", "value": f"{completed}/{runs}"},
-            {"label": f"{len(t['runs'])}차 판정이 검증기와 일치",
-             "value": f"{sum(r['correct'] for r in model_rows)}/{sum(r['total'] for r in model_rows)}"},
+            {
+                "label": f"{len(t['runs'])}차 판정이 검증기와 일치",
+                "value": f"{sum(r['correct'] for r in model_rows)}/{sum(r['total'] for r in model_rows)}",
+            },
             {"label": "1차 탐색 + 반례 검토 완료", "value": "{completed}/{runs}".format(**t["runs"][0]["by_mode"]["fitwitness"])},
         ],
-        "table": {"caption": "회차별 완료한 실행 (test 6개 family, 구조마다 한 번)",
-                  "columns": ["회차", "코드", *MODES.values(), "비용"], "rows": rows},
-        "path": {"caption": f"{len(t['runs'])}차 탐색 + 반례 검토 한 건 ({sample['family_id']})",
-                 "tools": sorted(set(sample["tools"])), "planner_tools": len(sample["tools"]) - sample["challenger_tools"],
-                 "challenger_tools": sample["challenger_tools"], "model_calls": sample["model_calls"],
-                 "stop": sample["stop"], "verdicts": f"{sample['correct']}/{sample['total']}"},
+        "table": {
+            "caption": "회차별 완료한 실행 (test 6개 family, 구조마다 한 번)",
+            "columns": ["회차", "코드", *MODES.values(), "비용"],
+            "rows": rows,
+        },
+        "path": {
+            "caption": f"{len(t['runs'])}차 탐색 + 반례 검토 한 건 ({sample['family_id']})",
+            "tools": sorted(set(sample["tools"])),
+            "planner_tools": len(sample["tools"]) - sample["challenger_tools"],
+            "challenger_tools": sample["challenger_tools"],
+            "model_calls": sample["model_calls"],
+            "stop": sample["stop"],
+            "verdicts": f"{sample['correct']}/{sample['total']}",
+        },
         "fixes": [w for f in t["fixes"] for w in f["what"]],
         "caveats": t["limitations"][:4],
-        "links": [_link("기록 JSON", "docs/evaluation/agent-trajectory.json"),
-                  _link("설명", "docs/evaluation/README.md")],
+        "links": [_link("기록 JSON", "docs/evaluation/agent-trajectory.json"), _link("설명", "docs/evaluation/README.md")],
     }
 
 
 def claims_model():
     c = _load("claims-model")
-    rows, inputs = [], {"text layer": "텍스트 층 1차", "medium scan (OCR for both readers)": "스캔 medium (두 판독기 모두 OCR)",
-                        "text layer, repeat 2": "텍스트 층 2차", "text layer, repeat 3": "텍스트 층 3차"}
+    rows, inputs = (
+        [],
+        {
+            "text layer": "텍스트 층 1차",
+            "medium scan (OCR for both readers)": "스캔 medium (두 판독기 모두 OCR)",
+            "text layer, repeat 2": "텍스트 층 2차",
+            "text layer, repeat 3": "텍스트 층 3차",
+        },
+    )
     for b in c["batches"]:
         m, r = b["headline"]["model"], b["headline"]["rules"]
-        rows.append([inputs.get(b["input"], b["input"]), _pct(m["decision_accuracy"]), _pct(r["decision_accuracy"]),
-                     str(m["wrong_pay_count"]), str(m["wrong_deny_count"]), f"${m['cost_usd']:.4f}"])
+        rows.append(
+            [
+                inputs.get(b["input"], b["input"]),
+                _pct(m["decision_accuracy"]),
+                _pct(r["decision_accuracy"]),
+                str(m["wrong_pay_count"]),
+                str(m["wrong_deny_count"]),
+                f"${m['cost_usd']:.4f}",
+            ]
+        )
     rep = c["repeats"]
     scan = next(b for b in c["batches"] if "scan" in b["input"])["headline"]
     return {
@@ -96,20 +130,32 @@ def claims_model():
         "measured": c["date"],
         "cost_usd": _usd(c["spent_usd_total"]),
         "headline": [
-            {"label": "텍스트 층 세 번, 결정 정확도",
-             "value": " · ".join(_pct(x) for x in rep["decision_accuracy_per_run"]),
-             "note": f"규칙 {_pct(rep['rules_per_run'][0])}"},
+            {
+                "label": "텍스트 층 세 번, 결정 정확도",
+                "value": " · ".join(_pct(x) for x in rep["decision_accuracy_per_run"]),
+                "note": f"규칙 {_pct(rep['rules_per_run'][0])}",
+            },
             {"label": "세 번 모두 맞은 결정", "value": f"{rep['correct_in_every_run']}/{rep['cases']}"},
-            {"label": "잘못 지급 · 잘못 부지급 (텍스트 세 번)",
-             "value": f"{sum(rep['wrong_pay_per_run'])} · {sum(rep['wrong_deny_per_run'])}"},
-            {"label": "스캔 한 번, 결정 정확도", "value": _pct(scan["model"]["decision_accuracy"]),
-             "note": f"규칙 {_pct(scan['rules']['decision_accuracy'])}, 잘못 부지급 {scan['model']['wrong_deny_count']}건"},
+            {
+                "label": "잘못 지급 · 잘못 부지급 (텍스트 세 번)",
+                "value": f"{sum(rep['wrong_pay_per_run'])} · {sum(rep['wrong_deny_per_run'])}",
+            },
+            {
+                "label": "스캔 한 번, 결정 정확도",
+                "value": _pct(scan["model"]["decision_accuracy"]),
+                "note": f"규칙 {_pct(scan['rules']['decision_accuracy'])}, 잘못 부지급 {scan['model']['wrong_deny_count']}건",
+            },
         ],
-        "table": {"caption": "묶음별 (합성 청구 test 60건)",
-                  "columns": ["입력", "모델 결정 정확도", "규칙", "모델 잘못 지급", "모델 잘못 부지급", "비용"], "rows": rows},
-        "caveats": ["청구와 약관은 합성입니다.",
-                    "스캔에서 나온 잘못 부지급 1건은 규칙 경로에 있던 보호를 모델 경로로 옮겨 고쳤습니다(고친 뒤 스캔은 다시 재지 않음).",
-                    "돈이 움직이는 결정은 결정적 규칙이 내리고, 모델은 서류에서 읽은 값을 인용과 함께 제안만 합니다."],
+        "table": {
+            "caption": "묶음별 (합성 청구 test 60건)",
+            "columns": ["입력", "모델 결정 정확도", "규칙", "모델 잘못 지급", "모델 잘못 부지급", "비용"],
+            "rows": rows,
+        },
+        "caveats": [
+            "청구와 약관은 합성입니다.",
+            "스캔에서 나온 잘못 부지급 1건은 규칙 경로에 있던 보호를 모델 경로로 옮겨 고쳤습니다(고친 뒤 스캔은 다시 재지 않음).",
+            "돈이 움직이는 결정은 결정적 규칙이 내리고, 모델은 서류에서 읽은 값을 인용과 함께 제안만 합니다.",
+        ],
         "links": [_link("기록 JSON", "docs/evaluation/claims-model.json"), _link("설명", "docs/CLAIMS.md")],
     }
 
@@ -129,16 +175,17 @@ def claims_audit():
         "measured": a["date"],
         "cost_usd": _usd(a["spent_usd_total"]),
         "headline": [
-            {"label": "잘못된 지급을 세운 것 (세 번 모두)",
-             "value": f"{across['wrong_payments_caught_in_every_run']}/{across['of']}"},
+            {"label": "잘못된 지급을 세운 것 (세 번 모두)", "value": f"{across['wrong_payments_caught_in_every_run']}/{across['of']}"},
             {"label": "옳은 지급을 세운 것 (세 번)", "value": f"{flags} / {degraded['correct_payments']}"},
             {"label": "멀쩡한 규칙의 지급을 세운 것", "value": f"{clean['false_flags']}/{clean['correct_payments']}"},
             {"label": "사실 절이 말해 주지 않는 고장", "value": f"{subtle['caught']}/{subtle['wrong_payments']}"},
         ],
         "table": None,
-        "caveats": ["청구와 약관, 약해진 규칙의 고장 세 가지는 합성이고 지원자가 고른 것입니다.",
-                    "감사자는 담당자 확인으로 보내는 이유만 더할 수 있고, 지급을 결정하지 않습니다.",
-                    "담당자가 그 이유에 동의하는지는 재지 않았습니다."],
+        "caveats": [
+            "청구와 약관, 약해진 규칙의 고장 세 가지는 합성이고 지원자가 고른 것입니다.",
+            "감사자는 담당자 확인으로 보내는 이유만 더할 수 있고, 지급을 결정하지 않습니다.",
+            "담당자가 그 이유에 동의하는지는 재지 않았습니다.",
+        ],
         "links": [_link("기록 JSON", "docs/evaluation/claims-audit.json"), _link("설명", "docs/CLAIMS.md")],
     }
 
@@ -159,25 +206,34 @@ def query_understanding():
         "measured": q["date"],
         "cost_usd": _usd(q["spent_usd_total"]),
         "headline": [
-            {"label": "test 60문장을 다 맞게 읽은 것",
-             "value": " · ".join(f"{x}/60" for x in rep["all_correct_per_run"]),
-             "note": f"패턴 {u['rules']['all_correct']}/{u['rules']['queries']}"},
-            {"label": "틀 밖 30문장", "value": f"{free['model_all_correct']}/30",
-             "note": f"패턴 {free['rules_all_correct']}/30"},
-            {"label": "현업자 검색어 10개", "value": f"{prac['before']['model_all_correct']}/10 → {prac['after']['model_all_correct']}/10",
-             "note": "프롬프트를 고친 뒤, 같은 세트라 held-out 아님"},
-            {"label": "복합 검색 Recall@5",
-             "value": f"{_pct(s['rrf']['recall_at_5'])} → {_pct(k['model']['recall_at_5'])}"},
+            {
+                "label": "test 60문장을 다 맞게 읽은 것",
+                "value": " · ".join(f"{x}/60" for x in rep["all_correct_per_run"]),
+                "note": f"패턴 {u['rules']['all_correct']}/{u['rules']['queries']}",
+            },
+            {"label": "틀 밖 30문장", "value": f"{free['model_all_correct']}/30", "note": f"패턴 {free['rules_all_correct']}/30"},
+            {
+                "label": "현업자 검색어 10개",
+                "value": f"{prac['before']['model_all_correct']}/10 → {prac['after']['model_all_correct']}/10",
+                "note": "프롬프트를 고친 뒤, 같은 세트라 held-out 아님",
+            },
+            {"label": "복합 검색 Recall@5", "value": f"{_pct(s['rrf']['recall_at_5'])} → {_pct(k['model']['recall_at_5'])}"},
         ],
-        "table": {"caption": "test 60문장의 Recall@5",
-                  "columns": ["순위", "Recall@5"],
-                  "rows": [[s["rrf"]["label"], _pct(s["rrf"]["recall_at_5"])],
-                           [s["rules"]["label"], _pct(s["rules"]["recall_at_5"])],
-                           [s["model"]["label"], _pct(s["model"]["recall_at_5"])],
-                           ["모델이 읽은 종류로 후보 풀과 정렬까지", _pct(k["model"]["recall_at_5"])]]},
-        "caveats": ["test 60문장은 틀 10개 × 6 family로 만든 것이고, 틀 밖 30문장도 지원자가 썼습니다.",
-                    "모델의 제안은 질의에서 따온 인용이 있을 때만 받습니다.",
-                    "현업자 검색어 10개는 회사 정보 없이 적은 것이고, 그 세트로 고장을 찾아 고쳤으므로 고친 뒤의 10/10은 held-out이 아닙니다."],
+        "table": {
+            "caption": "test 60문장의 Recall@5",
+            "columns": ["순위", "Recall@5"],
+            "rows": [
+                [s["rrf"]["label"], _pct(s["rrf"]["recall_at_5"])],
+                [s["rules"]["label"], _pct(s["rules"]["recall_at_5"])],
+                [s["model"]["label"], _pct(s["model"]["recall_at_5"])],
+                ["모델이 읽은 종류로 후보 풀과 정렬까지", _pct(k["model"]["recall_at_5"])],
+            ],
+        },
+        "caveats": [
+            "test 60문장은 틀 10개 × 6 family로 만든 것이고, 틀 밖 30문장도 지원자가 썼습니다.",
+            "모델의 제안은 질의에서 따온 인용이 있을 때만 받습니다.",
+            "현업자 검색어 10개는 회사 정보 없이 적은 것이고, 그 세트로 고장을 찾아 고쳤으므로 고친 뒤의 10/10은 held-out이 아닙니다.",
+        ],
         "links": [_link("기록 JSON", "docs/evaluation/query-understanding.json"), _link("설명", "docs/RETRIEVAL.md")],
     }
 
@@ -195,6 +251,7 @@ def shell_search():
 
     def dev(run, key):
         return sum(r[key] for r in run["rows"] if r["arm"] == "shell" and r["case"] in ran)
+
     labels = {"rules": "규칙", "ranked": "모델, 셸 끔", "shell": "모델, 셸 켬"}
     return {
         "id": "shell-search",
@@ -205,17 +262,31 @@ def shell_search():
         "measured": s["measured_on"],
         "cost_usd": _usd(s["spent_usd_total"]),
         "headline": [
-            {"label": "test 정답 중 찾은 것",
-             "value": f"{arms['ranked']['found']} → {arms['shell']['found']} / {arms['shell']['answer']}",
-             "note": f"셸 끔 → 켬, 규칙 {arms['rules']['found']}"},
+            {
+                "label": "test 정답 중 찾은 것",
+                "value": f"{arms['ranked']['found']} → {arms['shell']['found']} / {arms['shell']['answer']}",
+                "note": f"셸 끔 → 켬, 규칙 {arms['rules']['found']}",
+            },
             {"label": "틀린 일치", "value": str(sum(arms[a]["false_matches"] for a in labels))},
             {"label": "셸을 켜고 명령을 친 실행", "value": f"{used}/{len(typed)}"},
-            {"label": f"dev 질의 {len(ran)}개, 문맥을 고친 전후", "value": f"{dev(before, 'found')} → {dev(after, 'found')} / {dev(after, 'answer')}"},
+            {
+                "label": f"dev 질의 {len(ran)}개, 문맥을 고친 전후",
+                "value": f"{dev(before, 'found')} → {dev(after, 'found')} / {dev(after, 'answer')}",
+            },
         ],
-        "table": {"caption": "test 집합 질의 8개 × 합성 도면 30장",
-                  "columns": ["방식", "찾은 정답", "다 찾은 질의", "틀린 일치"],
-                  "rows": [[labels[a], f"{arms[a]['found']}/{arms[a]['answer']}", f"{arms[a]['complete_sets']}/{arms[a]['runs']}",
-                            str(arms[a]["false_matches"])] for a in labels]},
+        "table": {
+            "caption": "test 집합 질의 8개 × 합성 도면 30장",
+            "columns": ["방식", "찾은 정답", "다 찾은 질의", "틀린 일치"],
+            "rows": [
+                [
+                    labels[a],
+                    f"{arms[a]['found']}/{arms[a]['answer']}",
+                    f"{arms[a]['complete_sets']}/{arms[a]['runs']}",
+                    str(arms[a]["false_matches"]),
+                ]
+                for a in labels
+            ],
+        },
         "caveats": s["limitations"],
         "links": [_link("기록 JSON", "docs/evaluation/shell-search-model.json"), _link("설명", "docs/SHELL-SEARCH.md")],
     }
@@ -237,10 +308,23 @@ def title_block_vlm():
     def wrong(r):
         return r["wrong_values_reported"] + r["readings_where_the_block_has_no_such_cell"]
 
-    rows = [[label, f"{page['correct'][f]}/{page['expected'][f]}", f"{crop['correct'][f]}/{crop['expected'][f]}",
-             f"{tsum('correct', f)}/{tsum('expected', f)}"] for f, label in fields.items()]
-    rows.append(["틀리거나 칸이 없는데 읽은 값", str(wrong(page)), str(wrong(crop)),
-                 str(tsum("wrong_values_reported") + tsum("readings_where_the_block_has_no_such_cell"))])
+    rows = [
+        [
+            label,
+            f"{page['correct'][f]}/{page['expected'][f]}",
+            f"{crop['correct'][f]}/{crop['expected'][f]}",
+            f"{tsum('correct', f)}/{tsum('expected', f)}",
+        ]
+        for f, label in fields.items()
+    ]
+    rows.append(
+        [
+            "틀리거나 칸이 없는데 읽은 값",
+            str(wrong(page)),
+            str(wrong(crop)),
+            str(tsum("wrong_values_reported") + tsum("readings_where_the_block_has_no_such_cell")),
+        ]
+    )
     return {
         "id": "title-block-vlm",
         "title": "실제 도면 표제란을 VLM으로",
@@ -250,23 +334,36 @@ def title_block_vlm():
         "measured": t["measured_on"],
         "cost_usd": _usd(t["spent_usd_total"]),
         "headline": [
-            {"label": "쪽 읽기 도번 · 재질 · 비례",
-             "value": " · ".join(f"{page['correct'][f]}/{page['expected'][f]}" for f in fields),
-             "note": "Tesseract " + " · ".join(f"{tsum('correct', f)}/{tsum('expected', f)}" for f in fields)},
-            {"label": "틀리거나 칸이 없는데 읽은 값", "value": str(wrong(page)),
-             "note": f"Tesseract {tsum('wrong_values_reported') + tsum('readings_where_the_block_has_no_such_cell')}"},
+            {
+                "label": "쪽 읽기 도번 · 재질 · 비례",
+                "value": " · ".join(f"{page['correct'][f]}/{page['expected'][f]}" for f in fields),
+                "note": "Tesseract " + " · ".join(f"{tsum('correct', f)}/{tsum('expected', f)}" for f in fields),
+            },
+            {
+                "label": "틀리거나 칸이 없는데 읽은 값",
+                "value": str(wrong(page)),
+                "note": f"Tesseract {tsum('wrong_values_reported') + tsum('readings_where_the_block_has_no_such_cell')}",
+            },
         ],
-        "table": {"caption": f"실제 도면 {t['summary']['all']['drawings']}장 (공개 교재 쪽, 라벨은 사람이 하나씩 확인)",
-                  "columns": ["칸", "쪽 전체", "찾은 표제란을 잘라서", "Tesseract"], "rows": rows},
-        "caveats": [f"{prompts['measured_on']} 프롬프트 실험: 칸의 라벨을 값과 함께 인용하게 한 변형이 dev 27장에서 기준선을 못 이겨"
-                    f"(점수 {best_label} 대 {prompts['chosen']['merit']}) 규칙대로 test는 읽지 않았습니다. 같은 기준선 프롬프트의 자른 표제란"
-                    f" 점수가 이틀 사이 {recorded}에서 {dev['baseline']['crop']['merit']}로 흔들려, 한 번씩 돌려서는 프롬프트 순위를 매길 수 없습니다"
-                    f"(${prompts['spent_usd_total']:.2f}).",
-                    "한 공개 벤치마크(중국 기계 교재)의 쪽을 한 번씩 읽은 것입니다.",
-                    "더 많이 읽는 만큼 틀린 값도 늘어, 읽은 값은 확정된 사실이 아니라 '확인 필요'로만 씁니다.",
-                    "도면 이미지는 저장소에 넣지 않았고, 해시만 커밋했습니다."],
-        "links": [_link("기록 JSON", "docs/evaluation/title-block-vlm.json"), _link("프롬프트 실험", "docs/evaluation/title-block-vlm-prompts.json"),
-                  _link("설명", "docs/TITLE-BLOCK.md")],
+        "table": {
+            "caption": f"실제 도면 {t['summary']['all']['drawings']}장 (공개 교재 쪽, 라벨은 사람이 하나씩 확인)",
+            "columns": ["칸", "쪽 전체", "찾은 표제란을 잘라서", "Tesseract"],
+            "rows": rows,
+        },
+        "caveats": [
+            f"{prompts['measured_on']} 프롬프트 실험: 칸의 라벨을 값과 함께 인용하게 한 변형이 dev 27장에서 기준선을 못 이겨"
+            f"(점수 {best_label} 대 {prompts['chosen']['merit']}) 규칙대로 test는 읽지 않았습니다. 같은 기준선 프롬프트의 자른 표제란"
+            f" 점수가 이틀 사이 {recorded}에서 {dev['baseline']['crop']['merit']}로 흔들려, 한 번씩 돌려서는 프롬프트 순위를 매길 수 없습니다"
+            f"(${prompts['spent_usd_total']:.2f}).",
+            "한 공개 벤치마크(중국 기계 교재)의 쪽을 한 번씩 읽은 것입니다.",
+            "더 많이 읽는 만큼 틀린 값도 늘어, 읽은 값은 확정된 사실이 아니라 '확인 필요'로만 씁니다.",
+            "도면 이미지는 저장소에 넣지 않았고, 해시만 커밋했습니다.",
+        ],
+        "links": [
+            _link("기록 JSON", "docs/evaluation/title-block-vlm.json"),
+            _link("프롬프트 실험", "docs/evaluation/title-block-vlm-prompts.json"),
+            _link("설명", "docs/TITLE-BLOCK.md"),
+        ],
     }
 
 
@@ -281,20 +378,30 @@ def people_and_real_data():
         "cost_usd": None,
         "headline": [
             {"label": "사용자 테스트", "value": "3명", "note": "지인: 비전문가 1, 생산기술 현업 5년 1, 보험 현업 1"},
-            {"label": "비전문가 과제", "value": "4/5", "note": "기록이 스스로 과제 3은 기준대로면 X에 가깝다고 적어 엄격히는 3/5. 막힌 곳은 모두 화면이 설명하지 않은 데서 왔고 고침"},
+            {
+                "label": "비전문가 과제",
+                "value": "4/5",
+                "note": "기록이 스스로 과제 3은 기준대로면 X에 가깝다고 적어 엄격히는 3/5. 막힌 곳은 모두 화면이 설명하지 않은 데서 왔고 고침",
+            },
             {"label": "현업자 검색어 10개의 치수 조건", "value": "0개", "note": "제가 쓴 90문장이 못 찾은 고장을 드러냄"},
         ],
-        "table": {"caption": "합성이 아닌 데이터",
-                  "columns": ["무엇", "규모", "쓴 곳"],
-                  "rows": [["공개 기계 도면(교재 쪽), 라벨은 사람이 확인", "61장 + 처음 12장", "표제란 OCR·VLM"],
-                           ["현업자가 실제로 치는 검색어(회사 정보 없이)", "10개", "질의 읽기"],
-                           ["한국어 공공문서", "12쪽", "OCR"],
-                           ["실제 법정 서식(빈 양식)", "2종", "서식 칸 읽기"],
-                           ["NIST 공개 STEP 모델", "11쌍", "형상 검색"],
-                           ["보험사·제조사의 실제 고객 문서", "없음", "—"]]},
+        "table": {
+            "caption": "합성이 아닌 데이터",
+            "columns": ["무엇", "규모", "쓴 곳"],
+            "rows": [
+                ["공개 기계 도면(교재 쪽), 라벨은 사람이 확인", "61장 + 처음 12장", "표제란 OCR·VLM"],
+                ["현업자가 실제로 치는 검색어(회사 정보 없이)", "10개", "질의 읽기"],
+                ["한국어 공공문서", "12쪽", "OCR"],
+                ["실제 법정 서식(빈 양식)", "2종", "서식 칸 읽기"],
+                ["NIST 공개 STEP 모델", "11쌍", "형상 검색"],
+                ["보험사·제조사의 실제 고객 문서", "없음", "—"],
+            ],
+        },
         "quote": "근거를 바로 보여주는 건 좋은데, 이 결과만 보고 써도 되는 부품이라고 생각하면 곤란할 것 같습니다.",
-        "caveats": ["사용자 테스트이지 고객 데이터도 현장 검증도 아닙니다.",
-                    "현업자의 말을 듣고 후보 카드에 품명과 승인 상태를 올리고, 조건 일치가 제작 가능을 뜻하지 않는다는 문구를 넣었습니다."],
+        "caveats": [
+            "사용자 테스트이지 고객 데이터도 현장 검증도 아닙니다.",
+            "현업자의 말을 듣고 후보 카드에 품명과 승인 상태를 올리고, 조건 일치가 제작 가능을 뜻하지 않는다는 문구를 넣었습니다.",
+        ],
         "links": [_link("과정", "docs/USER-TEST.md"), _link("기록", "docs/user-test")],
     }
 
@@ -313,26 +420,55 @@ def openai_evidence():
         "measured": o["date"],
         "cost_usd": _usd(s["cost_usd"]),
         "headline": [
-            {"label": "끝난 판정", "value": f"{s['completed']}/{s['calls']}",
-             "note": f"나머지 {s['failed_no_credits']}회는 OpenAI 계정의 잔액 소진(HTTP 429)으로 실패"},
-            {"label": "끝난 판정 중 정답", "value": f"{s['correct']}/{s['completed']}",
-             "note": f"95% 구간 {_pct(s['wilson_95_lower_for_55_of_55'])}부터. 빠진 {s['failed_no_credits']}회가 있어 72회 전체의 값은 아님"},
-            {"label": "틀린 일치", "value": f"{s['false_match']}/{s['completed_non_match_cases']}",
-             "note": "끝난 비일치 사례 중. 모든 인용은 서류의 사실 id"},
-            {"label": "판정 한 번 지연 중앙값", "value": f"{s['latency_ms_median'] / 1000:.1f}초", "note": f"p95 {s['latency_ms_p95'] / 1000:.1f}초"},
+            {
+                "label": "끝난 판정",
+                "value": f"{s['completed']}/{s['calls']}",
+                "note": f"나머지 {s['failed_no_credits']}회는 OpenAI 계정의 잔액 소진(HTTP 429)으로 실패",
+            },
+            {
+                "label": "끝난 판정 중 정답",
+                "value": f"{s['correct']}/{s['completed']}",
+                "note": f"95% 구간 {_pct(s['wilson_95_lower_for_55_of_55'])}부터. 빠진 {s['failed_no_credits']}회가 있어 72회 전체의 값은 아님",
+            },
+            {
+                "label": "틀린 일치",
+                "value": f"{s['false_match']}/{s['completed_non_match_cases']}",
+                "note": "끝난 비일치 사례 중. 모든 인용은 서류의 사실 id",
+            },
+            {
+                "label": "판정 한 번 지연 중앙값",
+                "value": f"{s['latency_ms_median'] / 1000:.1f}초",
+                "note": f"p95 {s['latency_ms_p95'] / 1000:.1f}초",
+            },
         ],
-        "table": {"caption": "같은 24사례 × 3회(test 분할)",
-                  "columns": ["모델", "결과"],
-                  "rows": [[f"{m['id']} (OpenAI)", f"{s['correct']}/{s['completed']} 정답, 틀린 일치 {s['false_match']}, ${s['cost_usd']:.4f}, {s['failed_no_credits']}회 비어 있음"],
-                           ["Claude Haiku 4.5", claude], ["Qwen3-1.7B 로컬", qwen]]},
+        "table": {
+            "caption": "같은 24사례 × 3회(test 분할)",
+            "columns": ["모델", "결과"],
+            "rows": [
+                [
+                    f"{m['id']} (OpenAI)",
+                    f"{s['correct']}/{s['completed']} 정답, 틀린 일치 {s['false_match']}, ${s['cost_usd']:.4f}, {s['failed_no_credits']}회 비어 있음",
+                ],
+                ["Claude Haiku 4.5", claude],
+                ["Qwen3-1.7B 로컬", qwen],
+            ],
+        },
         "caveats": o["limitations"],
         "links": [_link("기록 JSON", "docs/evaluation/openai.json"), _link("설명", "docs/evaluation/README.md")],
     }
 
 
 def build():
-    cards = [trajectory(), claims_model(), claims_audit(), query_understanding(), shell_search(), title_block_vlm(),
-             openai_evidence(), people_and_real_data()]
+    cards = [
+        trajectory(),
+        claims_model(),
+        claims_audit(),
+        query_understanding(),
+        shell_search(),
+        title_block_vlm(),
+        openai_evidence(),
+        people_and_real_data(),
+    ]
     paid = [c["cost_usd"] for c in cards if c["cost_usd"] is not None]
     # the prompt experiment is a source of the title-block card, not a card of its own; its spend belongs in the total
     paid.append(_usd(_load("title-block-vlm-prompts")["spent_usd_total"]))

@@ -2,6 +2,7 @@
 
 Nothing here changes a measurement. The records under docs/evaluation keep their counts; this module says
 what a count of that size can and cannot distinguish."""
+
 from math import sqrt
 from statistics import mean, stdev
 import random
@@ -37,8 +38,14 @@ def pass_power_k(outcomes_by_case: dict[str, list[bool]]) -> dict:
         return {"cases": 0}
     k = min(len(v) for v in cases.values())
     every = sum(all(v[:k]) for v in cases.values())
-    return {"cases": len(cases), "k": k, "pass_power_k": round(every / len(cases), 4), "pass_power_k_ci95": wilson(every, len(cases)),
-            "pass_at_1": round(mean(mean(v) for v in cases.values()), 4), "cases_all_correct": every}
+    return {
+        "cases": len(cases),
+        "k": k,
+        "pass_power_k": round(every / len(cases), 4),
+        "pass_power_k_ci95": wilson(every, len(cases)),
+        "pass_at_1": round(mean(mean(v) for v in cases.values()), 4),
+        "cases_all_correct": every,
+    }
 
 
 def case_bootstrap(values_by_case: dict[str, list[float]], draws: int = 1000, seed: int = 1701) -> list[float] | None:

@@ -1,4 +1,5 @@
 """The lease heartbeat: one failed renewal is survived, a lost lease or a run of failures is reported."""
+
 import threading
 
 from fitwitness.runtime.heartbeat import start_heartbeat

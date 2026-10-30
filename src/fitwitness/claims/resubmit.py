@@ -58,10 +58,16 @@ def plan(case: dict, run: dict, document_ids: list[str], *, today: date | None =
     replaced = [i for i in previous.document_ids if kinds.get(i) in added_kinds]
     kept = [i for i in previous.document_ids if i not in replaced]
     human = (run["result"] or {}).get("human") or {}
-    return previous.model_copy(update={
-        "document_ids": [*kept, *document_ids],
-        "resubmission": Resubmission(
-            of_run=run["id"], attempt=(previous.resubmission.attempt + 1) if previous.resubmission else 2,
-            added=list(document_ids), replaced=replaced, held_by=human.get("reviewer", ""), hold_note=human.get("note", ""),
-        ),
-    })
+    return previous.model_copy(
+        update={
+            "document_ids": [*kept, *document_ids],
+            "resubmission": Resubmission(
+                of_run=run["id"],
+                attempt=(previous.resubmission.attempt + 1) if previous.resubmission else 2,
+                added=list(document_ids),
+                replaced=replaced,
+                held_by=human.get("reviewer", ""),
+                hold_note=human.get("note", ""),
+            ),
+        }
+    )

@@ -51,13 +51,25 @@ def _case(args: tuple) -> list[tuple[str, str, float | None]]:
             if want in (None, ""):
                 continue
             have = getattr(got, f)
-            same = have == want or (scan and f in ("insured_name", "diagnosis_name", "hospital") and isinstance(have, str)
-                                    and have.replace(" ", "") == str(want).replace(" ", ""))  # a scan cannot be asked to keep Korean word spacing
+            same = have == want or (
+                scan
+                and f in ("insured_name", "diagnosis_name", "hospital")
+                and isinstance(have, str)
+                and have.replace(" ", "") == str(want).replace(" ", "")
+            )  # a scan cannot be asked to keep Korean word spacing
             out.append((f"{kind}.{f}", "correct" if same else "missing" if have in (None, "") else "wrong", got.confidence))
     return out
 
 
-def score(truths: list[dict], blanks: dict[str, bytes | None], jitter: float, scan: str | None = None, workers: int = 1, first: int = 0, step: int = 1) -> dict:
+def score(
+    truths: list[dict],
+    blanks: dict[str, bytes | None],
+    jitter: float,
+    scan: str | None = None,
+    workers: int = 1,
+    first: int = 0,
+    step: int = 1,
+) -> dict:
     jobs = [(first + step * i, t, blanks, jitter, scan) for i, t in enumerate(truths)]
     if workers > 1:
         from concurrent.futures import ProcessPoolExecutor
@@ -92,7 +104,9 @@ def main() -> None:
     ap.add_argument("--diagnosis-form")
     ap.add_argument("--receipt-form")
     ap.add_argument("--jitters", default="0,1.5,3,4.5,6")
-    ap.add_argument("--scan", choices=["clean", "light", "medium", "heavy"], help="read each form as a scanned page picture at this damage level")
+    ap.add_argument(
+        "--scan", choices=["clean", "light", "medium", "heavy"], help="read each form as a scanned page picture at this damage level"
+    )
     ap.add_argument("--split", choices=["all", "dev", "test"], default="all")
     ap.add_argument("--limit", type=int, help="only the first N cases of the split")
     ap.add_argument("--workers", type=int, default=1)
@@ -101,12 +115,20 @@ def main() -> None:
     gold = json.loads((Path(a.root) / "gold.json").read_text())
     everything = sorted(gold.items())
     first, step = {"all": (0, 1), "dev": (0, 2), "test": (1, 2)}[a.split]
-    chosen = everything[first::step][:a.limit]
+    chosen = everything[first::step][: a.limit]
     truths = [g["truth"] for _, g in chosen]
-    blanks = {"diagnosis": Path(a.diagnosis_form).read_bytes() if a.diagnosis_form else None,
-              "receipt": Path(a.receipt_form).read_bytes() if a.receipt_form else None}
-    result = {"cases": len(truths), "split": a.split, "scan": a.scan, "forms": {k: "real" if v else "redrawn" for k, v in blanks.items()},
-              "blank_form_reads": blank_control(blanks, a.scan), "by_jitter": {}}
+    blanks = {
+        "diagnosis": Path(a.diagnosis_form).read_bytes() if a.diagnosis_form else None,
+        "receipt": Path(a.receipt_form).read_bytes() if a.receipt_form else None,
+    }
+    result = {
+        "cases": len(truths),
+        "split": a.split,
+        "scan": a.scan,
+        "forms": {k: "real" if v else "redrawn" for k, v in blanks.items()},
+        "blank_form_reads": blank_control(blanks, a.scan),
+        "by_jitter": {},
+    }
     for j in [float(x) for x in a.jitters.split(",")]:
         by_field = score(truths, blanks, j, a.scan, a.workers, first, step)
         total = Counter()

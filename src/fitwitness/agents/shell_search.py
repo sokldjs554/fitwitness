@@ -56,10 +56,24 @@ SPECS: dict[str, Spec] = {
     "grep": Spec(
         flags=frozenset("rilLcEFwovhHsx") | {"n"},
         valued={"A": "int", "B": "int", "C": "int", "m": "int", "e": "pattern"},
-        long={"include": "glob", "exclude": "glob", "max-count": "int", "ignore-case": None, "recursive": None,
-              "files-with-matches": None, "files-without-match": None, "count": None, "line-number": None,
-              "word-regexp": None, "extended-regexp": None, "fixed-strings": None, "invert-match": None,
-              "no-filename": None, "with-filename": None, "only-matching": None},
+        long={
+            "include": "glob",
+            "exclude": "glob",
+            "max-count": "int",
+            "ignore-case": None,
+            "recursive": None,
+            "files-with-matches": None,
+            "files-without-match": None,
+            "count": None,
+            "line-number": None,
+            "word-regexp": None,
+            "extended-regexp": None,
+            "fixed-strings": None,
+            "invert-match": None,
+            "no-filename": None,
+            "with-filename": None,
+            "only-matching": None,
+        },
         pattern=True,
     ),
     "find": Spec(),  # parsed by its own function: path operands, then -name -iname -type -maxdepth -mindepth
@@ -117,7 +131,9 @@ def _path(text: str) -> str:
     if not text or "\0" in text or "\n" in text or text.startswith(("/", "~")) or ".." in parts or len(text) > 200:
         raise ShellRefused(f"path {text!r} leaves the workspace")
     if any(c in text for c in "*?["):  # no file name here has these; without a shell nothing expands them
-        raise ShellRefused(f"path {text!r}: globs are not expanded (there is no shell); use grep -r PATTERN . --include='*.txt' or find . -name '*.txt'")
+        raise ShellRefused(
+            f"path {text!r}: globs are not expanded (there is no shell); use grep -r PATTERN . --include='*.txt' or find . -name '*.txt'"
+        )
     return text
 
 
@@ -168,7 +184,7 @@ def _check(command: str, args: list[str]) -> list[str]:
     while i < len(args):
         a = args[i]
         if a == "--":
-            operands += args[i + 1:]
+            operands += args[i + 1 :]
             break
         if a.startswith("--"):
             name, eq, val = a[2:].partition("=")
@@ -209,8 +225,11 @@ def _check(command: str, args: list[str]) -> list[str]:
         out += ["-e", _value("pattern", operands.pop(0), f"{command} pattern")]
     if operands and not spec.paths:
         raise ShellRefused(f"{command}: takes no file operands")
-    if command == "grep" and not any(f.startswith("-") and not f.startswith("--") and set(f[1:]) & {"r", "R"} for f in out) \
-            and any(p in (".", "./") or p.endswith("/") for p in operands):
+    if (
+        command == "grep"
+        and not any(f.startswith("-") and not f.startswith("--") and set(f[1:]) & {"r", "R"} for f in out)
+        and any(p in (".", "./") or p.endswith("/") for p in operands)
+    ):
         raise ShellRefused("grep: the workspace is a directory; add -r (grep -r PATTERN .)")
     return out + (["--"] + [_path(p) for p in operands] if operands else [])
 
@@ -236,8 +255,16 @@ def run(argv: list[list[str]], root: Path) -> str:
         if binary is None:
             raise ShellRefused(f"{stage[0]} is not installed here")
         try:
-            done = subprocess.run([binary, *stage[1:]], input=data if data is not None else b"", capture_output=True,
-                                  cwd=root, env=ENV, timeout=TIMEOUT_S, preexec_fn=_limits, start_new_session=True)
+            done = subprocess.run(
+                [binary, *stage[1:]],
+                input=data if data is not None else b"",
+                capture_output=True,
+                cwd=root,
+                env=ENV,
+                timeout=TIMEOUT_S,
+                preexec_fn=_limits,
+                start_new_session=True,
+            )
         except subprocess.TimeoutExpired as error:
             raise ShellRefused(f"{stage[0]} took longer than {TIMEOUT_S:g}s") from error
         if done.returncode > (1 if stage[0] == "grep" else 0):
@@ -264,8 +291,15 @@ class Workspace:
         self.names: dict[str, str] = {}  # file name -> revision id
         for r in revisions:
             name = f"{_slug(r.drawing_number)}.rev{_slug(r.revision_label)}.{_slug(r.id)}.txt"
-            lines = [f"drawing_number: {r.drawing_number}", f"revision: {r.revision_label}", f"revision_id: {r.id}",
-                     f"title: {r.title}", f"kind: {r.kind}", f"family: {r.family_id}", f"approval: {r.approval}"]
+            lines = [
+                f"drawing_number: {r.drawing_number}",
+                f"revision: {r.revision_label}",
+                f"revision_id: {r.id}",
+                f"title: {r.title}",
+                f"kind: {r.kind}",
+                f"family: {r.family_id}",
+                f"approval: {r.approval}",
+            ]
             for f in facts.get(r.id, []):
                 mark = "" if f.certainty == "verified" else " [uncertain]"
                 lines.append(f"fact {f.field} = {_value_text(f)}{' ' + f.unit if f.unit else ''}{mark}")

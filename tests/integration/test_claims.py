@@ -1,4 +1,5 @@
 """The claim workflow on the real runtime: extraction with evidence, rules, review, idempotent payout."""
+
 import json
 from pathlib import Path
 import pytest
@@ -22,14 +23,23 @@ def claim_corpus(tmp_path_factory):
 def seed_case(repo, scope, root, case):
     repo.save_claim_case(scope, case)
     for d in [*case["documents"], *case.get("supplementary_documents", [])]:
-        repo.save_claim_doc(scope, d, (root / case["case_id"] / f"{d['id']}.pdf").read_bytes(), (root / case["case_id"] / f"{d['id']}.png").read_bytes())
+        repo.save_claim_doc(
+            scope, d, (root / case["case_id"] / f"{d['id']}.pdf").read_bytes(), (root / case["case_id"] / f"{d['id']}.png").read_bytes()
+        )
     if case["prior_paid_keys"]:
         repo.seed_paid_keys(scope, case["policy"]["policy_id"], case["prior_paid_keys"])
 
 
 def request_for(case, **extra):
-    claim = ClaimRequest(case_id=case["case_id"], claim_id=case["claim_id"], policy=Policy.model_validate(case["policy"]),
-                         requested=case["requested"], document_ids=[d["id"] for d in case["documents"]], submitted_at=case["submitted_at"], **extra)
+    claim = ClaimRequest(
+        case_id=case["case_id"],
+        claim_id=case["claim_id"],
+        policy=Policy.model_validate(case["policy"]),
+        requested=case["requested"],
+        document_ids=[d["id"] for d in case["documents"]],
+        submitted_at=case["submitted_at"],
+        **extra,
+    )
     return RunRequest(kind="claim", claim=claim.model_dump(mode="json"))
 
 
@@ -238,7 +248,9 @@ def test_a_corrected_document_replaces_the_one_it_corrects(env, claim_corpus):
     old_surgery = next(d["id"] for d in case["documents"] if d["kind"] == "surgery")
     new_surgery = case["supplementary_documents"][0]["id"]
     planned = resubmit.plan(case, j.raw(s, held.id), [new_surgery])
-    assert planned.resubmission.replaced == [old_surgery] and old_surgery not in planned.document_ids and new_surgery in planned.document_ids
+    assert (
+        planned.resubmission.replaced == [old_surgery] and old_surgery not in planned.document_ids and new_surgery in planned.document_ids
+    )
     second = j.enqueue(s, RunRequest(kind="claim", claim=planned.model_dump(mode="json")), "resubmit:" + held.id)
     execute_run(r, s, second.id)
     view = j.get(s, second.id)

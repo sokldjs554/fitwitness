@@ -75,5 +75,8 @@ def test_model_usage_is_accounted_for_both_text_and_vision():
 
 def test_a_saved_search_may_call_the_text_channel_by_the_tools_name():
     from fitwitness.agents.tools import DefineToolArgs
-    d = DefineToolArgs(name='housing_search', description='housings by width', channels=['keyword', 'exact'], query_template='housing {query}')
-    assert d.channels == ['bm25', 'exact']
+
+    d = DefineToolArgs(
+        name="housing_search", description="housings by width", channels=["keyword", "exact"], query_template="housing {query}"
+    )
+    assert d.channels == ["bm25", "exact"]

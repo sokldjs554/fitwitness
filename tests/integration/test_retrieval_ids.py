@@ -1,4 +1,5 @@
 """The lexical channel must find a drawing from the forms people actually type."""
+
 from test_workflow import env
 from fitwitness.contracts import SearchRequest
 from fitwitness.retrieval.pipeline import search

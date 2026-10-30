@@ -22,8 +22,11 @@ def test_a_claim_parked_for_three_days_is_answered_under_the_next_deployment(env
 
     # Three days pass: every clock the run keeps moves back, and the sweep that runs on each dispatcher pass sees the deadline gone.
     with repo.connection(scope) as c:
-        c.execute("UPDATE fw_runs SET created_at=created_at-interval '3 days', paused_since=paused_since-interval '3 days', "
-                  "review_due_at=review_due_at-interval '3 days' WHERE id=%s", (run_id,))
+        c.execute(
+            "UPDATE fw_runs SET created_at=created_at-interval '3 days', paused_since=paused_since-interval '3 days', "
+            "review_due_at=review_due_at-interval '3 days' WHERE id=%s",
+            (run_id,),
+        )
         c.execute("UPDATE fw_review_due SET due_at=due_at-interval '3 days' WHERE run_id=%s", (run_id,))
     assert jobs.escalate_overdue(limit=10_000) >= 1
     escalated = [e["payload"] for e in jobs.events(scope, run_id) if e["kind"] == "review_escalated"]

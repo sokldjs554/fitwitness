@@ -66,6 +66,7 @@ def check_answer(waiting: dict, answer: ClaimReview, *, escalated: bool = False)
         # The sign-off tier was decided on the proposed amount. A reviewer who could raise it would pay more than the
         # people required for that tier agreed to.
         raise ReviewRuleError(f"승인 금액은 심사가 제안한 {proposed:,}원을 넘을 수 없습니다")
-    if step >= 2 and same_reviewer(str(waiting.get("first_account") or "") or None, str(waiting.get("first_reviewer") or ""),
-                                   answer.account, answer.reviewer):
+    if step >= 2 and same_reviewer(
+        str(waiting.get("first_account") or "") or None, str(waiting.get("first_reviewer") or ""), answer.account, answer.reviewer
+    ):
         raise ReviewRuleError("2차 승인은 1차 승인자와 다른 담당자여야 합니다")

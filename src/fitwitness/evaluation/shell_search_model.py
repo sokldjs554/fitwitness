@@ -75,16 +75,30 @@ def cases(root: Path, split: str = "test") -> list[dict]:
         ("material_common", f"{common} 도면을 모두 찾아 주세요", ids(lambda i: label[i].get("material") == common), True),
         ("material_other", f"{other} 도면을 모두 찾아 주세요", ids(lambda i: label[i].get("material") == other), True),
         ("material_missing", "재질이 적혀 있지 않은 도면을 모두 찾아 주세요", ids(lambda i: not label[i].get("material")), False),
-        ("kind_material_missing", f"재질이 적혀 있지 않은 {KIND_WORD[no_material]} 도면을 모두 찾아 주세요",
-         ids(lambda i: kind[i] == no_material and not label[i].get("material")), False),
-        ("kind_material_other", f"{other} {KIND_WORD[other_kind]} 도면을 모두 찾아 주세요",
-         ids(lambda i: kind[i] == other_kind and label[i].get("material") == other), True),
+        (
+            "kind_material_missing",
+            f"재질이 적혀 있지 않은 {KIND_WORD[no_material]} 도면을 모두 찾아 주세요",
+            ids(lambda i: kind[i] == no_material and not label[i].get("material")),
+            False,
+        ),
+        (
+            "kind_material_other",
+            f"{other} {KIND_WORD[other_kind]} 도면을 모두 찾아 주세요",
+            ids(lambda i: kind[i] == other_kind and label[i].get("material") == other),
+            True,
+        ),
     ]
     for field in ("width", "hole_spacing"):
         values = Counter(label[i].get(field) for i in label if label[i].get(field) is not None)
         value = most(values)
-        out.append((f"{field}_value", f"{SUBJECT[field]} {value}mm인 도면을 모두 찾아 주세요",
-                    ids(lambda i, f=field, v=value: label[i].get(f) == v), True))
+        out.append(
+            (
+                f"{field}_value",
+                f"{SUBJECT[field]} {value}mm인 도면을 모두 찾아 주세요",
+                ids(lambda i, f=field, v=value: label[i].get(f) == v),
+                True,
+            )
+        )
     out.append(("kind_control", "플랜지 도면을 모두 찾아 주세요", ids(lambda i: kind[i] == "flange"), True))
     return [{"id": cid, "query": q, "answer": a, "checkable": c} for cid, q, a, c in out]
 
@@ -95,7 +109,23 @@ def seed(repo, root: Path, split: str):
 
     scope = TenantScope(tenant_id=f"shell-eval-{uuid4()}", user_id="eval", role="operator")
     for e in _entries(root, split):
-        rev = DrawingRevision(tenant_id=scope.tenant_id, **{k: e[k] for k in ("id", "document_id", "drawing_number", "family_id", "revision_label", "supersedes", "kind", "title", "source_hash")})
+        rev = DrawingRevision(
+            tenant_id=scope.tenant_id,
+            **{
+                k: e[k]
+                for k in (
+                    "id",
+                    "document_id",
+                    "drawing_number",
+                    "family_id",
+                    "revision_label",
+                    "supersedes",
+                    "kind",
+                    "title",
+                    "source_hash",
+                )
+            },
+        )
         data = (root / e["pdf"]).read_bytes()
         repo.add_revision(scope, rev, data)
         repo.save_facts(scope, rev.id, extract_pdf(data, rev))
@@ -109,14 +139,20 @@ def score(case: dict, actual: dict[str, str], events: list[dict]) -> dict:
     tools = [(e.get("payload") or {}) for e in events if e["kind"] == "tool"]
     errors = [(e.get("payload") or {}) for e in events if e["kind"] == "tool_error"]
     return {
-        "answer": len(answer), "found": len(found & answer), "extra": len(found - answer),
+        "answer": len(answer),
+        "found": len(found & answer),
+        "extra": len(found - answer),
         "found_recall": round(len(found & answer) / len(answer), 4) if answer else None,
         "confirmed": len(matched & answer) if case["checkable"] else None,
         "false_matches": len(matched - answer) if case["checkable"] else None,
         "missed": sorted(answer - found),
         "commands": [t.get("arguments", {}).get("command") for t in tools if t.get("name") == "search_shell"],
         "command_items": [t.get("items") for t in tools if t.get("name") == "search_shell"],
-        "refused": [{"command": (e.get("arguments") or {}).get("command"), "error": e.get("error")} for e in errors if e.get("name") == "search_shell"],
+        "refused": [
+            {"command": (e.get("arguments") or {}).get("command"), "error": e.get("error")}
+            for e in errors
+            if e.get("name") == "search_shell"
+        ],
         "tools": [t.get("name") for t in tools],
         "tool_errors": len(errors),
     }
@@ -147,14 +183,28 @@ def run_one(repo, jobs, root: Path, split: str, case: dict, request: RunRequest,
     actual = {d.revision_id: d.verdict.value if hasattr(d.verdict, "value") else d.verdict for d in view.decisions}
     requirements = next(((e["payload"] or {}).get("requirements", []) for e in events if e["kind"] == "intent"), [])
     usage = view.usage
-    return {"case": case["id"], "query": case["query"], "arm": arm, "provider": request.provider, "mode": request.mode,
-            "run_id": view.id, "state": view.state, "error": error, "latency_ms": round(latency, 1),
-            "requirements": [{k: r.get(k) for k in ("field", "operator", "value", "unit")} for r in requirements],
-            "actual": actual, **score(case, actual, events),
-            "model_calls": usage.model_calls, "tool_calls": usage.tool_calls, "input_tokens": usage.input_tokens,
-            "output_tokens": usage.output_tokens, "cost_usd": float(usage.cost_usd or 0), "reserved_left_usd": float(usage.reserved_cost_usd),
-            "model_errors": [e["payload"] for e in events if e["kind"] in ("model_error", "model_schema_error")],
-            "events": events}
+    return {
+        "case": case["id"],
+        "query": case["query"],
+        "arm": arm,
+        "provider": request.provider,
+        "mode": request.mode,
+        "run_id": view.id,
+        "state": view.state,
+        "error": error,
+        "latency_ms": round(latency, 1),
+        "requirements": [{k: r.get(k) for k in ("field", "operator", "value", "unit")} for r in requirements],
+        "actual": actual,
+        **score(case, actual, events),
+        "model_calls": usage.model_calls,
+        "tool_calls": usage.tool_calls,
+        "input_tokens": usage.input_tokens,
+        "output_tokens": usage.output_tokens,
+        "cost_usd": float(usage.cost_usd or 0),
+        "reserved_left_usd": float(usage.reserved_cost_usd),
+        "model_errors": [e["payload"] for e in events if e["kind"] in ("model_error", "model_schema_error")],
+        "events": events,
+    }
 
 
 def summarise(rows: list[dict]) -> dict:
@@ -165,15 +215,20 @@ def summarise(rows: list[dict]) -> dict:
             continue
         checkable = [r for r in group if r["confirmed"] is not None]
         out[arm] = {
-            "runs": len(group), "completed": sum(r["state"] == "completed" for r in group),
-            "found": sum(r["found"] for r in group), "answer": sum(r["answer"] for r in group),
+            "runs": len(group),
+            "completed": sum(r["state"] == "completed" for r in group),
+            "found": sum(r["found"] for r in group),
+            "answer": sum(r["answer"] for r in group),
             "extra": sum(r["extra"] for r in group),
             "complete_sets": sum(r["found"] == r["answer"] for r in group),
-            "confirmed": sum(r["confirmed"] for r in checkable), "confirmable": sum(r["answer"] for r in checkable),
+            "confirmed": sum(r["confirmed"] for r in checkable),
+            "confirmable": sum(r["answer"] for r in checkable),
             "false_matches": sum(r["false_matches"] for r in checkable),
-            "shell_commands": sum(len(r["commands"]) for r in group), "refused": sum(len(r["refused"]) for r in group),
+            "shell_commands": sum(len(r["commands"]) for r in group),
+            "refused": sum(len(r["refused"]) for r in group),
             "runs_using_shell": sum(bool(r["commands"]) for r in group),
-            "model_calls": sum(r["model_calls"] for r in group), "tool_calls": sum(r["tool_calls"] for r in group),
+            "model_calls": sum(r["model_calls"] for r in group),
+            "tool_calls": sum(r["tool_calls"] for r in group),
             "cost_usd": round(sum(r["cost_usd"] for r in group), 6),
             "latency_ms_p50": round(median(r["latency_ms"] for r in group), 1),
         }
@@ -198,10 +253,20 @@ def run(args) -> dict:
     jobs.migrate()
     ceiling, cap = Decimal(str(args.max_cost_usd)), Decimal(str(args.per_run_usd))
     protocol = {
-        "split": args.split, "drawings": len(_entries(root, args.split)), "cases": todo, "arms": arms, "mode": args.mode,
-        "provider": "anthropic", "model": args.model, "ceiling_usd": str(ceiling), "per_run_cap_usd": str(cap), "budget": BUDGET,
-        "pricing_usd_per_million": {"input": os.getenv("FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION"),
-                                    "output": os.getenv("FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION")},
+        "split": args.split,
+        "drawings": len(_entries(root, args.split)),
+        "cases": todo,
+        "arms": arms,
+        "mode": args.mode,
+        "provider": "anthropic",
+        "model": args.model,
+        "ceiling_usd": str(ceiling),
+        "per_run_cap_usd": str(cap),
+        "budget": BUDGET,
+        "pricing_usd_per_million": {
+            "input": os.getenv("FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION"),
+            "output": os.getenv("FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION"),
+        },
         "code_sha": git_sha(),
         "module_hash": sha256(Path(__file__).read_bytes()).hexdigest(),
         "started_at": datetime.now(timezone.utc).isoformat(),
@@ -214,32 +279,67 @@ def run(args) -> dict:
         rows.append(row)
         with (out / "runs.jsonl").open("a") as f:
             f.write(json.dumps(row, ensure_ascii=False, default=str) + "\n")
-        print(row["arm"], row["case"], row["state"], f"found {row['found']}/{row['answer']} extra {row['extra']}",
-              "confirmed", row["confirmed"], "commands", row["commands"], "refused", len(row["refused"]), "cost", row["cost_usd"], flush=True)
+        print(
+            row["arm"],
+            row["case"],
+            row["state"],
+            f"found {row['found']}/{row['answer']} extra {row['extra']}",
+            "confirmed",
+            row["confirmed"],
+            "commands",
+            row["commands"],
+            "refused",
+            len(row["refused"]),
+            "cost",
+            row["cost_usd"],
+            flush=True,
+        )
 
     for case in todo:  # the reference path, free
-        record(run_one(repo, jobs, root, args.split, case, RunRequest(search=SearchRequest(text=case["query"]), provider="rules", budget=Budget(max_tokens=64000)), "rules"))
+        record(
+            run_one(
+                repo,
+                jobs,
+                root,
+                args.split,
+                case,
+                RunRequest(search=SearchRequest(text=case["query"]), provider="rules", budget=Budget(max_tokens=64000)),
+                "rules",
+            )
+        )
     for arm in arms:
         for case in todo:
             if stop_reason or not ledger.fits(cap):
-                skipped.append({"case": case["id"], "arm": arm, "reason": stop_reason or f"ceiling: spent {ledger.spent} + cap {cap} > {ceiling}"})
+                skipped.append(
+                    {"case": case["id"], "arm": arm, "reason": stop_reason or f"ceiling: spent {ledger.spent} + cap {cap} > {ceiling}"}
+                )
                 continue
             ledger.reserve(cap)
-            request = RunRequest(search=SearchRequest(text=case["query"]), provider="anthropic", model_id=args.model, mode=args.mode,
-                                 budget=Budget(max_cost_usd=cap, **BUDGET))
+            request = RunRequest(
+                search=SearchRequest(text=case["query"]),
+                provider="anthropic",
+                model_id=args.model,
+                mode=args.mode,
+                budget=Budget(max_cost_usd=cap, **BUDGET),
+            )
             row = run_one(repo, jobs, root, args.split, case, request, arm)
             row["charged_usd"] = float(ledger.settle(cap, Charged(Decimal(str(row["cost_usd"])), Decimal(str(row["reserved_left_usd"])))))
             record(row)
             stop_reason = rejected({**row, "provider": "anthropic"})
-    report = {"status": "measured" if any(r["arm"] != "rules" and r["state"] == "completed" for r in rows) else "not measured",
-              "stopped": stop_reason, "protocol": protocol, "summary": summarise(rows),
-              "spent_usd": float(ledger.spent), "skipped": skipped,
-              "rows": [{k: v for k, v in r.items() if k != "events"} for r in rows],
-              "limitations": [
-                  "합성 도면 test split 30장 한 작업 공간, 질의 8개, 질의마다 한 번 실행입니다. 반복이 없어 모델의 변동은 보지 못합니다.",
-                  "질의와 정답 집합은 생성기의 라벨에서 정해진 규칙으로 만들었고, 셸 도구가 유리한 질의(열거, 부정)를 일부러 골랐습니다. 순위 검색이 답할 수 있는 플랜지 질의 하나가 대조군입니다.",
-                  "셸 도구가 읽는 글은 도번·제목·추출된 사실뿐이고, 사실 추출은 합성 PDF의 벡터 글자에서 나옵니다.",
-              ]}
+    report = {
+        "status": "measured" if any(r["arm"] != "rules" and r["state"] == "completed" for r in rows) else "not measured",
+        "stopped": stop_reason,
+        "protocol": protocol,
+        "summary": summarise(rows),
+        "spent_usd": float(ledger.spent),
+        "skipped": skipped,
+        "rows": [{k: v for k, v in r.items() if k != "events"} for r in rows],
+        "limitations": [
+            "합성 도면 test split 30장 한 작업 공간, 질의 8개, 질의마다 한 번 실행입니다. 반복이 없어 모델의 변동은 보지 못합니다.",
+            "질의와 정답 집합은 생성기의 라벨에서 정해진 규칙으로 만들었고, 셸 도구가 유리한 질의(열거, 부정)를 일부러 골랐습니다. 순위 검색이 답할 수 있는 플랜지 질의 하나가 대조군입니다.",
+            "셸 도구가 읽는 글은 도번·제목·추출된 사실뿐이고, 사실 추출은 합성 PDF의 벡터 글자에서 나옵니다.",
+        ],
+    }
     (out / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str))
     return report
 

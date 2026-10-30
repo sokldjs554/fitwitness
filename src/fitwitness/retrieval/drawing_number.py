@@ -30,7 +30,7 @@ _REF_RE = re.compile(
 )
 _SPLIT_RE = re.compile(rf"{_SEP}+")
 REVISION_CONFIDENCE = 0.9  # the number is the same drawing, asked for at a revision the index does not distinguish
-PADDED_CONFIDENCE = 0.9    # the same number written with other zero padding or grouping
+PADDED_CONFIDENCE = 0.9  # the same number written with other zero padding or grouping
 
 MatchMode = Literal["exact", "fuzzy", "series"]
 
@@ -174,12 +174,12 @@ def _one_edit(digits: str):
     """``digits`` and every string one substitution, deletion, insertion or adjacent swap away (digits 0-9)."""
     yield digits
     for i in range(len(digits)):
-        yield digits[:i] + digits[i + 1:]
+        yield digits[:i] + digits[i + 1 :]
         for d in "0123456789":
             if d != digits[i]:
-                yield digits[:i] + d + digits[i + 1:]
+                yield digits[:i] + d + digits[i + 1 :]
         if i + 1 < len(digits) and digits[i] != digits[i + 1]:
-            yield digits[:i] + digits[i + 1] + digits[i] + digits[i + 2:]
+            yield digits[:i] + digits[i + 1] + digits[i] + digits[i + 2 :]
     for i in range(len(digits) + 1):
         for d in "0123456789":
             yield digits[:i] + d + digits[i:]
@@ -208,9 +208,12 @@ def match_reference(
     if not ref.series:
         # The same number with other zero padding ("FW-0-4", "FW-00-04") or grouping ("FW-0004") is that number, not a typo of it.
         as_ints = tuple(int(g) for g in ref.groups)
-        padded = [(dn, PADDED_CONFIDENCE * ref.confidence, "exact") for dn, groups in same_prefix
-                  if (len(groups) == len(ref.groups) and tuple(int(g) for g in groups) == as_ints)
-                  or (len(groups) != len(ref.groups) and "".join(groups) == ref.digits)]
+        padded = [
+            (dn, PADDED_CONFIDENCE * ref.confidence, "exact")
+            for dn, groups in same_prefix
+            if (len(groups) == len(ref.groups) and tuple(int(g) for g in groups) == as_ints)
+            or (len(groups) != len(ref.groups) and "".join(groups) == ref.digits)
+        ]
         if padded:
             return sorted(padded, key=lambda x: (-x[1], x[0]))
     out: list[tuple[str, float, MatchMode]] = []
@@ -219,7 +222,7 @@ def match_reference(
         out.extend((dn, 0.8 * ref.confidence, "series") for dn, groups in same_prefix if groups[: len(ref.groups)] == ref.groups)
     if not out and fuzzy:
         near = index.near_digits(ref.prefix, ref.digits) if index is not None else None
-        for dn, groups in (same_prefix if near is None else near):
+        for dn, groups in same_prefix if near is None else near:
             if len(groups) != len(ref.groups):
                 continue
             distance = damerau_levenshtein("".join(groups), ref.digits, cap=1)

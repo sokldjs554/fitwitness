@@ -22,11 +22,7 @@ from statistics import mean
 from fitwitness.ingest.cad import extract_step
 from fitwitness.retrieval.geometry import GEOMETRY_WEIGHTS, rank_geometry
 
-NIST_SOURCE_URL = (
-    "https://raw.githubusercontent.com/usnistgov/SFA/"
-    "72375d17c09cf7072c30d9393b5c08b7aa272285/"
-    "Release/NIST-PMI-STEP-Files.zip"
-)
+NIST_SOURCE_URL = "https://raw.githubusercontent.com/usnistgov/SFA/72375d17c09cf7072c30d9393b5c08b7aa272285/Release/NIST-PMI-STEP-Files.zip"
 NIST_SOURCE_SHA256 = "1fb91bb8ff0fe02032b948fda0775bc74591cd0bebc0988347d32574e5884f90"
 CASE_RE = re.compile(r"nist_(ctc_\d+|ftc_\d+)", re.IGNORECASE)
 
@@ -90,19 +86,13 @@ def run(source_zip: Path, output: Path):
         raise ValueError(f"unexpected NIST source hash: {digest}")
 
     with zipfile.ZipFile(source_zip) as archive:
-        names = [
-            name
-            for name in archive.namelist()
-            if name.lower().endswith((".stp", ".step"))
-        ]
+        names = [name for name in archive.namelist() if name.lower().endswith((".stp", ".step"))]
         pairs = _canonical_pairs(names)
         if len(pairs) != 11:
             raise ValueError(f"expected 11 AP203/AP242 pairs, got {len(pairs)}")
 
         output.mkdir(parents=True, exist_ok=False)
-        code_sha = os.getenv("GITHUB_SHA") or subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], text=True
-        ).strip()
+        code_sha = os.getenv("GITHUB_SHA") or subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
         protocol = {
             "version": "nist-cad-v1",
             "scope": "external STEP cross-format geometry retrieval; not production industrial validation",
@@ -116,9 +106,7 @@ def run(source_zip: Path, output: Path):
             "selection": "all 11 CTC01-05/FTC06-11 pairs in the pinned archive; no post-score filtering",
             "code_sha": code_sha,
         }
-        (output / "protocol.json").write_text(
-            json.dumps(protocol, ensure_ascii=False, indent=2) + "\n"
-        )
+        (output / "protocol.json").write_text(json.dumps(protocol, ensure_ascii=False, indent=2) + "\n")
 
         features: dict[str, dict[str, dict]] = {}
         parse_rows = []
@@ -148,28 +136,16 @@ def run(source_zip: Path, output: Path):
                     features[case][variant] = values
 
         failed = [row for row in parse_rows if row["status"] != "ok"]
-        (output / "parse.json").write_text(
-            json.dumps(parse_rows, ensure_ascii=False, indent=2) + "\n"
-        )
+        (output / "parse.json").write_text(json.dumps(parse_rows, ensure_ascii=False, indent=2) + "\n")
         if failed:
-            raise RuntimeError(
-                f"external STEP parsing failed for {len(failed)} selected files"
-            )
+            raise RuntimeError(f"external STEP parsing failed for {len(failed)} selected files")
 
         candidates = {case: values["ap242"] for case, values in features.items()}
         rows = []
         for case, values in features.items():
             ranking = rank_geometry(values["ap203"], candidates)
-            rank = 1 + next(
-                index
-                for index, candidate in enumerate(ranking)
-                if candidate["candidate_id"] == case
-            )
-            expected = next(
-                candidate
-                for candidate in ranking
-                if candidate["candidate_id"] == case
-            )
+            rank = 1 + next(index for index, candidate in enumerate(ranking) if candidate["candidate_id"] == case)
+            expected = next(candidate for candidate in ranking if candidate["candidate_id"] == case)
             rows.append(
                 {
                     "case_id": case,
@@ -214,9 +190,7 @@ def run(source_zip: Path, output: Path):
                 "Weights and pair selection are frozen in protocol.json before parsing/ranking; no score-based tuning is performed.",
             ],
         }
-        (output / "report.json").write_text(
-            json.dumps(report, ensure_ascii=False, indent=2) + "\n"
-        )
+        (output / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
         print(json.dumps(metrics, ensure_ascii=False))
 
 

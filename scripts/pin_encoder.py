@@ -3,6 +3,7 @@
 Run where huggingface.co is reachable (the pin workflow). It downloads only the named files, prints their
 SHA-256 beside the resolved commit, and verifies nothing: the printed entry is what a person commits, and
 scripts/download_encoders.py verifies against it from then on."""
+
 import argparse, json, sys, urllib.request
 from hashlib import sha256
 from pathlib import Path
@@ -26,4 +27,6 @@ for name in a.files:
     urllib.request.urlretrieve(f"https://huggingface.co/{a.model_id}/resolve/{commit}/{name}", target)
     files[name] = sha256(target.read_bytes()).hexdigest()
     print(f"{name}: {target.stat().st_size} bytes", file=sys.stderr)
-print("== pin", json.dumps({"model_id": a.model_id, "revision": commit, "license": a.license, "folder": a.folder, "files": files}, indent=2))
+print(
+    "== pin", json.dumps({"model_id": a.model_id, "revision": commit, "license": a.license, "folder": a.folder, "files": files}, indent=2)
+)

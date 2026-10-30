@@ -1,4 +1,5 @@
 """Metrics are derived from the run/event tables; a run can be read back as a span tree."""
+
 from test_workflow import env, request
 from fitwitness.runtime.metrics import collect, summarize
 from fitwitness.contracts import RunRequest, SearchRequest
@@ -64,7 +65,10 @@ def test_counters_do_not_go_down_when_a_workspace_expires_and_waits_are_exported
     with psycopg.connect(r.dsn, autocommit=True) as c:
         # A priced run, so the usage totals have something to keep, and a run no worker has taken for ten minutes
         # whose review deadline has passed.
-        c.execute("UPDATE fw_runs SET usage=usage||%s WHERE id=%s", (Jsonb({"cost_usd": "0.25", "input_tokens": 1000, "output_tokens": 200, "model_calls": 2}), run.id))
+        c.execute(
+            "UPDATE fw_runs SET usage=usage||%s WHERE id=%s",
+            (Jsonb({"cost_usd": "0.25", "input_tokens": 1000, "output_tokens": 200, "model_calls": 2}), run.id),
+        )
         c.execute("UPDATE fw_runs SET created_at=now()-interval '10 minutes' WHERE id=%s", (waiting.id,))
         c.execute("INSERT INTO fw_review_due(tenant_id,run_id,due_at) VALUES(%s,%s,now()-interval '1 minute')", (s.tenant_id, waiting.id))
     before = summarize(collect(r.dsn))
@@ -82,8 +86,13 @@ def test_counters_do_not_go_down_when_a_workspace_expires_and_waits_are_exported
     with psycopg.connect(r.dsn) as c:
         assert c.execute("SELECT count(*) FROM fw_runs WHERE tenant_id=%s", (s.tenant_id,)).fetchone()[0] == 0
     after = summarize(collect(r.dsn))
-    counters = [k for k in before if k.split("{")[0].endswith("_total") and not k.startswith(("fitwitness_runs_total", "fitwitness_requests_total"))
-                and "_latency_" not in k]
+    counters = [
+        k
+        for k in before
+        if k.split("{")[0].endswith("_total")
+        and not k.startswith(("fitwitness_runs_total", "fitwitness_requests_total"))
+        and "_latency_" not in k
+    ]
     assert "fitwitness_cost_usd_total" in counters and 'fitwitness_tool_calls_total{tool="query_dimensions"}' in counters
     assert {k: after.get(k) for k in counters} == {k: before[k] for k in counters}
 

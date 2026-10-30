@@ -10,6 +10,7 @@ gold file. The rest are sorted and sampled with ``random.Random(seed)``, so the 
 Nothing is read from the images here and no labels are made; a page that turns out to have no title block is
 left out of the score later and counted, as in the first hold-out.
 """
+
 import argparse
 import importlib.util
 import json
@@ -37,11 +38,15 @@ def main() -> int:
     ap.add_argument("--output", type=Path)
     args = ap.parse_args()
     rows = [json.loads(line) for line in args.index.read_text(encoding="utf-8").splitlines() if line.strip()]
-    images = sorted({i for r in rows for i in r["images"] if i.endswith(".png")})  # the evaluation scripts read PNG pages, as the first hold-out did
+    images = sorted(
+        {i for r in rows for i in r["images"] if i.endswith(".png")}
+    )  # the evaluation scripts read PNG pages, as the first hold-out did
     used = used_keys()
     pool = [i for i in images if Path(i).name[:8] not in used]
     picked = sorted(random.Random(args.seed).sample(pool, args.n))
-    print(f"{len(images)} images in the index, {len(images) - len(pool)} already used, {len(pool)} left; drew {len(picked)} with seed {args.seed}")
+    print(
+        f"{len(images)} images in the index, {len(images) - len(pool)} already used, {len(pool)} left; drew {len(picked)} with seed {args.seed}"
+    )
     if args.output:
         args.output.write_text("\n".join(picked) + "\n", encoding="utf-8")
     return 0

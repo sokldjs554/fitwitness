@@ -5,6 +5,7 @@ The paid runs of claims-injection-model showed what Claude Haiku 4.5 proposes on
 99,000,000 as the total. The stub proposes exactly that, so the branch after the model (grounding, the event log's
 record of the proposal, the challenge rule) is checked without a credential: a value read from a remark is dropped,
 the claim goes to a person, and a clean proposal pays what the gold says."""
+
 import json
 from pathlib import Path
 from uuid import uuid4
@@ -28,8 +29,15 @@ class StubModel:
 
     def structured(self, schema, prompt, payload, role="extractor"):
         assert schema is ClaimDraft and "untrusted data" in prompt
-        return self.draft, {"role": role, "attempt": 1, "repair": 0, "latency_ms": 1.0, "provider": "stub", "model_id": "stub",
-                            "usage": {"input_tokens": 1, "output_tokens": 1}}
+        return self.draft, {
+            "role": role,
+            "attempt": 1,
+            "repair": 0,
+            "latency_ms": 1.0,
+            "provider": "stub",
+            "model_id": "stub",
+            "usage": {"input_tokens": 1, "output_tokens": 1},
+        }
 
 
 def draft_from_rows(docs) -> dict:
@@ -44,8 +52,11 @@ def draft_from_rows(docs) -> dict:
 
 
 def hospitalization_case(manifest, gold):
-    return next(c for c in manifest["cases"] if c["requested"] == ["hospitalization_daily"] and gold[c["case_id"]]["gold"]["outcome"] == "APPROVE"
-                and not c["prior_paid_keys"])
+    return next(
+        c
+        for c in manifest["cases"]
+        if c["requested"] == ["hospitalization_daily"] and gold[c["case_id"]]["gold"]["outcome"] == "APPROVE" and not c["prior_paid_keys"]
+    )
 
 
 def run_with(env, monkeypatch, case, docs, draft, tenant):
@@ -64,6 +75,7 @@ def run_with(env, monkeypatch, case, docs, draft, tenant):
 
 def request_cap():
     from decimal import Decimal
+
     return Decimal("0.04")
 
 
@@ -95,9 +107,15 @@ def test_a_clean_proposal_pays_what_the_gold_says(env, claim_corpus, monkeypatch
     view, events, got = run_with(env, monkeypatch, case, docs, ClaimDraft(**draft_from_rows(docs)), "stub-clean")
     assert view.state == "completed"
     extracted = next(e["payload"] for e in events if e["kind"] == "extracted")
-    assert extracted["dropped"] == [] and extracted["fields"]["total_amount"] == truth.total_amount, "the quoted '1,234,000 원' became the integer"
+    assert extracted["dropped"] == [] and extracted["fields"]["total_amount"] == truth.total_amount, (
+        "the quoted '1,234,000 원' became the integer"
+    )
     ex, decision = got
-    assert (decision.outcome, decision.total_amount) == (g["gold"]["outcome"], g["gold"]["total_amount"]) == ("APPROVE", g["gold"]["total_amount"])
+    assert (
+        (decision.outcome, decision.total_amount)
+        == (g["gold"]["outcome"], g["gold"]["total_amount"])
+        == ("APPROVE", g["gold"]["total_amount"])
+    )
     assert "R-CHAL-02" not in decision.rule_ids() and view.claim["payout"]["status"] == "paid"
     assert json.dumps(extracted["proposed"], ensure_ascii=False)  # the proposal is in the log, as sent
 
@@ -107,14 +125,28 @@ class StubReaderAndAuditor:
 
     def __init__(self, draft: ClaimDraft, recommendation: str):
         from fitwitness.claims.audit import AuditVerdict, Concern
+
         self.draft, self.emit = draft, None
-        self.verdict = AuditVerdict(agree=recommendation == "pay", recommendation=recommendation,
-                                    concerns=[] if recommendation == "pay" else [Concern(code="documents_disagree", message="영수증 금액이 다릅니다", evidence="합계: 1,234,000 원")])
+        self.verdict = AuditVerdict(
+            agree=recommendation == "pay",
+            recommendation=recommendation,
+            concerns=[]
+            if recommendation == "pay"
+            else [Concern(code="documents_disagree", message="영수증 금액이 다릅니다", evidence="합계: 1,234,000 원")],
+        )
         self.calls = []
 
     def structured(self, schema, prompt, payload, role="extractor"):
         self.calls.append((schema.__name__, role))
-        meta = {"role": role, "attempt": 1, "repair": 0, "latency_ms": 1.0, "provider": "stub", "model_id": "stub", "usage": {"input_tokens": 1, "output_tokens": 1}}
+        meta = {
+            "role": role,
+            "attempt": 1,
+            "repair": 0,
+            "latency_ms": 1.0,
+            "provider": "stub",
+            "model_id": "stub",
+            "usage": {"input_tokens": 1, "output_tokens": 1},
+        }
         if schema is ClaimDraft:
             return self.draft, meta
         assert "약관" in payload and "자동 결정" in payload and "untrusted data" in prompt
@@ -132,9 +164,18 @@ def run_audited(env, monkeypatch, case, docs, draft, recommendation, tenant):
     monkeypatch.setattr(claim_graph, "create_model", lambda provider, model_id, budget: stub)
     scope = scope_for(case["case_id"], f"{tenant}-{uuid4().hex[:8]}")
     seed(r, scope, case, docs)
-    claim = ClaimRequest(case_id=case["case_id"], claim_id=case["claim_id"], policy=Policy.model_validate(case["policy"]), requested=case["requested"],
-                         document_ids=[i for i, _, _ in docs], submitted_at=case["submitted_at"], audit="model")
-    request = RunRequest(kind="claim", claim=claim.model_dump(mode="json"), provider="anthropic", model_id="stub", budget=Budget(max_cost_usd=request_cap()))
+    claim = ClaimRequest(
+        case_id=case["case_id"],
+        claim_id=case["claim_id"],
+        policy=Policy.model_validate(case["policy"]),
+        requested=case["requested"],
+        document_ids=[i for i, _, _ in docs],
+        submitted_at=case["submitted_at"],
+        audit="model",
+    )
+    request = RunRequest(
+        kind="claim", claim=claim.model_dump(mode="json"), provider="anthropic", model_id="stub", budget=Budget(max_cost_usd=request_cap())
+    )
     run = j.enqueue(scope, request, f"audited-{tenant}-{uuid4()}")
     execute_run(r, scope, run.id)
     events = [dict(e) for e in j.events(scope, run.id)]

@@ -42,13 +42,23 @@ def drawing(scope, i, rng, **changes):
     number = f"TS-{i // 5:05d}-{i % 5}"
     payload = f"stub {scope.tenant_id} {number}".encode()
     digest = sha256(payload).hexdigest()
-    fields = dict(tenant_id=scope.tenant_id, document_id=f"doc-{i}", drawing_number=number, family_id=f"TS-{i // 5:05d}",
-                  revision_label="A", source_hash=digest, title=f"{KINDS[kind]} {number}", kind=kind)
+    fields = dict(
+        tenant_id=scope.tenant_id,
+        document_id=f"doc-{i}",
+        drawing_number=number,
+        family_id=f"TS-{i // 5:05d}",
+        revision_label="A",
+        source_hash=digest,
+        title=f"{KINDS[kind]} {number}",
+        kind=kind,
+    )
     r = DrawingRevision(**{**fields, **changes})
     src = SourceRef(revision_id=r.id, source_hash=digest, page=1, bbox=(0.0, 0.0, 1.0, 1.0))
-    facts = [Fact(field="material", value=rng.choice(MATERIALS), source=src),
-             Fact(field="hole_spacing", value=str(rng.choice(range(20, 120, 2))), unit="mm", source=src),
-             Fact(field="width", value=str(rng.choice(range(30, 200, 5))), unit="mm", source=src)]
+    facts = [
+        Fact(field="material", value=rng.choice(MATERIALS), source=src),
+        Fact(field="hole_spacing", value=str(rng.choice(range(20, 120, 2))), unit="mm", source=src),
+        Fact(field="width", value=str(rng.choice(range(30, 200, 5))), unit="mm", source=src),
+    ]
     if i % 7 == 0:
         facts.append(Fact(field="thickness", value=Interval(low="3", high="5"), unit="mm", source=src))
     return r, payload, facts, {}
@@ -116,8 +126,10 @@ def test_a_write_that_rolls_back_leaves_nothing_kept(repo):
     r, payload, _, _ = drawing(scope, 300, rng)
     with pytest.raises(RuntimeError):
         with repo.connection(scope) as c:
-            c.execute("INSERT INTO fw_revisions VALUES (%s,%s,%s,%s,%s)",
-                      (scope.tenant_id, r.id, r.document_id, None, Jsonb(r.model_dump(mode="json"))))
+            c.execute(
+                "INSERT INTO fw_revisions VALUES (%s,%s,%s,%s,%s)",
+                (scope.tenant_id, r.id, r.document_id, None, Jsonb(r.model_dump(mode="json"))),
+            )
             inside = repo.state_in(c, scope)  # sees its own uncommitted row...
             assert r.id in inside.ids
             raise RuntimeError("roll back")
@@ -149,9 +161,21 @@ def test_a_database_rebuilt_under_the_same_name_does_not_serve_the_old_state(rep
 
 
 QUERIES = [
-    "TS-00001-2 도면", "ts 00001 2 도면 찾아줘", "TS-OOOO1-2", "TS-00001-7", "TS-00009-9", "TS-00002 시리즈", "FW-00001-2",
-    "브래킷 구멍 간격 40mm SUS304", "구동 샤프트", "플랜지를 찾아줘", "하우징 두께 4mm 이상", "AL6061 너비 100mm",
-    "kind:bracket shaft flange", "zzzz", "TS-00003-1 SUS304 브래킷",
+    "TS-00001-2 도면",
+    "ts 00001 2 도면 찾아줘",
+    "TS-OOOO1-2",
+    "TS-00001-7",
+    "TS-00009-9",
+    "TS-00002 시리즈",
+    "FW-00001-2",
+    "브래킷 구멍 간격 40mm SUS304",
+    "구동 샤프트",
+    "플랜지를 찾아줘",
+    "하우징 두께 4mm 이상",
+    "AL6061 너비 100mm",
+    "kind:bracket shaft flange",
+    "zzzz",
+    "TS-00003-1 SUS304 브래킷",
 ]
 
 
@@ -196,10 +220,12 @@ class CountingEncoders:
 
     def encode_text(self, texts, query=False):
         import numpy as np
+
         return np.zeros((len(texts), 3), dtype=np.float32) + 0.1
 
     def encode_image(self, images):
         import numpy as np
+
         return np.zeros((len(images), 3), dtype=np.float32) + 0.1
 
 

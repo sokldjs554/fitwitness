@@ -7,6 +7,7 @@ Nothing is called. Each figure is a mean (cost) or median / 95th percentile (lat
 ``cost_usd`` and ``latency_ms`` of a record in docs/evaluation; ``p95`` is the value at index
 ``int(0.95 * (n - 1))`` of the sorted latencies.
 """
+
 import json
 import statistics as st
 from collections import defaultdict
@@ -33,7 +34,9 @@ def span(values, fmt):
 def show(label, groups, unit, digits=1):
     s = [stats(g) for g in groups]
     fmt = f"%.{digits}f"
-    print(f"| {label} | {unit} | ${span([x['cost'] for x in s], '%.4f')} | {span([x['p50'] for x in s], fmt)} / {span([x['p95'] for x in s], fmt)}초 |")
+    print(
+        f"| {label} | {unit} | ${span([x['cost'] for x in s], '%.4f')} | {span([x['p50'] for x in s], fmt)} / {span([x['p95'] for x in s], fmt)}초 |"
+    )
 
 
 claude = load("claude")
@@ -44,9 +47,11 @@ show("청구 서류 읽기, 글자 층이 있는 서류", [cm[k] for k in cm if 
 show("청구 서류 읽기, 스캔처럼 흐리게 만든 서류", [cm["medium scan (OCR for both readers)"]], "60건 × 1회")
 
 audit = load("claims-audit")
-for label, runs in (("지급 직전 감사, 약해진 규칙의 결정", [r for r in audit["runs"] + audit["repeats"]["runs"] if r["mode"] == "degraded"]),
-                    ("지급 직전 감사, 멀쩡한 규칙의 결정", [r for r in audit["runs"] if r["mode"] == "clean"]),
-                    ("지급 직전 감사, 사실 절이 비어 있는 고장", [audit["subtle_control"]["run"]])):
+for label, runs in (
+    ("지급 직전 감사, 약해진 규칙의 결정", [r for r in audit["runs"] + audit["repeats"]["runs"] if r["mode"] == "degraded"]),
+    ("지급 직전 감사, 멀쩡한 규칙의 결정", [r for r in audit["runs"] if r["mode"] == "clean"]),
+    ("지급 직전 감사, 사실 절이 비어 있는 고장", [audit["subtle_control"]["run"]]),
+):
     cost = [r["cost_usd"] / r["audited"] for r in runs]
     p50 = [r["latency_ms_median"] / 1000 for r in runs]
     print(f"| {label} | {runs[0]['audited']}건 × {len(runs)}회 | ${span(cost, '%.4f')} | 중앙값 {span(p50, '%.1f')}초 |")
@@ -66,7 +71,11 @@ for mode, label in (("fixed", "단일 도구 계획"), ("react", "반복 계획"
     print(f"| 에이전트 실행 한 번, {label} | {s['n']}회 | ${s['cost']:.4f} | 중앙값 {s['p50']:.1f}초 (모델 호출 평균 {calls:.0f}회) |")
 
 shell = load("shell-search-model")["runs"]
-show("명령 검색 도구를 켠 에이전트 실행 한 번, 30장에서 집합 질의", [[r for r in run["rows"] if r["arm"] == "shell"] for run in shell], "질의 8·8·7개")
+show(
+    "명령 검색 도구를 켠 에이전트 실행 한 번, 30장에서 집합 질의",
+    [[r for r in run["rows"] if r["arm"] == "shell"] for run in shell],
+    "질의 8·8·7개",
+)
 show("같은 질의, 명령 검색 도구를 끈 실행", [[r for r in shell[0]["rows"] if r["arm"] == "ranked"]], "질의 8개")
 
 vlm = load("title-block-vlm")["runs"]

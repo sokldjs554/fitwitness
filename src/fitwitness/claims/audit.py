@@ -40,7 +40,9 @@ AUDIT_PROMPT = (
 
 
 class Concern(Strict):
-    code: str = Field(description="short snake_case label, e.g. missing_document, above_auto_limit, already_paid, excluded_diagnosis, waiting_period, documents_disagree, unsupported_line_item")
+    code: str = Field(
+        description="short snake_case label, e.g. missing_document, above_auto_limit, already_paid, excluded_diagnosis, waiting_period, documents_disagree, unsupported_line_item"
+    )
     message: str = Field(description="one sentence, in Korean")
     evidence: str = Field(description="the term or the document row the concern rests on, quoted")
 
@@ -53,8 +55,10 @@ class AuditVerdict(Strict):
 
 def terms(policy: Policy, product: Product, requested: list[str], prior_keys: list[str]) -> str:
     """The policy terms in words a reader can check a decision against."""
-    lines = [f"상품: {product.name} ({product.product_id}); 계약 {policy.policy_id} 상태 {policy.status}, 보장 기간 {policy.effective_from} ~ {policy.effective_to}",
-             f"자동 승인 한도: {product.auto_approve_limit:,}원 (초과분은 담당자 확인)"]
+    lines = [
+        f"상품: {product.name} ({product.product_id}); 계약 {policy.policy_id} 상태 {policy.status}, 보장 기간 {policy.effective_from} ~ {policy.effective_to}",
+        f"자동 승인 한도: {product.auto_approve_limit:,}원 (초과분은 담당자 확인)",
+    ]
     if product.second_approval_above:
         lines.append(f"2인 승인 기준: {product.second_approval_above:,}원 초과")
     for kind in requested:
@@ -79,8 +83,15 @@ def terms(policy: Policy, product: Product, requested: list[str], prior_keys: li
     return "\n".join(lines)
 
 
-def facts(policy: Policy, product: Product, requested: list[str], present_kinds: set[str], ex: Extraction, decision: ClaimDecision,
-          prior_keys: list[str]) -> str:
+def facts(
+    policy: Policy,
+    product: Product,
+    requested: list[str],
+    present_kinds: set[str],
+    ex: Extraction,
+    decision: ClaimDecision,
+    prior_keys: list[str],
+) -> str:
     """Date arithmetic and lookups done once, deterministically, so the auditor judges and does not count.
 
     Computed from the documents, the terms and the ledger, not from the decision: a weakened rule set that ignored a
@@ -96,46 +107,83 @@ def facts(policy: Policy, product: Product, requested: list[str], present_kinds:
         day = parse_date(value)
         if day and start:
             since = (day - start).days
-            lines.append(f"{label} {value}: 보장 시작 {policy.effective_from}으로부터 {since}일 " + ("뒤" if since >= 0 else "앞 (보장 시작 전)"))
+            lines.append(
+                f"{label} {value}: 보장 시작 {policy.effective_from}으로부터 {since}일 " + ("뒤" if since >= 0 else "앞 (보장 시작 전)")
+            )
     for kind in requested:
         cov = product.coverages.get(kind)
         diagnosed = parse_date(ex.diagnosis_date)  # None when the date is not a date: the waiting period is then not a fact to state
         if cov and cov.waiting_days and diagnosed and start:
             since = (diagnosed - start).days
-            lines.append(f"{COVERAGE_LABELS.get(kind, kind)} 면책기간 {cov.waiting_days}일: 진단일은 " + ("면책기간 안" if 0 <= since < cov.waiting_days else "면책기간 밖"))
+            lines.append(
+                f"{COVERAGE_LABELS.get(kind, kind)} 면책기간 {cov.waiting_days}일: 진단일은 "
+                + ("면책기간 안" if 0 <= since < cov.waiting_days else "면책기간 밖")
+            )
         need = REQUIRED_DOCS.get(kind, set())
         missing = sorted(need - present_kinds)
         lines.append(f"{COVERAGE_LABELS.get(kind, kind)} 필요 서류 {sorted(need)}: " + ("모두 있음" if not missing else f"없음 {missing}"))
-    lines.append(f"지급액 {decision.total_amount:,}원 대 자동 승인 한도 {product.auto_approve_limit:,}원: " + ("한도 초과" if decision.total_amount > product.auto_approve_limit else "한도 이내"))
+    lines.append(
+        f"지급액 {decision.total_amount:,}원 대 자동 승인 한도 {product.auto_approve_limit:,}원: "
+        + ("한도 초과" if decision.total_amount > product.auto_approve_limit else "한도 이내")
+    )
     matched = sorted(set(dedupe_keys(policy, ex, decision)) & set(prior_keys))
     lines.append("이 청구의 지급 키 가운데 이미 지급된 것: " + (", ".join(matched) if matched else "없음"))
     lines.append(f"서류 종류: {sorted(present_kinds)}")
     return "\n".join(lines)
 
 
-def payload(policy: Policy, product: Product, requested: list[str], document_rows: str, ex: Extraction, decision: ClaimDecision,
-            prior_keys: list[str], present_kinds: set[str] | None = None) -> str:
+def payload(
+    policy: Policy,
+    product: Product,
+    requested: list[str],
+    document_rows: str,
+    ex: Extraction,
+    decision: ClaimDecision,
+    prior_keys: list[str],
+    present_kinds: set[str] | None = None,
+) -> str:
     read = {f: getattr(ex, f) for f in Extraction.FIELDS if getattr(ex, f) is not None}
     where = {f: f"{r.doc_id} p{r.page}" for f, r in ex.evidence.items()}
-    decided = {"outcome": decision.outcome, "total_amount": decision.total_amount,
-               "line_items": [{"coverage": li.coverage, "amount": li.amount, "basis": li.basis, "rule": li.rule_id} for li in decision.line_items],
-               "reasons": [{"rule": r.rule_id, "code": r.code, "severity": r.severity, "message": r.message} for r in decision.reasons]}
-    return ("### 약관\n" + terms(policy, product, requested, prior_keys)
-            + "\n\n### 계산된 사실 (날짜 계산과 대조는 여기 값을 쓸 것)\n" + facts(policy, product, requested, present_kinds or set(), ex, decision, prior_keys)
-            + "\n\n### 서류의 줄 (문서 id별)\n" + document_rows
-            + "\n\n### 읽은 값과 위치\n" + json.dumps({"values": read, "where": where, "confidence": ex.confidence}, ensure_ascii=False)
-            + "\n\n### 자동 결정\n" + json.dumps(decided, ensure_ascii=False))
+    decided = {
+        "outcome": decision.outcome,
+        "total_amount": decision.total_amount,
+        "line_items": [{"coverage": li.coverage, "amount": li.amount, "basis": li.basis, "rule": li.rule_id} for li in decision.line_items],
+        "reasons": [{"rule": r.rule_id, "code": r.code, "severity": r.severity, "message": r.message} for r in decision.reasons],
+    }
+    return (
+        "### 약관\n"
+        + terms(policy, product, requested, prior_keys)
+        + "\n\n### 계산된 사실 (날짜 계산과 대조는 여기 값을 쓸 것)\n"
+        + facts(policy, product, requested, present_kinds or set(), ex, decision, prior_keys)
+        + "\n\n### 서류의 줄 (문서 id별)\n"
+        + document_rows
+        + "\n\n### 읽은 값과 위치\n"
+        + json.dumps({"values": read, "where": where, "confidence": ex.confidence}, ensure_ascii=False)
+        + "\n\n### 자동 결정\n"
+        + json.dumps(decided, ensure_ascii=False)
+    )
 
 
 def document_rows(documents: list[tuple[str, str, bytes]]) -> str:
     from fitwitness.claims.extract import read_pairs
 
-    return "\n\n".join(f"[{kind}] {doc_id}\n" + "\n".join(f"{label} {text}" + (" (비고 안)" if ref.nested else "") for label, text, ref in read_pairs(pdf, doc_id))
-                       for doc_id, kind, pdf in documents)
+    return "\n\n".join(
+        f"[{kind}] {doc_id}\n"
+        + "\n".join(f"{label} {text}" + (" (비고 안)" if ref.nested else "") for label, text, ref in read_pairs(pdf, doc_id))
+        for doc_id, kind, pdf in documents
+    )
 
 
-def audit(model, policy: Policy, product: Product, requested: list[str], documents: list[tuple[str, str, bytes]], ex: Extraction,
-          decision: ClaimDecision, prior_keys: list[str]) -> tuple[AuditVerdict, dict]:
+def audit(
+    model,
+    policy: Policy,
+    product: Product,
+    requested: list[str],
+    documents: list[tuple[str, str, bytes]],
+    ex: Extraction,
+    decision: ClaimDecision,
+    prior_keys: list[str],
+) -> tuple[AuditVerdict, dict]:
     """One structured call; the verdict and the call's metadata (usage, latency, ids)."""
     body = payload(policy, product, requested, document_rows(documents), ex, decision, prior_keys, {kind for _, kind, _ in documents})
     verdict, metadata = model.structured(AuditVerdict, AUDIT_PROMPT, body, role="auditor")

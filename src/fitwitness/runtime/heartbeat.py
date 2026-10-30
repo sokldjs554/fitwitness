@@ -10,8 +10,9 @@ from __future__ import annotations
 import threading
 
 
-def start_heartbeat(jobs, scope, run_id: str, token: str, stop: threading.Event, lost: threading.Event, *,
-                    interval: float = 10, tolerated_errors: int = 2) -> threading.Thread:
+def start_heartbeat(
+    jobs, scope, run_id: str, token: str, stop: threading.Event, lost: threading.Event, *, interval: float = 10, tolerated_errors: int = 2
+) -> threading.Thread:
     def beat():
         errors = 0
         while not stop.wait(interval):

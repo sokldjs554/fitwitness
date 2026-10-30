@@ -1,4 +1,5 @@
 """Drawing-number variants people actually type must resolve to the right identifier."""
+
 from fitwitness.retrieval.drawing_number import (
     damerau_levenshtein,
     extract_references,
@@ -44,12 +45,12 @@ def test_series_reference_returns_every_family_member():
 
 
 def test_one_edit_typo_falls_back_to_fuzzy_only_when_nothing_matches_exactly():
-    (ref,) = extract_references("FW-000-7", ["FW"])      # no such variant
+    (ref,) = extract_references("FW-000-7", ["FW"])  # no such variant
     hits = match_reference(ref, CORPUS)
     assert hits and all(mode == "fuzzy" for _, _, mode in hits)
     assert {dn for dn, _, _ in hits} == {f"FW-000-{i}" for i in range(5)}
     (exact,) = extract_references("FW-000-1", ["FW"])
-    assert match_reference(exact, CORPUS) == [("FW-000-1", 1.0, "exact")]   # neighbours are not offered
+    assert match_reference(exact, CORPUS) == [("FW-000-1", 1.0, "exact")]  # neighbours are not offered
     assert match_reference(ref, CORPUS, fuzzy=False) == []
 
 

@@ -34,11 +34,7 @@ class RegionArgs(Strict):
 
     @model_validator(mode="after")
     def valid_box(self):
-        if (
-            not all(0 <= v <= 1 for v in self.bbox)
-            or self.bbox[0] >= self.bbox[2]
-            or self.bbox[1] >= self.bbox[3]
-        ):
+        if not all(0 <= v <= 1 for v in self.bbox) or self.bbox[0] >= self.bbox[2] or self.bbox[1] >= self.bbox[3]:
             raise ValueError("invalid region")
         return self
 
@@ -50,7 +46,7 @@ class CompareArgs(Strict):
 
 class ImageRegionArgs(RegionArgs):
     page: Literal[1] = 1
-    fields: list[Literal['width','height','thickness','hole_spacing','material']] = Field(min_length=1,max_length=5)
+    fields: list[Literal["width", "height", "thickness", "hole_spacing", "material"]] = Field(min_length=1, max_length=5)
 
 
 class ShellArgs(Strict):
@@ -76,11 +72,11 @@ class DefineToolArgs(Strict):
     name: str = Field(pattern=TOOL_NAME)
     description: str = Field(min_length=1, max_length=300)
     channels: list[SavedChannel] = Field(
-        min_length=1, max_length=3, description="exact (drawing number), bm25 (keyword text, the search_keyword tool), semantic (embedding)."
+        min_length=1,
+        max_length=3,
+        description="exact (drawing number), bm25 (keyword text, the search_keyword tool), semantic (embedding).",
     )
-    query_template: str = Field(
-        min_length=7, max_length=500, description="Fixed search text with {query} where the caller's text goes."
-    )
+    query_template: str = Field(min_length=7, max_length=500, description="Fixed search text with {query} where the caller's text goes.")
     top_k: int = Field(default=6, ge=1, le=20)
     fields: list[Literal["width", "height", "thickness", "hole_spacing", "material"]] = Field(
         default_factory=list, max_length=5, description="Dimension fields attached to every hit; the part kind is not a field."
@@ -148,7 +144,9 @@ class ToolRequest(Strict):
 
 class SearchPlan(Strict):
     operations: list[ToolRequest] = Field(default_factory=list, max_length=8)
-    stop: bool = Field(default=False, description="True only when no further available tool can add evidence; missing evidence remains unknown.")
+    stop: bool = Field(
+        default=False, description="True only when no further available tool can add evidence; missing evidence remains unknown."
+    )
     stop_condition: str = Field(default="", max_length=500)
 
 
@@ -168,11 +166,15 @@ class EvidenceTools:
 
     @property
     def available(self):
-        names=set(SCHEMAS)
-        if not shell_search.enabled():names.discard('search_shell')
-        if not self.encoders:names-={'search_semantic','search_image'}
-        if self.vision is None:names.discard('read_image_region')
-        if not hasattr(self.repo, "saved_tools"):names-={'define_search_tool','run_saved_search'}
+        names = set(SCHEMAS)
+        if not shell_search.enabled():
+            names.discard("search_shell")
+        if not self.encoders:
+            names -= {"search_semantic", "search_image"}
+        if self.vision is None:
+            names.discard("read_image_region")
+        if not hasattr(self.repo, "saved_tools"):
+            names -= {"define_search_tool", "run_saved_search"}
         return names
 
     def saved_tools(self):
@@ -185,7 +187,7 @@ class EvidenceTools:
         name = request.name
         a = SCHEMAS[name].model_validate(request.arguments)
         if name not in self.available:
-            raise ValueError('unavailable tool')
+            raise ValueError("unavailable tool")
         if name == "search_shell":
             return self._shell(a)
         if name == "define_search_tool":
@@ -212,21 +214,26 @@ class EvidenceTools:
                 for h in hits:
                     h.facts = [f for f in facts[h.revision_id] if f.field in d.fields]
             return [c.model_dump(mode="json") for c in hits]
-        if name == 'read_image_region':
+        if name == "read_image_region":
             from hashlib import sha256
-            from fitwitness.ingest.vision import validated_png,image_facts
-            if a.revision_id not in self.snapshot.revision_ids or self.repo.snapshot(self.scope).id!=self.snapshot.id:
-                raise ValueError('revision outside current snapshot')
-            image=self.repo.asset(self.scope,a.revision_id,'png')
-            if not image:raise ValueError('source image missing')
-            image_hash=sha256(image).hexdigest()
-            region=validated_png(image,a.bbox)
-            reading,metadata=self.vision.read_image(region,'Read only these visible fields: '+', '.join(a.fields))
-            self.vision.emit('model',metadata)
-            if self.repo.snapshot(self.scope).id!=self.snapshot.id or sha256(self.repo.asset(self.scope,a.revision_id,'png')).hexdigest()!=image_hash:
-                raise ValueError('source changed during image reading')
-            facts=image_facts(reading,a.revision_id,image_hash,a.bbox)
-            return [f.model_dump(mode='json') for f in facts if f.field in a.fields]
+            from fitwitness.ingest.vision import validated_png, image_facts
+
+            if a.revision_id not in self.snapshot.revision_ids or self.repo.snapshot(self.scope).id != self.snapshot.id:
+                raise ValueError("revision outside current snapshot")
+            image = self.repo.asset(self.scope, a.revision_id, "png")
+            if not image:
+                raise ValueError("source image missing")
+            image_hash = sha256(image).hexdigest()
+            region = validated_png(image, a.bbox)
+            reading, metadata = self.vision.read_image(region, "Read only these visible fields: " + ", ".join(a.fields))
+            self.vision.emit("model", metadata)
+            if (
+                self.repo.snapshot(self.scope).id != self.snapshot.id
+                or sha256(self.repo.asset(self.scope, a.revision_id, "png")).hexdigest() != image_hash
+            ):
+                raise ValueError("source changed during image reading")
+            facts = image_facts(reading, a.revision_id, image_hash, a.bbox)
+            return [f.model_dump(mode="json") for f in facts if f.field in a.fields]
         if name.startswith("search_"):
             channel = {
                 "search_exact": "exact",
@@ -241,12 +248,7 @@ class EvidenceTools:
                 image_id=getattr(a, "image_id", None),
                 top_k=getattr(a, "top_k", 6),
             )
-            return [
-                c.model_dump(mode="json")
-                for c in search(
-                    self.scope, q, self.snapshot, self.repo, self.encoders, {channel}
-                )
-            ]
+            return [c.model_dump(mode="json") for c in search(self.scope, q, self.snapshot, self.repo, self.encoders, {channel})]
         if name in ("query_dimensions", "read_region"):
             if a.revision_id not in self.snapshot.revision_ids:
                 raise ValueError("revision outside snapshot")
@@ -273,14 +275,8 @@ class EvidenceTools:
         if not old or not new or old.document_id != new.document_id:
             raise ValueError("unrelated revisions")
         return {
-            "old": [
-                f.model_dump(mode="json")
-                for f in self.repo.load_facts(self.scope, a.old_id)
-            ],
-            "new": [
-                f.model_dump(mode="json")
-                for f in self.repo.load_facts(self.scope, a.new_id)
-            ],
+            "old": [f.model_dump(mode="json") for f in self.repo.load_facts(self.scope, a.old_id)],
+            "new": [f.model_dump(mode="json") for f in self.repo.load_facts(self.scope, a.new_id)],
         }
 
     def _shell(self, a):

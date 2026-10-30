@@ -1,4 +1,5 @@
 """Human-in-the-loop: a run that cannot decide stops, waits, and resumes with the reviewer's answer."""
+
 from test_workflow import env
 from fitwitness.contracts import RunRequest, SearchRequest
 
@@ -15,13 +16,13 @@ def test_unknown_verdicts_pause_the_run_until_a_reviewer_answers(env):
     execute_run(r, s, run.id)
     view = j.get(s, run.id)
     assert view.state == "waiting_input" and view.question and "확인" in view.question
-    assert (s.tenant_id, run.id) not in j.pending()                      # not re-dispatched while waiting
+    assert (s.tenant_id, run.id) not in j.pending()  # not re-dispatched while waiting
     kinds = [e["kind"] for e in j.events(s, run.id)]
     assert "waiting_input" in kinds and "completed" not in kinds
     pending = next(e for e in j.events(s, run.id) if e["kind"] == "waiting_input")["payload"]["pending"]
     assert pending and all(p["unknown_fields"] for p in pending)
 
-    execute_run(r, s, run.id)                                           # a worker without an answer changes nothing
+    execute_run(r, s, run.id)  # a worker without an answer changes nothing
     assert j.get(s, run.id).state == "waiting_input"
 
     rid = pending[0]["revision_id"]
@@ -37,7 +38,7 @@ def test_unknown_verdicts_pause_the_run_until_a_reviewer_answers(env):
     assert all(d.reviewed_by is None for d in untouched)
     kinds = [e["kind"] for e in j.events(s, run.id)]
     assert kinds.index("resumed_by_human") < kinds.index("human_review") < kinds.index("completed")
-    assert kinds.count("retrieved") == 1                               # resumed from the checkpoint, not restarted
+    assert kinds.count("retrieved") == 1  # resumed from the checkpoint, not restarted
 
 
 def test_resume_is_refused_unless_the_run_is_waiting(env):
@@ -58,15 +59,20 @@ def test_review_resume_through_the_api(env):
 
     client = TestClient(create_app())
     assert client.post("/api/demo-sessions").status_code == 200
-    run = client.post("/api/runs", json={"search": {"text": "브래킷 구멍 간격 40mm SUS304"}, "review": "on_unknown"},
-                      headers={"Idempotency-Key": "api-review"}).json()
+    run = client.post(
+        "/api/runs",
+        json={"search": {"text": "브래킷 구멍 간격 40mm SUS304"}, "review": "on_unknown"},
+        headers={"Idempotency-Key": "api-review"},
+    ).json()
     view = client.get("/api/runs/" + run["id"]).json()
     assert view["state"] == "waiting_input"
     pending = next(e for e in client.get(f"/api/runs/{run['id']}/events").json() if e["kind"] == "waiting_input")["payload"]["pending"]
     rid = pending[0]["revision_id"]
     bad = client.post(f"/api/runs/{run['id']}/resume", json={"decisions": {rid: "approve"}, "reviewer": "qa"})
     assert bad.status_code == 422
-    ok = client.post(f"/api/runs/{run['id']}/resume", json={"decisions": {rid: "mismatch"}, "reviewer": "qa", "note": "도면 재질 표기 오류"})
+    ok = client.post(
+        f"/api/runs/{run['id']}/resume", json={"decisions": {rid: "mismatch"}, "reviewer": "qa", "note": "도면 재질 표기 오류"}
+    )
     assert ok.status_code == 200
     final = client.get("/api/runs/" + run["id"]).json()
     assert final["state"] == "completed"

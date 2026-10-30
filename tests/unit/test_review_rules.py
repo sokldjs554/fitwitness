@@ -1,4 +1,5 @@
 """Sign-off rules: who may approve a claim that stopped for a person."""
+
 import pytest
 from fitwitness.claims.models import ClaimReview
 from fitwitness.claims.policy import PRODUCTS
@@ -68,7 +69,6 @@ def test_a_request_for_documents_needs_to_say_what_is_missing_and_is_final_at_ei
     check_answer(second, answer("REQUEST_INFO", reviewer="박팀장", note="수술기록 보완"))
     with pytest.raises(ReviewRuleError):  # the second answer still has to come from a different person
         check_answer(second, answer("REQUEST_INFO", reviewer="김심사", note="수술기록 보완"))
-
 
 
 def test_a_reviewer_can_lower_the_amount_to_approve_but_never_raise_it():

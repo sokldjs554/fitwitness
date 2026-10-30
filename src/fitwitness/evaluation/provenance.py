@@ -17,7 +17,9 @@ def git_sha(*, dirty_suffix: bool = False) -> str:
         return os.getenv("GITHUB_SHA", "unknown")
     if dirty_suffix:
         try:
-            if subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=no"], text=True, stderr=subprocess.DEVNULL).strip():
+            if subprocess.check_output(
+                ["git", "status", "--porcelain", "--untracked-files=no"], text=True, stderr=subprocess.DEVNULL
+            ).strip():
                 return sha + "-dirty"
         except Exception:  # noqa: BLE001
             pass

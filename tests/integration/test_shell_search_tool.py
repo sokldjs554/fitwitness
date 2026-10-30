@@ -1,4 +1,5 @@
 """The terminal-style search runs through the same tool path as every other search, on the real corpus."""
+
 import pytest
 from test_workflow import env  # noqa: F401
 from fitwitness.agents import shell_search
@@ -55,6 +56,7 @@ def test_a_changed_corpus_makes_the_workspace_stale(tools):
     t, r, s = tools
     shell(t, "ls")
     from fitwitness.contracts import Fact
+
     rid = t.snapshot.revision_ids[0]
     facts = r.load_facts(s, rid)
     r.save_facts(s, rid, facts[:-1] or facts)  # any change of the stored rows changes the snapshot digest

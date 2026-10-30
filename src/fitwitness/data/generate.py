@@ -38,15 +38,7 @@ def shape_for(kind, spacing, width, thickness):
             .hole(6)
         )
     if kind == "shaft":
-        return (
-            cq.Workplane("XY")
-            .circle(width * 0.3)
-            .extrude(width)
-            .faces(">Z")
-            .workplane()
-            .circle(width / 2)
-            .extrude(thickness)
-        )
+        return cq.Workplane("XY").circle(width * 0.3).extrude(width).faces(">Z").workplane().circle(width / 2).extrude(thickness)
     if kind == "housing":
         return (
             cq.Workplane("XY")
@@ -56,14 +48,7 @@ def shape_for(kind, spacing, width, thickness):
             .rect(width * 0.65, width * 0.4)
             .cutBlind(-thickness * 2)
         )
-    return (
-        cq.Workplane("XY")
-        .box(width, 30, thickness)
-        .faces(">Z")
-        .workplane()
-        .pushPoints([(-spacing / 2, 0), (spacing / 2, 0)])
-        .hole(6)
-    )
+    return cq.Workplane("XY").box(width, 30, thickness).faces(">Z").workplane().pushPoints([(-spacing / 2, 0), (spacing / 2, 0)]).hole(6)
 
 
 def render_sheet(path, number, kind, rev, spacing, width, thickness, material):
@@ -127,9 +112,7 @@ def render_sheet(path, number, kind, rev, spacing, width, thickness, material):
     c.save()
 
 
-def generate_dataset(
-    output: Path, *, families: int = 30, variants: int = 6, seed: int = 1701
-):
+def generate_dataset(output: Path, *, families: int = 30, variants: int = 6, seed: int = 1701):
     output = Path(output)
     (output / "input").mkdir(parents=True, exist_ok=True)
     (output / "gold").mkdir(exist_ok=True)
@@ -155,9 +138,7 @@ def generate_dataset(
             folder.mkdir(exist_ok=True)
             obj = shape_for(kind, sp, wd, thickness)
             cq.exporters.export(obj, str(folder / "model.step"))
-            render_sheet(
-                folder / "drawing.pdf", number, kind, rev, sp, wd, thickness, material
-            )
+            render_sheet(folder / "drawing.pdf", number, kind, rev, sp, wd, thickness, material)
             pdf = pdfium.PdfDocument(str(folder / "drawing.pdf"))
             pdf[0].render(scale=1.3).to_pil().save(folder / "drawing.png")
             pdf.close()
@@ -167,9 +148,7 @@ def generate_dataset(
                 "faces": [list(f) for f in faces],
             }
             (folder / "mesh.json").write_text(json.dumps(mesh, separators=(",", ":")))
-            source_hash = hashlib.sha256(
-                (folder / "drawing.pdf").read_bytes()
-            ).hexdigest()
+            source_hash = hashlib.sha256((folder / "drawing.pdf").read_bytes()).hexdigest()
             prefix = f"input/{stem}"
             entry = {
                 "id": rid,
@@ -177,9 +156,7 @@ def generate_dataset(
                 "family_id": family,
                 "drawing_number": number,
                 "revision_label": rev,
-                "supersedes": str(uuid5(NAMESPACE_URL, f"{family}-V0"))
-                if v == 5
-                else None,
+                "supersedes": str(uuid5(NAMESPACE_URL, f"{family}-V0")) if v == 5 else None,
                 "kind": kind,
                 "title": ALIASES[kind],
                 "source_hash": source_hash,
@@ -205,9 +182,7 @@ def generate_dataset(
         "provenance": "synthetic CAD, not industrial ground truth",
     }
     (output / "gold/labels.json").write_text(json.dumps(gold, indent=2))
-    (output / "manifest.json").write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2)
-    )
+    (output / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2))
     return manifest
 
 
@@ -218,6 +193,4 @@ if __name__ == "__main__":
     p.add_argument("--output", type=Path, default=Path("var/corpus"))
     a = p.parse_args()
     m = generate_dataset(a.output)
-    print(
-        f"Generated {len(m['document_entries'])} CAD drawings and {len(m['query_entries'])} query definitions"
-    )
+    print(f"Generated {len(m['document_entries'])} CAD drawings and {len(m['query_entries'])} query definitions")

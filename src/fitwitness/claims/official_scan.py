@@ -38,7 +38,11 @@ from fitwitness.claims.official import HINTS, LAYOUTS, TEMPLATES, Grid, Zone, _b
 PT = 72.0 / ocr.DPI  # points per pixel
 CONTRAST = 35  # how much darker than its surroundings a pixel is to count as ink (for the page's tilt)
 DARKER, COVER, COVER_WINDOW = 8, 0.7, 31  # a line pixel is at least this much darker than the paper, in this share of a window
-FAINT, AVERAGE, BESIDE = 14, 15, 4  # for the rules: how much darker, averaged over this many pixels along the line, and standing out from rows this far off
+FAINT, AVERAGE, BESIDE = (
+    14,
+    15,
+    4,
+)  # for the rules: how much darker, averaged over this many pixels along the line, and standing out from rows this far off
 MIN_H, MIN_V = 60, 36  # shortest ruling lines, in pixels (22 and 13 points): a Hangul stroke is shorter than both
 HOLES = 0.9  # a rule may have this share of its length drawn; the scanner leaves gaps in thin lines
 MIN_RULES = 8  # a page with fewer long rules is not one of the forms
@@ -94,7 +98,7 @@ def _tilt(ink: np.ndarray) -> float:
 
     def sharp(angle: float) -> float:
         rows = (np.asarray(small.rotate(angle, resample=Image.BILINEAR)) > 100).sum(axis=1).astype(np.float64)
-        return float((rows ** 2).sum())
+        return float((rows**2).sum())
 
     best = max(np.arange(-3.0, 3.01, 0.25), key=sharp)
     return float(max(np.arange(best - 0.25, best + 0.251, 0.05), key=sharp))
@@ -140,7 +144,7 @@ def _lines(covered: np.ndarray, minimum: int) -> list[tuple[float, float, float]
     if rows.size == 0:
         return out
     for g in np.split(rows, np.flatnonzero(np.diff(rows) > 3) + 1):
-        band = covered[g[0]:g[-1] + 1]
+        band = covered[g[0] : g[-1] + 1]
         for s, e in _spans(band.any(axis=0), minimum):
             ys = np.flatnonzero(band[:, s:e].any(axis=1))
             out.append(((g[0] + float(ys.mean())) * PT, s * PT, e * PT))
@@ -154,6 +158,7 @@ def find_rules(image: Image.Image) -> Rules:
 
 
 # --- registration ------------------------------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class Fit:
@@ -189,7 +194,7 @@ def _axis(found: list[float], known: list[float], keep: int = 12) -> list[tuple[
         for i in order[:400]:
             if counts[i] < 0.5 * counts[order[0]] or len(taken) >= 5:
                 break
-            shift = float(diffs[i:reach[i]].mean())
+            shift = float(diffs[i : reach[i]].mean())
             if any(abs(shift - x) < 3 * TOLERANCE for x in taken):
                 continue
             taken.append(shift)
@@ -212,10 +217,14 @@ def _covered(fit: Fit, rules: Rules, layout: dict) -> float:
     hits = 0
     for y, x0, x1, _ in layout["h"]:
         py, a, b = fit.y(y), fit.x(x0), fit.x(x1)
-        hits += any(abs(fy - py) <= TOLERANCE and min(fx1, b) - max(fx0, a) >= 0.4 * min(b - a, fx1 - fx0) for fy, fx0, fx1 in rules.horizontal)
+        hits += any(
+            abs(fy - py) <= TOLERANCE and min(fx1, b) - max(fx0, a) >= 0.4 * min(b - a, fx1 - fx0) for fy, fx0, fx1 in rules.horizontal
+        )
     for x, y0, y1 in layout["v"]:
         px, a, b = fit.x(x), fit.y(y0), fit.y(y1)
-        hits += any(abs(fx - px) <= TOLERANCE and min(fy1, b) - max(fy0, a) >= 0.4 * min(b - a, fy1 - fy0) for fx, fy0, fy1 in rules.vertical)
+        hits += any(
+            abs(fx - px) <= TOLERANCE and min(fy1, b) - max(fy0, a) >= 0.4 * min(b - a, fy1 - fy0) for fx, fy0, fy1 in rules.vertical
+        )
     return hits / (len(layout["h"]) + len(layout["v"]))
 
 
@@ -252,10 +261,14 @@ class _Page:
 
 
 def _labels(fit: Fit, layout: dict) -> list[dict]:
-    return [{"text": t, "x0": fit.x(x0), "x1": fit.x(x1), "top": fit.y(top), "bottom": fit.y(bottom)} for t, x0, x1, top, bottom in layout["words"]]
+    return [
+        {"text": t, "x0": fit.x(x0), "x1": fit.x(x1), "top": fit.y(top), "bottom": fit.y(bottom)}
+        for t, x0, x1, top, bottom in layout["words"]
+    ]
 
 
 # --- reading -----------------------------------------------------------------------------------------------------
+
 
 def _distance(a: str, b: str) -> int:
     previous = list(range(len(b) + 1))
@@ -269,8 +282,16 @@ def _distance(a: str, b: str) -> int:
 
 def _word(chunk: list[ocr.Token], scale: float, ox: float, oy: float) -> dict:
     """An OCR chunk as a word of the page, in points. ``scale`` and the offset undo the cell's cut and zoom."""
-    chars = [{"text": t.text, "x0": (ox + t.x0 / scale) * PT, "x1": (ox + t.x1 / scale) * PT,
-              "top": (oy + t.top / scale) * PT, "bottom": (oy + t.bottom / scale) * PT} for t in chunk]
+    chars = [
+        {
+            "text": t.text,
+            "x0": (ox + t.x0 / scale) * PT,
+            "x1": (ox + t.x1 / scale) * PT,
+            "top": (oy + t.top / scale) * PT,
+            "bottom": (oy + t.bottom / scale) * PT,
+        }
+        for t in chunk
+    ]
     w = _make(chars)
     w["text"] = ocr._text(chunk, spaced=True)
     w["conf"] = min(t.conf for t in chunk)
@@ -287,6 +308,7 @@ def _distinct(tokens: list[ocr.Token]) -> list[ocr.Token]:
     """Tesseract sometimes answers twice for one glyph (a syllable and a piece of it, written over each other); the
     smaller of two boxes that mostly overlap is the piece. A box much wider than its own letters is a box Tesseract
     drew round its neighbours too, and it does not cover them."""
+
     def area(t: ocr.Token) -> float:
         return max(1.0, (t.x1 - t.x0) * (t.bottom - t.top))
 
@@ -296,10 +318,20 @@ def _distinct(tokens: list[ocr.Token]) -> list[ocr.Token]:
     def tight(t: ocr.Token) -> bool:
         return t.x1 - t.x0 <= 1.4 * len(t.text) * (t.bottom - t.top)
 
-    return [t for t in tokens if not any(u is not t and tight(u) and overlap(t, u) >= 0.6 * area(t) and (area(u), u.conf) > (area(t), t.conf) for u in tokens)]
+    return [
+        t
+        for t in tokens
+        if not any(u is not t and tight(u) and overlap(t, u) >= 0.6 * area(t) and (area(u), u.conf) > (area(t), t.conf) for u in tokens)
+    ]
 
 
-def _read_cell(clean: Image.Image, region: tuple[float, float, float, float], whitelist: str | None = None, psm: int | None = None, inset: int = INSETS[0]) -> list[dict]:
+def _read_cell(
+    clean: Image.Image,
+    region: tuple[float, float, float, float],
+    whitelist: str | None = None,
+    psm: int | None = None,
+    inset: int = INSETS[0],
+) -> list[dict]:
     """The words in a cell (a box in points) of the cleaned page, with the OCR's confidence on each."""
     left, top, right, bottom = (int(round(v / PT)) for v in region)
     left, top = max(0, left + inset), max(0, top + inset)
@@ -307,7 +339,9 @@ def _read_cell(clean: Image.Image, region: tuple[float, float, float, float], wh
     if right - left < 12 or bottom - top < 12:
         return []
     cut = clean.crop((left, top, right, bottom))
-    grey = np.asarray(cut.filter(ImageFilter.GaussianBlur(1.2)), dtype=np.int16)  # blurred, so that the scanner's noise does not count as ink
+    grey = np.asarray(
+        cut.filter(ImageFilter.GaussianBlur(1.2)), dtype=np.int16
+    )  # blurred, so that the scanner's noise does not count as ink
     if (grey < np.median(grey) - 40).mean() < BLANK:
         return []  # nothing is written here; Tesseract would read the scanner's noise as text
     crop = cut.resize(((right - left) * ZOOM, (bottom - top) * ZOOM), Image.LANCZOS)
@@ -359,8 +393,16 @@ def _date(clean: Image.Image, region: tuple[float, float, float, float], labels:
     the mark that follows it; the other reads the digits between the marks one by one with only digits allowed. Each
     is wrong now and then, in different places, so a date is accepted only when both give it; otherwise the field is
     left empty and a person reads it."""
-    marks = sorted((w for w in labels if _n(w["text"]) in MARKS and region[0] <= (w["x0"] + w["x1"]) / 2 <= region[2]
-                    and region[1] <= (w["top"] + w["bottom"]) / 2 <= region[3]), key=lambda w: w["x0"])
+    marks = sorted(
+        (
+            w
+            for w in labels
+            if _n(w["text"]) in MARKS
+            and region[0] <= (w["x0"] + w["x1"]) / 2 <= region[2]
+            and region[1] <= (w["top"] + w["bottom"]) / 2 <= region[3]
+        ),
+        key=lambda w: w["x0"],
+    )
     if len(marks) != 3:
         return None
     page = clean.copy()
@@ -392,7 +434,9 @@ def _printed(clean: Image.Image, anchor: list[dict], zone: Zone) -> bool:
     text = _n("".join(w["text"] for w in words))
     n = len(zone.anchor)
     allowed = 0 if n <= 4 else 1 if n <= 8 else 2
-    return any(_distance(text[i:i + k], zone.anchor) <= allowed for k in {n - 1, n, n + 1} if k > 0 for i in range(max(1, len(text) - k + 1)))
+    return any(
+        _distance(text[i : i + k], zone.anchor) <= allowed for k in {n - 1, n, n + 1} if k > 0 for i in range(max(1, len(text) - k + 1))
+    )
 
 
 LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -446,7 +490,9 @@ def _code(clean: Image.Image, region: tuple[float, float, float, float], inset: 
     return (text if CODE.match(text) else None), words
 
 
-def _cell_value(clean: Image.Image, zone: Zone, region: tuple[float, float, float, float], labels: list[dict], inset: int) -> tuple[str | None, list[dict]]:
+def _cell_value(
+    clean: Image.Image, zone: Zone, region: tuple[float, float, float, float], labels: list[dict], inset: int
+) -> tuple[str | None, list[dict]]:
     """What one cell holds, as the kind of value the zone asks for, and the words it was read from."""
     if zone.kind == "date":
         read = _date(clean, region, labels, inset)
@@ -504,5 +550,7 @@ def read_image(image: Image.Image, page_no: int, doc_id: str) -> list[tuple[str,
             continue
         x0, top, x1, bottom = _box(anchor + words)
         bbox = (x0 / page.width, top / page.height, x1 / page.width, bottom / page.height)
-        out.append((zone.label, value, EvidenceRef(doc_id=doc_id, page=page_no, bbox=bbox, snippet=f"{zone.label} {value}"), _confidence(words)))
+        out.append(
+            (zone.label, value, EvidenceRef(doc_id=doc_id, page=page_no, bbox=bbox, snippet=f"{zone.label} {value}"), _confidence(words))
+        )
     return out

@@ -4,6 +4,7 @@
 
 It is the place alerts are delivered to when checking the routing locally. It does nothing else: no mail, no chat.
 """
+
 import argparse
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, HTTPServer

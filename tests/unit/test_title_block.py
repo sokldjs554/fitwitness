@@ -1,4 +1,5 @@
 """Title-block reading: the pairing rules on hand-made words (no Tesseract), and the whole path on a drawn sheet."""
+
 import hashlib
 import io
 
@@ -24,7 +25,9 @@ def read(words):
 
 
 def test_a_value_is_the_cell_right_next_to_its_label():
-    got = read([w("材料", 2000, width=100), w("HT200", 2130, width=200), w("比例", 2000, y=2420, width=100), w("1:1", 2130, y=2420, width=100)])
+    got = read(
+        [w("材料", 2000, width=100), w("HT200", 2130, width=200), w("比例", 2000, y=2420, width=100), w("1:1", 2130, y=2420, width=100)]
+    )
     assert {(r.field, r.value) for r in got} == {("material", "HT200"), ("scale", "1:1")}
     assert all(0.6 <= r.conf <= 1.0 and 0 <= r.bbox[0] < r.bbox[2] <= 1 for r in got)
 
@@ -41,8 +44,14 @@ def test_a_material_grade_is_not_taken_for_a_drawing_number_and_a_page_footer_is
 
 
 def test_part_numbers_in_the_parts_list_above_the_header_are_ignored():
-    got = read([w("WLJSQ475-001", 2200, y=2200, width=480), w("序号", 1900, y=2300, width=100), w("代号", 2100, y=2300, width=100),
-                w("WLJSQ475-00", 2700, y=2600, width=440)])
+    got = read(
+        [
+            w("WLJSQ475-001", 2200, y=2200, width=480),
+            w("序号", 1900, y=2300, width=100),
+            w("代号", 2100, y=2300, width=100),
+            w("WLJSQ475-00", 2700, y=2600, width=440),
+        ]
+    )
     assert [r.value for r in got if r.field == "drawing_number"] == ["WLJSQ475-00"]
 
 
@@ -56,7 +65,9 @@ def test_a_reading_the_scanner_was_not_sure_of_is_not_reported():
 
 
 def test_two_confident_readings_that_disagree_are_dropped_and_a_clear_winner_is_kept():
-    tie = read([w("材料", 2000, width=100), w("HT200", 2130, width=200), w("材料", 2000, y=2500, width=100), w("HT250", 2130, y=2504, width=200)])
+    tie = read(
+        [w("材料", 2000, width=100), w("HT200", 2130, width=200), w("材料", 2000, y=2500, width=100), w("HT250", 2130, y=2504, width=200)]
+    )
     assert not [r for r in tie if r.field == "material"]
     clear = [tb.Reading("material", "HT200", 0.93, (0, 0, 1, 1), "材料"), tb.Reading("material", "HT250", 0.70, (0, 0, 1, 1), "材料")]
     assert [r.value for r in tb._one_per_field(clear)] == ["HT200"]
@@ -89,7 +100,9 @@ def _sheet() -> bytes:
 @needs_tesseract
 def test_an_image_only_sheet_yields_observations_the_verifier_will_not_rely_on():
     data = _sheet()
-    rev = DrawingRevision(tenant_id="t", document_id="d", drawing_number="X", family_id="f", revision_label="A", source_hash=hashlib.sha256(data).hexdigest())
+    rev = DrawingRevision(
+        tenant_id="t", document_id="d", drawing_number="X", family_id="f", revision_label="A", source_hash=hashlib.sha256(data).hexdigest()
+    )
     facts = extract_pdf(data, rev)
     assert facts, "nothing was read from the title block"
     assert {f.method for f in facts} == {"title_block_ocr"} and {f.certainty for f in facts} == {"uncertain"}
@@ -105,21 +118,29 @@ def test_a_blank_page_yields_nothing_and_does_not_fail_the_upload():
     buf = io.BytesIO()
     Image.new("RGB", (1200, 900), "white").save(buf, format="PDF", resolution=150)
     data = buf.getvalue()
-    rev = DrawingRevision(tenant_id="t", document_id="d", drawing_number="X", family_id="f", revision_label="A", source_hash=hashlib.sha256(data).hexdigest())
+    rev = DrawingRevision(
+        tenant_id="t", document_id="d", drawing_number="X", family_id="f", revision_label="A", source_hash=hashlib.sha256(data).hexdigest()
+    )
     assert extract_pdf(data, rev) == []
 
 
 def test_the_reader_can_be_switched_off(monkeypatch):
     monkeypatch.setenv("FITWITNESS_TITLE_BLOCK_OCR", "off")
     data = _sheet()
-    rev = DrawingRevision(tenant_id="t", document_id="d", drawing_number="X", family_id="f", revision_label="A", source_hash=hashlib.sha256(data).hexdigest())
+    rev = DrawingRevision(
+        tenant_id="t", document_id="d", drawing_number="X", family_id="f", revision_label="A", source_hash=hashlib.sha256(data).hexdigest()
+    )
     assert extract_pdf(data, rev) == []
 
 
 def test_a_dotted_code_is_a_drawing_number_only_when_read_surely_and_an_o_among_its_digits_is_a_zero():
     assert [(r.field, r.value) for r in read([w("LJTO1.06", 2700, y=2800, width=320, conf=75.0)])] == [("drawing_number", "LJT01.06")]
-    assert read([w("LIT04.20", 2700, y=2800, width=320, conf=68.0)]) == [], "a thin italic code read below the dotted floor may have a wrong letter"
-    assert read([w("Ra1.6", 2700, width=200), w("SR12.5", 2700, y=2700, width=240)]) == [], "surface roughness and a radius are not drawing numbers"
+    assert read([w("LIT04.20", 2700, y=2800, width=320, conf=68.0)]) == [], (
+        "a thin italic code read below the dotted floor may have a wrong letter"
+    )
+    assert read([w("Ra1.6", 2700, width=200), w("SR12.5", 2700, y=2700, width=240)]) == [], (
+        "surface roughness and a radius are not drawing numbers"
+    )
 
 
 def test_a_cell_read_once_with_its_dot_and_once_without_as_two_different_codes_is_not_reported():
@@ -133,5 +154,10 @@ def test_a_grade_in_the_unlabelled_cell_of_a_title_block_is_the_material_and_onl
     assert material(block + [grade]) == [("material", "HT150")]
     assert material([grade]) == [], "without the block's own words the grade could be anything"
     assert material(block + [grade, w("HT200", 2200, y=2300, width=200)]) == [], "two grades: the page does not say which is the material"
-    assert material(block + [w("序号", 1900, y=2300, width=100), w("代号", 2100, y=2300, width=100), w("HT150", 2200, y=2600, width=200)]) == [], "an assembly lists many materials and has none"
-    assert material(block + [grade, w("材料", 1800, y=2200, width=100)]) == [], "a material label on the page means the grade may belong to a parts list"
+    assert (
+        material(block + [w("序号", 1900, y=2300, width=100), w("代号", 2100, y=2300, width=100), w("HT150", 2200, y=2600, width=200)])
+        == []
+    ), "an assembly lists many materials and has none"
+    assert material(block + [grade, w("材料", 1800, y=2200, width=100)]) == [], (
+        "a material label on the page means the grade may belong to a parts list"
+    )

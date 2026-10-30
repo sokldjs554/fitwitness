@@ -32,15 +32,15 @@ CORPUS = ROOT / "var/corpus"
 MAX_BODY_BYTES = 64 * 1024
 # The bundle is self-contained: no external script, font, or style is loaded. The viewer draws into canvases and
 # blob URLs; React sets inline style attributes. Nothing may frame the app.
-CSP = ("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
-       "font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; "
-       "form-action 'self'; frame-ancestors 'none'")
+CSP = (
+    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
+    "font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; "
+    "form-action 'self'; frame-ancestors 'none'"
+)
 
 
 def create_app():
-    dsn = os.getenv(
-        "FITWITNESS_DATABASE_URL", "postgresql://fwadmin@/postgres?host=/tmp&port=55439"
-    )
+    dsn = os.getenv("FITWITNESS_DATABASE_URL", "postgresql://fwadmin@/postgres?host=/tmp&port=55439")
     repo = Repository(dsn)
     jobs = Jobs(repo)
     key = os.getenv("FITWITNESS_SESSION_SECRET")
@@ -48,9 +48,7 @@ def create_app():
         raise RuntimeError("FITWITNESS_SESSION_SECRET must be a random string of at least 32 characters in hosted deployments")
     if not key:
         if os.getenv("RENDER"):
-            raise RuntimeError(
-                "FITWITNESS_SESSION_SECRET is required in hosted deployments"
-            )
+            raise RuntimeError("FITWITNESS_SESSION_SECRET is required in hosted deployments")
         path = ROOT / "var/session.key"
         path.parent.mkdir(exist_ok=True)
         try:  # created owner-only from the start, and by exactly one process if several start at once
@@ -87,8 +85,11 @@ def create_app():
     # (tests) nothing is pre-warmed and a worker is spawned cold per run, as before.
     workers = WarmWorkers(
         [sys.executable, "-m", "fitwitness.runtime.worker", "--pool"],
-        env={**{k: v for k, v in os.environ.items() if k not in ("FITWITNESS_SESSION_SECRET", "FITWITNESS_METRICS_TOKEN")},
-             "PYTHONPATH": str(ROOT / "src"), "FITWITNESS_DATABASE_URL": dsn},
+        env={
+            **{k: v for k, v in os.environ.items() if k not in ("FITWITNESS_SESSION_SECRET", "FITWITNESS_METRICS_TOKEN")},
+            "PYTHONPATH": str(ROOT / "src"),
+            "FITWITNESS_DATABASE_URL": dsn,
+        },
         cwd=ROOT,
         size=int(os.getenv("FITWITNESS_WARM_WORKERS", "1")),
     )
@@ -109,8 +110,13 @@ def create_app():
     # connection cannot reach and which sends every visitor's browser to a third party. They are off unless the
     # operator turns them on; the schema itself stays at /openapi.json.
     interactive_docs = os.getenv("FITWITNESS_API_DOCS", "off").strip().lower() in ("on", "1", "true")
-    app = FastAPI(title="FitWitness", version="0.1.0", lifespan=lifespan,
-                  docs_url="/docs" if interactive_docs else None, redoc_url="/redoc" if interactive_docs else None)
+    app = FastAPI(
+        title="FitWitness",
+        version="0.1.0",
+        lifespan=lifespan,
+        docs_url="/docs" if interactive_docs else None,
+        redoc_url="/redoc" if interactive_docs else None,
+    )
     app.state.dispatcher = False
     app.state.nudge = lambda: None
     app.state.workers = workers
@@ -129,18 +135,12 @@ def create_app():
         ["method", "status"],
         registry=registry,
     )
-    latency = Histogram(
-        "fitwitness_request_seconds", "Request duration", registry=registry
-    )
+    latency = Histogram("fitwitness_request_seconds", "Request duration", registry=registry)
 
     @app.middleware("http")
     async def guards(request: Request, call_next):
         start = time.monotonic()
-        if (
-            request.method not in ("GET", "HEAD", "OPTIONS")
-            and request.headers.get("origin")
-            and request.headers["origin"] not in allowed
-        ):
+        if request.method not in ("GET", "HEAD", "OPTIONS") and request.headers.get("origin") and request.headers["origin"] not in allowed:
             return Response("Origin not allowed", status_code=403)
         if request.method in ("POST", "PUT", "PATCH"):
             # Every JSON body this API takes is a few hundred bytes. The framework reads a body before it looks at the
@@ -165,9 +165,7 @@ def create_app():
         response.headers["X-Frame-Options"] = "DENY"
         if request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https":
             response.headers["Strict-Transport-Security"] = "max-age=31536000"
-        response.headers["Cache-Control"] = (
-            "no-store" if request.url.path.startswith("/api") else "no-cache"
-        )
+        response.headers["Cache-Control"] = "no-store" if request.url.path.startswith("/api") else "no-cache"
         return response
 
     def reserve_live_run(s: TenantScope, idem: str) -> dict:
@@ -189,8 +187,11 @@ def create_app():
                 for bucket in (key, *taken):
                     jobs.release_admission(bucket)
                 raise
-        return {"provider": "anthropic", "model_id": cfg.model,
-                "budget": Budget(max_model_calls=3, max_tool_calls=1, max_tokens=12000, max_cost_usd=cfg.run_usd, deadline_seconds=90)}
+        return {
+            "provider": "anthropic",
+            "model_id": cfg.model,
+            "budget": Budget(max_model_calls=3, max_tool_calls=1, max_tokens=12000, max_cost_usd=cfg.run_usd, deadline_seconds=90),
+        }
 
     def run_quota():
         """The hourly budget for new runs, shared by every route that starts one."""
@@ -249,8 +250,16 @@ def create_app():
 
     DEMO_FAMILIES = ("FW-F000", "FW-F001", "FW-F002", "FW-F003")  # bracket, flange, shaft, housing
     CLAIMS = Path(os.getenv("FITWITNESS_CLAIMS_DIR", str(ROOT / "var/claims")))
-    DEMO_CLAIM_SCENARIOS = ("clean", "format_variance", "missing_doc", "date_conflict", "waiting_period",
-                            "duplicate", "high_amount", "grade_missing")
+    DEMO_CLAIM_SCENARIOS = (
+        "clean",
+        "format_variance",
+        "missing_doc",
+        "date_conflict",
+        "waiting_period",
+        "duplicate",
+        "high_amount",
+        "grade_missing",
+    )
 
     def demo_claim_cases():
         """One synthetic claim per demo scenario; nothing when the corpus was not generated."""
@@ -283,15 +292,11 @@ def create_app():
     @app.post("/api/demo-sessions")
     def session(response: Response, request: Request):
         bucket = "sessions:" + str(int(time.time() // 3600))
-        peer = hmac.new(
-            peer_key, (request.client.host if request.client else "unknown").encode(), hashlib.sha256
-        ).hexdigest()[:16]
+        peer = hmac.new(peer_key, (request.client.host if request.client else "unknown").encode(), hashlib.sha256).hexdigest()[:16]
         per_peer = int(os.getenv("FITWITNESS_SESSION_LIMIT_PER_PEER", "20"))
         # the address's own budget first: an address that is over it must not also use up the shared one
         if not jobs.admit(bucket + ":" + peer, per_peer) or not jobs.admit(bucket, 100):
-            raise HTTPException(
-                429, "체험 공간 생성 한도입니다. 잠시 후 다시 시도해 주세요."
-            )
+            raise HTTPException(429, "체험 공간 생성 한도입니다. 잠시 후 다시 시도해 주세요.")
         jobs.cleanup_sessions()
         s = TenantScope(tenant_id=str(uuid4()), user_id=str(uuid4()), role="operator")
         jobs.register_session(s)
@@ -324,9 +329,16 @@ def create_app():
             "providers": {"rules": True, "openai": False, "anthropic": False},
             # Live model reading of a claim: off unless the operator enabled it (api/live.py). The remaining count is
             # what the day's ceiling still allows, not a promise: another visitor may take it first.
-            "live": ({"enabled": True, "model": cfg.model, "per_session": cfg.per_session,
-                      "remaining_today": cfg.remaining_runs(Decimal(str(repo.live_reserved(live.today()))))}
-                     if cfg.enabled else {"enabled": False}),
+            "live": (
+                {
+                    "enabled": True,
+                    "model": cfg.model,
+                    "per_session": cfg.per_session,
+                    "remaining_today": cfg.remaining_runs(Decimal(str(repo.live_reserved(live.today())))),
+                }
+                if cfg.enabled
+                else {"enabled": False}
+            ),
             "models": {
                 "openai": os.getenv("FITWITNESS_OPENAI_MODEL", ""),
                 "anthropic": os.getenv("FITWITNESS_ANTHROPIC_MODEL", ""),
@@ -396,9 +408,7 @@ def create_app():
         idem = request.headers.get("idempotency-key") or str(uuid4())
         if len(idem) > 200:
             raise HTTPException(422, "idempotency key too long")
-        body = body.model_copy(
-            update={"demo_fault": request.headers.get("x-demo-fault") == "1"}
-        )
+        body = body.model_copy(update={"demo_fault": request.headers.get("x-demo-fault") == "1"})
         try:
             view = jobs.enqueue(s, body, idem, quota=run_quota())
         except QuotaExceeded as exc:
@@ -406,9 +416,7 @@ def create_app():
         except ValueError as exc:
             raise HTTPException(409, str(exc))
         if view.state == "queued" and not app.state.dispatcher:
-            background.add_task(
-                supervise, s, view.id, request.headers.get("x-demo-fault") == "1"
-            )
+            background.add_task(supervise, s, view.id, request.headers.get("x-demo-fault") == "1")
         app.state.nudge()
         return view
 
@@ -440,8 +448,13 @@ def create_app():
                 raise HTTPException(401, str(exc))
             answer["reviewer"], account = person.name, person.account
         try:
-            view = jobs.resume(s, run_id, answer, signer=lambda run, answer, step, prev: sign_answer({**run, "tenant_id": s.tenant_id}, answer, step, prev),
-                               account=account)
+            view = jobs.resume(
+                s,
+                run_id,
+                answer,
+                signer=lambda run, answer, step, prev: sign_answer({**run, "tenant_id": s.tenant_id}, answer, step, prev),
+                account=account,
+            )
         except ReviewRuleError as exc:
             raise HTTPException(422, str(exc))  # the answer breaks the sign-off rules; the run is still waiting
         except ValueError as exc:
@@ -462,9 +475,14 @@ def create_app():
         result = run.get("result") or {}
         claim_id = ((run.get("request") or {}).get("claim") or {}).get("claim_id", "")
         answers = [ClaimReview.model_validate(a) for a in result.get("approvals") or []]
-        return {"run_id": run_id, "claim_id": claim_id,
-                "approvals": [{**row, "note": a.note, "total_amount": a.total_amount}
-                              for row, a in zip(receipts.verify(approval_key, s.tenant_id, run_id, claim_id, answers), answers)]}
+        return {
+            "run_id": run_id,
+            "claim_id": claim_id,
+            "approvals": [
+                {**row, "note": a.note, "total_amount": a.total_amount}
+                for row, a in zip(receipts.verify(approval_key, s.tenant_id, run_id, claim_id, answers), answers)
+            ],
+        }
 
     @app.get("/api/runs/{run_id}/trace")
     def trace(run_id: str, format: Literal["tree", "otlp"] = "tree", s: TenantScope = Depends(scope)):
@@ -487,8 +505,10 @@ def create_app():
             cid = (run["request"].get("claim") or {}).get("case_id")
             if cid and cid not in latest:
                 latest[cid] = {"run_id": run["id"], "state": run["state"]}
-        return [{**c, "scenario_label": SCENARIO_LABELS.get(c["scenario"], c["scenario"]), "latest_run": latest.get(c["case_id"])}
-                for c in repo.claim_cases(s)]
+        return [
+            {**c, "scenario_label": SCENARIO_LABELS.get(c["scenario"], c["scenario"]), "latest_run": latest.get(c["case_id"])}
+            for c in repo.claim_cases(s)
+        ]
 
     @app.post("/api/claims/cases/{case_id}/run")
     def run_claim(case_id: str, request: Request, background: BackgroundTasks, s: TenantScope = Depends(scope)):
@@ -502,11 +522,18 @@ def create_app():
         model_fields: dict = {}
         if request.headers.get("x-claim-live") == "1":
             model_fields = reserve_live_run(s, idem)
-        claim = ClaimRequest(case_id=case["case_id"], claim_id=case["claim_id"], policy=Policy.model_validate(case["policy"]),
-                             requested=case["requested"], document_ids=[d["id"] for d in case["documents"]],
-                             submitted_at=case["submitted_at"], review=review)
-        body = RunRequest(kind="claim", claim=claim.model_dump(mode="json"), demo_fault=request.headers.get("x-demo-fault") == "1",
-                          **model_fields)
+        claim = ClaimRequest(
+            case_id=case["case_id"],
+            claim_id=case["claim_id"],
+            policy=Policy.model_validate(case["policy"]),
+            requested=case["requested"],
+            document_ids=[d["id"] for d in case["documents"]],
+            submitted_at=case["submitted_at"],
+            review=review,
+        )
+        body = RunRequest(
+            kind="claim", claim=claim.model_dump(mode="json"), demo_fault=request.headers.get("x-demo-fault") == "1", **model_fields
+        )
         try:
             view = jobs.enqueue(s, body, idem, quota=run_quota())
         except QuotaExceeded as exc:
@@ -582,9 +609,7 @@ def create_app():
 
     @app.post("/api/demo/revision")
     def revision(s: TenantScope = Depends(scope)):
-        entry = json.loads((CORPUS / "manifest.json").read_text())["document_entries"][
-            5
-        ]
+        entry = json.loads((CORPUS / "manifest.json").read_text())["document_entries"][5]
         new = load_entry(entry, s)
         affected = jobs.invalidate(s)
         return {
@@ -608,12 +633,16 @@ def create_app():
 
     @app.get("/api/evaluations/catalog")
     def evaluation_catalog():
-        return {"experiments": [
-            {"id": key, "label": label} for key, label, file in (
-                ("qwen", "Qwen3 · 로컬", "latest.json"),
-                ("claude", "Claude Haiku 4.5 · API", "claude.json"),
-            ) if (ROOT / "docs/evaluation" / file).exists()
-        ]}
+        return {
+            "experiments": [
+                {"id": key, "label": label}
+                for key, label, file in (
+                    ("qwen", "Qwen3 · 로컬", "latest.json"),
+                    ("claude", "Claude Haiku 4.5 · API", "claude.json"),
+                )
+                if (ROOT / "docs/evaluation" / file).exists()
+            ]
+        }
 
     @app.get("/api/evaluations/models")
     def model_records():
@@ -641,18 +670,18 @@ def create_app():
         return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
 
     @app.get("/api/evaluations/retrieval")
-    def retrieval_evaluation(experiment: Literal['baseline','reranking']='baseline'):
-        p = ROOT / 'docs/evaluation' / ('reranking.json' if experiment=='reranking' else 'retrieval.json')
+    def retrieval_evaluation(experiment: Literal["baseline", "reranking"] = "baseline"):
+        p = ROOT / "docs/evaluation" / ("reranking.json" if experiment == "reranking" else "retrieval.json")
         return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
 
-    @app.get('/api/evaluations/vision')
+    @app.get("/api/evaluations/vision")
     def vision_evaluation():
-        p = ROOT / 'docs/evaluation/vision.json'
+        p = ROOT / "docs/evaluation/vision.json"
         return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
 
-    @app.get('/api/evaluations/cad')
+    @app.get("/api/evaluations/cad")
     def cad_evaluation():
-        p = ROOT / 'docs/evaluation/nist-cad.json'
+        p = ROOT / "docs/evaluation/nist-cad.json"
         return json.loads(p.read_text()) if p.exists() else {"status": "not_measured"}
 
     # HEAD too: uptime monitors that keep the free instance awake may probe with it.
@@ -661,17 +690,13 @@ def create_app():
         return {
             "status": "ok",
             "version": "0.1.0",
-            "sha": os.getenv(
-                "RENDER_GIT_COMMIT", os.getenv("FITWITNESS_GIT_SHA", "local")
-            ),
+            "sha": os.getenv("RENDER_GIT_COMMIT", os.getenv("FITWITNESS_GIT_SHA", "local")),
         }
 
     @app.get("/ready")
     def ready():
         try:
-            with repo.connection(
-                TenantScope(tenant_id="readiness", user_id="system")
-            ) as c:
+            with repo.connection(TenantScope(tenant_id="readiness", user_id="system")) as c:
                 c.execute("SELECT 1 FROM fw_revisions LIMIT 1")
         except Exception:
             raise HTTPException(503, "database unavailable")

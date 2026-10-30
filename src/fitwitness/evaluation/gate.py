@@ -107,12 +107,34 @@ def run_rules_graph(repo, root: Path) -> dict:
     entries = [e for e in manifest["document_entries"] if e["family_id"] == "FW-F000" and not e["is_revision_update"]]
     expected = {}
     for e in entries:
-        rev = DrawingRevision(tenant_id=scope.tenant_id, **{k: e[k] for k in ("id", "document_id", "drawing_number", "family_id", "revision_label", "supersedes", "kind", "title", "source_hash")})
+        rev = DrawingRevision(
+            tenant_id=scope.tenant_id,
+            **{
+                k: e[k]
+                for k in (
+                    "id",
+                    "document_id",
+                    "drawing_number",
+                    "family_id",
+                    "revision_label",
+                    "supersedes",
+                    "kind",
+                    "title",
+                    "source_hash",
+                )
+            },
+        )
         data = (root / e["pdf"]).read_bytes()
         repo.add_revision(scope, rev, data)
         repo.save_facts(scope, rev.id, extract_pdf(data, rev))
         truth = gold[rev.id]
-        expected[rev.id] = "mismatch" if truth["hole_spacing"] != 40 or truth["material"] not in ("SUS304", None) else "unknown" if truth["material"] is None else "match"
+        expected[rev.id] = (
+            "mismatch"
+            if truth["hole_spacing"] != 40 or truth["material"] not in ("SUS304", None)
+            else "unknown"
+            if truth["material"] is None
+            else "match"
+        )
     jobs = Jobs(repo)
     request = RunRequest(search=SearchRequest(text="브래킷 구멍 간격 40mm SUS304"), provider="rules", budget=Budget(max_tokens=64000))
     job = jobs.enqueue(scope, request, str(uuid4()))
@@ -121,8 +143,15 @@ def run_rules_graph(repo, root: Path) -> dict:
     view = jobs.get(scope, job.id)
     actual = {d.revision_id: d.verdict.value for d in view.decisions}
     correct = sum(actual.get(k) == v for k, v in expected.items())
-    return {"state": view.state, "correct": correct, "total": len(expected), "accuracy": correct / len(expected),
-            "latency_ms": (time.perf_counter() - started) * 1000, "expected": expected, "actual": actual}
+    return {
+        "state": view.state,
+        "correct": correct,
+        "total": len(expected),
+        "accuracy": correct / len(expected),
+        "latency_ms": (time.perf_counter() - started) * 1000,
+        "expected": expected,
+        "actual": actual,
+    }
 
 
 def run_lexical(repo, scope, root: Path, *, id_matching: str) -> dict:
@@ -138,13 +167,28 @@ def run_lexical(repo, scope, root: Path, *, id_matching: str) -> dict:
         started = time.perf_counter()
         ranked = search(scope, SearchRequest(text=case["text"], top_k=10), snapshot, repo, None, {"exact", "bm25"}, id_matching=id_matching)
         ids = [c.revision_id for c in ranked]
-        rows.append({"case_id": case["id"], "category": case["category"], "text": case["text"], "latency_ms": (time.perf_counter() - started) * 1000,
-                     "ranked": ids[:5], **{k + "_at_5": v for k, v in score_ranking(ids, case["relevance"], 5).items()}})
+        rows.append(
+            {
+                "case_id": case["id"],
+                "category": case["category"],
+                "text": case["text"],
+                "latency_ms": (time.perf_counter() - started) * 1000,
+                "ranked": ids[:5],
+                **{k + "_at_5": v for k, v in score_ranking(ids, case["relevance"], 5).items()},
+            }
+        )
     by_cat: dict[str, list] = defaultdict(list)
     for r in rows:
         by_cat[r["category"]].append(r)
-    out = {cat: {"n": len(rs), "recall_at_5": mean(r["recall_at_5"] for r in rs), "ndcg_at_5": mean(r["ndcg_at_5"] for r in rs),
-                 "latency_p50_ms": sorted(r["latency_ms"] for r in rs)[len(rs) // 2]} for cat, rs in sorted(by_cat.items())}
+    out = {
+        cat: {
+            "n": len(rs),
+            "recall_at_5": mean(r["recall_at_5"] for r in rs),
+            "ndcg_at_5": mean(r["ndcg_at_5"] for r in rs),
+            "latency_p50_ms": sorted(r["latency_ms"] for r in rs)[len(rs) // 2],
+        }
+        for cat, rs in sorted(by_cat.items())
+    }
     out["rows"] = rows
     return out
 
@@ -170,10 +214,24 @@ def run_geometry(root: Path, families: list[str]) -> dict:
         ranked = rank_geometry(features[d["id"]], candidates)
         fam = {x["id"]: x["family_id"] for x in pool}
         top = [fam[r["candidate_id"]] for r in ranked[:3]]
-        rows.append({"query": d["drawing_number"], "family_id": d["family_id"], "top3_families": top, "same_family_at_1": top[0] == d["family_id"],
-                     "same_family_at_3": d["family_id"] in top, "nearest_distance": ranked[0]["distance"]})
-    return {"queries": len(rows), "pool": len(pool), "same_family_at_1": mean(r["same_family_at_1"] for r in rows),
-            "same_family_at_3": mean(r["same_family_at_3"] for r in rows), "parse_latency_p50_ms": sorted(parse_ms)[len(parse_ms) // 2], "rows": rows}
+        rows.append(
+            {
+                "query": d["drawing_number"],
+                "family_id": d["family_id"],
+                "top3_families": top,
+                "same_family_at_1": top[0] == d["family_id"],
+                "same_family_at_3": d["family_id"] in top,
+                "nearest_distance": ranked[0]["distance"],
+            }
+        )
+    return {
+        "queries": len(rows),
+        "pool": len(pool),
+        "same_family_at_1": mean(r["same_family_at_1"] for r in rows),
+        "same_family_at_3": mean(r["same_family_at_3"] for r in rows),
+        "parse_latency_p50_ms": sorted(parse_ms)[len(parse_ms) // 2],
+        "rows": rows,
+    }
 
 
 def run_claims(root: Path) -> dict:
@@ -257,8 +315,9 @@ def run_claims_official_scan(root: Path) -> dict | None:
     return {"normal": grid, "ocr_only": ocr_only}
 
 
-def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajectories: Path | None = None,
-             adopt_trajectories: bool = False) -> dict:
+def run_gate(
+    root: Path, output: Path, claims_root: Path | None = None, trajectories: Path | None = None, adopt_trajectories: bool = False
+) -> dict:
     from fitwitness.data.bootstrap import seed
     from fitwitness.runtime.jobs import Jobs
     from fitwitness.storage.repository import Repository
@@ -295,18 +354,25 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajecto
     if claims:
         control["claims_wrong_pay_gap"] = claims["degraded"]["summary"]["wrong_pay_rate"] - claims["normal"]["summary"]["wrong_pay_rate"]
         control["claims_degraded"] = claims["degraded"]["summary"]
-        control["official_reader_gap"] = claims_official["normal"]["summary"]["field_accuracy"] - claims_official["text_only"]["summary"]["field_accuracy"]
+        control["official_reader_gap"] = (
+            claims_official["normal"]["summary"]["field_accuracy"] - claims_official["text_only"]["summary"]["field_accuracy"]
+        )
         control["official_text_only"] = claims_official["text_only"]["summary"]
         if claims_official_scan:
-            control["official_scan_gap"] = claims_official_scan["normal"]["summary"]["field_accuracy"] - claims_official_scan["ocr_only"]["summary"]["field_accuracy"]
+            control["official_scan_gap"] = (
+                claims_official_scan["normal"]["summary"]["field_accuracy"] - claims_official_scan["ocr_only"]["summary"]["field_accuracy"]
+            )
             control["official_scan_ocr_only"] = claims_official_scan["ocr_only"]["summary"]
     if trajectory:
         normal_rate, broken_rate = trajectory["normal"]["match_rate"], trajectory["degraded"]["match_rate"]
         control["trajectory_gap"] = (normal_rate - broken_rate) if normal_rate is not None and broken_rate is not None else None
         control["trajectory_degraded_violations"] = trajectory["degraded"]["invariant_violations"]
     report = {
-        "version": GATE_VERSION, "code_sha": _git_sha(), "created_at": datetime.now(timezone.utc).isoformat(),
-        "wall_s": round(time.perf_counter() - started, 2), "corpus_documents": len(repo.snapshot(scope).revision_ids),
+        "version": GATE_VERSION,
+        "code_sha": _git_sha(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "wall_s": round(time.perf_counter() - started, 2),
+        "corpus_documents": len(repo.snapshot(scope).revision_ids),
         "rules_graph": {k: v for k, v in rules.items() if k not in ("expected", "actual")},
         "lexical": {k: v for k, v in lexical.items() if k != "rows"},
         "geometry": {k: v for k, v in geometry.items() if k != "rows"},
@@ -330,10 +396,20 @@ def run_gate(root: Path, output: Path, claims_root: Path | None = None, trajecto
         ],
     }
     (output / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2))
-    (output / "rows.json").write_text(json.dumps({"lexical": lexical["rows"], "degraded": degraded["rows"], "geometry": geometry["rows"],
-                                                  "rules": {"expected": rules["expected"], "actual": rules["actual"]},
-                                                  "claims": claims["normal"]["rows"] if claims else [],
-                                                  "claims_injection": claims_injection["rows"] if claims_injection else []}, ensure_ascii=False, indent=1))
+    (output / "rows.json").write_text(
+        json.dumps(
+            {
+                "lexical": lexical["rows"],
+                "degraded": degraded["rows"],
+                "geometry": geometry["rows"],
+                "rules": {"expected": rules["expected"], "actual": rules["actual"]},
+                "claims": claims["normal"]["rows"] if claims else [],
+                "claims_injection": claims_injection["rows"] if claims_injection else [],
+            },
+            ensure_ascii=False,
+            indent=1,
+        )
+    )
     return report
 
 
@@ -378,11 +454,19 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--output", type=Path, default=Path("artifacts/gate"))
     p.add_argument("--baseline", type=Path, default=Path("docs/evaluation/gate-baseline.json"))
     p.add_argument("--claims-root", type=Path, default=Path("var/claims"))
-    p.add_argument("--trajectories", type=Path, default=Path("docs/evaluation/trajectories.json"),
-                   help="committed reference paths each claim and drawing run must reproduce")
+    p.add_argument(
+        "--trajectories",
+        type=Path,
+        default=Path("docs/evaluation/trajectories.json"),
+        help="committed reference paths each claim and drawing run must reproduce",
+    )
     p.add_argument("--write-trajectories", action="store_true", help="adopt the observed paths as the new reference (deliberate act)")
     p.add_argument("--write-baseline", action="store_true", help="store this report as the new baseline (deliberate act)")
-    p.add_argument("--force-baseline", action="store_true", help="with --write-baseline: store it although the gate failed (a deliberate, reviewed change)")
+    p.add_argument(
+        "--force-baseline",
+        action="store_true",
+        help="with --write-baseline: store it although the gate failed (a deliberate, reviewed change)",
+    )
     p.add_argument("--require-optional", action="store_true", help="fail when a suite that needs the tesseract binary was not measured")
     args = p.parse_args(argv)
     report = run_gate(args.root, args.output, args.claims_root, args.trajectories, adopt_trajectories=args.write_trajectories)

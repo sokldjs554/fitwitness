@@ -1,4 +1,5 @@
 """The OCR reader's rules, on hand-made tokens (no Tesseract needed) and on the scan simulator."""
+
 import numpy as np
 from PIL import Image
 from fitwitness.claims import ocr
@@ -52,13 +53,21 @@ def test_a_poorly_read_word_after_the_value_is_not_part_of_it():
 
 
 def test_noise_below_the_floor_is_dropped_and_the_next_label_ends_a_value():
-    tokens = syllables("퇴원일", 100) + [tok(":", 190, width=6), tok("2025.12.17", 400, conf=90.0)] + \
-        syllables("진료과", 100, y=140, line=(1, 1, 2)) + [tok(":", 220, y=140, width=6, line=(1, 1, 2)), tok("내과", 400, y=140, line=(1, 1, 2))]
+    tokens = (
+        syllables("퇴원일", 100)
+        + [tok(":", 190, width=6), tok("2025.12.17", 400, conf=90.0)]
+        + syllables("진료과", 100, y=140, line=(1, 1, 2))
+        + [tok(":", 220, y=140, width=6, line=(1, 1, 2)), tok("내과", 400, y=140, line=(1, 1, 2))]
+    )
     assert [(l, v) for l, v, _ in read(tokens)] == [("퇴원일:", "2025.12.17")]  # 진료과 is a stop label, not a field
 
 
 def test_confidence_is_the_weakest_token_of_label_and_value():
-    tokens = syllables("합계", 100, conf=96.0) + [tok(":", 150, width=6, conf=96.0), tok("3,884,730", 400, conf=71.0), tok("원", 520, conf=95.0)]
+    tokens = syllables("합계", 100, conf=96.0) + [
+        tok(":", 150, width=6, conf=96.0),
+        tok("3,884,730", 400, conf=71.0),
+        tok("원", 520, conf=95.0),
+    ]
     assert read(tokens) == [("합계:", "3,884,730 원", 0.71)]
 
 
@@ -132,8 +141,14 @@ def test_a_comma_read_as_a_full_stop_or_doubled_does_not_break_an_amount_but_a_b
 
 
 def test_unit_marks_read_as_digits_or_letters_are_cut_out_only_when_one_cut_gives_a_real_date():
-    for text, iso in (("2026년1829일", "2026-01-29"), ("2027년186일", "2027-01-06"), ("2025년11825일", "2025-11-25"),
-                      ("202647H15일", "2026-07-15"), ("202643월15일", "2026-03-15"), ("2026년7월15일-", "2026-07-15")):
+    for text, iso in (
+        ("2026년1829일", "2026-01-29"),
+        ("2027년186일", "2027-01-06"),
+        ("2025년11825일", "2025-11-25"),
+        ("202647H15일", "2026-07-15"),
+        ("202643월15일", "2026-03-15"),
+        ("2026년7월15일-", "2026-07-15"),
+    ):
         assert normalise_date(ocr.repair_date(text)) == iso, text
     assert normalise_date(ocr.repair_date("2026년1229일")) is None  # January 29 or December 9: no guess
     assert normalise_date(ocr.repair_date("20260715")) is None  # a bare run of digits has no mark to cut around

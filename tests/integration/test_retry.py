@@ -1,4 +1,5 @@
 """Transient provider failures back off and retry; anything else fails once and stays failed."""
+
 import pytest
 from test_workflow import env, request
 from fitwitness.agents.providers import TransientProviderError
@@ -30,12 +31,12 @@ def test_transient_failure_schedules_a_retry_and_later_succeeds(env, monkeypatch
     planner = FlakyPlanner(failures=1)
     monkeypatch.setattr(mod, "create_model", lambda *a: planner)
     run = j.enqueue(s, paid(), "retry-1")
-    with pytest.raises(TransientProviderError):                       # the worker process exits non-zero…
+    with pytest.raises(TransientProviderError):  # the worker process exits non-zero…
         mod.execute_run(r, s, run.id)
-    view = j.get(s, run.id)                                            # …but the job has already been rescheduled
+    view = j.get(s, run.id)  # …but the job has already been rescheduled
     assert view.state == "retry_wait" and view.attempts == 1 and view.next_attempt_at
     assert (s.tenant_id, run.id) in j.pending()
-    assert j.claim(s, run.id) is None                                   # not due yet
+    assert j.claim(s, run.id) is None  # not due yet
     kinds = [e["kind"] for e in j.events(s, run.id)]
     assert "retry_scheduled" in kinds and "failed" not in kinds
     j.make_due(s, run.id)

@@ -54,8 +54,16 @@ def test_the_picker_chooses_by_its_written_rules_and_skips_a_wrong_payment():
         return {"field": name, "decisive": True, "printed": True, "correct": correct, "how": list(how), "flagged": flagged, "doc_id": "d1"}
 
     def claim(case_id, fields, outcome="APPROVE", gold="APPROVE", rules=()):
-        return {"case_id": case_id, "fields": fields, "outcome": outcome, "gold": gold, "amount": 100, "gold_amount": 100,
-                "rules": list(rules), "documents": [{"id": "d1", "kind": "diagnosis"}]}
+        return {
+            "case_id": case_id,
+            "fields": fields,
+            "outcome": outcome,
+            "gold": gold,
+            "amount": 100,
+            "gold_amount": 100,
+            "rules": list(rules),
+            "documents": [{"id": "d1", "kind": "diagnosis"}],
+        }
 
     wrong_payment = claim("CLM-1", [field("diagnosis_code", correct=False)])  # approved though a decisive value is wrong
     clean = claim("CLM-2", [field("diagnosis_code"), field("total_amount")])

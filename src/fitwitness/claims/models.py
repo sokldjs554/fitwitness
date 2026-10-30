@@ -69,8 +69,17 @@ class Extraction(Strict):
     scanned: bool = Field(False, description="read from a picture by OCR rather than from a text layer")
 
     FIELDS: ClassVar[tuple[str, ...]] = (
-        "insured_name", "hospital", "diagnosis_name", "diagnosis_code", "diagnosis_date",
-        "admission_date", "discharge_date", "surgery_name", "surgery_date", "surgery_grade", "total_amount",
+        "insured_name",
+        "hospital",
+        "diagnosis_name",
+        "diagnosis_code",
+        "diagnosis_date",
+        "admission_date",
+        "discharge_date",
+        "surgery_name",
+        "surgery_date",
+        "surgery_grade",
+        "total_amount",
     )
 
 
@@ -159,7 +168,9 @@ class ClaimReview(Strict):
     note: str = Field(default="", max_length=500)
     total_amount: int | None = Field(None, ge=0, le=10**12)  # an adjusted amount when approving: it can lower the proposal, never raise it
     receipt: ApprovalReceipt | None = None  # set by the API when it accepts the answer
-    account: str | None = Field(None, max_length=300)  # the account an ID token proved (issuer#subject); set by the API, never by the client
+    account: str | None = Field(
+        None, max_length=300
+    )  # the account an ID token proved (issuer#subject); set by the API, never by the client
 
 
 class Payout(Strict):

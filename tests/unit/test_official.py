@@ -1,4 +1,5 @@
 """The grid reader on the statutory diagnosis certificate and fee statement, redrawn from the forms' labels and lines."""
+
 import io
 import json
 
@@ -13,8 +14,15 @@ from fitwitness.claims.official_fill import Slot, fill
 from fitwitness.claims.synth import generate_cases
 
 NAME = vocab.SURNAMES[0] + vocab.GIVEN[0]
-DIAGNOSIS = dict(insured_name=NAME, diagnosis_name=vocab.DIAGNOSES[0][1], diagnosis_code=vocab.DIAGNOSES[0][0], diagnosis_date="2026-03-10",
-                 admission_date="2026-03-10", discharge_date="2026-03-14", hospital=vocab.HOSPITALS[0])
+DIAGNOSIS = dict(
+    insured_name=NAME,
+    diagnosis_name=vocab.DIAGNOSES[0][1],
+    diagnosis_code=vocab.DIAGNOSES[0][0],
+    diagnosis_date="2026-03-10",
+    admission_date="2026-03-10",
+    discharge_date="2026-03-14",
+    hospital=vocab.HOSPITALS[0],
+)
 RECEIPT = dict(insured_name=NAME, total_amount=1234567, hospital=vocab.HOSPITALS[1])
 
 
@@ -44,8 +52,15 @@ def test_a_page_with_label_colon_value_lines_is_not_an_official_form(tmp_path):
 def test_the_diagnosis_values_are_read_from_their_cells_wherever_the_print_lands(jitter):
     for seed in range(8):
         got = pairs(fill("diagnosis", DIAGNOSIS, seed=str(seed), jitter=jitter))
-        assert got == {"환자성명:": NAME, "병명:": DIAGNOSIS["diagnosis_name"], "질병분류기호:": DIAGNOSIS["diagnosis_code"], "진단일:": "2026-03-10",
-                       "입원일:": "2026-03-10", "퇴원일:": "2026-03-14", "발행기관:": DIAGNOSIS["hospital"]}
+        assert got == {
+            "환자성명:": NAME,
+            "병명:": DIAGNOSIS["diagnosis_name"],
+            "질병분류기호:": DIAGNOSIS["diagnosis_code"],
+            "진단일:": "2026-03-10",
+            "입원일:": "2026-03-10",
+            "퇴원일:": "2026-03-14",
+            "발행기관:": DIAGNOSIS["hospital"],
+        }
 
 
 @pytest.mark.parametrize("jitter", [0.0, 3.0])
@@ -109,4 +124,8 @@ def test_claims_over_the_official_forms_are_read_exactly_and_routed_like_the_tex
             assert getattr(ex, f) == truth[f], (case["case_id"], f)
         assert ex.confidence == 1.0 and not ex.scanned
     summary = evaluate(tmp_path, forms=forms)["summary"]
-    assert summary["wrong_pay_count"] == 0 and summary["wrong_deny_count"] == 0 and summary["forms"] == {"diagnosis": "redrawn", "receipt": "redrawn"}
+    assert (
+        summary["wrong_pay_count"] == 0
+        and summary["wrong_deny_count"] == 0
+        and summary["forms"] == {"diagnosis": "redrawn", "receipt": "redrawn"}
+    )

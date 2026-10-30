@@ -38,7 +38,9 @@ def park(client, *, senior: bool):
         if asked["total_amount"] <= 0:
             continue
         if senior:
-            with psycopg.connect(os.getenv("FITWITNESS_DATABASE_URL", "postgresql://fwadmin@/postgres?host=/tmp&port=55439"), autocommit=True) as c:
+            with psycopg.connect(
+                os.getenv("FITWITNESS_DATABASE_URL", "postgresql://fwadmin@/postgres?host=/tmp&port=55439"), autocommit=True
+            ) as c:
                 c.execute("UPDATE fw_runs SET review_due_at=now()-interval '1 second' WHERE id=%s", (run["id"],))
                 c.execute("UPDATE fw_review_due SET due_at=now()-interval '1 second' WHERE run_id=%s", (run["id"],))
             assert client.app.state.jobs.escalate_overdue(limit=10_000) >= 1
@@ -79,20 +81,35 @@ def test_the_second_approval_must_come_from_another_account_whatever_the_name_sa
     fake, client = desk
     run_id, amount = park(client, senior=True)
     note = {"note": "서류와 금액을 직접 확인했습니다"}
-    first = client.post(f"/api/runs/{run_id}/resume", json={"outcome": "APPROVE", "reviewer": "x", **note},
-                        headers={"Authorization": f"Bearer {fake.token('u1', '김심사')}"})
+    first = client.post(
+        f"/api/runs/{run_id}/resume",
+        json={"outcome": "APPROVE", "reviewer": "x", **note},
+        headers={"Authorization": f"Bearer {fake.token('u1', '김심사')}"},
+    )
     assert first.status_code == 200 and client.get(f"/api/runs/{run_id}").json()["state"] == "waiting_input"
     asked = [e for e in client.get(f"/api/runs/{run_id}/events").json() if e["kind"] == "waiting_input"][-1]["payload"]
     assert asked["step"] == 2 and asked["first_account"] == f"{fake.issuer}#u1" and asked["approvals_required"] == 2
-    same_account_other_name = client.post(f"/api/runs/{run_id}/resume", json={"outcome": "APPROVE", "reviewer": "x", **note},
-                                          headers={"Authorization": f"Bearer {fake.token('u1', '박팀장')}"})
+    same_account_other_name = client.post(
+        f"/api/runs/{run_id}/resume",
+        json={"outcome": "APPROVE", "reviewer": "x", **note},
+        headers={"Authorization": f"Bearer {fake.token('u1', '박팀장')}"},
+    )
     assert same_account_other_name.status_code == 422
-    second = client.post(f"/api/runs/{run_id}/resume", json={"outcome": "APPROVE", "reviewer": "x", **note},
-                         headers={"Authorization": f"Bearer {fake.token('u2', '김심사', alg='ES256')}"})  # the same name, another account
+    second = client.post(
+        f"/api/runs/{run_id}/resume",
+        json={"outcome": "APPROVE", "reviewer": "x", **note},
+        headers={"Authorization": f"Bearer {fake.token('u2', '김심사', alg='ES256')}"},
+    )  # the same name, another account
     assert second.status_code == 200
     view = client.get(f"/api/runs/{run_id}").json()
     assert view["state"] == "completed" and view["claim"]["payout"]["amount"] == amount
     rows = client.get(f"/api/runs/{run_id}/approvals").json()["approvals"]
     assert [r["status"] for r in rows] == ["valid", "valid"]
-    assert [r["account"] for r in rows] == [f"{fake.issuer}#u1", f"{fake.issuer}#u2"] and [r["reviewer"] for r in rows] == ["김심사", "김심사"]
-    assert [e for e in client.get(f"/api/runs/{run_id}/events").json() if e["kind"] == "human_review"][-1]["payload"]["accounts"] == [f"{fake.issuer}#u1", f"{fake.issuer}#u2"]
+    assert [r["account"] for r in rows] == [f"{fake.issuer}#u1", f"{fake.issuer}#u2"] and [r["reviewer"] for r in rows] == [
+        "김심사",
+        "김심사",
+    ]
+    assert [e for e in client.get(f"/api/runs/{run_id}/events").json() if e["kind"] == "human_review"][-1]["payload"]["accounts"] == [
+        f"{fake.issuer}#u1",
+        f"{fake.issuer}#u2",
+    ]

@@ -25,12 +25,31 @@ from fitwitness.claims.policy import PRODUCTS, REQUIRED_DOCS, adjudicate
 FONT = Path(__file__).with_name("fonts") / "NotoSansKR-claims.ttf"
 FONT_NAME = "NotoSansKR-claims"
 DATE_FORMATS = ["%Y-%m-%d", "%Y.%m.%d", "%Y년 %m월 %d일", "%Y/%m/%d"]
-SCENARIOS = ["clean", "ocr_noise", "format_variance", "missing_doc", "date_conflict", "waiting_period",
-             "exclusion", "duplicate", "lapsed_policy", "high_amount", "grade_missing"]
+SCENARIOS = [
+    "clean",
+    "ocr_noise",
+    "format_variance",
+    "missing_doc",
+    "date_conflict",
+    "waiting_period",
+    "exclusion",
+    "duplicate",
+    "lapsed_policy",
+    "high_amount",
+    "grade_missing",
+]
 SCENARIO_LABELS = {
-    "clean": "정상 청구", "ocr_noise": "스캔 품질 저하", "format_variance": "표기 형식 다양", "missing_doc": "서류 누락",
-    "date_conflict": "서류 간 날짜 불일치", "waiting_period": "면책기간 내 진단", "exclusion": "면책 질병",
-    "duplicate": "중복 청구", "lapsed_policy": "실효 계약", "high_amount": "자동승인 한도 초과", "grade_missing": "수술 등급 누락",
+    "clean": "정상 청구",
+    "ocr_noise": "스캔 품질 저하",
+    "format_variance": "표기 형식 다양",
+    "missing_doc": "서류 누락",
+    "date_conflict": "서류 간 날짜 불일치",
+    "waiting_period": "면책기간 내 진단",
+    "exclusion": "면책 질병",
+    "duplicate": "중복 청구",
+    "lapsed_policy": "실효 계약",
+    "high_amount": "자동승인 한도 초과",
+    "grade_missing": "수술 등급 누락",
 }
 _ALLOWED = set(vocab.all_text())
 
@@ -83,8 +102,9 @@ def _check_vocab(*parts: str) -> None:
         raise ValueError(f"text uses glyphs outside the embedded font subset: {sorted(bad)}")
 
 
-def render_document(path: Path, title: str, rows: list[tuple[str, str]], issued: date, hospital: str,
-                    doctor: str, doc_no: str, closing: str) -> None:
+def render_document(
+    path: Path, title: str, rows: list[tuple[str, str]], issued: date, hospital: str, doctor: str, doc_no: str, closing: str
+) -> None:
     """One A4 page: title, numbered form rows, closing line, issuing hospital, disclaimer."""
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
@@ -92,8 +112,21 @@ def render_document(path: Path, title: str, rows: list[tuple[str, str]], issued:
 
     if FONT_NAME not in pdfmetrics.getRegisteredFontNames():
         pdfmetrics.registerFont(TTFont(FONT_NAME, str(FONT)))
-    _check_vocab(title, closing, hospital, doctor, doc_no, "보험회사 제출용", "문서번호:", "발급일:", "발행기관:", "담당의:", "면허번호:",
-                 "연구용 합성 문서 · 실제 환자 정보가 아닙니다", *(k + v for k, v in rows))
+    _check_vocab(
+        title,
+        closing,
+        hospital,
+        doctor,
+        doc_no,
+        "보험회사 제출용",
+        "문서번호:",
+        "발급일:",
+        "발행기관:",
+        "담당의:",
+        "면허번호:",
+        "연구용 합성 문서 · 실제 환자 정보가 아닙니다",
+        *(k + v for k, v in rows),
+    )
     c = canvas.Canvas(str(path), pagesize=(595, 842), invariant=1)
     c.setTitle(title)
     c.setFont(FONT_NAME, 20)
@@ -139,9 +172,22 @@ def render_png(pdf_path: Path, png_path: Path, scale: float = 1.2) -> None:
     pdf[0].render(scale=scale).to_pil().save(png_path)
 
 
-def build_documents(case_dir: Path, case_id: str, truth: Extraction, requested: list[str], issued: date,
-                    rng: random.Random, fmt: str, amt_style: int, department: str, omit: str | None,
-                    ocr_rate: float, conflict: bool, doctor: str, extra: list[tuple[str, str]] | None = None) -> list[ClaimDocument]:
+def build_documents(
+    case_dir: Path,
+    case_id: str,
+    truth: Extraction,
+    requested: list[str],
+    issued: date,
+    rng: random.Random,
+    fmt: str,
+    amt_style: int,
+    department: str,
+    omit: str | None,
+    ocr_rate: float,
+    conflict: bool,
+    doctor: str,
+    extra: list[tuple[str, str]] | None = None,
+) -> list[ClaimDocument]:
     """``extra`` rows are printed under the form rows of every document: the robustness evaluation uses them for
     text that is not a field (a remark that gives instructions, or looks like a second field)."""
     need: set[str] = set()
@@ -159,22 +205,39 @@ def build_documents(case_dir: Path, case_id: str, truth: Extraction, requested: 
     def emit(kind: str, title: str, rows: list[tuple[str, str]], closing: str) -> None:
         doc_id = f"{case_id}-{kind[:3].upper()}"
         pdf = case_dir / f"{doc_id}.pdf"
-        render_document(pdf, title, rows + list(extra or []), issued, hosp, doctor, f"{issued.year}-{_number(doc_id) % 900000 + 100000}", closing)
+        render_document(
+            pdf, title, rows + list(extra or []), issued, hosp, doctor, f"{issued.year}-{_number(doc_id) % 900000 + 100000}", closing
+        )
         render_png(pdf, case_dir / f"{doc_id}.png")
         docs.append(ClaimDocument(id=doc_id, case_id=case_id, kind=kind, issued_at=issued.isoformat()))
 
     if "diagnosis" in need and omit != "diagnosis":
-        emit("diagnosis", "진단서", [
-            ("환자성명:", name), ("병명:", truth.diagnosis_name or "-"),
-            ("질병분류기호:", _ocr(truth.diagnosis_code or "-", rng, ocr_rate)), ("진단일:", d(truth.diagnosis_date)),
-        ], "위와 같이 진단함.")
+        emit(
+            "diagnosis",
+            "진단서",
+            [
+                ("환자성명:", name),
+                ("병명:", truth.diagnosis_name or "-"),
+                ("질병분류기호:", _ocr(truth.diagnosis_code or "-", rng, ocr_rate)),
+                ("진단일:", d(truth.diagnosis_date)),
+            ],
+            "위와 같이 진단함.",
+        )
     if "admission" in need and omit != "admission":
         discharge = truth.discharge_date
         if conflict and truth.admission_date:
             discharge = (date.fromisoformat(truth.admission_date) - timedelta(days=2)).isoformat()  # before admission
-        emit("admission", "입퇴원확인서", [
-            ("성명:", name), ("입원일:", d(truth.admission_date)), ("퇴원일:", d(discharge)), ("진료과:", department),
-        ], "위와 같이 확인함.")
+        emit(
+            "admission",
+            "입퇴원확인서",
+            [
+                ("성명:", name),
+                ("입원일:", d(truth.admission_date)),
+                ("퇴원일:", d(discharge)),
+                ("진료과:", department),
+            ],
+            "위와 같이 확인함.",
+        )
     if "surgery" in need and omit != "surgery":
         rows = [("환자:", name), ("수술명:", truth.surgery_name or "-"), ("수술일:", d(truth.surgery_date))]
         if omit != "grade" and truth.surgery_grade is not None:
@@ -184,16 +247,34 @@ def build_documents(case_dir: Path, case_id: str, truth: Extraction, requested: 
     if omit != "receipt":
         total = truth.total_amount or 0
         start, end = truth.admission_date or truth.diagnosis_date, truth.discharge_date or truth.diagnosis_date
-        emit("receipt", "진료비 계산서·영수증", [
-            ("환자명:", name), ("진료기간:", f"{d(start)} ~ {d(end)}"),
-            ("급여본인부담금:", _amount(int(total * 0.6), amt_style)), ("비급여:", _amount(total - int(total * 0.6), amt_style)),
-            ("합계:", _amount(total, amt_style)),
-        ], "위와 같이 확인함.")
+        emit(
+            "receipt",
+            "진료비 계산서·영수증",
+            [
+                ("환자명:", name),
+                ("진료기간:", f"{d(start)} ~ {d(end)}"),
+                ("급여본인부담금:", _amount(int(total * 0.6), amt_style)),
+                ("비급여:", _amount(total - int(total * 0.6), amt_style)),
+                ("합계:", _amount(total, amt_style)),
+            ],
+            "위와 같이 확인함.",
+        )
     return docs
 
 
-def build_supplement(case_dir: Path, case_id: str, truth: Extraction, requested: list[str], issued: date, fmt: str, amt_style: int,
-                     department: str, doctor: str, kinds: set[str], seed: int) -> list[ClaimDocument]:
+def build_supplement(
+    case_dir: Path,
+    case_id: str,
+    truth: Extraction,
+    requested: list[str],
+    issued: date,
+    fmt: str,
+    amt_style: int,
+    department: str,
+    doctor: str,
+    kinds: set[str],
+    seed: int,
+) -> list[ClaimDocument]:
     """The documents of ``kinds`` as a claimant would send them after a request: complete and clean.
 
     They come from their own random stream, so adding them moves nothing else in the corpus, and they are rendered
@@ -201,8 +282,21 @@ def build_supplement(case_dir: Path, case_id: str, truth: Extraction, requested:
     scratch = case_dir / "_supplement"
     scratch.mkdir(exist_ok=True)
     try:
-        made = build_documents(scratch, case_id, truth, requested, issued, random.Random(f"supplement:{seed}:{case_id}"), fmt, amt_style,
-                               department, None, 0.0, False, doctor)
+        made = build_documents(
+            scratch,
+            case_id,
+            truth,
+            requested,
+            issued,
+            random.Random(f"supplement:{seed}:{case_id}"),
+            fmt,
+            amt_style,
+            department,
+            None,
+            0.0,
+            False,
+            doctor,
+        )
         out: list[ClaimDocument] = []
         for doc in made:
             if doc.kind not in kinds:
@@ -221,14 +315,22 @@ def generate_cases(root: Path, n: int = 120, seed: int = 7) -> list[ClaimCase]:
     root.mkdir(parents=True, exist_ok=True)
     cases: list[ClaimCase] = []
     for i in range(n):
-        scenario = SCENARIOS[i % len(SCENARIOS)] if i < len(SCENARIOS) * 3 else \
-            rng.choices(SCENARIOS, weights=[30, 12, 12, 8, 6, 6, 6, 6, 5, 5, 4])[0]
+        scenario = (
+            SCENARIOS[i % len(SCENARIOS)]
+            if i < len(SCENARIOS) * 3
+            else rng.choices(SCENARIOS, weights=[30, 12, 12, 8, 6, 6, 6, 6, 5, 5, 4])[0]
+        )
         product_id = "CANCER-B" if (scenario == "waiting_period" or rng.random() < 0.25) else "HLTH-A"
         name = rng.choice(vocab.SURNAMES) + rng.choice(vocab.GIVEN)
         eff_from = date(2025, 1, 1) + timedelta(days=rng.randint(0, 200))
-        policy = Policy(policy_id=f"POL-{i:05d}", insured_id=f"INS-{i:04d}", product_id=product_id,
-                        effective_from=eff_from.isoformat(), effective_to=(eff_from + timedelta(days=365 * 5)).isoformat(),
-                        status="lapsed" if scenario == "lapsed_policy" else "active")
+        policy = Policy(
+            policy_id=f"POL-{i:05d}",
+            insured_id=f"INS-{i:04d}",
+            product_id=product_id,
+            effective_from=eff_from.isoformat(),
+            effective_to=(eff_from + timedelta(days=365 * 5)).isoformat(),
+            status="lapsed" if scenario == "lapsed_policy" else "active",
+        )
         pool = [dx for dx in vocab.DIAGNOSES if not dx[0].startswith(("C44", "Q", "Z41"))]
         if scenario == "exclusion":
             pool = [dx for dx in vocab.DIAGNOSES if dx[0].startswith(("C44", "Q", "Z41"))]
@@ -257,17 +359,29 @@ def generate_cases(root: Path, n: int = 120, seed: int = 7) -> list[ClaimCase]:
         if scenario == "date_conflict" and "hospitalization_daily" not in requested:
             requested.append("hospitalization_daily")
         if scenario == "high_amount":
-            requested = [r for r in dict.fromkeys(requested + ["diagnosis", "hospitalization_daily"]) if r in PRODUCTS[product_id].coverages]
+            requested = [
+                r for r in dict.fromkeys(requested + ["diagnosis", "hospitalization_daily"]) if r in PRODUCTS[product_id].coverages
+            ]
         nights = rng.randint(1, 12) if scenario != "high_amount" else rng.randint(30, 60)
         adm = dx_date - timedelta(days=rng.randint(0, 1))
         dis = adm + timedelta(days=nights)
         surg = adm + timedelta(days=rng.randint(0, min(2, nights))) if "surgery" in requested else None
         s_name, s_grade = vocab.SURGERIES.get(code, (None, None))
         total = nights * rng.randint(150_000, 400_000) + (1_500_000 if surg else 0)
-        truth = Extraction(insured_name=name, hospital=rng.choice(vocab.HOSPITALS), diagnosis_name=dx_name, diagnosis_code=code,
-                           diagnosis_date=dx_date.isoformat(), admission_date=adm.isoformat(), discharge_date=dis.isoformat(),
-                           surgery_name=s_name if surg else None, surgery_date=surg.isoformat() if surg else None,
-                           surgery_grade=s_grade if surg else None, total_amount=total, confidence=1.0)
+        truth = Extraction(
+            insured_name=name,
+            hospital=rng.choice(vocab.HOSPITALS),
+            diagnosis_name=dx_name,
+            diagnosis_code=code,
+            diagnosis_date=dx_date.isoformat(),
+            admission_date=adm.isoformat(),
+            discharge_date=dis.isoformat(),
+            surgery_name=s_name if surg else None,
+            surgery_date=surg.isoformat() if surg else None,
+            surgery_grade=s_grade if surg else None,
+            total_amount=total,
+            confidence=1.0,
+        )
         fmt = DATE_FORMATS[0] if scenario == "clean" else rng.choice(DATE_FORMATS)
         amt_style = 0 if scenario == "clean" else rng.randint(0, 3)
         omit = None
@@ -280,15 +394,30 @@ def generate_cases(root: Path, n: int = 120, seed: int = 7) -> list[ClaimCase]:
         case_dir.mkdir(exist_ok=True)
         department = "외과" if surg else ("혈액종양내과" if code.startswith("C") else "내과")
         doctor = rng.choice(vocab.DOCTORS)  # drawn where it always was: after every other argument, before the documents are made
-        docs = build_documents(case_dir, case_id, truth, requested, dis + timedelta(days=3), rng, fmt, amt_style, department,
-                               omit, 0.35 if scenario == "ocr_noise" else 0.0, scenario == "date_conflict", doctor)
+        docs = build_documents(
+            case_dir,
+            case_id,
+            truth,
+            requested,
+            dis + timedelta(days=3),
+            rng,
+            fmt,
+            amt_style,
+            department,
+            omit,
+            0.35 if scenario == "ocr_noise" else 0.0,
+            scenario == "date_conflict",
+            doctor,
+        )
         supplementary: list[ClaimDocument] = []
         if scenario == "missing_doc" and omit:
-            supplementary = build_supplement(case_dir, case_id, truth, requested, dis + timedelta(days=3), fmt, amt_style, department,
-                                             doctor, {omit}, seed)
+            supplementary = build_supplement(
+                case_dir, case_id, truth, requested, dis + timedelta(days=3), fmt, amt_style, department, doctor, {omit}, seed
+            )
         elif omit == "grade":
-            supplementary = build_supplement(case_dir, case_id, truth, requested, dis + timedelta(days=3), fmt, amt_style, department,
-                                             doctor, {"surgery"}, seed)
+            supplementary = build_supplement(
+                case_dir, case_id, truth, requested, dis + timedelta(days=3), fmt, amt_style, department, doctor, {"surgery"}, seed
+            )
         prior: list[str] = []
         if scenario == "duplicate":
             prior.append(f"{policy.policy_id}|hosp|{adm.isoformat()}")
@@ -303,7 +432,9 @@ def generate_cases(root: Path, n: int = 120, seed: int = 7) -> list[ClaimCase]:
         if "admission" in present:
             visible |= {"insured_name", "admission_date", "discharge_date"}
         if "surgery" in present:
-            visible |= {"insured_name", "surgery_name", "surgery_date", "diagnosis_code"} | ({"surgery_grade"} if omit != "grade" else set())
+            visible |= {"insured_name", "surgery_name", "surgery_date", "diagnosis_code"} | (
+                {"surgery_grade"} if omit != "grade" else set()
+            )
         truth_for_gold = truth.model_copy()
         gold_flags: list[str] = []
         if omit == "grade":
@@ -312,21 +443,60 @@ def generate_cases(root: Path, n: int = 120, seed: int = 7) -> list[ClaimCase]:
             gold_flags.append("discharge_before_admission")
             truth_for_gold.discharge_date = (adm - timedelta(days=2)).isoformat()
         gold = adjudicate(policy, PRODUCTS[product_id], requested, truth_for_gold, present, set(prior), gold_flags)
-        gold_after = adjudicate(policy, PRODUCTS[product_id], requested, truth, present | {d.kind for d in supplementary}, set(prior), []) \
-            if supplementary else None
-        cases.append(ClaimCase(case_id=case_id, claim_id=case_id, policy=policy, insured_name=name, requested=requested,
-                               documents=docs, submitted_at=(dis + timedelta(days=5)).isoformat(), scenario=scenario, truth=truth,
-                               gold=gold, prior_paid_keys=prior, gold_flags=gold_flags, visible_fields=sorted(visible),
-                               supplementary=supplementary, gold_after_supplement=gold_after))
-    manifest = {"version": "claims-v1", "seed": seed, "cases": [
-        {"case_id": c.case_id, "claim_id": c.claim_id, "policy": c.policy.model_dump(), "insured_name": c.insured_name,
-         "requested": c.requested, "documents": [d.model_dump() for d in c.documents], "submitted_at": c.submitted_at,
-         "scenario": c.scenario, "prior_paid_keys": c.prior_paid_keys,
-         **({"supplementary_documents": [d.model_dump() for d in c.supplementary]} if c.supplementary else {})} for c in cases]}
+        gold_after = (
+            adjudicate(policy, PRODUCTS[product_id], requested, truth, present | {d.kind for d in supplementary}, set(prior), [])
+            if supplementary
+            else None
+        )
+        cases.append(
+            ClaimCase(
+                case_id=case_id,
+                claim_id=case_id,
+                policy=policy,
+                insured_name=name,
+                requested=requested,
+                documents=docs,
+                submitted_at=(dis + timedelta(days=5)).isoformat(),
+                scenario=scenario,
+                truth=truth,
+                gold=gold,
+                prior_paid_keys=prior,
+                gold_flags=gold_flags,
+                visible_fields=sorted(visible),
+                supplementary=supplementary,
+                gold_after_supplement=gold_after,
+            )
+        )
+    manifest = {
+        "version": "claims-v1",
+        "seed": seed,
+        "cases": [
+            {
+                "case_id": c.case_id,
+                "claim_id": c.claim_id,
+                "policy": c.policy.model_dump(),
+                "insured_name": c.insured_name,
+                "requested": c.requested,
+                "documents": [d.model_dump() for d in c.documents],
+                "submitted_at": c.submitted_at,
+                "scenario": c.scenario,
+                "prior_paid_keys": c.prior_paid_keys,
+                **({"supplementary_documents": [d.model_dump() for d in c.supplementary]} if c.supplementary else {}),
+            }
+            for c in cases
+        ],
+    }
     (root / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1))
-    gold = {c.case_id: {"truth": c.truth.model_dump(), "gold": c.gold.model_dump(), "gold_flags": c.gold_flags,
-                        "visible_fields": c.visible_fields,
-                        **({"gold_after_supplement": c.gold_after_supplement.model_dump()} if c.gold_after_supplement else {})} for c in cases}
+    gold = {
+        c.case_id: {
+            "truth": c.truth.model_dump(),
+            "gold": c.gold.model_dump(),
+            "gold_flags": c.gold_flags,
+            "visible_fields": c.visible_fields,
+            **({"gold_after_supplement": c.gold_after_supplement.model_dump()} if c.gold_after_supplement else {}),
+        }
+        for c in cases
+    }
     (root / "gold.json").write_text(json.dumps(gold, ensure_ascii=False, indent=1))
     return cases
 

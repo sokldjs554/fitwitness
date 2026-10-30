@@ -1,4 +1,5 @@
 """Keep retrieved candidates separate from evidence actually inspected by an agent."""
+
 import json
 from fitwitness.contracts import Candidate, Fact
 from fitwitness.agents.tools import SCHEMAS, SAVED_TOOL_CHANNEL
@@ -14,17 +15,17 @@ class EvidenceSession:
 
     def observe(self, op, result):
         if op.name not in self.available:
-            raise ValueError('unavailable tool')
+            raise ValueError("unavailable tool")
         known = {c.revision_id: c for c in self.candidates}
-        if op.name == 'define_search_tool':
+        if op.name == "define_search_tool":
             return  # a definition is not evidence
-        if op.name.startswith('search_') or op.name == 'run_saved_search':
+        if op.name.startswith("search_") or op.name == "run_saved_search":
             for item in result:
                 c = Candidate.model_validate(item)
                 # Facts ride along only from a saved search, and only when they cite the returned revision.
-                facts = c.facts if op.name == 'run_saved_search' else []
+                facts = c.facts if op.name == "run_saved_search" else []
                 if any(f.source.revision_id != c.revision_id for f in facts):
-                    raise ValueError('observation source does not match returned revision')
+                    raise ValueError("observation source does not match returned revision")
                 if c.revision_id not in known:
                     c.facts = []
                     self.candidates.append(c)
@@ -34,13 +35,13 @@ class EvidenceSession:
                     merged.update({f.id: f for f in facts})
                     known[c.revision_id].facts = list(merged.values())
             return
-        if op.name == 'compare_revisions':
-            groups = [(op.arguments['old_id'], result['old']), (op.arguments['new_id'], result['new'])]
+        if op.name == "compare_revisions":
+            groups = [(op.arguments["old_id"], result["old"]), (op.arguments["new_id"], result["new"])]
         else:
-            groups = [(op.arguments['revision_id'], result)]
+            groups = [(op.arguments["revision_id"], result)]
         validated = [(rid, [Fact.model_validate(f) for f in items]) for rid, items in groups]
         if any(f.source.revision_id != rid for rid, facts in validated for f in facts):
-            raise ValueError('observation source does not match requested revision')
+            raise ValueError("observation source does not match requested revision")
         for rid, facts in validated:
             if rid in known:
                 merged = {f.id: f for f in known[rid].facts}
@@ -57,55 +58,80 @@ class EvidenceSession:
     @staticmethod
     def examined(revision_id, requirements, observations):
         fields = set()
-        required = {r['field'] for r in requirements}
+        required = {r["field"] for r in requirements}
         for x in observations:
-            op = x['tool']
-            if op['name'] == 'query_dimensions' and op['arguments']['revision_id'] == revision_id:
-                fields.update(op['arguments'].get('fields') or required)
-            if op['name'] == 'run_saved_search':
+            op = x["tool"]
+            if op["name"] == "query_dimensions" and op["arguments"]["revision_id"] == revision_id:
+                fields.update(op["arguments"].get("fields") or required)
+            if op["name"] == "run_saved_search":
                 # A saved search examines the fields it brought back for that revision.
-                for item in x['result']:
-                    if item['revision_id'] == revision_id:
-                        fields.update(f['field'] for f in item.get('facts', []))
+                for item in x["result"]:
+                    if item["revision_id"] == revision_id:
+                        fields.update(f["field"] for f in item.get("facts", []))
         return fields
 
     def exhausted(self, requirements, observations):
-        required = {r['field'] for r in requirements}
+        required = {r["field"] for r in requirements}
         if not self.candidates or not all(required <= self.examined(c.revision_id, requirements, observations) for c in self.candidates):
             return False
-        if 'read_image_region' in self.available:
+        if "read_image_region" in self.available:
             for c in self.candidates:
-                visual_fields={field for x in observations if x['tool']['name']=='read_image_region'
-                    and x['tool']['arguments']['revision_id']==c.revision_id for field in x['tool']['arguments']['fields']}
-                missing=required-{f.field for f in c.facts}
-                if missing & {'width','height','thickness','hole_spacing','material'} - visual_fields:
+                visual_fields = {
+                    field
+                    for x in observations
+                    if x["tool"]["name"] == "read_image_region" and x["tool"]["arguments"]["revision_id"] == c.revision_id
+                    for field in x["tool"]["arguments"]["fields"]
+                }
+                missing = required - {f.field for f in c.facts}
+                if missing & {"width", "height", "thickness", "hole_spacing", "material"} - visual_fields:
                     return False
         return True
 
     def context(self, query, requirements, observations, decisions=(), saved_tools=(), turns_left=None, retrieval=None):
-        required = {r['field'] for r in requirements}
+        required = {r["field"] for r in requirements}
         tools = {k: SCHEMAS[k].model_json_schema() for k in sorted(self.available)}
-        if 'define_search_tool' in tools:
+        if "define_search_tool" in tools:
             # only the channels this workspace can run; a definition is narrowed to them when it runs
-            tools['define_search_tool']['properties']['channels']['items']['enum'] = [c for c, t in SAVED_TOOL_CHANNEL.items() if t in self.available]
+            tools["define_search_tool"]["properties"]["channels"]["items"]["enum"] = [
+                c for c, t in SAVED_TOOL_CHANNEL.items() if t in self.available
+            ]
         return {
-            'query': query,
-            'requirements': [{k: r[k] for k in ('field', 'operator', 'value', 'unit', 'required') if k in r} for r in requirements],
-            'candidates': [{'revision_id': c.revision_id, 'scores': c.scores,
-                            'examined_fields': sorted(self.examined(c.revision_id, requirements, observations)),
-                            'missing_fields': sorted(self.examined(c.revision_id, requirements, observations) - {f.field for f in c.facts}),
-                            'unexamined_fields': sorted(required - self.examined(c.revision_id, requirements, observations)),
-                            'inspected': [{'id': f.id, 'field': f.field, 'value': f.model_dump(mode='json')['value'], 'unit': f.unit, 'certainty': f.certainty} for f in c.facts]} for c in self.candidates],
-            'observations': [{'tool': x['tool'], 'items': len(x['result']), **({'error': x['error']} if x.get('error') else {})} for x in observations[-8:]],
-            'decisions': [{'revision_id': d['revision_id'], 'verdict': d['verdict']} for d in decisions],
-            'tools': tools,
-            'saved_tools': [{k: t[k] for k in ('name', 'description', 'channels', 'query_template', 'fields', 'top_k') if k in t}
-                            for t in saved_tools],
-            **({'planning_turns_left': turns_left} if turns_left is not None else {}),
+            "query": query,
+            "requirements": [{k: r[k] for k in ("field", "operator", "value", "unit", "required") if k in r} for r in requirements],
+            "candidates": [
+                {
+                    "revision_id": c.revision_id,
+                    "scores": c.scores,
+                    "examined_fields": sorted(self.examined(c.revision_id, requirements, observations)),
+                    "missing_fields": sorted(self.examined(c.revision_id, requirements, observations) - {f.field for f in c.facts}),
+                    "unexamined_fields": sorted(required - self.examined(c.revision_id, requirements, observations)),
+                    "inspected": [
+                        {
+                            "id": f.id,
+                            "field": f.field,
+                            "value": f.model_dump(mode="json")["value"],
+                            "unit": f.unit,
+                            "certainty": f.certainty,
+                        }
+                        for f in c.facts
+                    ],
+                }
+                for c in self.candidates
+            ],
+            "observations": [
+                {"tool": x["tool"], "items": len(x["result"]), **({"error": x["error"]} if x.get("error") else {})}
+                for x in observations[-8:]
+            ],
+            "decisions": [{"revision_id": d["revision_id"], "verdict": d["verdict"]} for d in decisions],
+            "tools": tools,
+            "saved_tools": [
+                {k: t[k] for k in ("name", "description", "channels", "query_template", "fields", "top_k") if k in t} for t in saved_tools
+            ],
+            **({"planning_turns_left": turns_left} if turns_left is not None else {}),
             # how many drawings the workspace holds and how many the first ranked search could return
-            **({'retrieval': retrieval} if retrieval is not None else {}),
+            **({"retrieval": retrieval} if retrieval is not None else {}),
         }
 
     @staticmethod
     def needs_more(decisions, iterations, stop):
-        return not stop and iterations < 3 and (not decisions or any(d['verdict'] == 'unknown' for d in decisions))
+        return not stop and iterations < 3 and (not decisions or any(d["verdict"] == "unknown" for d in decisions))

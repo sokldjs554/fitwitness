@@ -12,10 +12,7 @@ def test_text_dimensions_are_not_silently_dropped():
 
 
 def test_unknown_numeric_condition_is_explicitly_unverified():
-    assert any(
-        r.field == "unparsed_constraint"
-        for r in extract_requirements("브래킷 하중 10kg")
-    )
+    assert any(r.field == "unparsed_constraint" for r in extract_requirements("브래킷 하중 10kg"))
 
 
 def test_future_revision_not_active_and_withdrawn_does_not_restore_parent():

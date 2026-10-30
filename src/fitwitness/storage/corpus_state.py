@@ -100,14 +100,16 @@ def build_state(c, tenant_id: str, label: tuple[str, int]) -> CorpusState:
     revisions: list[dict] = []
     last = None
     while True:
-        rows = (c.execute("SELECT id,data FROM fw_revisions ORDER BY id LIMIT %s", (PAGE,)) if last is None else
-                c.execute("SELECT id,data FROM fw_revisions WHERE id>%s ORDER BY id LIMIT %s", (last, PAGE))).fetchall()
+        rows = (
+            c.execute("SELECT id,data FROM fw_revisions ORDER BY id LIMIT %s", (PAGE,))
+            if last is None
+            else c.execute("SELECT id,data FROM fw_revisions WHERE id>%s ORDER BY id LIMIT %s", (last, PAGE))
+        ).fetchall()
         revisions.extend(r["data"] for r in rows)
         if len(rows) < PAGE:
             break
         last = rows[-1]["id"]
-    ids_active, _ = active_ids((d["document_id"], d["id"], d.get("supersedes"), d["approval"], d["effective_from"])
-                               for d in revisions)
+    ids_active, _ = active_ids((d["document_id"], d["id"], d.get("supersedes"), d["approval"], d["effective_from"]) for d in revisions)
     wanted = set(ids_active)
     # sha256 over json.dumps({"revisions": [...], "facts": [...], "vectors": [...], "active_ids": [...]}, sort_keys=True):
     # keys in sorted order, each list written element by element so no page has to wait for the next.
@@ -116,8 +118,11 @@ def build_state(c, tenant_id: str, label: tuple[str, int]) -> CorpusState:
     parts: dict[str, list[str]] = {}
     first, last = True, None
     while True:
-        rows = (c.execute("SELECT id,revision_id,data FROM fw_facts ORDER BY id LIMIT %s", (PAGE,)) if last is None else
-                c.execute("SELECT id,revision_id,data FROM fw_facts WHERE id>%s ORDER BY id LIMIT %s", (last, PAGE))).fetchall()
+        rows = (
+            c.execute("SELECT id,revision_id,data FROM fw_facts ORDER BY id LIMIT %s", (PAGE,))
+            if last is None
+            else c.execute("SELECT id,revision_id,data FROM fw_facts WHERE id>%s ORDER BY id LIMIT %s", (last, PAGE))
+        ).fetchall()
         for row in rows:
             digest.update((("" if first else ", ") + _dumps({"data": row["data"]})).encode())
             first = False
@@ -140,8 +145,14 @@ def build_state(c, tenant_id: str, label: tuple[str, int]) -> CorpusState:
             numbers.append(d["drawing_number"])
             kinds.append(d["kind"])
             texts.append(d["title"] + " " + d["drawing_number"] + " " + d["kind"] + " " + " ".join(parts.get(d["id"], [])))
-    return CorpusState(label=label, snapshot=SearchSnapshot(id=snapshot_id, revision_ids=ids_active, index_hash=snapshot_id),
-                       ids=ids, numbers=numbers, kinds=kinds, texts=texts)
+    return CorpusState(
+        label=label,
+        snapshot=SearchSnapshot(id=snapshot_id, revision_ids=ids_active, index_hash=snapshot_id),
+        ids=ids,
+        numbers=numbers,
+        kinds=kinds,
+        texts=texts,
+    )
 
 
 _STATES: "OrderedDict[tuple[str, str], CorpusState]" = OrderedDict()

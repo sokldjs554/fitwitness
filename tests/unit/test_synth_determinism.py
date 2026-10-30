@@ -1,4 +1,5 @@
 """The synthetic claim corpus is a function of its seed, not of the process that built it."""
+
 import hashlib
 import os
 import subprocess

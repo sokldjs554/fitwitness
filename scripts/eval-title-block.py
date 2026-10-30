@@ -9,6 +9,7 @@ title block before the reader was first run: drawing number, material (None when
 material cell, as on an assembly) and scale. Each page goes through ``extract_pdf``'s own path: wrapped as
 an image-only PDF, rendered, read.
 """
+
 import argparse
 import glob
 import io
@@ -23,10 +24,18 @@ from fitwitness.ingest import title_block as tb
 Image.MAX_IMAGE_PIXELS = None
 # file name prefix -> (drawing number, material or None, scale or None)
 GOLD = {
-    "1e88825c": ("WLJSQ475-00", None, "1:1"), "237c2ddf": ("DJZ-02", "HT200", "1:1"), "2e5727a5": ("QF02-10", "橡胶", "2:1"),
-    "3a4e151d": ("ZPT19", None, None), "3d4cebd4": ("PXZSB-03", "40Cr", "1:1"), "499c7e65": ("QF-08", "65Mn", "10:1"),
-    "5cf2fc80": ("ZPT04", None, None), "5ea4417d": ("CLYB-02", "ZL107", "1:1"), "6deebccb": ("ZD10-012", "HT200", "1:1"),
-    "86f2dc41": ("QF-01", "HT200", "1:1"), "d3597cc7": ("ZPT18", None, None), "d40ad503": ("QF02-02", "LY12", "1:1"),
+    "1e88825c": ("WLJSQ475-00", None, "1:1"),
+    "237c2ddf": ("DJZ-02", "HT200", "1:1"),
+    "2e5727a5": ("QF02-10", "橡胶", "2:1"),
+    "3a4e151d": ("ZPT19", None, None),
+    "3d4cebd4": ("PXZSB-03", "40Cr", "1:1"),
+    "499c7e65": ("QF-08", "65Mn", "10:1"),
+    "5cf2fc80": ("ZPT04", None, None),
+    "5ea4417d": ("CLYB-02", "ZL107", "1:1"),
+    "6deebccb": ("ZD10-012", "HT200", "1:1"),
+    "86f2dc41": ("QF-01", "HT200", "1:1"),
+    "d3597cc7": ("ZPT18", None, None),
+    "d40ad503": ("QF02-02", "LY12", "1:1"),
 }
 FIELDS = ("drawing_number", "material", "scale")
 
@@ -64,9 +73,15 @@ def main() -> int:
                 none_but_read += 1
         rows.append(row)
         print(key, {f: (row[f]["read"], row[f]["expected"]) for f in FIELDS}, flush=True)
-    summary = {"drawings": len(rows), "correct": correct, "expected": expected, "wrong_values_reported": wrong,
-               "readings_where_the_block_has_no_such_cell": none_but_read, "seconds_median": sorted(r["seconds"] for r in rows)[len(rows) // 2],
-               "languages": tb.languages()}
+    summary = {
+        "drawings": len(rows),
+        "correct": correct,
+        "expected": expected,
+        "wrong_values_reported": wrong,
+        "readings_where_the_block_has_no_such_cell": none_but_read,
+        "seconds_median": sorted(r["seconds"] for r in rows)[len(rows) // 2],
+        "languages": tb.languages(),
+    }
     print(json.dumps(summary, ensure_ascii=False))
     if args.output:
         args.output.write_text(json.dumps({"summary": summary, "rows": rows}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

@@ -20,39 +20,22 @@ def _compare(req: Requirement, fact: Fact) -> str:
         if req.unit not in UNITS or fact.unit not in UNITS:
             return "unknown"
         a, b = UNITS[req.unit], UNITS[fact.unit]
-        return (
-            "match"
-            if req.value.low * a <= fact.value.low * b
-            and fact.value.high * b <= req.value.high * a
-            else "mismatch"
-        )
+        return "match" if req.value.low * a <= fact.value.low * b and fact.value.high * b <= req.value.high * a else "mismatch"
     if isinstance(req.value, str) and isinstance(fact.value, str):
-        return (
-            "match"
-            if req.value.strip().casefold() == fact.value.strip().casefold()
-            else "mismatch"
-        )
+        return "match" if req.value.strip().casefold() == fact.value.strip().casefold() else "mismatch"
     return "unknown"
 
 
-def verify(
-    requirements: list[Requirement], candidate: Candidate, snapshot_id: str
-) -> Decision:
+def verify(requirements: list[Requirement], candidate: Candidate, snapshot_id: str) -> Decision:
     evidence = []
     for req in requirements:
-        facts = [
-            f
-            for f in candidate.facts
-            if f.field == req.field and f.source.revision_id == candidate.revision_id
-        ]
+        facts = [f for f in candidate.facts if f.field == req.field and f.source.revision_id == candidate.revision_id]
         # A visual observation cannot veto or establish a verified PDF fact.
-        verified = [f for f in facts if f.certainty == 'verified']
+        verified = [f for f in facts if f.certainty == "verified"]
         if verified:
             facts = verified
         values = {(str(f.value), f.unit) for f in facts if f.certainty == "verified"}
-        verdict = (
-            "unknown" if not facts or len(values) != 1 else _compare(req, facts[0])
-        )
+        verdict = "unknown" if not facts or len(values) != 1 else _compare(req, facts[0])
         label = {
             "match": "확인된 조건 일치",
             "mismatch": "요청 조건과 다름",
@@ -70,13 +53,7 @@ def verify(
             )
         )
     required = [e.verdict for e, r in zip(evidence, requirements) if r.required]
-    verdict = (
-        "mismatch"
-        if "mismatch" in required
-        else "unknown"
-        if not required or "unknown" in required
-        else "match"
-    )
+    verdict = "mismatch" if "mismatch" in required else "unknown" if not required or "unknown" in required else "match"
     return Decision(
         revision_id=candidate.revision_id,
         verdict=verdict,

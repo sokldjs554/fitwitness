@@ -81,11 +81,7 @@ class SourceRef(Strict):
     def location(self):
         if self.feature_id is None and (self.page is None or self.bbox is None):
             raise ValueError("a page region or CAD feature is required")
-        if self.bbox and (
-            not all(0 <= x <= 1 for x in self.bbox)
-            or self.bbox[0] >= self.bbox[2]
-            or self.bbox[1] >= self.bbox[3]
-        ):
+        if self.bbox and (not all(0 <= x <= 1 for x in self.bbox) or self.bbox[0] >= self.bbox[2] or self.bbox[1] >= self.bbox[3]):
             raise ValueError("invalid region")
         return self
 
@@ -179,8 +175,8 @@ class SearchRequest(Strict):
     image_id: str | None = None
     requirements: list[Requirement] = Field(default_factory=list, max_length=20)
     top_k: int = Field(default=6, ge=1, le=50)
-    ranking: Literal['rrf', 'cross_encoder', 'constraints'] = 'rrf'
-    understanding: Literal['rules', 'model'] = 'rules'
+    ranking: Literal["rrf", "cross_encoder", "constraints"] = "rrf"
+    understanding: Literal["rules", "model"] = "rules"
 
 
 class SearchSnapshot(Strict):

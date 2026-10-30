@@ -54,19 +54,29 @@ def test_shared_admission_limit_is_enforced(env):
     assert j.admit(key, 2)
     assert not j.admit(key, 2)
 
+
 def test_dispatcher_recovers_abnormal_process_exit(env):
-    import os,subprocess,sys,time
+    import os, subprocess, sys, time
     from fitwitness.runtime.dispatcher import Dispatcher
-    r,j,s=env;run=j.enqueue(s,request(),'abnormal-exit')
-    child="from fitwitness.storage.repository import Repository;from fitwitness.runtime.jobs import Jobs;from fitwitness.contracts import TenantScope;import os;Jobs(Repository(os.environ['FITWITNESS_DATABASE_URL'])).claim(TenantScope(tenant_id=os.environ['TEST_TENANT'],user_id='dead'),os.environ['TEST_RUN'],lease_seconds=-1);os._exit(7)"
-    child_env={**os.environ,'PYTHONPATH':'src','FITWITNESS_DATABASE_URL':r.dsn,'TEST_TENANT':s.tenant_id,'TEST_RUN':run.id}
-    assert subprocess.run([sys.executable,'-c',child],env=child_env).returncode==7
-    def supervise(scope,rid,fault=False):
-        subprocess.run([sys.executable,'-m','fitwitness.runtime.worker','--tenant',scope.tenant_id,'--run',rid],env=child_env,check=True)
-    dispatcher=Dispatcher(j,supervise);dispatcher.start()
+
+    r, j, s = env
+    run = j.enqueue(s, request(), "abnormal-exit")
+    child = "from fitwitness.storage.repository import Repository;from fitwitness.runtime.jobs import Jobs;from fitwitness.contracts import TenantScope;import os;Jobs(Repository(os.environ['FITWITNESS_DATABASE_URL'])).claim(TenantScope(tenant_id=os.environ['TEST_TENANT'],user_id='dead'),os.environ['TEST_RUN'],lease_seconds=-1);os._exit(7)"
+    child_env = {**os.environ, "PYTHONPATH": "src", "FITWITNESS_DATABASE_URL": r.dsn, "TEST_TENANT": s.tenant_id, "TEST_RUN": run.id}
+    assert subprocess.run([sys.executable, "-c", child], env=child_env).returncode == 7
+
+    def supervise(scope, rid, fault=False):
+        subprocess.run(
+            [sys.executable, "-m", "fitwitness.runtime.worker", "--tenant", scope.tenant_id, "--run", rid], env=child_env, check=True
+        )
+
+    dispatcher = Dispatcher(j, supervise)
+    dispatcher.start()
     try:
-        deadline=time.monotonic()+20
-        while time.monotonic()<deadline and j.get(s,run.id).state!='completed':time.sleep(.1)
-        assert j.get(s,run.id).state=='completed'
-        assert sum(e['kind']=='completed' for e in j.events(s,run.id))==1
-    finally:dispatcher.close()
+        deadline = time.monotonic() + 20
+        while time.monotonic() < deadline and j.get(s, run.id).state != "completed":
+            time.sleep(0.1)
+        assert j.get(s, run.id).state == "completed"
+        assert sum(e["kind"] == "completed" for e in j.events(s, run.id)) == 1
+    finally:
+        dispatcher.close()

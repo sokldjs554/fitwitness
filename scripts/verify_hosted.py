@@ -1,4 +1,5 @@
 """Verify a deployed demo over HTTPS; never needs a database credential."""
+
 import argparse
 from collections import Counter
 from datetime import datetime, timezone
@@ -64,16 +65,23 @@ def verify(base, local=False):
         hashes = {}
         for kind, signature in [("pdf", b"%PDF"), ("png", b"\x89PNG"), ("step", b"ISO-10303-21")]:
             data = call(f"/api/documents/{doc['id']}/assets/{kind}")
-            assert data.startswith(signature), (doc['drawing_number'], kind)
+            assert data.startswith(signature), (doc["drawing_number"], kind)
             hashes[kind] = sha256(data).hexdigest()
-        assert hashes['pdf'] == doc['source_hash']
+        assert hashes["pdf"] == doc["source_hash"]
         mesh = call(f"/api/documents/{doc['id']}/assets/mesh")
-        assert mesh['vertices'] and mesh['faces']
-        found = call('/api/search', {'text':doc['drawing_number']})
-        assert found[0]['revision_id'] == doc['id']
-        assets.append({'drawing':doc['drawing_number'], 'revision':doc['revision_label'],
-                       'hashes':hashes, 'vertices':len(mesh['vertices']), 'faces':len(mesh['faces'])})
-    assert len({a['hashes']['png'] for a in assets}) == count
+        assert mesh["vertices"] and mesh["faces"]
+        found = call("/api/search", {"text": doc["drawing_number"]})
+        assert found[0]["revision_id"] == doc["id"]
+        assets.append(
+            {
+                "drawing": doc["drawing_number"],
+                "revision": doc["revision_label"],
+                "hashes": hashes,
+                "vertices": len(mesh["vertices"]),
+                "faces": len(mesh["faces"]),
+            }
+        )
+    assert len({a["hashes"]["png"] for a in assets}) == count
     body = {"search": {"text": "구멍 간격 40mm SUS304 브래킷"}, "provider": "rules"}
     key = str(uuid4())
     run = call("/api/runs", body, {"Idempotency-Key": key, "X-Demo-Fault": "1"})
@@ -123,7 +131,9 @@ def verify(base, local=False):
     waiting = [d["id"] for d in missing["supplementary_documents"]]
     again = call(f"/api/runs/{parked['id']}/supplement", {"document_ids": waiting})
     assert again["id"] != parked["id"]
-    assert call(f"/api/runs/{parked['id']}/supplement", {"document_ids": waiting})["id"] == again["id"], "a second click must be the same run"
+    assert call(f"/api/runs/{parked['id']}/supplement", {"document_ids": waiting})["id"] == again["id"], (
+        "a second click must be the same run"
+    )
     call(f"/api/runs/{parked['id']}/supplement", {"document_ids": ["nope"]}, expected=422)
     end = time.monotonic() + 150
     while call(f"/api/runs/{again['id']}")["state"] not in ("waiting_input", "completed"):
@@ -138,14 +148,33 @@ def verify(base, local=False):
     call("/api/demo-sessions", {})
     call(f"/api/runs/{run['id']}", expected=404)
     assert len(call("/api/documents")) == count
-    return {"url": base, "sha": health["sha"], "verified_at": datetime.now(timezone.utc).isoformat(),
-            "status": "passed", "before": dict(before),
-            "after": dict(after), "events": dict(kinds), "assets":assets, "checks": ["readiness", "secure cookie",
-            f"all {count} PDF/PNG/STEP/mesh assets and exact-ID search", "idempotency", "worker recovery", "revision invalidation",
-            "reverification", "tenant isolation", "origin rejection", "paid API disabled", "private metrics",
-            "scan examples and their page pictures", "claim held for documents without payout",
+    return {
+        "url": base,
+        "sha": health["sha"],
+        "verified_at": datetime.now(timezone.utc).isoformat(),
+        "status": "passed",
+        "before": dict(before),
+        "after": dict(after),
+        "events": dict(kinds),
+        "assets": assets,
+        "checks": [
+            "readiness",
+            "secure cookie",
+            f"all {count} PDF/PNG/STEP/mesh assets and exact-ID search",
+            "idempotency",
+            "worker recovery",
+            "revision invalidation",
+            "reverification",
+            "tenant isolation",
+            "origin rejection",
+            "paid API disabled",
+            "private metrics",
+            "scan examples and their page pictures",
+            "claim held for documents without payout",
             "held claim carries a claimant notice with a deadline and a signed reviewer answer",
-            "documents sent after a hold continue the same claim"]}
+            "documents sent after a hold continue the same claim",
+        ],
+    }
 
 
 if __name__ == "__main__":

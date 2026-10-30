@@ -9,7 +9,7 @@ def corpus(rng, size):
     out = []
     for _ in range(size):
         prefix = rng.choice(["FW", "SC", "LJT", "AB"])
-        groups = [f"{rng.randrange(10 ** n):0{n}d}" for n in rng.choice([(3, 1), (5, 1), (2, 2, 1), (4,)])]
+        groups = [f"{rng.randrange(10**n):0{n}d}" for n in rng.choice([(3, 1), (5, 1), (2, 2, 1), (4,)])]
         out.append("-".join([prefix, *groups]))
     return out
 
@@ -22,19 +22,24 @@ def references(rng, numbers):
         digits = list("".join(groups))
         edits = [digits[:]]
         i = rng.randrange(len(digits))
-        sub = digits[:]; sub[i] = rng.choice("0123456789"); edits.append(sub)
-        edits.append(digits[:i] + digits[i + 1:])
+        sub = digits[:]
+        sub[i] = rng.choice("0123456789")
+        edits.append(sub)
+        edits.append(digits[:i] + digits[i + 1 :])
         edits.append(digits[:i] + [rng.choice("0123456789")] + digits[i:])
         if len(digits) > 1:
             j = rng.randrange(len(digits) - 1)
-            swap = digits[:]; swap[j], swap[j + 1] = swap[j + 1], swap[j]; edits.append(swap)
+            swap = digits[:]
+            swap[j], swap[j + 1] = swap[j + 1], swap[j]
+            edits.append(swap)
         for edit in edits:
             if not edit:
                 continue
             shape = [len(g) for g in groups]
             cut, parts = 0, []
             for n in shape:  # regroup the edited digits like the original, the last group takes the remainder
-                parts.append("".join(edit[cut:cut + n])); cut += n
+                parts.append("".join(edit[cut : cut + n]))
+                cut += n
             parts[-1] += "".join(edit[cut:])
             kept = tuple(p for p in parts if p)
             if kept:

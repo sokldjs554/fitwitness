@@ -7,9 +7,7 @@ from pydantic import ValidationError
 def modules():
     import importlib.util
 
-    assert importlib.util.find_spec("fitwitness.contracts"), (
-        "conditions contract not implemented"
-    )
+    assert importlib.util.find_spec("fitwitness.contracts"), "conditions contract not implemented"
     from fitwitness.contracts import Requirement, Fact, Candidate, SourceRef, Interval
     from fitwitness.verification.conditions import verify
 
@@ -27,9 +25,7 @@ def decision(
 ):
     R, F, C, S, I, verify = modules()
     revision = str(uuid4())
-    ref = S(
-        revision_id=revision, source_hash="a" * 64, page=1, bbox=(0.1, 0.1, 0.3, 0.2)
-    )
+    ref = S(revision_id=revision, source_hash="a" * 64, page=1, bbox=(0.1, 0.1, 0.3, 0.2))
     reqs = [R(field="hole_spacing", value=I(low=need, high=need), unit=need_unit)]
     facts = [
         F(
@@ -78,9 +74,7 @@ def test_tolerance_overlap_does_not_prove_containment():
         [R(field="length", operator="range", value=I(low="39", high="41"), unit="mm")],
         C(
             revision_id=rev,
-            facts=[
-                F(field="length", value=I(low="40", high="42"), unit="mm", source=ref)
-            ],
+            facts=[F(field="length", value=I(low="40", high="42"), unit="mm", source=ref)],
         ),
         str(uuid4()),
     )
@@ -134,8 +128,11 @@ def test_a_request_carrying_a_nul_character_is_refused_not_stored():
     from fitwitness.contracts import ReviewInput, SearchRequest
 
     # PostgreSQL's jsonb cannot hold U+0000: such a string used to reach the insert and come back as a 500
-    for build in (lambda: SearchRequest(text="브래킷\x00"), lambda: ClaimReview(outcome="DENY", reviewer="김", note="a\x00b"),
-                  lambda: ReviewInput(reviewer="김", note="\x00")):
+    for build in (
+        lambda: SearchRequest(text="브래킷\x00"),
+        lambda: ClaimReview(outcome="DENY", reviewer="김", note="a\x00b"),
+        lambda: ReviewInput(reviewer="김", note="\x00"),
+    ):
         with pytest.raises(ValidationError):
             build()
     ok = SearchRequest(text="브래킷 40mm")

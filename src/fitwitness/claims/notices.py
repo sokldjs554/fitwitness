@@ -39,19 +39,32 @@ def request_info(claim_id: str, human: ClaimReview, before: ClaimDecision, *, no
     day = _today(now)
     respond_by = day + timedelta(days=SUPPLEMENT_DAYS)
     lacking = missing_kinds(before)
-    body = [f"청구 {claim_id}의 심사를 서류 보완을 위해 보류했습니다. 지급도 부지급도 아직 결정되지 않았습니다.",
-            f"담당자({human.reviewer}) 안내: {human.note.strip()}"]
+    body = [
+        f"청구 {claim_id}의 심사를 서류 보완을 위해 보류했습니다. 지급도 부지급도 아직 결정되지 않았습니다.",
+        f"담당자({human.reviewer}) 안내: {human.note.strip()}",
+    ]
     if lacking:
         body.append("심사 규칙이 확인한 부족 서류: " + ", ".join(lacking))
-    body.append(f"{respond_by.isoformat()}까지({SUPPLEMENT_DAYS}일 안에) 서류를 보내 주시면 같은 청구로 다시 심사합니다. 기한이 지나면 새로 청구해야 합니다.")
-    return Notice(kind="request_info", subject=f"[보험금 청구 {claim_id}] 서류 보완 요청", body="\n".join(body),
-                  respond_by=respond_by.isoformat(), created_at=(now or datetime.now(timezone.utc)).isoformat())
+    body.append(
+        f"{respond_by.isoformat()}까지({SUPPLEMENT_DAYS}일 안에) 서류를 보내 주시면 같은 청구로 다시 심사합니다. 기한이 지나면 새로 청구해야 합니다."
+    )
+    return Notice(
+        kind="request_info",
+        subject=f"[보험금 청구 {claim_id}] 서류 보완 요청",
+        body="\n".join(body),
+        respond_by=respond_by.isoformat(),
+        created_at=(now or datetime.now(timezone.utc)).isoformat(),
+    )
 
 
 def decision(claim_id: str, outcome: str, explanation: str, *, now: datetime | None = None) -> Notice:
     subject = {"APPROVE": "보험금 지급 안내", "DENY": "보험금 부지급 안내"}.get(outcome, "심사 결과 안내")
-    return Notice(kind="decision", subject=f"[보험금 청구 {claim_id}] {subject}", body=explanation,
-                  created_at=(now or datetime.now(timezone.utc)).isoformat())
+    return Notice(
+        kind="decision",
+        subject=f"[보험금 청구 {claim_id}] {subject}",
+        body=explanation,
+        created_at=(now or datetime.now(timezone.utc)).isoformat(),
+    )
 
 
 def held_deadline(result: dict | None) -> date | None:

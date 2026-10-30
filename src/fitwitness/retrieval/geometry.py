@@ -26,11 +26,7 @@ def geometry_distance(query: dict, candidate: dict) -> dict[str, float]:
     bbox = sum(_log_ratio(a, b) for a, b in zip(q_box, c_box)) / 3
     volume = _log_ratio(query["volume_mm3"], candidate["volume_mm3"])
     surface = _log_ratio(query["surface_mm2"], candidate["surface_mm2"])
-    distance = (
-        GEOMETRY_WEIGHTS["bbox"] * bbox
-        + GEOMETRY_WEIGHTS["volume"] * volume
-        + GEOMETRY_WEIGHTS["surface"] * surface
-    )
+    distance = GEOMETRY_WEIGHTS["bbox"] * bbox + GEOMETRY_WEIGHTS["volume"] * volume + GEOMETRY_WEIGHTS["surface"] * surface
     return {
         "distance": distance,
         "bbox": bbox,

@@ -8,6 +8,7 @@ The gold file maps an 8-character image prefix to what is printed in the drawing
 looking at the drawing before the reader was run on it). Entries marked "unclear", "title_block": "no" or
 "duplicate_of" (the same drawing as one the reader was developed on) are left out of the score and counted. Each page goes through the same path as scripts/eval-title-block.py.
 """
+
 import argparse
 import glob
 import io
@@ -63,12 +64,21 @@ def main() -> int:
                 none_but_read += 1
         rows.append(row)
         print(key, {f: (row[f]["read"], row[f]["expected"]) for f in FIELDS}, flush=True)
-    summary = {"drawings": len(rows), "skipped": len(skipped), "correct": correct, "expected": expected,
-               "wrong_values_reported": wrong, "readings_where_the_block_has_no_such_cell": none_but_read,
-               "seconds_median": sorted(r["seconds"] for r in rows)[len(rows) // 2] if rows else None, "languages": tb.languages()}
+    summary = {
+        "drawings": len(rows),
+        "skipped": len(skipped),
+        "correct": correct,
+        "expected": expected,
+        "wrong_values_reported": wrong,
+        "readings_where_the_block_has_no_such_cell": none_but_read,
+        "seconds_median": sorted(r["seconds"] for r in rows)[len(rows) // 2] if rows else None,
+        "languages": tb.languages(),
+    }
     print(json.dumps(summary, ensure_ascii=False))
     if args.output:
-        args.output.write_text(json.dumps({"summary": summary, "skipped": skipped, "rows": rows}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        args.output.write_text(
+            json.dumps({"summary": summary, "skipped": skipped, "rows": rows}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
     return 0
 
 

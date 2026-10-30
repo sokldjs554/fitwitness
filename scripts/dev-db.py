@@ -6,6 +6,7 @@
 
 It uses the `pgserver` dev dependency (Python 3.12 only; on 3.13 use `docker compose up -d postgres` instead, which serves the
 URL in .env.example). The data directory defaults to var/dev-db and survives restarts."""
+
 import sys
 import time
 from pathlib import Path

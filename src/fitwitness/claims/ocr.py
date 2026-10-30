@@ -40,7 +40,24 @@ COLONS = ":;：﹕"
 # Labels that end a value on a form without being fields we read.
 STOP_LABELS = {"문서번호", "발급일", "진료과", "담당의", "면허번호", "발행기관", "주소", "용도", "작성일", "병원", "비고"}
 # Characters Tesseract confuses with digits, applied only where a digit is required.
-DIGIT_FIX = str.maketrans({"O": "0", "o": "0", "Q": "0", "D": "0", "I": "1", "l": "1", "|": "1", "i": "1", "S": "5", "s": "5", "B": "8", "Z": "2", "z": "2", "g": "9"})
+DIGIT_FIX = str.maketrans(
+    {
+        "O": "0",
+        "o": "0",
+        "Q": "0",
+        "D": "0",
+        "I": "1",
+        "l": "1",
+        "|": "1",
+        "i": "1",
+        "S": "5",
+        "s": "5",
+        "B": "8",
+        "Z": "2",
+        "z": "2",
+        "g": "9",
+    }
+)
 
 
 @dataclass
@@ -83,8 +100,13 @@ def recognise(image, *, lang: str | None = None, timeout: float = 60.0, psm: int
         env = {**os.environ, "OMP_THREAD_LIMIT": os.getenv("FITWITNESS_OCR_THREADS", "1")}
         extra = ["-c", f"tessedit_char_whitelist={whitelist}"] if whitelist else []
         try:
-            out = subprocess.run([exe, str(path), "-", "-l", lang or os.getenv("FITWITNESS_OCR_LANG", "kor+eng"), "--psm", str(psm), *extra, "tsv"],
-                                 capture_output=True, text=True, timeout=timeout, env=env).stdout
+            out = subprocess.run(
+                [exe, str(path), "-", "-l", lang or os.getenv("FITWITNESS_OCR_LANG", "kor+eng"), "--psm", str(psm), *extra, "tsv"],
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+                env=env,
+            ).stdout
         except subprocess.TimeoutExpired:
             return []  # a page that cannot be read is a page with nothing on it: the claim goes to a person
     tokens = []
@@ -148,8 +170,13 @@ def pairs(tokens: list[Token], doc_id: str, page_no: int, size: tuple[int, int],
     for j, text in enumerate(texts):
         if not _is_label(text):
             continue
-        if j > 0 and not _is_label(texts[j - 1]) and _same_line(words[j - 1], words[j]) and (texts[j - 1] + text) in known \
-                and not (found and found[-1][1] >= j - 1):
+        if (
+            j > 0
+            and not _is_label(texts[j - 1])
+            and _same_line(words[j - 1], words[j])
+            and (texts[j - 1] + text) in known
+            and not (found and found[-1][1] >= j - 1)
+        ):
             found.append((j - 1, j, texts[j - 1] + text))
         else:
             found.append((j, j, text))
@@ -160,30 +187,44 @@ def pairs(tokens: list[Token], doc_id: str, page_no: int, size: tuple[int, int],
             continue
         stop = found[k + 1][0] if k + 1 < len(found) else len(words)
         values: list[list[Token]] = []
-        for w in words[last + 1:stop]:
+        for w in words[last + 1 : stop]:
             if not _same_line(words[last], w):
                 continue
             previous = (values[-1] if values else words[last])[-1]
             height = max(t.bottom - t.top for t in w + [previous])
             # The value starts wherever the form puts it (the label column is far to its left); once it has
             # started, a poorly read word, a wide gap or enough words ends it.
-            if values and (len(values) >= FIELD_WORDS[labels[label]] or min(t.conf for t in w) < STRAY_CONF
-                           or w[0].x0 - previous.x1 > COLUMN_GAP * height):
+            if values and (
+                len(values) >= FIELD_WORDS[labels[label]]
+                or min(t.conf for t in w) < STRAY_CONF
+                or w[0].x0 - previous.x1 > COLUMN_GAP * height
+            ):
                 break
             values.append(w)
         if not values:
             continue
-        used = [t for chunk in words[first:last + 1] + values for t in chunk]
+        used = [t for chunk in words[first : last + 1] + values for t in chunk]
         value = " ".join(_text(c, spaced=True) for c in values)
-        label_conf = min(t.conf for chunk in words[first:last + 1] for t in chunk)
+        label_conf = min(t.conf for chunk in words[first : last + 1] for t in chunk)
         value_tokens = [t for chunk in values for t in chunk]
         value_conf = min(t.conf for t in value_tokens)
         if image is not None and labels[label] in REREAD:
             value, value_conf = settle(image, labels[label], value, value_tokens)
         width, height = size
-        box = (min(t.x0 for t in used) / width, min(t.top for t in used) / height,
-               max(t.x1 for t in used) / width, max(t.bottom for t in used) / height)
-        out.append((label, value, EvidenceRef(doc_id=doc_id, page=page_no, bbox=box, snippet=f"{label} {value}"), min(label_conf, value_conf) / 100.0))
+        box = (
+            min(t.x0 for t in used) / width,
+            min(t.top for t in used) / height,
+            max(t.x1 for t in used) / width,
+            max(t.bottom for t in used) / height,
+        )
+        out.append(
+            (
+                label,
+                value,
+                EvidenceRef(doc_id=doc_id, page=page_no, bbox=box, snippet=f"{label} {value}"),
+                min(label_conf, value_conf) / 100.0,
+            )
+        )
     return out
 
 
@@ -260,7 +301,7 @@ LEADING_LETTER = str.maketrans({"1": "I", "5": "S", "8": "B", "2": "Z", "|": "I"
 
 
 def _marked_date(text: str) -> str | None:
-    """"2026년1829일" for 2026년 1월 29일: a scan reads the unit marks 년 and 월 as a digit or a letter (월 as 8 or H, 년 as 4).
+    """ "2026년1829일" for 2026년 1월 29일: a scan reads the unit marks 년 and 월 as a digit or a letter (월 as 8 or H, 년 as 4).
     The marks stand at fixed places between the numbers, so the numbers can be cut out around them. The cut is accepted
     only when exactly one way of cutting gives a date that exists, and a letter or a correct mark shows the string is such a
     date and not a bare run of digits ("20260715" is not read as July 5)."""
@@ -273,7 +314,7 @@ def _marked_date(text: str) -> str | None:
         for day_len in (1, 2):
             if len(rest) != month_len + 1 + day_len:
                 continue
-            month, c2, day = rest[:month_len], rest[month_len], rest[month_len + 1:]
+            month, c2, day = rest[:month_len], rest[month_len], rest[month_len + 1 :]
             if not (month.isdigit() and day.isdigit()) or not (c1.isalpha() or c2.isalpha()):
                 continue
             try:
@@ -306,7 +347,7 @@ def repair_code(text: str) -> str:
 
 
 def repair_grade(text: str) -> str:
-    """"3종" is one digit and one syllable; the syllable is read as an 8 or a B often enough to matter."""
+    """ "3종" is one digit and one syllable; the syllable is read as an 8 or a B often enough to matter."""
     m = re.fullmatch(r"\s*([1-5])\s*[8Bb]\s*", text)
     return f"{m.group(1)}종" if m else text
 

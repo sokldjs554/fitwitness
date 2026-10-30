@@ -1,4 +1,5 @@
 """The real worker in --pool mode serves jobs handed over stdin and keeps the exit codes."""
+
 import os, sys, time
 from pathlib import Path
 from uuid import uuid4
