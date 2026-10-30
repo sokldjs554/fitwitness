@@ -230,7 +230,7 @@ def ground(candidate: dict, documents: list[tuple[str, str, bytes]]) -> Extracti
             dropped += 1
             continue
         value = coerce(field, item.get("value"))
-        if value is None:  # a value the field cannot hold (an amount as words, a grade with no digit) is no value
+        if value is None or not agrees(field, value, snippet):  # a value the field cannot hold, or one its own quoted line does not show
             dropped += 1
             continue
         out[field] = value
@@ -238,6 +238,20 @@ def ground(candidate: dict, documents: list[tuple[str, str, bytes]]) -> Extracti
     # What the model read came through OCR when any document had no text layer: a denial resting on it is a
     # person's call (policy R-SCAN-01), on this path as on the rules reader's.
     return Extraction(**out, evidence=evidence, confidence=max(0.0, 1.0 - 0.2 * dropped), scanned=any(source == "ocr" for *_, source in scored))
+
+
+def agrees(field: str, value, snippet: str) -> bool:
+    """Whether the quoted line shows the value. A snippet that exists in the document grounds a value only if the
+    value is what the snippet says: a model that quotes the printed total and returns another number has not read it."""
+    kind = _kind(field)
+    if kind == "amount":
+        return any(int(n.replace(",", "")) == value for n in re.findall(r"\d[\d,]*", snippet))
+    if kind == "grade":
+        return any(int(d) == value for d in re.findall(r"\d", snippet))
+    if kind == "date":
+        return any(normalise_date(snippet[m.start():]) == value for m in re.finditer(r"\d", snippet)) or str(value) in snippet
+    compact = lambda text: re.sub(r"\s+", "", str(text)).upper()
+    return compact(value) in compact(snippet)
 
 
 def coerce(field: str, value):

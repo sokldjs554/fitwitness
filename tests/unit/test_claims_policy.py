@@ -1,6 +1,6 @@
 """Each payout rule on its own, against the policy table."""
 from fitwitness.claims.models import Extraction, Policy
-from fitwitness.claims.policy import PRODUCTS, adjudicate, dedupe_keys, explain, validate
+from fitwitness.claims.policy import PRODUCTS, adjudicate, adjust_items, dedupe_keys, explain, validate
 
 POL = Policy(policy_id="POL-1", insured_id="I-1", product_id="HLTH-A", effective_from="2025-01-01", effective_to="2030-01-01")
 ALL_DOCS = {"diagnosis", "admission", "surgery", "receipt"}
@@ -185,3 +185,47 @@ def test_the_document_generator_prints_the_tables_grades():
     from fitwitness.claims.surgery_table import SURGERY_GRADES
 
     assert {name: grade for name, grade in vocab.SURGERIES.values()} == SURGERY_GRADES
+
+
+def test_a_policy_period_that_is_not_a_date_goes_to_a_person_instead_of_skipping_the_period_check():
+    """effective_to is text in the policy record; "forever" used to switch the period check off and pay."""
+    for field, bad in (("effective_to", "forever"), ("effective_from", ""), ("effective_to", "2030-13-45")):
+        d = run(ex(), policy=POL.model_copy(update={field: bad}))
+        assert d.outcome == "REVIEW" and d.needs_human, (field, bad)
+        assert "policy_period_unreadable" in {r.code for r in d.reasons}
+
+
+def test_a_doubtful_event_date_outside_the_period_is_a_persons_call_not_an_automatic_denial():
+    """The contract gate used to return before the confidence floor was looked at: a date the reader itself doubted,
+    read outside the period, denied the claim with nobody asked."""
+    outside = dict(admission_date="2031-01-01", discharge_date="2031-01-06", surgery_date="2031-01-02", diagnosis_date="2031-01-01")
+    doubtful = run(ex(confidence=0.5, **outside))
+    assert doubtful.outcome == "REVIEW" and doubtful.needs_human and doubtful.total_amount == 0
+    assert {"R-POL-01", "R-CONF-01", "R-DOUBT-01"} <= set(doubtful.rule_ids())
+    sure = run(ex(**outside))
+    assert sure.outcome == "DENY" and not sure.needs_human  # a confident reading outside the period is still a denial
+
+
+def test_a_surgery_whose_diagnosis_code_was_not_read_cannot_pass_the_exclusion_check_by_default():
+    """Exclusions (Q*, Z41*) only act on a code that was read; a claim with no readable code used to pay 300,000."""
+    d = run(ex(diagnosis_code=None), requested=("surgery",))
+    assert d.outcome == "REVIEW" and d.needs_human and d.line_items == []
+    assert [r.code for r in d.reasons] == ["exclusion_unchecked"]
+    assert run(ex(diagnosis_code=None), requested=("hospitalization_daily",)).outcome == "APPROVE"  # no exclusion applies there
+
+
+def test_a_denial_next_to_a_surgery_with_no_readable_code_is_a_persons_call():
+    d = run(ex(diagnosis_code=None, discharge_date="2025-06-03"))
+    assert d.outcome == "REVIEW" and d.needs_human
+
+
+def test_an_adjusted_approval_keeps_every_coverage_so_every_event_key_is_recorded():
+    """A person who lowers the amount used to replace the lines by one line of the first coverage; the other
+    coverage's event key was then never written, and the same surgery could be claimed again under another number."""
+    d = run(ex())
+    items = adjust_items(d.line_items, 200_001)
+    assert sum(li.amount for li in items) == 200_001
+    assert {li.coverage for li in items} == {"hospitalization_daily", "surgery"} and all(li.amount > 0 for li in items)
+    adjusted = d.model_copy(update={"line_items": items, "total_amount": 200_001})
+    assert dedupe_keys(POL, ex(), adjusted) == dedupe_keys(POL, ex(), d)
+    assert adjust_items([], 5_000)[0].amount == 5_000  # nothing proposed: one plain line, as before

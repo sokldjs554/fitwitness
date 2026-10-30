@@ -36,9 +36,9 @@ from fitwitness.agents.providers import TransientProviderError, create_model
 from fitwitness.claims import notices
 from fitwitness.claims.extract import DECISIVE, extract_documents, ground
 from fitwitness.claims.models import (
-    COVERAGE_LABELS, ClaimDecision, ClaimOutcome, ClaimRequest, ClaimReview, Extraction, LineItem, Payout, Reason,
+    COVERAGE_LABELS, ClaimDecision, ClaimOutcome, ClaimRequest, ClaimReview, Extraction, Payout, Reason,
 )
-from fitwitness.claims.policy import PRODUCTS, adjudicate, dedupe_keys, explain, validate
+from fitwitness.claims.policy import PRODUCTS, adjudicate, adjust_items, dedupe_keys, explain, validate
 from fitwitness.claims.review import ReviewRuleError, requirements, same_reviewer
 from fitwitness.contracts import RunRequest, Strict, Usage
 
@@ -261,8 +261,7 @@ def execute_claim(repo, scope, run_id, *, raw, token, jobs, request: RunRequest)
                 items, total = decision.line_items, decision.total_amount
                 if first.total_amount is not None and first.total_amount != total:
                     total = first.total_amount
-                    items = [LineItem(coverage=items[0].coverage if items else "hospitalization_daily", rule_id="R-HUMAN-01",
-                                      amount=total, basis=f"담당자 조정 지급액 {total:,}원")]
+                    items = adjust_items(items, total)
                 final = ClaimDecision(outcome="APPROVE", line_items=items, total_amount=total, reasons=reasons)
             elif decisive.outcome == "REQUEST_INFO":
                 # Held, not decided: no payment, no refusal, and the reason says what is missing. The claimant's

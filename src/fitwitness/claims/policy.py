@@ -179,6 +179,22 @@ def dedupe_keys(policy: Policy, ex: Extraction, decision: ClaimDecision) -> list
     return keys
 
 
+def adjust_items(items: list[LineItem], total: int) -> list[LineItem]:
+    """The proposed lines at a person's adjusted total, split in proportion to what was proposed.
+
+    Every proposed coverage stays on the payout, so the event key of each one is written to the ledger: replacing
+    the lines by a single line of the first coverage left the other coverages' keys unrecorded."""
+    proposed = sum(li.amount for li in items)
+    if not items or proposed <= 0:
+        return [LineItem(coverage=items[0].coverage if items else "hospitalization_daily", rule_id="R-HUMAN-01",
+                         amount=total, basis=f"담당자 조정 지급액 {total:,}원")]
+    shares = [total * li.amount // proposed for li in items]
+    shares[0] += total - sum(shares)  # the rounding remainder rides on the first line
+    return [LineItem(coverage=li.coverage, rule_id="R-HUMAN-01", amount=share,
+                     basis=f"담당자 조정 지급액 {share:,}원 (심사 제안 {li.amount:,}원 중 {li.coverage})")
+            for li, share in zip(items, shares)]
+
+
 def _scanned_denial(reasons: list[Reason], total: int, items: list[LineItem] | None = None) -> ClaimDecision:
     """A refusal that rests on values read from a picture goes to a person. The machine may pay what it
     read with confidence, or hand the claim over; it does not turn a claimant away on a reading that
@@ -198,7 +214,8 @@ def _doubtful_denial(reasons: list[Reason], total: int, items: list[LineItem]) -
 
 
 # A coverage the rules could not judge for want of a document or a value (each of these is raised with the coverage skipped).
-UNJUDGED_CODES = {"missing_documents", "hospital_dates_missing", "surgery_grade_missing", "unknown_surgery_grade", "diagnosis_missing"}
+UNJUDGED_CODES = {"missing_documents", "hospital_dates_missing", "surgery_grade_missing", "unknown_surgery_grade", "diagnosis_missing",
+                   "exclusion_unchecked"}
 
 
 def _unfinished_denial(reasons: list[Reason], total: int, items: list[LineItem]) -> ClaimDecision:
@@ -227,7 +244,16 @@ def adjudicate(policy: Policy, product: Product, requested: list[str], ex: Extra
     if reasons:
         if ex.scanned and any(r.rule_id != "R-POL-02" for r in reasons):
             return _scanned_denial(reasons, 0)
+        if ex.confidence < CONFIDENCE_FLOOR and any(r.rule_id == "R-POL-01" for r in reasons):
+            # the date that puts the event outside the period is the value the reader itself doubts
+            reasons.append(Reason(rule_id="R-CONF-01", code="low_extraction_confidence", severity="review",
+                                  message=f"추출 신뢰도 {ex.confidence:.2f} < {CONFIDENCE_FLOOR}"))
+            return _doubtful_denial(reasons, 0, [])
         return ClaimDecision(outcome="DENY", reasons=reasons, total_amount=0)
+    if eff_from is None or eff_to is None:
+        # A period that is not a date cannot be checked; paying as if it held would be a guess in the claimant's favour.
+        reasons.append(Reason(rule_id="R-POL-03", code="policy_period_unreadable", severity="review",
+                              message=f"계약의 보험기간({policy.effective_from!r}~{policy.effective_to!r})을 날짜로 읽을 수 없어 사고일을 확인할 수 없습니다."))
     if event_date is None:
         reasons.append(Reason(rule_id="R-REQ-02", code="no_event_date", severity="review",
                               message="사고일(입원/수술/진단일)을 서류에서 확인할 수 없습니다."))
@@ -247,6 +273,11 @@ def adjudicate(policy: Policy, product: Product, requested: list[str], ex: Extra
         if missing:
             reasons.append(Reason(rule_id="R-REQ-01", code="missing_documents", severity="review",
                                   message=f"{kind} 심사에 필요한 서류 누락: {', '.join(sorted(missing))}"))
+            continue
+        if cov.exclusion_prefixes and kind != "diagnosis" and not ex.diagnosis_code:
+            # An exclusion acts on a code that was read; with no code it did not run, so the coverage is not judged.
+            reasons.append(Reason(rule_id="R-EXC-02", code="exclusion_unchecked", severity="review",
+                                  message=f"진단코드를 읽지 못해 {kind} 면책 여부를 확인할 수 없습니다."))
             continue
         excl = _prefix(ex.diagnosis_code, cov.exclusion_prefixes)
         if excl:

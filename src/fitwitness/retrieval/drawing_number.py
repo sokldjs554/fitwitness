@@ -20,9 +20,17 @@ from typing import Iterable, Literal
 # Characters OCR and keyboards confuse with digits. Correction lowers confidence.
 _CONFUSABLE = str.maketrans({"O": "0", "o": "0", "I": "1", "l": "1", "S": "5", "B": "8"})
 _SERIES_RE = re.compile(r"(시리즈|계열|패밀리|series|family|\*)", re.IGNORECASE)
+# Hyphens of every kind (hyphen, non-breaking, figure, en and em dash, horizontal bar, minus) and the dot are written for the same hyphen.
+_DASHES = dict.fromkeys(map(ord, "\u2010\u2011\u2012\u2013\u2014\u2015\u2212"), "-")
+_SEP = r"[\s_.\-]"
 _REF_RE = re.compile(
-    r"(?<![A-Za-z0-9])(?P<prefix>[A-Za-z]{2,4})[\s_-]*(?P<groups>[0-9OoIlSB]{1,5}(?:[\s_-]+[0-9OoIlSB]{1,5})*)(?![A-Za-z0-9])"
+    rf"(?<![A-Za-z0-9])(?P<prefix>[A-Za-z]{{2,4}}){_SEP}*(?P<groups>[0-9OoIlSB]{{1,5}}(?:{_SEP}+[0-9OoIlSB]{{1,5}})*)"
+    rf"(?P<rev>(?:[\s_-]*rev\.?[\s_-]*)?[A-Za-z])?(?![A-Za-z0-9])",
+    re.IGNORECASE,
 )
+_SPLIT_RE = re.compile(rf"{_SEP}+")
+REVISION_CONFIDENCE = 0.9  # the number is the same drawing, asked for at a revision the index does not distinguish
+PADDED_CONFIDENCE = 0.9    # the same number written with other zero padding or grouping
 
 MatchMode = Literal["exact", "fuzzy", "series"]
 
@@ -34,6 +42,7 @@ class DrawingReference:
     raw: str
     confidence: float
     series: bool
+    revision: str | None = None
 
     @property
     def canonical(self) -> str:
@@ -44,13 +53,17 @@ class DrawingReference:
         return "".join(self.groups)
 
 
+def _normalise(text: str) -> str:
+    return unicodedata.normalize("NFKC", text).translate(_DASHES)
+
+
 def canonical(prefix: str, groups: Iterable[str]) -> str:
     return "-".join([prefix.upper(), *groups])
 
 
 def split_number(drawing_number: str) -> tuple[str, tuple[str, ...]] | None:
     """``'FW-000-4'`` -> ``('FW', ('000', '4'))``; None when the string has no digit group."""
-    parts = re.split(r"[\s_-]+", unicodedata.normalize("NFKC", drawing_number).strip())
+    parts = _SPLIT_RE.split(_normalise(drawing_number).strip())
     if len(parts) < 2 or not parts[0].isalpha():
         return None
     groups = tuple(parts[1:])
@@ -65,21 +78,36 @@ def extract_references(text: str, known_prefixes: Iterable[str]) -> list[Drawing
     Material codes such as ``SUS304`` or ``AL6061`` look like references but never
     carry a corpus prefix, so they are skipped."""
     known = {p.upper() for p in known_prefixes}
-    text = unicodedata.normalize("NFKC", text)
+    text = _normalise(text)
     series_hint = bool(_SERIES_RE.search(text))
     refs: list[DrawingReference] = []
     for m in _REF_RE.finditer(text):
         prefix = m.group("prefix").upper()
         if prefix not in known:
             continue
-        raw_groups = re.split(r"[\s_-]+", m.group("groups"))
-        corrected = [g.translate(_CONFUSABLE) for g in raw_groups]
-        if not all(g.isdigit() for g in corrected):
-            continue
-        # One confusable correction per digit group is one mistake (``OOO`` is clearly ``000``).
-        changed_groups = sum(a != b for a, b in zip(raw_groups, corrected))
-        confidence = 1.0 if changed_groups == 0 else max(0.5, 1.0 - 0.2 * changed_groups)
-        refs.append(DrawingReference(prefix, tuple(corrected), m.group(0).strip(), confidence, series_hint))
+        raw_groups = _SPLIT_RE.split(m.group("groups"))
+        revision = m.group("rev")
+        revision = re.sub(r"^[\s_-]*(rev\.?)?[\s_-]*", "", revision, flags=re.IGNORECASE).upper() if revision else None
+        # B and S read as digits inside a group, so a second prefix written after a number ("FW-000-4 BS-120") would be
+        # swallowed as the digits 85; a letters-only token that is a corpus prefix starts the next reference instead.
+        segments, start = [], 0
+        for i in range(1, len(raw_groups) - 1):
+            if raw_groups[i].isalpha() and raw_groups[i].upper() in known:
+                segments.append((prefix, raw_groups[start:i]))
+                prefix, start = raw_groups[i].upper(), i + 1
+        segments.append((prefix, raw_groups[start:]))
+        for k, (seg_prefix, seg_groups) in enumerate(segments):
+            corrected = [g.translate(_CONFUSABLE) for g in seg_groups]
+            if not all(g.isdigit() for g in corrected):
+                continue
+            # One confusable correction per digit group is one mistake (``OOO`` is clearly ``000``).
+            changed_groups = sum(a != b for a, b in zip(seg_groups, corrected))
+            confidence = 1.0 if changed_groups == 0 else max(0.5, 1.0 - 0.2 * changed_groups)
+            seg_revision = revision if k == len(segments) - 1 else None
+            if seg_revision:
+                confidence = round(confidence * REVISION_CONFIDENCE, 4)
+            raw = m.group(0).strip() if len(segments) == 1 else f"{seg_prefix} {' '.join(seg_groups)}"
+            refs.append(DrawingReference(seg_prefix, tuple(corrected), raw, confidence, series_hint, seg_revision))
     return refs
 
 
@@ -177,6 +205,14 @@ def match_reference(
     exact = [(dn, ref.confidence, "exact") for dn, groups in same_prefix if groups == ref.groups]
     if exact:
         return sorted(exact, key=lambda x: (-x[1], x[0]))
+    if not ref.series:
+        # The same number with other zero padding ("FW-0-4", "FW-00-04") or grouping ("FW-0004") is that number, not a typo of it.
+        as_ints = tuple(int(g) for g in ref.groups)
+        padded = [(dn, PADDED_CONFIDENCE * ref.confidence, "exact") for dn, groups in same_prefix
+                  if (len(groups) == len(ref.groups) and tuple(int(g) for g in groups) == as_ints)
+                  or (len(groups) != len(ref.groups) and "".join(groups) == ref.digits)]
+        if padded:
+            return sorted(padded, key=lambda x: (-x[1], x[0]))
     out: list[tuple[str, float, MatchMode]] = []
     partial = ref.series or any(len(groups) > len(ref.groups) for _, groups in same_prefix)
     if partial:

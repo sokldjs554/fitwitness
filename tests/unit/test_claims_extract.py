@@ -131,3 +131,33 @@ def test_a_models_amount_or_grade_as_text_becomes_the_number_the_field_holds():
     assert coerce("surgery_grade", "2종") == 2 and coerce("surgery_grade", 3) == 3 and coerce("surgery_grade", "이종") is None
     assert coerce("admission_date", "2025.12.07") == "2025-12-07" and coerce("insured_name", "박지우") == "박지우"
     assert coerce("diagnosis_code", None) is None
+
+
+def test_a_real_snippet_does_not_ground_a_different_value(corpus):
+    """Grounding used to check only that the quoted line exists. A model that quotes the printed total and returns
+    another number, or the printed admission date and returns another day, kept the field with the real evidence box."""
+    root, manifest, gold = corpus
+    case = next(c for c in manifest["cases"] if c["scenario"] == "clean")
+    docs = docs_of(root, case)
+    truth = gold[case["case_id"]]["truth"]
+    draft = {
+        "admission_date": {"value": truth["admission_date"], "snippet": f"입원일: {truth['admission_date']}"},
+        "total_amount": {"value": truth["total_amount"] + 1000, "snippet": f"합계: {truth['total_amount']:,}원"},
+    }
+    ex = ground(draft, docs)
+    assert ex.admission_date == truth["admission_date"] and "admission_date" in ex.evidence
+    assert ex.total_amount is None and "total_amount" not in ex.evidence
+    other_day = f"{truth['admission_date'][:8]}{'28' if not truth['admission_date'].endswith('28') else '27'}"
+    assert ground({"admission_date": {"value": other_day, "snippet": f"입원일: {truth['admission_date']}"}}, docs).admission_date is None
+    assert ground({"admission_date": {"value": truth["admission_date"].replace("-", "."), "snippet": f"입원일: {truth['admission_date']}"}}, docs).admission_date == truth["admission_date"]
+
+
+def test_the_value_must_agree_with_its_snippet_whatever_the_field_kind():
+    from fitwitness.claims.extract import agrees
+
+    assert agrees("total_amount", 3884730, "합계 3,884,730원") and not agrees("total_amount", 884730, "합계 3,884,730원")
+    assert agrees("admission_date", "2025-12-07", "입원일: 2025.12.07") and not agrees("admission_date", "2025-12-08", "입원일: 2025.12.07")
+    assert agrees("surgery_grade", 2, "수술 등급: 2종") and not agrees("surgery_grade", 3, "수술 등급: 2종")
+    assert agrees("diagnosis_code", "K35.8", "진단코드 K35.8") and agrees("diagnosis_code", "k35.8", "진단코드 K35.8")
+    assert not agrees("diagnosis_code", "K35.9", "진단코드 K35.8")
+    assert agrees("insured_name", "김민준", "성명: 김민준") and not agrees("insured_name", "김민주", "성명: 김민준")
