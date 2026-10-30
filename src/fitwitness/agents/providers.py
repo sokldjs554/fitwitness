@@ -57,6 +57,16 @@ class ModelClient:
 
             self.client = ChatAnthropic(model=model_id, timeout=40, max_retries=0, max_tokens=1500)
 
+    def structured_chain(self, schema):
+        """The chain that calls the model and parses its answer into ``schema``, keeping the raw message for its usage.
+
+        OpenAI's default structured output is a strict JSON schema, which refuses an object with free-form keys
+        ("additionalProperties is required to be false"): the arguments of a tool request are one, and the first run of the
+        drawing graph on an OpenAI model ended on its first call for that reason. Function calling takes the same schema
+        without the rule."""
+        method = {"method": "function_calling"} if self.provider == "openai" else {}
+        return self.client.with_structured_output(schema, include_raw=True, **method)
+
     def plan(self, context, role="planner"):
         prompt = (
             "You select bounded tools to verify engineering drawing requirements. Use the provided tool schemas. "
@@ -99,7 +109,7 @@ class ModelClient:
             self.guard()
             self.budget.reserve(bound, self.max_output, self.input_rate, self.output_rate)
             try:
-                response = self.client.with_structured_output(schema, include_raw=True).invoke(messages)
+                response = self.structured_chain(schema).invoke(messages)
                 return response, attempt, (time.monotonic() - started) * 1000
             except Exception as exc:
                 code = getattr(exc, "status_code", None)

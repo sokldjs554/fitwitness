@@ -33,8 +33,7 @@ def _budget():
 @pytest.mark.parametrize("provider", ["anthropic", "openai"])
 @pytest.mark.parametrize("schema", SCHEMAS, ids=lambda s: s.__name__)
 def test_every_schema_becomes_a_structured_output_chain_for_both_providers(provider, schema, monkeypatch):
-    client = _client(provider, monkeypatch).client
-    chain = client.with_structured_output(schema, include_raw=True)
+    chain = _client(provider, monkeypatch).structured_chain(schema)
     assert hasattr(chain, "invoke")  # a runnable that would call the model, parse into the schema and keep the raw message
 
 
@@ -69,4 +68,10 @@ def test_the_model_verdict_schema_becomes_a_structured_output_chain_for_both_pro
     from fitwitness.evaluation.claims_model_decides import ModelVerdict
 
     for provider in ("anthropic", "openai"):
-        assert hasattr(_client(provider, monkeypatch).client.with_structured_output(ModelVerdict, include_raw=True), "invoke")
+        assert hasattr(_client(provider, monkeypatch).structured_chain(ModelVerdict), "invoke")
+
+
+def test_the_openai_chain_uses_function_calling_so_a_free_form_tool_argument_is_accepted(monkeypatch):
+    bound = _client("openai", monkeypatch).structured_chain(SearchPlan).first.steps__["raw"]
+    assert bound.kwargs["tools"][0]["type"] == "function" and "response_format" not in bound.kwargs
+    assert bound.kwargs["tools"][0]["function"].get("strict") is None, "not the strict mode that refuses a free-form object"

@@ -40,9 +40,10 @@ print(Jobs(repo).get(scope, job.id).model_dump_json(indent=2))
 | workflow | 무엇을 재나 | 유료 | 상한 입력의 최댓값 |
 |---|---|---|---|
 | `openai-evidence-measure.yml` | PDF 근거 판정 24사례를 OpenAI 모델로 (모델 이름·가격은 실행 때 입력) | OpenAI | $0.25 |
-| `agent-trajectory.yml` | 실제 모델이 도면 그래프를 고르는 경로, test family마다 세 구조 | Claude/OpenAI | $1.0 |
+| `agent-trajectory.yml` | 실제 모델이 도면 그래프를 고르는 경로, 세 구조 · 반복 · 도면 서른 장 작업 공간 · 재료 변형 | Claude/OpenAI | $1.0 |
 | `claims-model-evaluation.yml` | 청구 서류를 모델이 읽는 경로와 규칙 판독기 비교 | Claude/OpenAI | $1.0 |
 | `claims-audit-evaluation.yml` | 지급 직전 모델 감사 | Claude/OpenAI | $1.0 |
+| `claims-model-decides-evaluation.yml` | 모델이 최종 판정까지 내릴 때의 잘못된 지급 수(제품 경로에는 없는 비교 실험) | Claude/OpenAI | $1.0 |
 | `claims-injection-model.yml` | 서류 비고란의 지시문을 모델 추출 경로로 | Claude/OpenAI | $1.0 |
 | `query-understanding-evaluation.yml` | 모델이 검색 질의를 조건으로 읽기 | Claude/OpenAI | $0.3 |
 | `shell-search-evaluation.yml` | 명령 검색 도구를 켜고 끈 비교 | Claude | $0.5 |
