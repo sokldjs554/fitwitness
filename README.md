@@ -25,7 +25,7 @@
 
 | 측정 | 결과 | 기록 |
 |---|---|---|
-| PDF 근거 판정, 같은 24사례 × 3회 | Claude Haiku 4.5 72/72 정답, 잘못된 일치 0/42, $0.11. OpenAI `gpt-5-mini`는 끝난 55회 모두 정답, $0.0114(17회는 계정 잔액 소진으로 비어 있음) | [evaluation/README](docs/evaluation/README.md) |
+| PDF 근거 판정, 같은 24사례 × 3회 | Claude Haiku 4.5 72/72 정답, 잘못된 일치 0/42, $0.11. OpenAI `gpt-5-mini`도 72/72 정답, 잘못된 일치 0/42, $0.0149(둘 다 천장이라 우열은 못 가림) | [evaluation/README](docs/evaluation/README.md) |
 | 실제 모델이 고르는 경로, test 6개 family × 세 구조 | 네 번 실행: 1차 planner+challenger 4/6 완료 → 컨텍스트를 고쳐 4차 18/18 완료, 90/90. 판정은 검증기가 하고 모델은 도구 선택과 종료만. 합계 $0.40 | [evaluation/README](docs/evaluation/README.md#실제-모델이-고르는-경로--2026-10-22) |
 | 검색 | 복합 질의 Recall@5 33.3%(95% 구간 17~49%), 조건 정렬 64.2%. NIST STEP 11쌍 CAD 거리 Top-1 11/11. 합성 도면 10만 장까지 규모 시험 | [RETRIEVAL.md](docs/RETRIEVAL.md) · [CAD.md](docs/CAD.md) |
 | 보험 청구 자동 심사, 합성 120건 (API 없음) | 잘못 지급 0건, 결정 정확도 92.5%, 자동 처리 88.5%. 스캔·모델 추출·감사 경로는 전체 표 | [CLAIMS.md](docs/CLAIMS.md) |

@@ -11,7 +11,12 @@ class TransientProviderError(RuntimeError):
     """The provider failed in a way worth retrying later (429, 5xx, timeout, connection)."""
 
 
+REASONING_MODELS = ("gpt-5", "o1", "o3", "o4")  # OpenAI models that count their reasoning toward the output limit
+
+
 class ModelClient:
+    max_output = 1500  # tokens one call may produce; the budget reserves the same amount before the call
+
     def __init__(self, provider, model_id, budget):
         self.provider = provider
         self.model_id = model_id
@@ -32,7 +37,21 @@ class ModelClient:
         if provider == "openai":
             from langchain_openai import ChatOpenAI
 
-            self.client = ChatOpenAI(model=model_id, timeout=40, max_retries=0, max_tokens=1500)
+            # A reasoning model spends its reasoning inside the output limit (the evidence pilot lost every call to a 128-token
+            # limit before it learned that), so it is asked for minimal reasoning unless the operator chooses more, and a
+            # higher effort gets a wider limit that the budget reserves in full.
+            reasoning = model_id.startswith(REASONING_MODELS)
+            effort = os.getenv("FITWITNESS_OPENAI_REASONING_EFFORT", "minimal") if reasoning else None
+            if effort not in (None, "minimal", "low", "medium", "high"):
+                raise ValueError(f"unknown reasoning effort {effort!r}")
+            self.max_output = 6000 if effort not in (None, "minimal") else 1500
+            self.client = ChatOpenAI(
+                model=model_id,
+                timeout=90 if reasoning else 40,
+                max_retries=0,
+                max_tokens=self.max_output,
+                **({"reasoning_effort": effort} if effort else {}),
+            )
         else:
             from langchain_anthropic import ChatAnthropic
 
@@ -78,7 +97,7 @@ class ModelClient:
         # SDK retries are disabled. Every explicit attempt reserves cost durably.
         for attempt in range(1, 3):
             self.guard()
-            self.budget.reserve(bound, 1500, self.input_rate, self.output_rate)
+            self.budget.reserve(bound, self.max_output, self.input_rate, self.output_rate)
             try:
                 response = self.client.with_structured_output(schema, include_raw=True).invoke(messages)
                 return response, attempt, (time.monotonic() - started) * 1000

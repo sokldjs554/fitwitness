@@ -36,10 +36,32 @@ on:
         description: comma separated materials, one query per family and material (SUS304 is the base drawing's; AL6061 asks for the other one)
         default: 'SUS304'
         required: true
+      families:
+        description: space separated family ids to run (blank = all six of the test split), for a cheap first look
+        default: ''
+        required: false
       top_k:
         description: candidates the search returns (0 keeps the default, 6; the split workspace needs 12 to reach every drawing of a family)
         default: '0'
         required: true
+      openai_model:
+        description: openai only - the exact model id; blank uses the repository variable FITWITNESS_OPENAI_MODEL
+        default: ''
+        required: false
+      openai_input_usd_per_million:
+        description: openai only - price of input tokens, USD per million, from the current price list; blank uses the repository variable
+        default: ''
+        required: false
+      openai_output_usd_per_million:
+        description: openai only - price of output tokens, USD per million; blank uses the repository variable
+        default: ''
+        required: false
+      openai_reasoning_effort:
+        description: openai reasoning models only - minimal keeps the 1500-token limit, low and medium widen it to 6000 (reserved in full)
+        default: 'minimal'
+        required: true
+        type: choice
+        options: [minimal, low, medium]
 permissions:
   contents: read
 concurrency:
@@ -66,9 +88,10 @@ jobs:
       FITWITNESS_DATABASE_URL: postgresql://fitwitness:test-only@localhost:5432/fitwitness
       FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION: '1'
       FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION: '5'
-      FITWITNESS_OPENAI_MODEL: ${{ vars.FITWITNESS_OPENAI_MODEL }}
-      FITWITNESS_OPENAI_INPUT_USD_PER_MILLION: ${{ vars.FITWITNESS_OPENAI_INPUT_USD_PER_MILLION }}
-      FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION: ${{ vars.FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION }}
+      FITWITNESS_OPENAI_MODEL: ${{ inputs.openai_model || vars.FITWITNESS_OPENAI_MODEL }}
+      FITWITNESS_OPENAI_INPUT_USD_PER_MILLION: ${{ inputs.openai_input_usd_per_million || vars.FITWITNESS_OPENAI_INPUT_USD_PER_MILLION }}
+      FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION: ${{ inputs.openai_output_usd_per_million || vars.FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION }}
+      FITWITNESS_OPENAI_REASONING_EFFORT: ${{ inputs.openai_reasoning_effort }}
       PROVIDER: ${{ inputs.provider }}
     steps:
       - uses: actions/checkout@v4
@@ -79,6 +102,7 @@ jobs:
           INPUT_REPEATS: ${{ inputs.repeats }}
           INPUT_MATERIALS: ${{ inputs.materials }}
           INPUT_TOP_K: ${{ inputs.top_k }}
+          INPUT_FAMILIES: ${{ inputs.families }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
@@ -95,6 +119,7 @@ jobs:
           assert re.fullmatch(r'(?:[1-9]|10)', os.environ['INPUT_REPEATS']), os.environ['INPUT_REPEATS']
           assert re.fullmatch(r'[A-Za-z0-9]+(?:,[A-Za-z0-9]+)*', os.environ['INPUT_MATERIALS']), os.environ['INPUT_MATERIALS']
           assert re.fullmatch(r'[0-9]{1,2}', os.environ['INPUT_TOP_K']) and int(os.environ['INPUT_TOP_K']) <= 50
+          assert re.fullmatch(r'(?:FW-F[0-9]{3}(?: FW-F[0-9]{3})*)?', os.environ['INPUT_FAMILIES']), os.environ['INPUT_FAMILIES']
           print('configuration present for', provider, '(values not printed)')
           PY
       - uses: astral-sh/setup-uv@v6
@@ -111,6 +136,7 @@ jobs:
           INPUT_WORKSPACE: ${{ inputs.workspace }}
           INPUT_MATERIALS: ${{ inputs.materials }}
           INPUT_TOP_K: ${{ inputs.top_k }}
+          INPUT_FAMILIES: ${{ inputs.families }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: >-
@@ -119,6 +145,7 @@ jobs:
           --modes "$INPUT_MODES"
           --max-cost-usd "$INPUT_MAX_USD" --per-run-usd "$INPUT_PER_RUN_USD"
           --repeats "$INPUT_REPEATS" --workspace "$INPUT_WORKSPACE" --materials "$INPUT_MATERIALS" --top-k "$INPUT_TOP_K"
+          ${INPUT_FAMILIES:+--families $INPUT_FAMILIES}
           --output artifacts/agent-trajectory
       - name: Summary
         if: always()

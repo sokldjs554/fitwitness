@@ -9,9 +9,9 @@
   "shell-search-model": "467ab331fbf7af83",
   "title-block-vlm": "9a14e5b43854f508",
   "title-block-vlm-prompts": "de01d310dcc51d67",
-  "openai": "cb19745947f94689"
+  "openai": "e7e97f71f6c7bf14"
  },
- "spent_usd": 4.810502,
+ "spent_usd": 4.813993,
  "cards": [
   {
    "id": "trajectory",
@@ -479,28 +479,28 @@
    "posting": "자격요건 · OpenAI API와 Claude로 만든 동작 앱",
    "question": "Claude로 잰 것과 같은 판정 사례를 OpenAI 모델도 같은 규칙(인용이 없으면 일치로 안 침)으로 푸는가",
    "model": "gpt-5-mini",
-   "measured": "2026-10-29",
-   "cost_usd": 0.01136,
+   "measured": "2026-10-29 (first runs), 2026-10-30 (the 72 calls completed)",
+   "cost_usd": 0.014851,
    "headline": [
     {
      "label": "끝난 판정",
-     "value": "55/72",
-     "note": "나머지 17회는 OpenAI 계정의 잔액 소진(HTTP 429)으로 실패"
+     "value": "72/72",
+     "note": "2026-10-29에는 잔액 소진(HTTP 429)으로 17회가 비었고, 충전 뒤 2026-10-30에 72회를 모두 다시 돌림"
     },
     {
      "label": "끝난 판정 중 정답",
-     "value": "55/55",
-     "note": "95% 구간 93.5%부터. 빠진 17회가 있어 72회 전체의 값은 아님"
+     "value": "72/72",
+     "note": "95% 구간 94.9%부터(한 사례의 세 번은 독립이 아니라 실제보다 좁음). 천장이라 모델 우열은 못 가림"
     },
     {
      "label": "틀린 일치",
-     "value": "0/31",
-     "note": "끝난 비일치 사례 중. 모든 인용은 서류의 사실 id"
+     "value": "0/42",
+     "note": "비일치 사례 42건 중. 모든 인용은 서류의 사실 id"
     },
     {
      "label": "판정 한 번 지연 중앙값",
-     "value": "1.1초",
-     "note": "p95 1.5초"
+     "value": "0.9초",
+     "note": "p95 1.3초"
     }
    ],
    "table": {
@@ -512,7 +512,7 @@
     "rows": [
      [
       "gpt-5-mini (OpenAI)",
-      "55/55 정답, 틀린 일치 0, $0.0114, 17회 비어 있음"
+      "72/72 정답, 틀린 일치 0, $0.0149"
      ],
      [
       "Claude Haiku 4.5",
@@ -525,10 +525,11 @@
     ]
    },
    "caveats": [
-    "55 of 72 calls completed, so this is not 3 full repeats of 24 cases; the 17 missing calls are spread over every category.",
+    "The model is at the ceiling of this task: 72 of 72 correct, so the record cannot rank it against Claude Haiku 4.5 (also 72/72) and the Wilson bound only says the rate is above 94.9%.",
+    "The three repeats of a case are not independent; the interval treats 72 verdicts as independent and is therefore narrower than the evidence supports.",
     "The same narrow task as the other two records: a verdict from extracted facts, not retrieval, OCR, VLM or the full agent.",
-    "Prices were typed in from third-party listings, so the cost is an estimate from token counts; the OpenAI invoice is the truth.",
-    "The report artifact is on the GitHub run (artifact 12896564727); this file was rebuilt from the job log's printed report."
+    "Prices were typed in from third-party listings, so the cost is an estimate from token counts; the OpenAI invoice is the truth. Over all runs of 2026-10-29 and 2026-10-30 the model rows add up to about $0.078 (run 1 about $0.03 by token count, run 2 $0.01136, run 41028410426 $0.0068355, run 41028746613 $0.01485675, run 41030458703 $0.01485075; the first two were cut off or incomplete).",
+    "The report artifact is on the GitHub run (artifact 12965085994, 41030458703); this file was rebuilt from the job log's printed rows and metrics, so the raw model output and the request ids of each call are not in it. The rows of the incomplete second run (55 completed, 17 HTTP 429) are in the repository history at commit 6136313."
    ],
    "links": [
     {

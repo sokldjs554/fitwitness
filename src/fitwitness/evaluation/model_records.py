@@ -430,17 +430,17 @@ def openai_evidence():
             {
                 "label": "끝난 판정",
                 "value": f"{s['completed']}/{s['calls']}",
-                "note": f"나머지 {s['failed_no_credits']}회는 OpenAI 계정의 잔액 소진(HTTP 429)으로 실패",
+                "note": "2026-10-29에는 잔액 소진(HTTP 429)으로 17회가 비었고, 충전 뒤 2026-10-30에 72회를 모두 다시 돌림",
             },
             {
                 "label": "끝난 판정 중 정답",
                 "value": f"{s['correct']}/{s['completed']}",
-                "note": f"95% 구간 {_pct(s['wilson_95_lower_for_55_of_55'])}부터. 빠진 {s['failed_no_credits']}회가 있어 72회 전체의 값은 아님",
+                "note": f"95% 구간 {_pct(s['wilson_95_lower_for_72_of_72'])}부터(한 사례의 세 번은 독립이 아니라 실제보다 좁음). 천장이라 모델 우열은 못 가림",
             },
             {
                 "label": "틀린 일치",
                 "value": f"{s['false_match']}/{s['completed_non_match_cases']}",
-                "note": "끝난 비일치 사례 중. 모든 인용은 서류의 사실 id",
+                "note": "비일치 사례 42건 중. 모든 인용은 서류의 사실 id",
             },
             {
                 "label": "판정 한 번 지연 중앙값",
@@ -454,7 +454,7 @@ def openai_evidence():
             "rows": [
                 [
                     f"{m['id']} (OpenAI)",
-                    f"{s['correct']}/{s['completed']} 정답, 틀린 일치 {s['false_match']}, ${s['cost_usd']:.4f}, {s['failed_no_credits']}회 비어 있음",
+                    f"{s['correct']}/{s['completed']} 정답, 틀린 일치 {s['false_match']}, ${s['cost_usd']:.4f}",
                 ],
                 ["Claude Haiku 4.5", claude],
                 ["Qwen3-1.7B 로컬", qwen],

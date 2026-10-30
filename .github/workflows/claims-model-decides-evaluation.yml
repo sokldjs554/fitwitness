@@ -34,6 +34,24 @@ on:
         description: budget of one call, reserved before it starts (at most 0.1)
         default: '0.03'
         required: true
+      openai_model:
+        description: openai only - the exact model id; blank uses the repository variable FITWITNESS_OPENAI_MODEL
+        default: ''
+        required: false
+      openai_input_usd_per_million:
+        description: openai only - price of input tokens, USD per million, from the current price list; blank uses the repository variable
+        default: ''
+        required: false
+      openai_output_usd_per_million:
+        description: openai only - price of output tokens, USD per million; blank uses the repository variable
+        default: ''
+        required: false
+      openai_reasoning_effort:
+        description: openai reasoning models only - minimal keeps the 1500-token limit, low and medium widen it to 6000 (reserved in full)
+        default: 'minimal'
+        required: true
+        type: choice
+        options: [minimal, low, medium]
 permissions:
   contents: read
 concurrency:
@@ -48,9 +66,10 @@ jobs:
       PYTHONPATH: src
       FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION: '1'
       FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION: '5'
-      FITWITNESS_OPENAI_MODEL: ${{ vars.FITWITNESS_OPENAI_MODEL }}
-      FITWITNESS_OPENAI_INPUT_USD_PER_MILLION: ${{ vars.FITWITNESS_OPENAI_INPUT_USD_PER_MILLION }}
-      FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION: ${{ vars.FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION }}
+      FITWITNESS_OPENAI_MODEL: ${{ inputs.openai_model || vars.FITWITNESS_OPENAI_MODEL }}
+      FITWITNESS_OPENAI_INPUT_USD_PER_MILLION: ${{ inputs.openai_input_usd_per_million || vars.FITWITNESS_OPENAI_INPUT_USD_PER_MILLION }}
+      FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION: ${{ inputs.openai_output_usd_per_million || vars.FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION }}
+      FITWITNESS_OPENAI_REASONING_EFFORT: ${{ inputs.openai_reasoning_effort }}
       PROVIDER: ${{ inputs.provider }}
     steps:
       - uses: actions/checkout@v4
