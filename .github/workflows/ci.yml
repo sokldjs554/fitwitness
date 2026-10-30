@@ -30,7 +30,7 @@ jobs:
       PYTHONPATH: src
       FITWITNESS_SESSION_LIMIT_PER_PEER: '100'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v6
         with:
           version: "0.9.4"  # the version Dockerfile and render.yaml pin
@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: promtool from Prometheus 3.5.0 (sha256 pinned)
         run: |
           curl -sSfL -o /tmp/prometheus.tgz https://github.com/prometheus/prometheus/releases/download/v3.5.0/prometheus-3.5.0.linux-amd64.tar.gz

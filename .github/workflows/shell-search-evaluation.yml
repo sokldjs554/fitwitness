@@ -55,7 +55,7 @@ jobs:
       FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION: '1'
       FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION: '5'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Require a privately configured credential and a sane ceiling
         env:
           INPUT_MAX_USD: ${{ inputs.max_usd }}

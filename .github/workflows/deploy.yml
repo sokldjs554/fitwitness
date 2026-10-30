@@ -24,7 +24,7 @@ jobs:
     env:
       DEMO_URL: https://fitwitness.onrender.com
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref || 'main' }}
       - name: The deploy hook is configured

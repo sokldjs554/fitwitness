@@ -28,7 +28,7 @@ jobs:
       PYTHONPATH: src
       FITWITNESS_UPSTAGE_USD_PER_PAGE: ${{ vars.FITWITNESS_UPSTAGE_USD_PER_PAGE }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Require the key and the agreed price
         env:
           INPUT_MAX_PAGES: ${{ inputs.max_pages }}
