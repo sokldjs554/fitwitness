@@ -65,14 +65,18 @@ jobs:
           PY
       - name: Dev families, four prompts
         env:
+          INPUT_DTYPE: ${{ inputs.dtype }}
+          INPUT_REPEATS: ${{ inputs.repeats }}
           HF_HUB_OFFLINE: '1'
           TRANSFORMERS_OFFLINE: '1'
-        run: uv run python -m fitwitness.evaluation.prompt_experiment --split dev --provider local --dtype ${{ inputs.dtype }} --repeats ${{ inputs.repeats }} --output artifacts/prompts-dev-local
+        run: uv run python -m fitwitness.evaluation.prompt_experiment --split dev --provider local --dtype $INPUT_DTYPE --repeats $INPUT_REPEATS --output artifacts/prompts-dev-local
       - name: Test families, the winner and the baseline, once
         env:
+          INPUT_DTYPE: ${{ inputs.dtype }}
+          INPUT_REPEATS: ${{ inputs.repeats }}
           HF_HUB_OFFLINE: '1'
           TRANSFORMERS_OFFLINE: '1'
-        run: uv run python -m fitwitness.evaluation.prompt_experiment --split test --provider local --dtype ${{ inputs.dtype }} --repeats ${{ inputs.repeats }} --dev-report artifacts/prompts-dev-local/report.json --output artifacts/prompts-test-local
+        run: uv run python -m fitwitness.evaluation.prompt_experiment --split test --provider local --dtype $INPUT_DTYPE --repeats $INPUT_REPEATS --dev-report artifacts/prompts-dev-local/report.json --output artifacts/prompts-test-local
       - name: Summary
         if: always()
         run: |
@@ -120,11 +124,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Require a privately configured credential and a sane ceiling
         env:
+          INPUT_MAX_USD: ${{ inputs.max_usd }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -z "$ANTHROPIC_API_KEY" ]; then echo 'ANTHROPIC_API_KEY repository secret is missing.'; exit 1; fi
           python3 - <<'PY'
-          limit = float('${{ inputs.max_usd }}')
+          import os
+          limit = float(os.environ['INPUT_MAX_USD'])
           assert 0 < limit <= 1.5, limit
           PY
       - uses: astral-sh/setup-uv@v6
@@ -133,16 +139,20 @@ jobs:
       - run: uv run python scripts/setup.py
       - name: Dev families, four prompts (70 percent of the ceiling)
         env:
+          INPUT_MAX_USD: ${{ inputs.max_usd }}
+          INPUT_REPEATS: ${{ inputs.repeats }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          cap=$(python3 -c "print(round(float('${{ inputs.max_usd }}') * 0.7, 4))")
-          uv run python -m fitwitness.evaluation.prompt_experiment --split dev --provider anthropic --model claude-haiku-4-5-20251001 --max-cost-usd "$cap" --repeats ${{ inputs.repeats }} --output artifacts/prompts-dev-claude
+          cap=$(python3 -c "import os; print(round(float(os.environ['INPUT_MAX_USD']) * 0.7, 4))")
+          uv run python -m fitwitness.evaluation.prompt_experiment --split dev --provider anthropic --model claude-haiku-4-5-20251001 --max-cost-usd "$cap" --repeats $INPUT_REPEATS --output artifacts/prompts-dev-claude
       - name: Test families, the winner and the baseline, once (30 percent of the ceiling)
         env:
+          INPUT_MAX_USD: ${{ inputs.max_usd }}
+          INPUT_REPEATS: ${{ inputs.repeats }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          cap=$(python3 -c "print(round(float('${{ inputs.max_usd }}') * 0.3, 4))")
-          uv run python -m fitwitness.evaluation.prompt_experiment --split test --provider anthropic --model claude-haiku-4-5-20251001 --max-cost-usd "$cap" --repeats ${{ inputs.repeats }} --dev-report artifacts/prompts-dev-claude/report.json --output artifacts/prompts-test-claude
+          cap=$(python3 -c "import os; print(round(float(os.environ['INPUT_MAX_USD']) * 0.3, 4))")
+          uv run python -m fitwitness.evaluation.prompt_experiment --split test --provider anthropic --model claude-haiku-4-5-20251001 --max-cost-usd "$cap" --repeats $INPUT_REPEATS --dev-report artifacts/prompts-dev-claude/report.json --output artifacts/prompts-test-claude
       - name: Summary
         if: always()
         run: |

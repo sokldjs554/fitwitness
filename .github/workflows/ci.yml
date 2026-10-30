@@ -3,9 +3,10 @@ on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
 # A push to a pull-request branch also triggers the pull_request run: one run per ref, the older one cancelled.
+# Never on main: every commit of main must end with a finished run, because deploy.yml only ships a commit that has a green one.
 concurrency:
   group: verified-demo-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -96,23 +97,3 @@ jobs:
           A=/tmp/alertmanager-0.28.1.linux-amd64/amtool
           $A check-config deploy/alertmanager/alertmanager.yml
           python3 scripts/check_alert_routes.py $A deploy/alertmanager/alertmanager.yml deploy/prometheus/rules/fitwitness-alerts.yml
-  credential-readiness:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/feat/fitwitness-foundation'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Record credential presence only (no API calls)
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          python - <<'PY'
-          import json,os
-          from pathlib import Path
-          result={key:bool(os.getenv(key)) for key in ('OPENAI_API_KEY','ANTHROPIC_API_KEY')}
-          Path('credential-readiness.json').write_text(json.dumps(result))
-          print(json.dumps(result))
-          PY
-      - uses: actions/upload-artifact@v4
-        with:
-          name: credential-readiness
-          path: credential-readiness.json

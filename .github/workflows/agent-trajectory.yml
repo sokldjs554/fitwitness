@@ -56,6 +56,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Require a privately configured credential, a model with a price, and a sane ceiling
         env:
+          INPUT_MAX_USD: ${{ inputs.max_usd }}
+          INPUT_PER_RUN_USD: ${{ inputs.per_run_usd }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
@@ -66,7 +68,7 @@ jobs:
           missing = [k for k in need if not os.getenv(k)]
           if missing:
               raise SystemExit(f'missing for provider {provider}: {", ".join(missing)} (a repository secret for the key, repository variables for the model and its price). Nothing was called.')
-          ceiling, cap = float('${{ inputs.max_usd }}'), float('${{ inputs.per_run_usd }}')
+          ceiling, cap = float(os.environ['INPUT_MAX_USD']), float(os.environ['INPUT_PER_RUN_USD'])
           assert 0 < ceiling <= 1.0, ceiling
           assert 0 < cap <= 0.1, cap
           print('configuration present for', provider, '(values not printed)')
@@ -77,13 +79,17 @@ jobs:
       - run: uv run python scripts/setup.py
       - name: Rules reference, then the model on every test family and mode
         env:
+          INPUT_MAX_USD: ${{ inputs.max_usd }}
+          INPUT_MODES: ${{ inputs.modes }}
+          INPUT_PER_RUN_USD: ${{ inputs.per_run_usd }}
+          INPUT_PROVIDER: ${{ inputs.provider }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: >-
           uv run python -m fitwitness.evaluation.agent_trajectory
-          --provider "${{ inputs.provider }}"
-          --modes "${{ inputs.modes }}"
-          --max-cost-usd "${{ inputs.max_usd }}" --per-run-usd "${{ inputs.per_run_usd }}"
+          --provider "$INPUT_PROVIDER"
+          --modes "$INPUT_MODES"
+          --max-cost-usd "$INPUT_MAX_USD" --per-run-usd "$INPUT_PER_RUN_USD"
           --output artifacts/agent-trajectory
       - name: Summary
         if: always()

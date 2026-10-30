@@ -43,13 +43,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Require a privately configured credential and a sane ceiling
         env:
+          INPUT_MAX_USD: ${{ inputs.max_usd }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python3 - <<'PY'
           import os
           if not os.getenv('ANTHROPIC_API_KEY'):
               raise SystemExit('missing ANTHROPIC_API_KEY (a repository secret). Nothing was called.')
-          ceiling = float('${{ inputs.max_usd }}')
+          ceiling = float(os.environ['INPUT_MAX_USD'])
           assert 0 < ceiling <= 1.0, ceiling
           print('configuration present (values not printed)')
           PY
@@ -66,9 +67,12 @@ jobs:
       - run: uv sync --frozen --no-dev
       - name: Read the title blocks
         env:
+          INPUT_MAX_USD: ${{ inputs.max_usd }}
+          INPUT_SETS: ${{ inputs.sets }}
+          INPUT_VARIANT: ${{ inputs.variant }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ONLY: ${{ inputs.only }}
-        run: uv run python scripts/eval-title-block-vlm.py --images "$RUNNER_TEMP/mechvqa" --max-cost-usd "${{ inputs.max_usd }}" --output artifacts/title-block-vlm --variant "${{ inputs.variant }}" --sets "${{ inputs.sets }}" ${ONLY:+--only $ONLY}
+        run: uv run python scripts/eval-title-block-vlm.py --images "$RUNNER_TEMP/mechvqa" --max-cost-usd "$INPUT_MAX_USD" --output artifacts/title-block-vlm --variant "$INPUT_VARIANT" --sets "$INPUT_SETS" ${ONLY:+--only $ONLY}
       - name: Summary
         if: always()
         run: |

@@ -1,10 +1,14 @@
 name: pretrained-retrieval-pilot
-on: [push]
+on:
+  workflow_dispatch:
+concurrency:
+  group: retrieval-evaluation
+  cancel-in-progress: false
 permissions:
   contents: read
 jobs:
   evaluate:
-    if: contains(github.event.head_commit.message, '[retrieval-pilot]') && github.run_attempt == 1
+    if: github.run_attempt == 1
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:

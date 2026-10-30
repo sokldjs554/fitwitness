@@ -58,13 +58,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Require a privately configured credential and a sane ceiling
         env:
+          INPUT_MAX_USD: ${{ inputs.max_usd }}
+          INPUT_PER_RUN_USD: ${{ inputs.per_run_usd }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python3 - <<'PY'
           import os
           if not os.getenv('ANTHROPIC_API_KEY'):
               raise SystemExit('missing ANTHROPIC_API_KEY (a repository secret). Nothing was called.')
-          ceiling, cap = float('${{ inputs.max_usd }}'), float('${{ inputs.per_run_usd }}')
+          ceiling, cap = float(os.environ['INPUT_MAX_USD']), float(os.environ['INPUT_PER_RUN_USD'])
           assert 0 < ceiling <= 0.5, ceiling
           assert 0 < cap <= 0.05, cap
           print('configuration present (values not printed)')
@@ -75,11 +77,16 @@ jobs:
       - run: uv run python scripts/setup.py
       - name: Rules reference, then the model with and without the terminal-style tool
         env:
+          INPUT_ARMS: ${{ inputs.arms }}
+          INPUT_MAX_USD: ${{ inputs.max_usd }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_PER_RUN_USD: ${{ inputs.per_run_usd }}
+          INPUT_SPLIT: ${{ inputs.split }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: >-
           uv run python -m fitwitness.evaluation.shell_search_model
-          --arms "${{ inputs.arms }}" --mode "${{ inputs.mode }}" --split "${{ inputs.split }}"
-          --max-cost-usd "${{ inputs.max_usd }}" --per-run-usd "${{ inputs.per_run_usd }}"
+          --arms "$INPUT_ARMS" --mode "$INPUT_MODE" --split "$INPUT_SPLIT"
+          --max-cost-usd "$INPUT_MAX_USD" --per-run-usd "$INPUT_PER_RUN_USD"
           --output artifacts/shell-search
       - name: Summary
         if: always()

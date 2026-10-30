@@ -32,4 +32,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - run: python3 scripts/pin_encoder.py "${{ inputs.model_id }}" --revision "${{ inputs.revision }}" --files ${{ inputs.files }} --folder "${{ inputs.folder }}" --license "${{ inputs.license }}"
+      - env:
+          INPUT_MODEL_ID: ${{ inputs.model_id }}
+          INPUT_REVISION: ${{ inputs.revision }}
+          INPUT_FILES: ${{ inputs.files }}
+          INPUT_FOLDER: ${{ inputs.folder }}
+          INPUT_LICENSE: ${{ inputs.license }}
+        run: python3 scripts/pin_encoder.py "$INPUT_MODEL_ID" --revision "$INPUT_REVISION" --files $INPUT_FILES --folder "$INPUT_FOLDER" --license "$INPUT_LICENSE"
