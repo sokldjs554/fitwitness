@@ -16,7 +16,7 @@ E = ROOT / "docs/evaluation"
 OUT = E / "model-records.json"
 REPO = "https://github.com/sokldjs554/fitwitness/blob/main/"
 SOURCES = ["agent-trajectory", "claims-model", "claims-audit", "query-understanding", "shell-search-model", "title-block-vlm",
-           "title-block-vlm-prompts"]
+           "title-block-vlm-prompts", "openai"]
 MODES = {"fixed": "단일 계획", "react": "반복 계획", "fitwitness": "탐색 + 반례 검토"}
 
 
@@ -299,9 +299,40 @@ def people_and_real_data():
     }
 
 
+def openai_evidence():
+    o = _load("openai")
+    s, m = o["summary"], o["model"]
+    claude = o["comparison"]["claude_haiku_4_5"]
+    qwen = o["comparison"]["qwen3_1_7b_local"]
+    return {
+        "id": "openai-evidence",
+        "title": "같은 서류 판정 24사례를 OpenAI 모델로",
+        "posting": "자격요건 · OpenAI API와 Claude로 만든 동작 앱",
+        "question": "Claude로 잰 것과 같은 판정 사례를 OpenAI 모델도 같은 규칙(인용이 없으면 일치로 안 침)으로 푸는가",
+        "model": m["id"],
+        "measured": o["date"],
+        "cost_usd": _usd(s["cost_usd"]),
+        "headline": [
+            {"label": "끝난 판정", "value": f"{s['completed']}/{s['calls']}",
+             "note": f"나머지 {s['failed_no_credits']}회는 OpenAI 계정의 잔액 소진(HTTP 429)으로 실패"},
+            {"label": "끝난 판정 중 정답", "value": f"{s['correct']}/{s['completed']}",
+             "note": f"95% 구간 {_pct(s['wilson_95_lower_for_55_of_55'])}부터. 빠진 {s['failed_no_credits']}회가 있어 72회 전체의 값은 아님"},
+            {"label": "틀린 일치", "value": f"{s['false_match']}/{s['completed_non_match_cases']}",
+             "note": "끝난 비일치 사례 중. 모든 인용은 서류의 사실 id"},
+            {"label": "판정 한 번 지연 중앙값", "value": f"{s['latency_ms_median'] / 1000:.1f}초", "note": f"p95 {s['latency_ms_p95'] / 1000:.1f}초"},
+        ],
+        "table": {"caption": "같은 24사례 × 3회(test 분할)",
+                  "columns": ["모델", "결과"],
+                  "rows": [[f"{m['id']} (OpenAI)", f"{s['correct']}/{s['completed']} 정답, 틀린 일치 {s['false_match']}, ${s['cost_usd']:.4f}, {s['failed_no_credits']}회 비어 있음"],
+                           ["Claude Haiku 4.5", claude], ["Qwen3-1.7B 로컬", qwen]]},
+        "caveats": o["limitations"],
+        "links": [_link("기록 JSON", "docs/evaluation/openai.json"), _link("설명", "docs/evaluation/README.md")],
+    }
+
+
 def build():
     cards = [trajectory(), claims_model(), claims_audit(), query_understanding(), shell_search(), title_block_vlm(),
-             people_and_real_data()]
+             openai_evidence(), people_and_real_data()]
     paid = [c["cost_usd"] for c in cards if c["cost_usd"] is not None]
     # the prompt experiment is a source of the title-block card, not a card of its own; its spend belongs in the total
     paid.append(_usd(_load("title-block-vlm-prompts")["spent_usd_total"]))

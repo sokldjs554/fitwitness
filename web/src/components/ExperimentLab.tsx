@@ -233,7 +233,7 @@ export function ExperimentLab() {
           <h2>동일 입력 비교</h2>
           <span>실패한 호출도 정확도 분모에 포함</span>
         </div>
-        <div className="table-scroll">
+        <div className="table-scroll" tabIndex={0} role="region" aria-label="표 (좌우로 밀어 볼 수 있습니다)">
           <table>
             <thead>
               <tr>
@@ -493,7 +493,9 @@ export function ExperimentLab() {
             {report.blocked
               .map(
                 (x) =>
-                  `${x.provider === "anthropic" ? "Claude" : "OpenAI"}: ${x.reason} · 미측정`,
+                  x.provider === "anthropic"
+                    ? `Claude: ${x.reason} · 미측정`
+                    : `OpenAI: ${x.reason} · 이 기록에는 없음(2026-10-29에 따로 잰 결과는 '최신 모델 측정'의 OpenAI 카드)`,
               )
               .join(" / ")}
           </p>

@@ -371,3 +371,14 @@ def test_a_repeated_idempotency_key_does_not_spend_the_hourly_run_quota(env):
     assert j.enqueue(s, RunRequest(), "quota-1", quota=quota).id == first.id  # the same key returns the run and spends nothing
     with pytest.raises(QuotaExceeded):
         j.enqueue(s, RunRequest(), "quota-2", quota=quota)
+
+
+def test_the_interactive_api_pages_are_off_unless_the_operator_turns_them_on(clients, monkeypatch):
+    """/docs and /redoc fetch their scripts from a public CDN: dead on a closed network, and a third party on an open one."""
+    from fitwitness.api.app import create_app
+
+    a, _ = clients
+    assert a.get("/docs").status_code == 404 and a.get("/redoc").status_code == 404
+    assert a.get("/openapi.json").status_code == 200  # the schema itself stays
+    monkeypatch.setenv("FITWITNESS_API_DOCS", "on")
+    assert TestClient(create_app()).get("/docs").status_code == 200

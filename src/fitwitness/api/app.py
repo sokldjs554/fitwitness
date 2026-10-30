@@ -105,7 +105,12 @@ def create_app():
         dispatcher.close()
         workers.close()
 
-    app = FastAPI(title="FitWitness", version="0.1.0", lifespan=lifespan)
+    # The interactive pages (/docs, /redoc) load their scripts from a public CDN, which a server with no outside
+    # connection cannot reach and which sends every visitor's browser to a third party. They are off unless the
+    # operator turns them on; the schema itself stays at /openapi.json.
+    interactive_docs = os.getenv("FITWITNESS_API_DOCS", "off").strip().lower() in ("on", "1", "true")
+    app = FastAPI(title="FitWitness", version="0.1.0", lifespan=lifespan,
+                  docs_url="/docs" if interactive_docs else None, redoc_url="/redoc" if interactive_docs else None)
     app.state.dispatcher = False
     app.state.nudge = lambda: None
     app.state.workers = workers

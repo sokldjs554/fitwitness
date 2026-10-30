@@ -59,7 +59,7 @@ export function ModelRecords() {
           {card.headline.map(h => <div key={h.label}><strong>{h.value}</strong><span>{h.label}</span>{h.note && <small>{h.note}</small>}</div>)}
         </div>
         {card.quote && <blockquote className="record-quote">“{card.quote}”<span>생산기술 현업 5년, 사용자 테스트</span></blockquote>}
-        {card.table && <div className="retrieval-table-wrap"><table aria-label={card.table.caption}>
+        {card.table && <div className="retrieval-table-wrap" tabIndex={0} role="region" aria-label="표 (좌우로 밀어 볼 수 있습니다)"><table aria-label={card.table.caption}>
           <caption>{card.table.caption}</caption>
           <thead><tr>{card.table.columns.map(c => <th key={c}>{c}</th>)}</tr></thead>
           <tbody>{card.table.rows.map((r, i) => <tr key={i}>{r.map((v, j) => j === 0 ? <th key={j}>{v}</th> : <td key={j}>{v}</td>)}</tr>)}</tbody>

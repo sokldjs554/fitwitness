@@ -29,6 +29,7 @@ import "@fontsource-variable/noto-sans-kr";
 import "@fontsource-variable/dm-sans";
 import "./style.css";
 import { DrawingImage } from "./components/DrawingImage";
+import { TraceTree } from "./components/TraceTree";
 import {
   api,
   asset,
@@ -1206,6 +1207,7 @@ function App() {
                     </div>
                   </div>
                 )}
+                {timeline && run && events.length > 0 && <TraceTree runId={run.id} version={events.length} />}
               </section>
               <footer>
                 <span>

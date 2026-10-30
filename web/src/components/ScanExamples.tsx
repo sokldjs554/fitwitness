@@ -85,7 +85,7 @@ export function ScanExamples() {
               <p className="scan-legend"><i className="ok" /> 맞게 읽음 <i className="flag" /> 담당자 확인 <i className="wrong" /> 틀림</p>
             </div>
             <div className="scan-side">
-              <div className="retrieval-table-wrap">
+              <div className="retrieval-table-wrap" tabIndex={0} role="region" aria-label="표 (좌우로 밀어 볼 수 있습니다)">
                 <table className="scan-fields" aria-label="읽은 값과 정답" data-testid="scan-fields">
                   <thead><tr><th>항목</th><th>읽은 값</th><th>정답</th><th>판정</th></tr></thead>
                   <tbody>

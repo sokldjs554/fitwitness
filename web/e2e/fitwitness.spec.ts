@@ -47,6 +47,9 @@ test("worker crash recovery is visible and completes once", async ({
   await expect(page.getByTestId("run-timeline")).toContainText(
     "저장된 지점에서 재개",
   );
+  // The same run as a tree of calls with their durations (/api/runs/{id}/trace).
+  await expect(page.getByTestId("trace-tree")).toContainText("호출 트리");
+  await expect(page.getByTestId("trace-tree")).toContainText("run");
 });
 test("review workbench filters candidates and exposes measured experiment comparison", async ({
   page,

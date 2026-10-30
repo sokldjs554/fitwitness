@@ -28,7 +28,7 @@ export function RetrievalTrials(){
     <div className="retrieval-meta"><span>합성 도면 {report.corpus_size}개</span><span>질문 {report.cases.length}개 × {report.protocol.repeats}회</span><span>{experiment==='reranking'?'E5 · OpenCLIP · BGE / CPU':'실제 E5 · OpenCLIP / CPU'}</span><span>저장된 결과</span></div>
     <p className="retrieval-note">공개 체험의 검색 엔진은 도번·키워드 방식입니다. 아래는 별도 작업 환경에서 실제 모델과 PostgreSQL로 측정한 결과입니다.</p>
     <label className="retrieval-filter">검색 질문 유형 <select aria-label="검색 질문 유형" value={category} onChange={e=>{setCategory(e.target.value);setCaseId('');}}>{Object.entries(categories).map(([id,label])=><option value={id} key={id}>{label}</option>)}</select></label>
-    <div className="retrieval-table-wrap"><table aria-label="검색 방식별 측정 지표"><thead><tr><th>검색 방식</th><th>Recall@5</th><th>nDCG@10</th><th>p50 / p95</th><th>실행 완료</th></tr></thead><tbody>
+    <div className="retrieval-table-wrap" tabIndex={0} role="region" aria-label="표 (좌우로 밀어 볼 수 있습니다)"><table aria-label="검색 방식별 측정 지표"><thead><tr><th>검색 방식</th><th>Recall@5</th><th>nDCG@10</th><th>p50 / p95</th><th>실행 완료</th></tr></thead><tbody>
       {report.methods.map(m=>{const s=category==='all'?m.metrics:m.categories[category];if(!s)return <tr key={m.id}><th>{m.label}</th><td colSpan={4}>측정 기록 없음</td></tr>;return <tr key={m.id}><th>{m.label}</th><td>{pct(s.recall_at_5)}</td><td>{s.ndcg_at_10.toFixed(3)}</td><td>{s.latency_p50_ms.toFixed(0)} / {s.latency_p95_ms.toFixed(0)} ms</td><td>{s.completed}/{s.attempts}</td></tr>;})}
     </tbody></table></div>
     <p className="retrieval-note">Recall@5는 관련 도면 중 상위 5개에서 찾은 비율, nDCG@10은 상위 순위의 관련도를 봅니다. 이미지만 있는 질문의 키워드 검색처럼 입력 모달리티가 없으면 빈 결과로 집계합니다.</p>

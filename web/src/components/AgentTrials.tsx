@@ -76,7 +76,7 @@ export function AgentTrials() {
         볼 수 있습니다. 단일 계획은 한 번 계획한 뒤 도구를 실행하고, 반복 계획은
         필요한 경우 다시 계획하며, 탐색 + 반례 검토는 별도 challenger가 결과를 재검토합니다.
       </p>
-      <div className="table-scroll">
+      <div className="table-scroll" tabIndex={0} role="region" aria-label="표 (좌우로 밀어 볼 수 있습니다)">
         <table>
           <thead>
             <tr>
