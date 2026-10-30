@@ -2,6 +2,7 @@
  "what": "The dense channels at 10,000 and 100,000 drawings: what a search through the text and image vectors costs.",
  "measured_at": "2026-10-29T10:02:59.890807+00:00",
  "code_sha": "3970d10eccb761df173a94468df2be856261c7ab-dirty",
+ "note": "Measured on the working tree that became commit 88a7484, the commit that adds this file (code_sha names its parent). storage/repository.py and scripts/scale-vectors.py are as measured there; the numbers were not taken again on the committed tree.",
  "ann": "HNSW per channel, pgvector 0.6.2",
  "database": "local PostgreSQL 16 (pgserver), same machine; random vectors",
  "results": [
