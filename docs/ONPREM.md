@@ -12,7 +12,7 @@
 | 스캔 서류 읽기 | Tesseract(kor+eng)를 로컬에서 실행 | 게이트의 `claims_scan`, `claims_official_scan` 항목(Tesseract가 없으면 건너뜀) |
 | 의미·이미지 검색(E5, OpenCLIP, DINOv2) | 해시 고정된 가중치를 `var/models`에서 읽음. `HF_HUB_OFFLINE=1`, `TRANSFORMERS_OFFLINE=1`로 허브 접근을 막은 채 돎 | 검색 실측 workflow들이 그 두 변수를 켜고 돎 |
 | 관측 | Prometheus 텍스트 지표, span tree API는 서버 안에서 계산. OTLP는 같은 망의 Tempo·Jaeger로 보냄 | [`deploy/observability`](../deploy/observability)의 compose로 로컬 Jaeger에 보낸 기록이 [OBSERVABILITY.md](OBSERVABILITY.md)에 있음 |
-| 웹 작업대 | 빌드 결과물이 정적 파일 | CI의 Playwright 74개(시나리오 37개 × 두 화면)가 로컬 서버에서 돎 |
+| 웹 작업대 | 빌드 결과물이 정적 파일 | CI의 Playwright 80개(시나리오 40개 × 두 화면)가 로컬 서버에서 돎 |
 
 ## 바깥을 부르는 것
 

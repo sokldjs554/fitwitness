@@ -21,3 +21,6 @@ models = ["sentence-transformers", "open-clip-torch"]
 pythonpath = ["src"]
 testpaths = ["tests"]
 markers = ["live: requires a real provider credential", "postgres: requires real PostgreSQL"]
+
+[tool.ruff]
+line-length = 140
