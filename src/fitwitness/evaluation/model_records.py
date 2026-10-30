@@ -121,6 +121,7 @@ def claims_model():
         )
     rep = c["repeats"]
     scan = next(b for b in c["batches"] if "scan" in b["input"])["headline"]
+    after = _load("claims-model-grounding")
     return {
         "id": "claims-model",
         "title": "청구 서류를 모델이 읽는 경로",
@@ -128,7 +129,7 @@ def claims_model():
         "question": "청구 test 60건을 규칙 판독기와 같은 바이트에서 모델이 읽게 하면 결정이 나아지는가",
         "model": c["model"],
         "measured": c["date"],
-        "cost_usd": _usd(c["spent_usd_total"]),
+        "cost_usd": _usd(float(c["spent_usd_total"]) + float(after["spent_usd_total"])),
         "headline": [
             {
                 "label": "텍스트 층 세 번, 결정 정확도",
@@ -139,6 +140,11 @@ def claims_model():
             {
                 "label": "잘못 지급 · 잘못 부지급 (텍스트 세 번)",
                 "value": f"{sum(rep['wrong_pay_per_run'])} · {sum(rep['wrong_deny_per_run'])}",
+            },
+            {
+                "label": "값을 인용한 줄과 대조하게 한 뒤 두 번(2026-10-30)",
+                "value": " · ".join(_pct(r["decision_accuracy"]) for r in after["runs"]),
+                "note": f"규칙 {_pct(after['runs'][0]['rules_decision_accuracy'])}, 잘못 지급 0. 앞선 세 번의 우위는 흐려진 줄을 고쳐 읽은 값을 받아들인 데서 났음",
             },
             {
                 "label": "스캔 한 번, 결정 정확도",
@@ -153,6 +159,7 @@ def claims_model():
         },
         "caveats": [
             "청구와 약관은 합성입니다.",
+            "앞의 세 번(93.3·90.0·95.0%)은 근거 검사가 '인용한 줄이 서류에 있다'까지만 볼 때의 값입니다. 값이 그 줄과 맞는지까지 보게 한 뒤의 두 번은 대조 실행 없이 잰 것이라 원인을 코드 변경 하나로 못 박지 못합니다.",
             "스캔에서 나온 잘못 부지급 1건은 규칙 경로에 있던 보호를 모델 경로로 옮겨 고쳤습니다(고친 뒤 스캔은 다시 재지 않음).",
             "돈이 움직이는 결정은 결정적 규칙이 내리고, 모델은 서류에서 읽은 값을 인용과 함께 제안만 합니다.",
         ],

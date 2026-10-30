@@ -1,0 +1,69 @@
+{
+ "date": "2026-10-30",
+ "what": "The claim graph's model path (Claude Haiku 4.5, text layer, test split of 60 synthetic claims, rules reader on the same bytes) run twice after grounding began to check each proposed value against the printed row it quotes. Until then grounding only checked that the quoted line exists in a document. Same workflow, ceiling and per-run cap as the earlier runs in claims-model.json.",
+ "model": "claude-haiku-4-5-20251001",
+ "pricing_usd_per_million": {
+  "input": "1",
+  "output": "5"
+ },
+ "runs": [
+  {
+   "label": "value checked against the quote itself (first version)",
+   "code_sha": "ba5c8d6a37c2a9204ce133a39483227d72edab58",
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/41022789873",
+   "decision_accuracy": 0.8333,
+   "rules_decision_accuracy": 0.8833,
+   "wrong_pay_count": 0,
+   "wrong_deny_count": 0,
+   "field_accuracy": 0.9378,
+   "rules_field_accuracy": 0.9614,
+   "auto_rate": 0.7857,
+   "review_rate": 0.4833,
+   "ungrounded_reviews": 13,
+   "spent_usd": 0.258172
+  },
+  {
+   "label": "value checked against the printed row the quote is found in",
+   "code_sha": "f14fd1a79b1e857d1efc5b990c3c5a02e7b58d47",
+   "workflow_run": "https://github.com/sokldjs554/fitwitness/actions/runs/41024001039",
+   "decision_accuracy": 0.85,
+   "rules_decision_accuracy": 0.8833,
+   "wrong_pay_count": 0,
+   "wrong_deny_count": 0,
+   "field_accuracy": 0.9249,
+   "rules_field_accuracy": 0.9614,
+   "auto_rate": 0.8214,
+   "review_rate": 0.4833,
+   "ungrounded_reviews": 8,
+   "spent_usd": 0.256762,
+   "decisions_that_differ_from_the_rules": {
+    "CLM-00029": "duplicate: gold DENY, model REVIEW (every field of the claim was dropped)",
+    "CLM-00101": "format_variance: gold APPROVE 740,000, model REVIEW (hospital and insured_name dropped, which lowers confidence under the floor)"
+   },
+   "fields_dropped_by_grounding": {
+    "insured_name": 6,
+    "admission_date": 5,
+    "diagnosis_date": 5,
+    "discharge_date": 5,
+    "diagnosis_code": 2,
+    "hospital": 2,
+    "surgery_date": 2,
+    "surgery_grade": 2,
+    "surgery_name": 2,
+    "diagnosis_name": 1,
+    "total_amount": 1
+   },
+   "dropped_date_fields_by_scenario": {
+    "ocr_noise": "4 of the 7 garbled claims lost admission, discharge and diagnosis date; one duplicate claim lost its dates with everything else"
+   }
+  }
+ ],
+ "spent_usd_total": 0.514934,
+ "earlier_runs_for_comparison": "docs/evaluation/claims-model.json: 93.3%, 90.0%, 95.0% on the same 60 claims with the old grounding (the line must exist in a document; the value was not compared with it).",
+ "reading": "The earlier lead over the rules reader (93.3, 90.0, 95.0% against 88.3%) came on the ocr_noise claims, where the model returned the true value for a date or amount that is printed garbled and quoted the garbled line; the old check accepted that, the new one does not, because the row does not show the value. With the check in place the model path is at or a little under the rules reader (83.3%, 85.0% against 88.3%) and wrong payments stay at 0. One causal control (the old check on today's model) was not run: the two runs differ from the earlier three in the code and in the day, and the model's answers vary between runs by 3 to 5 points.",
+ "limitations": [
+  "Two runs, one split of 60 synthetic claims; the model's decision accuracy has varied by 5 points between identical runs before.",
+  "The earlier three runs and these two are not a controlled comparison: no run of the old check on the same day was made.",
+  "insured_name was dropped in about 6 claims per run before this change as well (0.8833 in the first earlier run); the cause (the quoted line crossing rows or not matching a row) was not examined."
+ ]
+}
