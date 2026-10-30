@@ -182,12 +182,33 @@ def test_a_real_snippet_does_not_ground_a_different_value(corpus):
     )
 
 
-def test_the_value_must_agree_with_its_snippet_whatever_the_field_kind():
+def test_the_value_must_agree_with_the_text_it_is_quoted_from_whatever_the_field_kind():
     from fitwitness.claims.extract import agrees
 
     assert agrees("total_amount", 3884730, "합계 3,884,730원") and not agrees("total_amount", 884730, "합계 3,884,730원")
     assert agrees("admission_date", "2025-12-07", "입원일: 2025.12.07") and not agrees("admission_date", "2025-12-08", "입원일: 2025.12.07")
+    # a date followed by other words, another date, or written with spaces is still the date
+    assert agrees("admission_date", "2025-12-07", "2025/12/07 ~ 2025/12/13") and agrees(
+        "discharge_date", "2025-12-13", "2025/12/07 ~ 2025/12/13"
+    )
+    assert agrees("admission_date", "2025-12-07", "입원일 2025. 12. 7. (입원)") and agrees(
+        "admission_date", "2025-12-07", "2025년 12월 7일 입원"
+    )
     assert agrees("surgery_grade", 2, "수술 등급: 2종") and not agrees("surgery_grade", 3, "수술 등급: 2종")
     assert agrees("diagnosis_code", "K35.8", "진단코드 K35.8") and agrees("diagnosis_code", "k35.8", "진단코드 K35.8")
     assert not agrees("diagnosis_code", "K35.9", "진단코드 K35.8")
     assert agrees("insured_name", "김민준", "성명: 김민준") and not agrees("insured_name", "김민주", "성명: 김민준")
+
+
+def test_a_correct_value_with_a_label_only_quote_is_grounded_and_a_wrong_one_is_not(corpus):
+    """The row the quote is found in is what the value is checked against: quoting only the label of the printed row is
+    still a reading of that row (the second paid run of the claim model path lost date fields when the value had to
+    appear in the quote itself)."""
+    root, manifest, gold = corpus
+    case = next(c for c in manifest["cases"] if c["scenario"] == "clean")
+    docs = docs_of(root, case)
+    truth = gold[case["case_id"]]["truth"]
+    ex = ground({"admission_date": {"value": truth["admission_date"], "snippet": "입원일:"}}, docs)
+    assert ex.admission_date == truth["admission_date"] and "admission_date" in ex.evidence
+    wrong = ground({"admission_date": {"value": "2031-01-01", "snippet": "입원일:"}}, docs)
+    assert wrong.admission_date is None

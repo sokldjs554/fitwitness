@@ -280,12 +280,14 @@ def ground(candidate: dict, documents: list[tuple[str, str, bytes]]) -> Extracti
         if field not in Extraction.FIELDS or not isinstance(item, dict):
             continue
         snippet = str(item.get("snippet", "")).strip()
-        hit = next((ref for _, label, text, ref in pairs if snippet and snippet in f"{label} {text}"), None)
-        if hit is None:
+        value = coerce(field, item.get("value"))
+        if value is None:  # a value the field cannot hold (an amount as words, a grade with no digit) is no value
             dropped += 1
             continue
-        value = coerce(field, item.get("value"))
-        if value is None or not agrees(field, value, snippet):  # a value the field cannot hold, or one its own quoted line does not show
+        # The quoted line must exist in a document, and the row it is found in must show the value: a real quote
+        # beside a different value is not a reading of that row.
+        hit = next((ref for _, label, text, ref in pairs if snippet and snippet in f"{label} {text}" and agrees(field, value, text)), None)
+        if hit is None:
             dropped += 1
             continue
         out[field] = value
@@ -297,18 +299,27 @@ def ground(candidate: dict, documents: list[tuple[str, str, bytes]]) -> Extracti
     )
 
 
-def agrees(field: str, value, snippet: str) -> bool:
-    """Whether the quoted line shows the value. A snippet that exists in the document grounds a value only if the
-    value is what the snippet says: a model that quotes the printed total and returns another number has not read it."""
+_DATE_IN_TEXT = re.compile(r"\d{4}\s*(?:[-./]|\ub144)\s*\d{1,2}\s*(?:[-./]|\uc6d4)\s*\d{1,2}(?:\s*\uc77c)?")
+
+
+def agrees(field: str, value, text: str) -> bool:
+    """Whether the text shows the value. A quoted line that exists in the document grounds a value only if the value is
+    what that line says: a model that quotes the printed total and returns another number has not read it. ``text`` is
+    the value as the document prints it (or the quoted line); the date, amount and code may be written in any of the
+    printed formats and followed by other words."""
     kind = _kind(field)
     if kind == "amount":
-        return any(int(n.replace(",", "")) == value for n in re.findall(r"\d[\d,]*", snippet))
+        return any(int(n.replace(",", "")) == value for n in re.findall(r"\d[\d,]*", text))
     if kind == "grade":
-        return any(int(d) == value for d in re.findall(r"\d", snippet))
+        return any(int(d) == value for d in re.findall(r"\d", text))
     if kind == "date":
-        return any(normalise_date(snippet[m.start() :]) == value for m in re.finditer(r"\d", snippet)) or str(value) in snippet
-    compact = lambda text: re.sub(r"\s+", "", str(text)).upper()
-    return compact(value) in compact(snippet)
+        for m in _DATE_IN_TEXT.finditer(text):
+            piece = m.group(0).strip()
+            if value in (normalise_date(piece), normalise_date(re.sub(r"\s+", "", piece))):
+                return True
+        return str(value) in text
+    compact = lambda x: re.sub(r"\s+", "", str(x)).upper()
+    return compact(value) in compact(text)
 
 
 def coerce(field: str, value):
