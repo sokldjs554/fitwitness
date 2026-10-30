@@ -43,3 +43,20 @@ def test_a_scripted_planner_run_is_scored_on_its_path_not_only_its_verdicts(env,
     assert rules["correct"] == rules["total"] == 5 and rules["coverage_before_verdict"] == 1.0 and rules["violations"] == []
     summary = A.summarise([rules, row], A.Ledger(Decimal("0.8")))
     assert summary["by_mode"]["rules"]["accuracy"] == 1.0 and summary["by_mode"]["fitwitness"]["failure_classes"]["not_inspected"] == 2
+
+
+def test_the_free_reference_path_reproduces_the_independent_labels_in_the_harder_workspace(env):  # noqa: F811
+    """The labels of the harder workspace come from the gold facts (kind, value, material), not from the verifier. The
+    rules provider, which is the verifier, must land on them for every drawing the search retrieves: thirty drawings
+    indexed, twelve candidates returned, both materials."""
+    repo, jobs, _ = env
+    cases = A.family_cases(ROOT, workspace="split", materials=("SUS304", "AL6061"), top_k=12)
+    wrong = []
+    for case in [c for c in cases if c["family_id"] in ("FW-F012", "FW-F015")]:
+        request = RunRequest(search=A.search_for(case), provider="rules", budget=Budget(max_tokens=64000))
+        row = A.run_one(repo, jobs, ROOT, case, request)
+        assert row["retrieved"] >= 10 and row["tool_calls"] > row["retrieved"] and row["violations"] == []
+        if row["correct"] != row["total"] or row["failures"]:
+            wrong.append((case["case_id"], row["failures"]))
+        assert set(case["revision_ids"]) <= set(row["actual"]), "every drawing of the family is looked up"
+    assert not wrong, wrong

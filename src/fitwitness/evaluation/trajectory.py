@@ -254,12 +254,17 @@ def run_claim_trajectories(
 # drawing runs
 # --------------------------------------------------------------------------------------------
 def _seed_family(repo, root: Path, family: str = "FW-F000") -> TenantScope:
+    return _seed_families(repo, root, [family])
+
+
+def _seed_families(repo, root: Path, families: list[str]) -> TenantScope:
+    """A fresh workspace holding the base drawings of every named family (a revision update is not seeded)."""
     from fitwitness.ingest.pdf import extract_pdf
 
     manifest = json.loads((root / "manifest.json").read_text())
     scope = TenantScope(tenant_id=f"gate-traj-{uuid4()}", user_id="gate", role="operator")
     for e in manifest["document_entries"]:
-        if e["family_id"] != family or e["is_revision_update"]:
+        if e["family_id"] not in families or e["is_revision_update"]:
             continue
         rev = DrawingRevision(
             tenant_id=scope.tenant_id,

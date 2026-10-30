@@ -134,3 +134,61 @@ def test_a_provider_that_refuses_the_first_call_stops_the_batch_and_a_real_run_d
         A.rejected({**refused, "input_tokens": 2012, "output_tokens": 418, "error": "ValueError: model output failed schema validation"})
         is None
     )
+
+
+@needs_corpus
+def test_the_harder_workspace_holds_the_whole_split_and_the_labels_follow_kind_value_and_material():
+    cases = A.family_cases(ROOT, workspace="split", materials=("SUS304", "AL6061"), top_k=12)
+    assert len(cases) == 12 and {c["material"] for c in cases} == {"SUS304", "AL6061"}
+    base, other = cases[0], cases[1]
+    assert (base["case_id"], other["case_id"]) == ("FW-F003:SUS304", "FW-F003:AL6061") and other["query"].endswith("71mm AL6061")
+    assert (
+        len(base["expected"]) == 30
+        and set(base["revision_ids"]) < set(base["expected"])
+        and base["workspace_families"] == sorted({c["family_id"] for c in cases})
+    )
+    own = lambda c: sorted(c["expected"][r] for r in c["revision_ids"])  # noqa: E731
+    assert own(base) == ["match", "match", "mismatch", "mismatch", "unknown"]
+    assert own(other) == ["match", "mismatch", "mismatch", "mismatch", "unknown"], "the AL6061 query matches the one aluminium drawing"
+    assert {v for k, v in base["expected"].items() if k not in base["revision_ids"]} <= {"mismatch", "unknown"}, (
+        "no other family satisfies it"
+    )
+    assert A.search_for(base).top_k == 12 and A.search_for(A.family_cases(ROOT)[0]).top_k == 6
+    assert A.label("bracket", {"hole_spacing": 64, "material": "SUS304"}, "flange", "hole_spacing", 64, "SUS304") == "mismatch"
+
+
+def test_a_drawing_the_search_never_returned_is_the_searchs_miss_and_repeats_are_counted_as_cases():
+    events = _events(("retrieved", {"candidates": [{"revision_id": "a"}]}), ("completed", {"state": "completed"}))
+    case = {"revision_ids": ["a", "b"], "expected": {"a": "match", "b": "match", "z": "mismatch", "y": "mismatch"}}
+    got = A.scored(case, events, {"z": "mismatch"})
+    assert got == {"a": "match", "b": "match", "z": "mismatch"}, (
+        "own drawings, retrieved ones and ones given a verdict are scored; the rest are not"
+    )
+    checks = A.path_checks(events, got, {"z": "mismatch"}, "react")
+    assert checks["failures"]["b"]["class"] == "not_retrieved" and checks["failures"]["a"]["class"] == "run_incomplete"
+    base = dict(
+        provider="anthropic",
+        mode="react",
+        state="completed",
+        total=2,
+        coverage_before_verdict=1.0,
+        challenger_turn=False,
+        violations=[],
+        stop="plan_stop",
+        model_calls=1,
+        tool_calls=3,
+        model_errors=[],
+        cost_usd=0.01,
+        latency_ms=1.0,
+        failures={},
+        expected={"a": "match"},
+    )
+    rows = [
+        {**base, "case_id": "F1:SUS304", "family_id": "F1", "repeat": 0, "correct": 2, "actual": {"a": "match"}},
+        {**base, "case_id": "F1:SUS304", "family_id": "F1", "repeat": 1, "correct": 1, "actual": {"a": "unknown"}},
+        {**base, "case_id": "F2:SUS304", "family_id": "F2", "repeat": 0, "correct": 2, "actual": {"a": "match"}},
+        {**base, "case_id": "F2:SUS304", "family_id": "F2", "repeat": 1, "correct": 2, "actual": {"a": "match"}},
+    ]
+    m = A.summarise(rows, A.Ledger(Decimal("0.5")))["by_mode"]["react"]
+    assert (m["cases"], m["repeats"], m["runs_fully_correct"], m["cases_whose_verdicts_changed"]) == (2, 2, 3, 1)
+    assert m["pass_k"]["cases_all_correct"] == 1 and m["pass_k"]["pass_power_k"] == 0.5 and m["accuracy"] == 0.875
