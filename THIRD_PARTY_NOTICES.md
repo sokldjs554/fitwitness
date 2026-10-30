@@ -1,3 +1,4 @@
+# Third-party notices
 
 ## Pinned retrieval research models
 
@@ -11,3 +12,11 @@ Weights are not redistributed in this repository or included in the free public 
 ## BGE cross-encoder (optional research runtime)
 
 BAAI/bge-reranker-v2-m3, revision `953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e`, Apache-2.0. Official model card: https://huggingface.co/BAAI/bge-reranker-v2-m3 . Revision and SHA-256 locks are in `src/fitwitness/retrieval/reranker.json`. Weights are downloaded separately and are not included in the repository or free web deployment.
+
+## Other pinned or bundled third-party material
+
+- facebook/dinov2-small, revision `ed25f3a31f01632728cabb09d1542f84ab7b0056`, Apache-2.0 upstream weights. Optional image channel compared with OpenCLIP (see `src/fitwitness/retrieval/models.json`). Weights are not redistributed.
+- Qwen/Qwen3-1.7B, revision `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`, Apache-2.0. Used only as the local baseline model in `docs/evaluation/`. Weights are not redistributed.
+- Noto Sans KR (Google), SIL Open Font License 1.1, full text in `src/fitwitness/claims/fonts/OFL.txt`. `NotoSansKR-claims.ttf` and `NotoSansKR-forms.ttf` are glyph subsets built from the `@fontsource/noto-sans-kr` package and are embedded only in the synthetic claim documents (`src/fitwitness/claims/fonts/README.txt`).
+- Tesseract OCR (Apache-2.0) with the Korean language data, installed in CI and used by the scanned-document reader; it is not included in the public web image.
+- NIST PMI test models (public STEP files from the NIST PMI Validation Models) are downloaded at a fixed SHA-256 for the external CAD measurement (`docs/CAD.md`); they are not stored in this repository.

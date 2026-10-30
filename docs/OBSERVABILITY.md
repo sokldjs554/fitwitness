@@ -74,7 +74,7 @@ OpenTelemetry의 GenAI 의미 규약(semantic conventions)은 에이전트 한 �
 | `FitwitnessModelErrors` | 15분 안에 모델 오류와 스키마 실패가 3건 이상, 5분 지속 | ticket | 키·잔액·모델 ID 문제는 첫 호출부터 거부됨 |
 | `FitwitnessBudgetStopsHigh` | 1시간 동안 끝난 실행의 20% 넘게 예산으로 멈춤, 10건 이상, 15분 지속 | ticket | |
 | `FitwitnessSpendHigh` | 1시간 모델 비용이 0.5달러 초과 | ticket | 실행 한 번 0.0043~0.0097달러([COST.md](COST.md)), 50~100회에 해당. 공개 데모는 유료 호출을 거부하므로 0이어야 함 |
-| `FitwitnessModelLatencyHigh` | 역할별 모델 호출 p95가 10초 초과, 15분 지속 | ticket | 모델 호출 한 번의 중앙값 0.7~2.4초, p95 0.9~1.9초([COST.md](COST.md)) |
+| `FitwitnessModelLatencyHigh` | 역할별 모델 호출 p95가 10초 초과, 15분 지속 | ticket | 모델 호출 한 번의 중앙값 0.7~2.4초, p95 0.9~2.0초([COST.md](COST.md)) |
 | `FitwitnessApiSlow` | API 요청 p95가 2.5초 초과, 초당 0.05건 이상, 10분 지속 | ticket | 공개 서버에서 체험 공간 생성 1.1초, 실행 0.34~0.54초([WORKFLOW.md](WORKFLOW.md)) |
 | `FitwitnessApi5xx` | 5xx가 5% 초과, 초당 0.05건 이상, 5분 지속 | page | |
 

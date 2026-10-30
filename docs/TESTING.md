@@ -6,18 +6,27 @@
 
 | 구분 | 개수 | 확인 방법 |
 |---|---|---|
-| Python(pytest) | **555**: 단위 417 + 통합 138 | `uv run pytest --collect-only -q \| tail -1` |
-| 그 가운데 서로 다른 테스트 함수 | 461 | 같은 목록에서 `[...]`를 뗀 이름 |
+| Python(pytest) | **556**: 단위 417 + 통합 139 | `uv run pytest --collect-only -q \| tail -1` |
+| 그 가운데 서로 다른 테스트 함수 | 462 | 같은 목록에서 `[...]`를 뗀 이름 |
 | 파라미터를 바꿔 늘어난 사례 | 94(함수 22개가 116사례) | 한 함수가 45사례(허용 목록 밖 명령 거부)를 차지합니다 |
 | Playwright(브라우저) | **74**: 시나리오 37 × 데스크톱·모바일 두 화면 | `cd web && npx playwright test --list` |
 | 평가 게이트(pytest 밖) | 매 커밋 API 없이 실행해 커밋된 기준선과 비교 | [EVALUATION-GATE.md](EVALUATION-GATE.md) |
 | 알림 규칙 테스트(pytest 밖, promtool) | 알림 검사 26개(알림 13개가 울릴 때와 조용할 때) + 기록 규칙 값 검사 2개 | `promtool test rules deploy/prometheus/tests/*.test.yml`, [OBSERVABILITY.md](OBSERVABILITY.md#알림-규칙과-slo) |
 
-통합 테스트는 실제 PostgreSQL(권한이 제한된 역할, 행 단위 보안 포함)에서 돌고, CI는 매 커밋 전부 실행합니다. 개수는 2026-10-29입니다(2026-10-24에 표제란 읽기 테스트 셋을 더해 434에서 437, 2026-10-25에 알림 규칙과 함께 지표 테스트 둘을 더해 439, 같은 날 명령 검색 실측 하네스 둘, 플래너 문맥 하나, 도구가 모두 실패한 계획 둘, 셸이 있어야 되는 명령의 거부 셋을 더해 447, 끝난 실행이 디스패처의 빈 칸을 바로 넘기는지 보는 테스트 하나를 더해 448, 2026-10-28에 스캔 읽기 강화의 테스트 넷을 더해 452, 같은 날 스캔 읽기 예시 화면의 단위 테스트 셋과 브라우저 시나리오 하나(두 화면에서 둘)를 더해 455와 72, 같은 날 보험 현업자 테스트 뒤 서류 보완 요청의 규칙 테스트 하나와 서버 시험 하나, 브라우저 시나리오 하나를 더해 457과 74, 2026-10-29에 서류 재접수(계획·측정·API 시험 열둘)와 서류가 판단되지 않은 담보 옆의 부지급 규칙 하나, 보안 점검에서 나온 시험(청구 위조·승인 금액·이중 지급·취소된 실행·한도·본문 크기·NUL·정규식)과 하트비트·코퍼스 재현성·모델 어댑터 계약·게이트 시험을 더해 488, 브라우저 시나리오는 그대로 74, 2026-10-29 밤에 벡터 색인 6, 담당자 신원 9, 사흘 대기 뒤 재개 1을 더해 555). 같은 날 오후 약점을 다시 따져 더한 시험 49개가 있습니다: 검색 상태를 한 번 읽어 두는 것(스냅숏 id가 예전과 같음, 모든 종류의 쓰기가 카운터를 올림, 롤백된 쓰기는 기억되지 않음, 옛 경로와 순위가 같음)과 도번 색인, 겹치는·이어진 입원과 수술분류표 규칙, 서명된 승인 영수증과 청구인 안내문·접수 기한, 라이브 모델 읽기의 설정·예약·상한, 벡터 색인 확인을 코퍼스 상태마다 한 번만 하는 것(539).
+통합 테스트는 실제 PostgreSQL(권한이 제한된 역할, 행 단위 보안 포함)에서 돌고, CI는 푸시마다 전부 실행합니다(같은 브랜치에 연달아 푸시하면 앞 실행은 취소됩니다). 개수는 수집된 사례 수이고 날짜별로 이렇게 늘었습니다.
+
+| 날짜 | 더한 것 | 누계 |
+|---|---|---|
+| 2026-10-24 | 표제란 읽기 테스트 셋 | 437 |
+| 2026-10-25 | 알림 규칙과 함께 지표 테스트 둘 → 439. 명령 검색 실측 하네스 둘, 플래너 문맥 하나, 도구가 모두 실패한 계획 둘, 셸이 있어야 되는 명령의 거부 셋 → 447. 끝난 실행이 디스패처의 빈 칸을 바로 넘기는지 보는 테스트 하나 → 448 | 448 |
+| 2026-10-28 | 스캔 읽기 강화의 테스트 넷 → 452. 스캔 읽기 예시 화면의 단위 테스트 셋과 브라우저 시나리오 하나 → 455(브라우저 72). 보험 현업자 테스트 뒤 서류 보완 요청의 규칙 테스트 하나와 서버 시험 하나, 브라우저 시나리오 하나 → 457(브라우저 74) | 457 |
+| 2026-10-29 | 서류 재접수(계획·측정·API 시험 열둘)와 서류가 판단되지 않은 담보 옆의 부지급 규칙 하나, 보안 점검에서 나온 시험(청구 위조·승인 금액·이중 지급·취소된 실행·한도·본문 크기·NUL·정규식)과 하트비트·코퍼스 재현성·모델 어댑터 계약·게이트 시험 → 488 | 488 |
+| 2026-10-29 오후 | 약점을 다시 따져 더한 시험 51개: 검색 상태를 한 번 읽어 두는 것(스냅숏 id가 예전과 같음, 모든 종류의 쓰기가 카운터를 올림, 롤백된 쓰기는 기억되지 않음, 옛 경로와 순위가 같음)과 도번 색인, 겹치는·이어진 입원과 수술분류표 규칙, 서명된 승인 영수증과 청구인 안내문·접수 기한, 라이브 모델 읽기의 설정·예약·상한, 벡터 색인 확인을 코퍼스 상태마다 한 번만 하는 것 | 539 |
+| 2026-10-29 밤 | 벡터 색인 7사례(함수 6), 담당자 신원 9, 사흘 대기 뒤 재개 1 | 556 |
 
 ## 묶음별로 무엇을 막는가
 
-한 테스트가 둘 이상의 위험에 걸칠 수 있어서 가장 가까운 묶음에 한 번만 넣었습니다. 사례 수 합계가 555입니다.
+한 테스트가 둘 이상의 위험에 걸칠 수 있어서 가장 가까운 묶음에 한 번만 넣었습니다. 사례 수 합계가 556입니다.
 
 | 막으려는 고장 | 사례(함수) | 파일 | 실패로 바뀌는 사례의 예 |
 |---|---|---|---|
@@ -26,7 +35,7 @@
 | **서류와 질의에 든 지시문, 모델이 지어낸 값을 받아들이는 것** | 24(24) | `test_claims_extract`, `test_claims_injection_model`, `test_query_understanding` | `a_field_label_inside_a_remark_never_becomes_the_value_and_cannot_ground_a_model`, `grounding_keeps_only_values_whose_snippet_is_in_the_document`, `a_proposal_is_kept_only_when_its_quote_is_in_the_query`, `an_exclusion_removes_the_material_the_pattern_took_as_wanted` |
 | **모르는 것을 맞다고 하는 것** | 35(29) | `test_conditions`, `test_review_guards`, `test_agent_evidence`, `test_graph_evidence` | `40mm_rejects_42mm`, `missing_material_is_unknown`, `uncertain_ocr_is_unknown`, `search_does_not_supply_inspection_evidence`, `graph_does_not_approve_uninspected_search_results`, `a_plan_whose_every_tool_failed_gets_one_more_turn_and_only_one` |
 | **에이전트의 도구, 예산, 경로가 정해진 범위를 벗어나는 것** | 100(47) | `test_tools`, `test_shell_search`, `test_shell_search_tool`, `test_saved_tools`, `test_agent_pilot`, `test_agent_trajectory`, `test_agent_trajectory_run`, `test_trajectory`, `test_trajectory_gate` | `arbitrary_code_cannot_be_a_tool`, `budget_never_allows_an_extra_call`, `everything_outside_the_closed_set_is_refused`(45사례), `a_command_that_would_fail_for_want_of_a_shell_is_refused_with_how_to_type_it`, `each_wrong_road_is_caught`, `a_broken_claim_graph_is_seen_by_the_path_checks` |
-| **검색이 엉뚱한 도면을 올리거나 낡은 색인을 읽는 것** | 75(65) | `test_drawing_number`, `test_retrieval_ids`, `test_retrieval`, `test_korean_search`, `test_reranking`, `test_indexing`, `test_dense_index`, `test_geometry`, `test_corpus_state`, `test_number_index`, `test_vector_index`| `one_edit_typo_falls_back_to_fuzzy_only_when_nothing_matches_exactly`, `material_code_is_not_mistaken_for_an_identifier`, `constraint_order_never_displaces_an_explicit_drawing_number`, `search_rejects_old_snapshot_before_reading_vectors` |
+| **검색이 엉뚱한 도면을 올리거나 낡은 색인을 읽는 것** | 76(66) | `test_drawing_number`, `test_retrieval_ids`, `test_retrieval`, `test_korean_search`, `test_reranking`, `test_indexing`, `test_dense_index`, `test_geometry`, `test_corpus_state`, `test_number_index`, `test_vector_index`| `one_edit_typo_falls_back_to_fuzzy_only_when_nothing_matches_exactly`, `material_code_is_not_mistaken_for_an_identifier`, `constraint_order_never_displaces_an_explicit_drawing_number`, `search_rejects_old_snapshot_before_reading_vectors` |
 | **스캔·OCR·표제란·이미지 읽기가 틀린 값을 사실로 올리는 것** | 90(74) | `test_scan_examples`, `test_ocr`, `test_ocr_scan`, `test_official`, `test_official_scan`, `test_title_block`, `test_vision`, `test_ingest` | `a_badly_degraded_scan_never_ends_in_a_wrong_payment`, `a_field_the_clerk_left_empty_is_not_invented`, `a_material_grade_is_not_taken_for_a_drawing_number_and_a_page_footer_is_not_either`, `unknown_or_invalid_vision_numbers_are_not_promoted_to_facts` |
 | **측정이 스스로를 속이는 것** | 53(52) | `test_evaluation`, `test_evaluation_api`, `test_evaluation_runner`, `test_gate`, `test_stats`, `test_retrieval_metrics`, `test_retrieval_ablation`, `test_dataset`, `test_prompt_experiment`, `test_claims_model_eval`, `test_vendor_ocr`, `test_shell_search_model`, `test_synth_determinism` | `model_input_never_contains_gold_or_prediction`, `gate_never_tolerates_a_wrong_payout`, `gate_requires_the_degraded_control_to_be_worse`, `editing_a_prompt_after_the_dev_run_voids_the_dev_report`, `family_splits_disjoint` |
 | **다른 고객의 데이터가 보이거나 지난 판이 바뀌는 것, 답한 사람이 누구인지 모르는 것** | 39(38) | `test_storage`, `test_api`, `test_managed_role`, `test_live_config`, `test_identity`, `test_identity_api`| `foreign_tenant_cannot_read_revision_or_asset`, `immutable_revision`, `public_demo_cannot_spend_configured_provider_keys`, `migration_grants_set_to_non_superuser_owner`, `every_other_token_is_refused`, `the_second_approval_must_come_from_another_account_whatever_the_name_says` |
@@ -36,5 +45,5 @@
 
 - 테스트가 통과한다는 것은 이 저장소의 합성 데이터와 스텁 모델 위에서 위 고장이 나지 않는다는 뜻입니다. 실제 서류, 실제 부하, 실제 장애에서의 동작은 보장하지 않습니다.
 - 모델을 실제로 부르는 측정은 pytest가 아니라 상한을 둔 수동 workflow에서 하고, 그 숫자는 [README의 측정표](../README.md)와 [evaluation/](evaluation/)에 있습니다. pytest는 모델을 부르지 않고 스텁을 씁니다(키 이름이 나오는 테스트는 가짜 키를 넣고 공개 데모가 그 키를 쓰지 못하는지만 봅니다).
-- 스캔 읽기와 합성 코퍼스에 기대는 테스트는 Tesseract(한국어)나 코퍼스가 없으면 건너뛰도록 되어 있습니다. CI는 둘을 설치하고 생성한 뒤 돌립니다([ci.yml](../.github/workflows/ci.yml)). 이 문서의 555는 수집된 사례 수이고, 환경에 따라 실제로 실행되는 수는 더 적을 수 있습니다.
+- 스캔 읽기와 합성 코퍼스에 기대는 테스트는 Tesseract(한국어)나 코퍼스가 없으면 건너뛰도록 되어 있습니다. CI는 둘을 설치하고 생성한 뒤 돌립니다([ci.yml](../.github/workflows/ci.yml)). 이 문서의 556은 수집된 사례 수이고, 환경에 따라 실제로 실행되는 수는 더 적을 수 있습니다.
 - 묶음은 파일 이름과 테스트 이름을 읽고 제가 나눈 것입니다. 테스트 하나가 한 묶음에만 속하는 것은 아닙니다.

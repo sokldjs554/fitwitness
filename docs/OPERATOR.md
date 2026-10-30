@@ -1,6 +1,6 @@
 # 유료 모델 운영자 실행
 
-공개 API는 유료 모델 호출을 거부합니다. 아래는 서버 접근 권한과 자기 API 키를 가진 운영자가 명시적으로 실행하는 연구 경로입니다. Claude 실제 실행 기록은 `docs/evaluation/README.md`에 있습니다. OpenAI 실제 호출은 아직 측정하지 않았습니다.
+공개 API는 유료 모델 호출을 거부합니다. 아래는 서버 접근 권한과 자기 API 키를 가진 운영자가 명시적으로 실행하는 연구 경로입니다. Claude 실제 실행 기록은 `docs/evaluation/README.md`에 있습니다. OpenAI는 2026-10-29에 `gpt-5-mini`로 같은 24사례를 수동 워크플로 `openai-evidence-measure.yml`로 쟀습니다(끝난 55회 모두 정답, 17회는 계정 잔액 소진으로 비어 있음, [기록](evaluation/README.md#openai-실측-2026-10-29)).
 
 1. `scripts/setup.py`로 초기화합니다.
 2. `.env.example`의 API 키·정확한 모델 ID·현재 USD/million token 단가를 비밀 환경변수로 설정합니다. `.env`는 저장소에 올리지 않습니다.
@@ -35,11 +35,27 @@ print(Jobs(repo).get(scope, job.id).model_dump_json(indent=2))
 
 키는 채팅·이슈·소스·커밋에 넣지 않습니다. 이 저장소의 Settings → Secrets and variables → Actions → New repository secret에서 `ANTHROPIC_API_KEY`라는 이름으로 저장합니다. 키를 저장하는 것만으로는 API가 호출되지 않습니다.
 
-`.github/workflows/openai-evidence-measure.yml`은 수동(workflow_dispatch)으로만 돌고, 모델·가격·상한을 입력받아 runner가 상한을 지킵니다(최대 $0.25). `.github/workflows/claude-evaluation.yml`은 `feat/fitwitness-foundation`에 아래 문구로 시작하는 커밋이 들어올 때만 유료 실행을 시작합니다. 이 전용 실행 커밋은 사용자의 비용 승인을 받은 뒤 생성합니다. 승인 없는 일반 수정에는 이 문구를 사용하지 않습니다.
+지금 쓰는 수동 workflow는 아래 표와 같습니다. Actions 탭의 "Run workflow"로 돌립니다(푸시나 커밋 문구로는 돌지 않음). 유료 모델을 부르는 것은 입력한 상한을 runner가 호출 전에 예약으로 지킵니다(상한 입력은 아래 최댓값을 넘으면 첫 단계에서 거부). 입력값은 스크립트 본문에 끼워 넣지 않고 환경 변수로만 읽습니다.
 
-`eval: claude evidence pilot [max-usd=1]`
+| workflow | 무엇을 재나 | 유료 | 상한 입력의 최댓값 |
+|---|---|---|---|
+| `openai-evidence-measure.yml` | PDF 근거 판정 24사례를 OpenAI 모델로 (모델 이름·가격은 실행 때 입력) | OpenAI | $0.25 |
+| `agent-trajectory.yml` | 실제 모델이 도면 그래프를 고르는 경로, test family마다 세 구조 | Claude/OpenAI | $1.0 |
+| `claims-model-evaluation.yml` | 청구 서류를 모델이 읽는 경로와 규칙 판독기 비교 | Claude/OpenAI | $1.0 |
+| `claims-audit-evaluation.yml` | 지급 직전 모델 감사 | Claude/OpenAI | $1.0 |
+| `claims-injection-model.yml` | 서류 비고란의 지시문을 모델 추출 경로로 | Claude/OpenAI | $1.0 |
+| `query-understanding-evaluation.yml` | 모델이 검색 질의를 조건으로 읽기 | Claude/OpenAI | $0.3 |
+| `shell-search-evaluation.yml` | 명령 검색 도구를 켜고 끈 비교 | Claude | $0.5 |
+| `title-block-vlm-evaluation.yml` | 실제 도면 61장 표제란을 VLM으로 | Claude | $1.0 |
+| `prompt-experiment.yml` | 판정 프롬프트 네 가지 비교 | Claude 또는 로컬 | $1.5 |
+| `vendor-ocr-evaluation.yml` | 스캔한 공식 서식을 상용 문서 AI와 격자 판독기로 비교 | Upstage | 쪽 수 상한 240 |
+| `image-channel-evaluation.yml`, `external-cad-evaluation.yml`, `external-sources.yml`, `encoder-pin.yml`, `retrieval-*.yml`, `reranking-evaluation.yml`, `source-archive.yml` | 인코더·CAD·색인 측정과 보존 | 없음 | — |
+| `deploy.yml` | main의 한 커밋을 Render에 배포하고 호스팅 검증까지 | 없음 | — |
+| `uptime.yml` | 데모를 깨워 두고 응답을 기록 | 없음 | — |
 
-이 프로젝트 승인 한도는 후속 진단을 포함한 **누적1 USD**입니다. 각 workflow의 한도 외에도 확인된 비용과 미확정 예약을 합산합니다. 동일 workflow 재실행은 run_attempt==1로 차단합니다. 현재 누적은 $0.255248(최종 provider gate $0.016586 포함)이며 자동 추가 실행은 없습니다. API 반복에는 seed를 적용하지 않으므로 프로토콜의 seeds는 null이며, 로컬 모델의 seed 고정과 구분합니다.
+2026-10-04~06에 한 번씩 돌린 유료 workflow 다섯 개는 브랜치 푸시로 돌던 것이라 [docs/evaluation/workflows/](evaluation/workflows/README.md)로 옮겨 보존합니다.
+
+이 프로젝트 승인 한도는 후속 진단을 포함한 **누적 1 USD**입니다. 각 workflow의 한도 외에도 확인된 비용과 미확정 예약을 합산합니다. 동일 workflow 재실행은 run_attempt==1로 차단합니다. 현재 누적은 $0.255248(최종 provider gate $0.016586 포함)이며 자동 추가 실행은 없습니다. API 반복에는 seed를 적용하지 않으므로 프로토콜의 seeds는 null이며, 로컬 모델의 seed 고정과 구분합니다.
 
 사전 제안: Claude Haiku 4.5 고정 ID `claude-haiku-4-5-20251001`, 동일 24개 사례 × 3회. 입력/출력 단가는 2026-10-04 확인한 공식 기준 1/5 USD per million tokens이며, 실행 전 다시 확인합니다. 전체 실험은 보수적인 예약 합계 1 USD 한도로 차단합니다. 이 한도는 이 작업의 API 호출 예산이며 계정 전체 지출 한도는 아닙니다.
 

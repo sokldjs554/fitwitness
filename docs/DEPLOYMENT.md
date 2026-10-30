@@ -4,7 +4,7 @@
 - 저장소: https://github.com/sokldjs554/fitwitness
 - 배포 브랜치: `main` (`render.yaml`, 자동 배포 꺼짐, Render 대시보드에서 수동 배포)
 - 처음 배포한 `feat/fitwitness-foundation`은 PR [#1](https://github.com/sokldjs554/fitwitness/pull/1)로 2026-10-05에 main에 병합했습니다
-- 공개 데모가 돌리는 코드: `88a7484`(2026-10-29 12:12 UTC 확인; 그 전은 93a794c·fcd746d·45ccf9a). 스캔 읽기 예시(`#claims-scan`)에 더해 서류 **보완 요청** 결정과 "원장에 지급 기록" 문구가 들어 있습니다. `/health`의 sha가 이 커밋과 같고(저장소의 main과도 같음), `scripts/verify_hosted.py`가 01:03 UTC에 전체 통과했습니다([기록](verification/hosted-20261029-93a794c.json)). 직전 배포 `02bd3df`의 기록은 [여기](verification/hosted-20261028-02bd3df.json), 그 앞은 `f925d1b`([기록](verification/hosted-20261028-f925d1b.json)). 배포 절차는 [아래](#2026-10-26-배포)
+- 공개 데모가 돌리는 코드: `88a7484`(2026-10-29 12:12 UTC 확인). `/health`의 sha가 이 커밋과 같고, `scripts/verify_hosted.py`가 15개 항목을 전부 통과했습니다([기록](verification/hosted-20261029-88a7484.json)). 직전 배포는 `45ccf9a`([기록](verification/hosted-20261029-45ccf9a.json)), 그 앞은 `fcd746d`·`93a794c`·`02bd3df`·`f925d1b`입니다(기록은 `verification/hosted-*.json`). 이 커밋 뒤에 main에 쌓인 변경은 아직 배포하지 않았습니다. 배포 절차는 [아래](#2026-10-26-배포)
 - 깨워 두기: 무료 인스턴스는 15분 동안 요청이 없으면 잠들고, 그 뒤 첫 화면은 89.5초 걸렸습니다(2026-10-27). [아래](#깨워-두기-2026-10-27)
 
 
@@ -23,7 +23,7 @@ Render 기본 무료 DB는 계정의 기존 무료 DB 때문에 생성할 수 �
 - `FITWITNESS_SESSION_SECRET`, `FITWITNESS_METRICS_TOKEN`: Render 환경 변수에만 저장합니다.
 - `FITWITNESS_ALLOWED_ORIGINS`: `https://fitwitness.onrender.com`.
 - PostgreSQL 16 관리 계정은 역할의 ADMIN 권한이 있어도 SET 권한이 없을 수 있습니다. 마이그레이션이 `GRANT fitwitness_app TO CURRENT_USER WITH SET TRUE`를 명시합니다. 요청은 여전히 NOLOGIN/NOBYPASSRLS 역할 및 FORCE RLS로 격리합니다.
-- 실제 API로 생성한 서비스의 Render health-check 경로는 기본값입니다. `/ready`는 DB 역할과 쿼리까지 확인하며, Blueprint에는 `/ready`를 지정했습니다.
+- Blueprint(`render.yaml`)의 health-check 경로는 `/ready`입니다. `/ready`는 DB 역할과 쿼리까지 확인합니다. Blueprint 없이 대시보드에서 만든 서비스는 기본 경로를 씁니다.
 
 ## 배포 검증
 
@@ -60,11 +60,11 @@ python scripts/verify_hosted.py --url https://fitwitness.onrender.com
 
 ## v0.2 — 도면 작업대와 실측 LLM 실험실
 
-2026-10-04 `743026f42666dbbcfa1da7f7ac9e58d2728aeedf`를 배포했습니다. Render 배포 `dep-db109qad0e5s73dggctg`는 live 상태이며, 공개 `/ready`가 DB 연결을 확인합니다. `/api/evaluations`의 전체 JSON은 저장소의 측정 기록과 일치합니다. [검증 결과](verification/ui-eval-20261004.json).
+2026-10-04 `743026f42666dbbcfa1da7f7ac9e58d2728aeedf`를 배포했습니다. Render 배포는 live 상태이며, 공개 `/ready`가 DB 연결을 확인합니다. `/api/evaluations`의 전체 JSON은 저장소의 측정 기록과 일치합니다. [검증 결과](verification/ui-eval-20261004.json).
 
 [CI37186711069](https://github.com/sokldjs554/fitwitness/actions/runs/37186711069)에서 독립 PostgreSQL 환경 두 개 모두 Python76개, 데스크톱·모바일 E2E6개, 실제 API 기반 시연 캡처가 통과했습니다. 작업대의 후보 필터, 도면 근거, 개정판 재검증, worker 복구, 실험실 이동과 Ctrl/Cmd+K를 확인합니다.
 
-실험실은 Qwen3-1.7B 실제 추론72회의 저장된 결과를 제공합니다. 정확도 75%, 잘못된 일치 28.6%(정답이 불일치·확인 필요인 42회 중 12회), 지연 p50 6.18초입니다. 24개 사례·4개 family의 PDF 근거 판정 pilot이며 전체 Agent·검색·VLM 또는 OpenAI·Claude 평가가 아닙니다. 모델 가중치와 추론 라이브러리는 Render 서비스에 배포하지 않으며 무료 웹서버에서 LLM 추론을 실행하지 않습니다.
+실험실은 Qwen3-1.7B 실제 추론 72회의 저장된 결과를 제공합니다. 정확도 75%, 잘못된 일치 28.6%(정답이 불일치·확인 필요인 42회 중 12회), 지연 p50 6.18초입니다. 24개 사례·4개 family의 PDF 근거 판정 pilot이며 전체 Agent·검색·VLM 또는 OpenAI·Claude 평가가 아닙니다. 모델 가중치와 추론 라이브러리는 Render 서비스에 배포하지 않으며 무료 웹서버에서 LLM 추론을 실행하지 않습니다.
 
 ![도면 작업대](media/review-workbench.png)
 
@@ -72,25 +72,25 @@ python scripts/verify_hosted.py --url https://fitwitness.onrender.com
 
 [모바일 화면](media/evaluation-mobile.png) · [평가 설계와 원시 기록](evaluation/README.md)
 
-공개 브라우저에서도 실험실24개 사례와 오류6개 필터, 반복2출력 전환, 작업대 실제검증 완료, 불일치후보2개 필터 및42mm PDF근거 표시를 확인했습니다.
+공개 브라우저에서도 실험실 24개 사례와 오류 6개 필터, 반복 2출력 전환, 작업대 실제검증 완료, 불일치후보 2개 필터 및 42mm PDF근거 표시를 확인했습니다.
 
 ![공개 서버 작업대 검증](media/hosted-workbench.jpg)
 
 ## Claude 평가 공개 갱신 — 2026-10-04
 
-Render 배포 `dep-db11qbtg1s2s7385mt80`, 코드 `f6a7f82d53e7da0f3dbe27f0d4eeaabd63432426`가 live입니다. CI `37192269005`의 독립 DB 두 환경 각각 Python98개·E2E8개, 컨테이너 `37192269007`이 통과했습니다. 공개 서버에서도 복구 exactly-one completion, 개정2/2/1→1/3/1, 세션 격리·origin·유료 API 차단을 다시 검증했습니다. [실서버 기록](verification/hosted-agents-20261004.json).
+Render 배포, 코드 `f6a7f82d53e7da0f3dbe27f0d4eeaabd63432426`가 live입니다. CI `37192269005`의 독립 DB 두 환경 각각 Python98개·E2E8개, 컨테이너 `37192269007`이 통과했습니다. 공개 서버에서도 복구 exactly-one completion, 개정 2/2/1→1/3/1, 세션 격리·origin·유료 API 차단을 다시 검증했습니다. [실서버 기록](verification/hosted-agents-20261004.json).
 
-브라우저에서 Claude72/72와 v1 실패3개를 확인했습니다. 후속 데이터 게시 정정은 v2 진단의 반복 횟수 설명만 바꾸며 코드·점수·원본 기록은 동일합니다. 공개 사이트에는 비밀 키를 전달하지 않았고 유료 호출은 CI 운영자 실험에만 사용했습니다.
+브라우저에서 Claude72/72와 v1 실패 3개를 확인했습니다. 후속 데이터 게시 정정은 v2 진단의 반복 횟수 설명만 바꾸며 코드·점수·원본 기록은 동일합니다. 공개 사이트에는 비밀 키를 전달하지 않았고 유료 호출은 CI 운영자 실험에만 사용했습니다.
 
-최종 게시 정정본 `2d9fda933a9d666027cf98a5dd1e38c8f117f5a2`의 배포 `dep-db11tffavr4c739sc4k0`는 2026-10-04 09:41:45 UTC에 live가 됐습니다. 공개 health SHA·readiness와 Claude/v1/v2 평가 JSON의 저장소 일치를 확인했습니다. 앱 코드는 위 CI 통과본과 동일합니다.
+최종 게시 정정본 `2d9fda933a9d666027cf98a5dd1e38c8f117f5a2`의 배포는 2026-10-04 09:41:45 UTC에 live가 됐습니다. 공개 health SHA·readiness와 Claude/v1/v2 평가 JSON의 저장소 일치를 확인했습니다. 앱 코드는 위 CI 통과본과 동일합니다.
 
-공개 브라우저에서 수정 후 진단의 세 구조 모두 완료·각5/5, 구조별1회라는 제한 안내, 실제 Anthropic 응답 ID와 토큰·지연 기록을 확인했습니다. 개선 전 실패 기록은 버전 선택으로 계속 열람할 수 있습니다. 전체 API 계산 비용은 $0.187841이며 미확정 예약액은0입니다.
+공개 브라우저에서 수정 후 진단의 세 구조 모두 완료·각 5/5, 구조별 1회라는 제한 안내, 실제 Anthropic 응답 ID와 토큰·지연 기록을 확인했습니다. 개선 전 실패 기록은 버전 선택으로 계속 열람할 수 있습니다. 전체 API 계산 비용은 $0.187841이며 미확정 예약액은 0입니다.
 
 ![공개 Claude Agent 진단과 실제 응답 추적](media/claude-agent-proof.jpg)
 
 ## 의미·이미지 검색 실측 공개 — 2026-10-04
 
-Render 배포 `dep-db13nve0tbcc739c69t0`, 코드 `8a1d8b065399bff657bde1db4a25e9a7636cc0cb`가 11:46:25 UTC에 live가 됐습니다. 앱 코드는 검증한 `431d6998d41cd3993e73b530a04be03be0d3d37a`와 같고, 이후 변경은 원본 보존 workflow입니다. CI `37199419442`의 독립 DB 두 환경 각각 Python 116개·데스크톱/모바일 E2E 10개, 컨테이너 `37199419433`이 통과했습니다.
+Render 배포, 코드 `8a1d8b065399bff657bde1db4a25e9a7636cc0cb`가 11:46:25 UTC에 live가 됐습니다. 앱 코드는 검증한 `431d6998d41cd3993e73b530a04be03be0d3d37a`와 같고, 이후 변경은 원본 보존 workflow입니다. CI `37199419442`의 독립 DB 두 환경 각각 Python 116개·데스크톱/모바일 E2E 10개, 컨테이너 `37199419433`이 통과했습니다.
 
 공개 `/api/evaluations/retrieval` 전체 JSON과 저장소 보고서가 일치합니다. 브라우저에서 전체/이미지 질문 필터, 실제 변형 질문 이미지, 상위 후보의 관련도와 채널 점수를 확인했습니다. 실시간 공개 체험은 도번·키워드 검색이며, E5·OpenCLIP 검색은 별도 환경에서 수행한 288회 실측 기록입니다. 원본 PDF·PNG 300개의 동결 해시를 대조한 [자료 묶음](evaluation/retrieval-37198685994/sources.zip.xz)도 보존했습니다. 추가 유료 LLM 호출은 0회입니다.
 
@@ -100,7 +100,7 @@ Render 배포 `dep-db13nve0tbcc739c69t0`, 코드 `8a1d8b065399bff657bde1db4a25e9
 
 ## 2026-10-05 연구 결과 배포
 
-앱 SHA `e2a1dbd921aa5cb214cf9a583415d60b71db8fb0`, Render deploy `dep-db1ma0dg1s2s73as94gg`가 live입니다. 두 PostgreSQL 환경 각각140Python+12E2E, 컨테이너 검증 후 배포했습니다. 공개 보고서 JSON은 검산한 재정렬/VLM 파일과 일치합니다. [공개 HTTPS 검증](verification/hosted-research-20261005.json)은 worker 복구·단일 완료·개정판 무효화/재검증·tenant·origin·유료API·metrics 경계를 통과했습니다. 배포 이후 확인 구간의 app error 로그는0건이었습니다.
+앱 SHA `e2a1dbd921aa5cb214cf9a583415d60b71db8fb0`, Render 배포가 live입니다. 두 PostgreSQL 환경 각각 140Python+12E2E, 컨테이너 검증 후 배포했습니다. 공개 보고서 JSON은 검산한 재정렬/VLM 파일과 일치합니다. [공개 HTTPS 검증](verification/hosted-research-20261005.json)은 worker 복구·단일 완료·개정판 무효화/재검증·tenant·origin·유료API·metrics 경계를 통과했습니다. 배포 이후 확인 구간의 app error 로그는 0건이었습니다.
 
 공개 무료 환경은 lexical/rules 체험과 저장된 연구 결과를 제공합니다. E5/OpenCLIP/BGE와 Claude VLM은 격리된 연구 환경에서 실행했습니다. 새 영상·캡처·문서만 추가한 후속 커밋은 재배포하지 않습니다.
 
@@ -109,7 +109,7 @@ Render 배포 `dep-db13nve0tbcc739c69t0`, 코드 `8a1d8b065399bff657bde1db4a25e9
 무료 Render 인스턴스는 15분 동안 요청이 없으면 잠듭니다. 2026-10-27에 18분 동안 아무 요청도 보내지 않은 뒤 첫 화면을 여니 89.5초가 걸렸고, 바로 다음 요청은 1.3초였습니다. 면접관이 링크를 처음 여는 순간이 바로 이 경우라 두 겹으로 깨워 둡니다.
 
 - `.github/workflows/uptime.yml`: 10분마다(:04, :14, …) `/health`를 GET합니다. 응답 코드·시간·배포 sha를 실행 요약에 남기고, 20초가 넘으면 잠들어 있던 것으로 보고 `woken`으로 적습니다. 200이 아니면 실행이 실패하고 GitHub가 메일로 알립니다. GitHub의 예약 실행은 늦게 시작할 때가 있어 이것만으로는 15분을 못 지킬 수 있습니다. 실제로 첫 열 시간(2026-10-27 15시~10-28 01시 UTC)에 예약 실행은 두 번(20:01, 23:43)뿐이었고, 두 번 모두 잠든 데모를 깨웠습니다(`/health`까지 32.7초, 36.0초). 깨워 두는 데는 외부 모니터가 필요하고, 이 workflow는 깨어나는 데 걸린 시간을 남기는 기록으로 남습니다.
-- 외부 모니터(지원자 계정): UptimeRobot이나 cron-job.org 같은 무료 서비스에 `https://fitwitness.onrender.com/health`를 5분 간격으로 등록합니다. `/health`는 DB를 건드리지 않아 Neon 컴퓨트를 깨우지 않습니다. DB를 조회하는 `/ready`는 모니터에 쓰지 않습니다. HEAD로 확인하는 모니터를 위해 `/health`가 HEAD에도 200을 주게 했습니다(다음 배포부터).
+- 외부 모니터(지원자 계정): UptimeRobot이나 cron-job.org 같은 무료 서비스에 `https://fitwitness.onrender.com/health`를 5분 간격으로 등록합니다. `/health`는 DB를 건드리지 않아 Neon 컴퓨트를 깨우지 않습니다. DB를 조회하는 `/ready`는 모니터에 쓰지 않습니다. HEAD로 확인하는 모니터를 위해 `/health`가 HEAD에도 200을 줍니다(2026-10-28 `02bd3df`부터 배포됨).
 - Render 무료 플랜은 워크스페이스당 한 달 750 인스턴스 시간입니다. 이 서비스 하나를 계속 깨워 두면 최대 744시간이라 다른 무료 서비스를 함께 돌릴 여유는 없습니다. 배포 직후의 첫 기동은 깨워 두기와 상관없이 기다려야 합니다.
 
 **89.5초 중 앱의 몫 (2026-10-27, 로컬 측정).** 시작 명령이 하는 일을 이 개발 기계(4코어)에서 CPU 시간으로 쟀습니다.
