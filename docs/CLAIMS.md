@@ -17,7 +17,7 @@ intake ─▶ extract ─▶ validate ─▶ adjudicate ─▶ challenge ─┬�
 | adjudicate | 상품별 기준표(`claims/policy.py`)를 적용합니다. 입원일당(면책일 차감·한도), 수술비(1~5종 정액), 진단비(코드 접두어별 정액, 90일 면책기간), 면책 질병, 계약 상태·보험기간, 중복 청구(원장 키), 자동승인 한도. 모든 금액과 거절·보류에 규칙 ID가 붙습니다 | 서류 누락, 한도 초과, 부분 거절 + 지급 항목 공존 |
 | challenge | 지급 항목이 기대는 필드에 **근거 위치가 없으면** 지급을 막고 심사자에게 보냅니다. 청구인이 "항상 담당자 확인"을 요청한 경우도 여기서 멈춥니다 | 근거 없는 지급 항목 |
 | review | LangGraph `interrupt()`로 `waiting_input`에 멈춥니다. 답변은 `ClaimReview{outcome: APPROVE/DENY/REQUEST_INFO, reviewer, note, total_amount?}`이며 `POST /api/runs/{id}/resume`으로 들어옵니다. 담당자 결정은 규칙 `R-HUMAN-01`로 기록됩니다 | — |
-| payout | `fw_payouts`(청구당 1행)와 `fw_payout_keys`(사건 키)에 **한 번만** 기록합니다. 기록 직후 worker가 죽어도(체험 토글) 재시도는 같은 노드에서 이어지고 `already_paid`를 받습니다. 돈이 두 번 움직이지 않습니다. 쓰는 트랜잭션 안에서 (1) 실행이 취소되었거나 소유권을 잃었으면 지급하지 않고(`LeaseLost`), (2) 같은 사건(입원·수술·진단 키)이 다른 청구 번호로 이미 지급됐으면 쓰지 않고 `duplicate`를 돌려줍니다([SECURITY.md](SECURITY.md)) | — |
+| payout | `fw_payouts`(청구당 1행)와 `fw_payout_keys`(사건 키)에 **한 번만** 기록합니다. 기록 직후 일시 오류가 나도(체험 토글) 재시도는 같은 노드에서 이어지고 `already_paid`를 받습니다. 돈이 두 번 움직이지 않습니다. 쓰는 트랜잭션 안에서 (1) 실행이 취소되었거나 소유권을 잃었으면 지급하지 않고(`LeaseLost`), (2) 같은 사건(입원·수술·진단 키)이 다른 청구 번호로 이미 지급됐으면 쓰지 않고 `duplicate`를 돌려줍니다([SECURITY.md](SECURITY.md)) | — |
 
 ## 지급 기준표(가상)
 
