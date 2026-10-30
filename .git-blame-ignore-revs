@@ -1,0 +1,2 @@
+# One mechanical ruff format pass; git blame skips it with: git config blame.ignoreRevsFile .git-blame-ignore-revs
+4e17f16242b7315509da753790b03009e1d5db13
