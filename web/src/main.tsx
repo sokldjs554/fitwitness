@@ -173,17 +173,20 @@ function App() {
   }, [run?.id, run?.state]);
   const running =
     busy || (!!run && ["queued", "running", "retry_wait"].includes(run.state));
-  async function start() {
+  async function start(preset?: { query: string; spacing: string; material: string }) {
+    const q = preset?.query ?? query;
+    const sp = preset?.spacing ?? spacing;
+    const mat = preset?.material ?? material;
     setError("");
     setBusy(true);
     setEvents([]);
     setFilter("all");
     setEventSelection(null);
     try {
-      if (!query.trim()) throw Error("찾는 부품이나 도번을 입력해 주세요.");
+      if (!q.trim()) throw Error("찾는 부품이나 도번을 입력해 주세요.");
       // Both conditions are optional: a drawing-number lookup needs neither, and a user test showed that
       // conditions left over from an earlier search put verdict labels on a lookup and confused the reader.
-      const spacingText = spacing.trim();
+      const spacingText = sp.trim();
       const value = Number(spacingText);
       if (spacingText && (!Number.isFinite(value) || value <= 0))
         throw Error("간격은 0보다 큰 숫자로 입력해 주세요.");
@@ -191,16 +194,16 @@ function App() {
         method: "POST",
         headers: {
           "Idempotency-Key": crypto.randomUUID(),
-          ...(fault ? { "x-demo-fault": "1" } : {}),
+          ...(fault && !preset ? { "x-demo-fault": "1" } : {}),
         },
         body: JSON.stringify({
           search: {
-            text: query.trim(),
+            text: q.trim(),
             requirements: [
               ...(spacingText
                 ? [{ field: "hole_spacing", value: { low: String(value), high: String(value) }, unit: "mm" }]
                 : []),
-              ...(material.trim() ? [{ field: "material", value: material.trim() }] : []),
+              ...(mat.trim() ? [{ field: "material", value: mat.trim() }] : []),
             ],
           },
           provider: "rules",
@@ -329,13 +332,15 @@ function App() {
   }
   function browse(id: string) { setFilter("all"); choose(id); }
   function beginGuidedDemo() {
-    setQuery("장비에 고정할 브래킷을 찾아줘");
-    setSpacing("40");
-    setMaterial("SUS304");
+    const preset = { query: "장비에 고정할 브래킷을 찾아줘", spacing: "40", material: "SUS304" };
+    setQuery(preset.query);
+    setSpacing(preset.spacing);
+    setMaterial(preset.material);
     setFault(false);
     setTimeline(false);
     setFilter("all");
     setEventSelection(null);
+    if (ready && !running) void start(preset);
     requestAnimationFrame(() =>
       document.getElementById("review-request")?.scrollIntoView({
         behavior: "smooth",
@@ -425,7 +430,7 @@ function App() {
             </p>
           </div>
           <a
-            href="https://github.com/sokldjs554/fitwitness/tree/feat/fitwitness-foundation"
+            href="https://github.com/sokldjs554/fitwitness"
             target="_blank"
             rel="noreferrer"
           >
@@ -444,14 +449,14 @@ function App() {
             <PanelLeftClose size={16} />
           </button>
           <div className="breadcrumb">
-            Research <ChevronRight size={12} /> Manufacturing{" "}
+            Research <ChevronRight size={12} /> {tab === "claims" ? "Insurance" : "Manufacturing"}{" "}
             <ChevronRight size={12} />
-            <strong>{tab === "work" ? "Drawing review" : "Experiments"}</strong>
+            <strong>{tab === "work" ? "Drawing review" : tab === "claims" ? "Claim adjudication" : "Experiments"}</strong>
           </div>
           <div className="topbar-right">
             <span className="live-tag">
               <i />
-              {tab === "work" ? "LIVE WORKSPACE" : "RECORDED EVALUATION"}
+              {tab === "work" || tab === "claims" ? "LIVE WORKSPACE" : "RECORDED EVALUATION"}
             </span>
             <span className="avatar">FW</span>
           </div>
@@ -493,7 +498,7 @@ function App() {
                 <div className="demo-guide-copy">
                   <span className="kicker">3-MINUTE REVIEW</span>
                   <strong>근거를 보고 판단하고, 변경되면 다시 검증합니다.</strong>
-                  <p>면접관이 핵심 흐름만 빠르게 확인할 수 있도록 4단계로 정리했습니다.</p>
+                  <p>핵심 흐름만 빠르게 확인할 수 있도록 4단계로 정리했습니다. 시작을 누르면 1단계를 바로 실행합니다.</p>
                 </div>
                 <ol>
                   <li><b>01</b><span>조건 검증<small>치수·소재 입력</small></span></li>
@@ -501,7 +506,7 @@ function App() {
                   <li><b>03</b><span>개정판 적용<small>40 → 42 mm</small></span></li>
                   <li><b>04</b><span>자동 무효화<small>새 도면으로 재검증</small></span></li>
                 </ol>
-                <button className="secondary demo-guide-cta" onClick={beginGuidedDemo}>
+                <button className="secondary demo-guide-cta" onClick={beginGuidedDemo} disabled={!ready || running}>
                   3분 체험 시작 <ArrowRight size={13} />
                 </button>
               </section>
@@ -563,7 +568,7 @@ function App() {
                 </div>
                 <button
                   className="primary"
-                  onClick={start}
+                  onClick={() => void start()}
                   disabled={!ready || running}
                 >
                   <Play size={13} />
@@ -592,7 +597,7 @@ function App() {
                     <b>개정판이 도착했습니다.</b> 이전 판정은 더 이상 유효하지
                     않습니다.
                   </span>
-                  <button onClick={start} disabled={running}>
+                  <button onClick={() => void start()} disabled={running}>
                     바뀐 도면으로 재검증 <RotateCcw size={13} />
                   </button>
                 </div>
@@ -653,7 +658,7 @@ function App() {
               <div className="review-board">
                 <section className="drawing-panel">
                   <p className="sheet-caption">
-                    원본 도면입니다. 판정에 쓴 치수를 읽은 자리에 상자를 그렸고, 상자를 누르면 그 값과 판정을 오른쪽 도면 근거에서 봅니다.
+                    원본 도면입니다. 판정에 쓴 치수를 읽은 자리에 상자를 그렸습니다. 오른쪽 도면 근거에서 값을 고르면 상자가 그 값의 자리로 옮겨 갑니다.
                   </p>
                   <div className="sheet-toolbar">
                     <div>

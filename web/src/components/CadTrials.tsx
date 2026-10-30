@@ -35,8 +35,8 @@ export function CadTrials() {
       <div className="retrieval-meta"><span>NIST CTC/FTC {report.metrics.paired_cases}쌍</span><span>STEP {report.metrics.selected_files_parsed}개 파싱</span><span>AP203 → AP242</span><span>GitHub Actions 실측</span></div>
       <p className="retrieval-note">생산 현장 도면 성능을 주장하지 않습니다. 외부 engineering benchmark에서 geometry extraction과 cross-format nearest-shape retrieval만 측정했습니다.</p>
       <div className="retrieval-table-wrap"><table aria-label="외부 CAD 형상 거리 실측"><thead><tr><th>파싱</th><th>Top-1</th><th>Top-3</th><th>MRR</th><th>거리 p50 / p95</th></tr></thead><tbody><tr>
-        <td>{report.metrics.selected_files_parsed} / {report.metrics.selected_files_parsed}</td>
-        <td>{report.metrics.paired_cases} / {report.metrics.paired_cases} · {pct(report.metrics.top1_accuracy)}</td>
+        <td>{report.metrics.selected_files_parsed} / {report.metrics.paired_cases * 2}</td>
+        <td>{Math.round(report.metrics.top1_accuracy * report.metrics.paired_cases)} / {report.metrics.paired_cases} · {pct(report.metrics.top1_accuracy)}</td>
         <td>{pct(report.metrics.top3_accuracy)}</td><td>{report.metrics.mrr.toFixed(3)}</td>
         <td>{report.metrics.paired_distance_p50.toFixed(5)} / {report.metrics.paired_distance_p95.toFixed(5)}</td>
       </tr></tbody></table></div>

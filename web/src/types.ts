@@ -82,7 +82,7 @@ export const claimLabels: Record<string, string> = {
   receipt: "진료비 영수증",
   APPROVE: "지급",
   DENY: "부지급",
-  REVIEW: "심사자 확인",
+  REVIEW: "담당자 확인",
   paid: "원장에 지급 기록",
   REQUEST_INFO: "보완 요청",
   already_paid: "기지급 확인 (중복 지급 없음)",

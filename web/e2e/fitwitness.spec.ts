@@ -12,9 +12,7 @@ test("conditions, evidence and revision revalidation use real API", async ({
   await expect(page.getByText("아직 실행 전 · 조건 검증 후 모델·도구 이벤트를 확인할 수 있습니다.")).toBeVisible();
   await guide.getByRole("button", { name: "3분 체험 시작" }).click();
   await expect(page.locator("#review-request")).toBeInViewport();
-  await page
-    .getByRole("button", { name: "조건 검증 시작", exact: true })
-    .click();
+  // The guide button runs step 1 itself with its preset conditions; it needs no second click.
   await expect(page.getByText("검증 완료", { exact: true })).toBeVisible({
     timeout: 30000,
   });
