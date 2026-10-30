@@ -26,10 +26,11 @@
 | 측정 | 결과 | 기록 |
 |---|---|---|
 | PDF 근거 판정, 같은 24사례 × 3회 | Claude Haiku 4.5 72/72 정답, 잘못된 일치 0/42, $0.11. OpenAI `gpt-5-mini`도 72/72 정답, 잘못된 일치 0/42, $0.0149(둘 다 천장이라 우열은 못 가림) | [evaluation/README](docs/evaluation/README.md) |
-| 실제 모델이 고르는 경로, test 6개 family × 세 구조 | 네 번 실행: 1차 planner+challenger 4/6 완료 → 컨텍스트를 고쳐 4차 18/18 완료, 90/90. 판정은 검증기가 하고 모델은 도구 선택과 종료만. 합계 $0.40 | [evaluation/README](docs/evaluation/README.md#실제-모델이-고르는-경로--2026-10-22) |
+| 실제 모델이 고르는 경로, test 6개 family × 세 구조 | 네 번 실행: 1차 planner+challenger 4/6 완료 → 컨텍스트를 고쳐 4차 18/18 완료, 90/90. 판정은 검증기가 하고 모델은 도구 선택과 종료만. 합계 $0.40. 같은 설정을 세 번씩, 도면 서른 장·후보 12개로 어렵게 만들자 OpenAI `gpt-5-mini`는 모두 정답인 실행이 쉬운 설정 54/54에서 어려운 설정 0·6·7/36(단일·반복·challenger)으로 떨어졌고, 틀린 판정은 모두 조회하지 않은 도면이었음 | [evaluation/README](docs/evaluation/README.md#세-번씩-그리고-더-어려운-설정에서-2026-10-30) |
 | 검색 | 복합 질의 Recall@5 33.3%(95% 구간 17~49%), 조건 정렬 64.2%. NIST STEP 11쌍 CAD 거리 Top-1 11/11. 합성 도면 10만 장까지 규모 시험 | [RETRIEVAL.md](docs/RETRIEVAL.md) · [CAD.md](docs/CAD.md) |
 | 보험 청구 자동 심사, 합성 120건 (API 없음) | 잘못 지급 0건, 결정 정확도 92.5%, 자동 처리 88.5%. 스캔·모델 추출·감사 경로는 전체 표 | [CLAIMS.md](docs/CLAIMS.md) |
-| 자동 검증 | Python 574개, Playwright 80개, API 없는 평가 게이트, 알림 규칙의 promtool 테스트. 공개 데모는 배포 때마다 15항목 검증 | [TESTING.md](docs/TESTING.md) · [검증 기록](docs/verification/hosted-20261029-88a7484.json) |
+| 모델이 판정까지 내리게 하면(제품에는 없는 비교 실험), 청구 60건 × 2회 | OpenAI `gpt-5-mini`는 잘못 지급 1/120(진단서가 없는 청구에 수술비까지 지급), 규칙 경로는 0/60. 모델이 틀린 나머지는 지급할 것을 담당자 확인으로 돌린 쪽이었음 | [CLAIMS.md](docs/CLAIMS.md#모델이-최종-판정까지-내리면-2026-10-30) |
+| 자동 검증 | Python 585개, Playwright 80개, API 없는 평가 게이트, 알림 규칙의 promtool 테스트. 공개 데모는 배포 때마다 15항목 검증 | [TESTING.md](docs/TESTING.md) · [검증 기록](docs/verification/hosted-20261029-88a7484.json) |
 | 한계 | 합성 데이터뿐이고 실제 고객 도면·병원 서류가 없음. 사람이 받은 알림 없음. 무료 단일 인스턴스 | [JOB_FIT_AUDIT](docs/JOB_FIT_AUDIT.md) |
 
 나머지 30여 개 측정(스캔 읽기, 상용 OCR 비교, 표제란, 프롬프트 비교, 사용자 테스트, 부하, 비용 등)은 [전체 측정 표](docs/RESULTS.md)에 있습니다.

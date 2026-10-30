@@ -81,3 +81,16 @@ show("같은 질의, 명령 검색 도구를 끈 실행", [[r for r in shell[0][
 vlm = load("title-block-vlm")["runs"]
 calls = [c for run in vlm for c in run["calls"] if not c.get("error")]
 show("표제란 읽기 호출 한 번(쪽 전체 또는 자른 표제란, 이미지 한 장)", [calls], f"{len(calls)}회")
+
+# OpenAI gpt-5-mini (2026-10-30), priced from the input/output rates typed into the runs: $0.25 / $2.00 per million tokens.
+oa = load("openai")
+show("[OpenAI] PDF 근거 판정", [oa["rows"]], "72회", digits=2)
+dec = load("claims-model-decides")
+show("[OpenAI] 청구 한 건을 모델이 판정까지 (추론 low, 모델 호출 한 번)", [dec["rows"]], "60건 × 2회")
+rep = load("agent-trajectory-repeats")
+for setting, rid in (("쉬운", 41032282374), ("어려운", 41032292254)):
+    run = next(r for r in rep["runs"] if r.get("run_id") == rid)
+    for mode, label in (("fixed", "단일 도구 계획"), ("react", "반복 계획"), ("fitwitness", "planner+challenger")):
+        rows = [r for r in run["rows"] if r["mode"] == mode]
+        s = stats(rows)
+        print(f"| [OpenAI] 에이전트 실행 한 번, {setting} 설정, {label} | {s['n']}회 | ${s['cost']:.4f} | 중앙값 {s['p50']:.1f}초 |")

@@ -1,0 +1,5977 @@
+{
+ "status": "measured",
+ "title": "Agent structures repeated, and in a harder setting",
+ "date": "2026-10-30",
+ "what": "The agent-structure comparison (single plan, repeated planning up to three turns, planner plus challenger) had one run per structure and family on a five-drawing workspace. This record repeats it three times per case, and adds a harder setting: the six test families' thirty base drawings indexed together (a family of the same kind sits beside the asked one), twelve candidates returned instead of six, and a second query per family asking for the other material (AL6061). The expected verdict of every indexed drawing is computed from the gold facts (kind, value, material) and the free rules path reproduces all of them (integration test). Verdicts come from the deterministic verifier; the model chooses which lookups to make and when to stop. Harness: src/fitwitness/evaluation/agent_trajectory.py (--repeats, --workspace, --materials, --top-k), manual workflow agent-trajectory.yml.",
+ "run_budget": {
+  "max_model_calls": 4,
+  "max_tool_calls": 16,
+  "plan_operations_at_most": 8,
+  "per_run_cap_usd": 0.04
+ },
+ "why_gpt_5_mini": "the Anthropic account balance was empty on 2026-10-30, so the Claude repeat stopped after one repeat of two structures; the OpenAI adapter had never run this graph and needed a fix first (function calling for the plan schema, minimal reasoning for the reasoning model)",
+ "runs": [
+  {
+   "run_id": 41030461645,
+   "url": "https://github.com/sokldjs554/fitwitness/actions/runs/41030461645",
+   "provider": "anthropic",
+   "model": "claude-haiku-4-5-20251001",
+   "code": "910a970",
+   "setting": "easy, repeats 3 planned, ceiling 0.6 USD",
+   "purpose": "the original protocol repeated three times with Claude Haiku 4.5",
+   "result": "interrupted by an empty Anthropic balance (HTTP 400 'credit balance is too low'): repeat 0 of single plan finished 6/6 families with all 30 verdicts right, repeat 0 of repeated planning 6/6 with 30/30, repeat 0 of planner+challenger finished one family (5/5), then one call failed mid-run and the next run's first call was rejected, which stopped the batch; 39 runs were skipped. Model rows cost 0.07695 USD (the ledger counts 0.114548 because it keeps the reservation of the call cut off mid-flight). Too few runs to say anything about repeats.",
+   "by_mode_partial": {
+    "fixed": {
+     "runs": 6,
+     "completed": 6,
+     "verdicts_right": 30,
+     "verdicts": 30,
+     "cost_usd": 0.030993
+    },
+    "react": {
+     "runs": 6,
+     "completed": 6,
+     "verdicts_right": 30,
+     "verdicts": 30,
+     "cost_usd": 0.030788
+    },
+    "fitwitness": {
+     "runs": 3,
+     "completed": 1,
+     "verdicts_right": 5,
+     "verdicts": 15,
+     "cost_usd": 0.015169
+    }
+   }
+  },
+  {
+   "run_id": 41031743081,
+   "provider": "openai",
+   "model": "gpt-5-mini",
+   "code": "5ad94b6",
+   "result": "one family: the first call of every structure was rejected by OpenAI (HTTP 400, invalid schema for response_format 'SearchPlan': additionalProperties must be false). The OpenAI adapter had never run the drawing graph. 0.0054 USD kept as a reservation."
+  },
+  {
+   "run_id": 41032079752,
+   "provider": "openai",
+   "model": "gpt-5-mini",
+   "code": "bd70af4",
+   "result": "one family after the adapter asked OpenAI for function calling: all three structures 5/5 ($0.0057). Not part of the numbers below."
+  },
+  {
+   "run_id": 41032282374,
+   "url": "https://github.com/sokldjs554/fitwitness/actions/runs/41032282374",
+   "provider": "openai",
+   "model": "gpt-5-mini",
+   "reasoning_effort": "minimal",
+   "code": "bd70af4",
+   "setting": "easy: the family's five drawings indexed, six queries (one per test family, SUS304), 3 repeats per mode",
+   "purpose": "the original protocol repeated three times",
+   "protocol": {
+    "code_sha": "bd70af4661c1690148984106c38a7fa550d10b11",
+    "provider": "openai",
+    "model": "gpt-5-mini",
+    "modes": [
+     "fixed",
+     "react",
+     "fitwitness"
+    ],
+    "repeats": 3,
+    "workspace": "family",
+    "workspace_drawings": 5,
+    "top_k": 6,
+    "materials": [
+     "SUS304"
+    ],
+    "ceiling_usd": "0.4",
+    "per_run_cap_usd": "0.04",
+    "pricing_usd_per_million": {
+     "input": "0.25",
+     "output": "2.00"
+    }
+   },
+   "spent_usd": 0.0827935,
+   "by_mode": {
+    "rules": {
+     "runs": 6,
+     "completed": 6,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 0,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0,
+      "not_retrieved": 0
+     },
+     "stops": {
+      "null": 6
+     },
+     "model_calls_mean": 0,
+     "tool_calls_mean": 6,
+     "model_errors": 0,
+     "tool_errors": 0,
+     "schema_repairs": 0,
+     "cost_usd": 0.0,
+     "latency_ms_p50": 49.3
+    },
+    "fixed": {
+     "runs": 18,
+     "completed": 18,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 0,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0,
+      "not_retrieved": 0
+     },
+     "stops": {
+      "evidence_exhausted": 18
+     },
+     "model_calls_mean": 1.06,
+     "tool_calls_mean": 6,
+     "model_errors": 1,
+     "tool_errors": 0,
+     "schema_repairs": 1,
+     "cost_usd": 0.020261,
+     "latency_ms_p50": 3401.1,
+     "cases": 6,
+     "repeats": 3,
+     "runs_fully_correct": 18,
+     "accuracy_wilson95_if_verdicts_were_independent": [
+      0.9591,
+      1.0
+     ],
+     "pass_k": {
+      "cases": 6,
+      "k": 3,
+      "pass_power_k": 1.0,
+      "pass_power_k_ci95": [
+       0.6097,
+       1.0
+      ],
+      "pass_at_1": 1,
+      "cases_all_correct": 6
+     },
+     "cases_whose_verdicts_changed": 0
+    },
+    "react": {
+     "runs": 18,
+     "completed": 18,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 0,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0,
+      "not_retrieved": 0
+     },
+     "stops": {
+      "evidence_exhausted": 18
+     },
+     "model_calls_mean": 1.11,
+     "tool_calls_mean": 6.17,
+     "model_errors": 2,
+     "tool_errors": 0,
+     "schema_repairs": 2,
+     "cost_usd": 0.022463,
+     "latency_ms_p50": 3803.1,
+     "cases": 6,
+     "repeats": 3,
+     "runs_fully_correct": 18,
+     "accuracy_wilson95_if_verdicts_were_independent": [
+      0.9591,
+      1.0
+     ],
+     "pass_k": {
+      "cases": 6,
+      "k": 3,
+      "pass_power_k": 1.0,
+      "pass_power_k_ci95": [
+       0.6097,
+       1.0
+      ],
+      "pass_at_1": 1,
+      "cases_all_correct": 6
+     },
+     "cases_whose_verdicts_changed": 0
+    },
+    "fitwitness": {
+     "runs": 18,
+     "completed": 18,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 18,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0,
+      "not_retrieved": 0
+     },
+     "stops": {
+      "evidence_exhausted": 18
+     },
+     "model_calls_mean": 2.06,
+     "tool_calls_mean": 7.39,
+     "model_errors": 1,
+     "tool_errors": 0,
+     "schema_repairs": 1,
+     "cost_usd": 0.040069,
+     "latency_ms_p50": 5654.5,
+     "cases": 6,
+     "repeats": 3,
+     "runs_fully_correct": 18,
+     "accuracy_wilson95_if_verdicts_were_independent": [
+      0.9591,
+      1.0
+     ],
+     "pass_k": {
+      "cases": 6,
+      "k": 3,
+      "pass_power_k": 1.0,
+      "pass_power_k_ci95": [
+       0.6097,
+       1.0
+      ],
+      "pass_at_1": 1,
+      "cases_all_correct": 6
+     },
+     "cases_whose_verdicts_changed": 0
+    }
+   },
+   "model_errors": [
+    "fixed FW-F029:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.4.:{\\n  Extra inputs are not permitted [type=extra_forbidden, input_value='   }],', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F003:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 10 [type=too_long, input_value=[{'name': 'query_dimensio...ox': [0, 0, 612, 792]}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F012:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"2 validation errors for SearchPlan\\noperations.5.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\\noperations.5.stop_condition\\n  Extra inputs are not permitted [type=extra_forbidden, input_value='All candidates queried f... tools can add evidence', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F029:SUS304 {\"role\": \"challenger\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.2\\n  Value error, invalid region [type=value_error, input_value={'revision_id': 'd5e2c6f1...ox': [0, 0, 1000, 1000]}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error\", \"raw_output\": \"\\\"\\\"\"}"
+   ],
+   "rows": [
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2147,
+     "output_tokens": 260,
+     "cost_usd": 0.00105675,
+     "latency_ms": 4978.6,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2159,
+     "output_tokens": 267,
+     "cost_usd": 0.00107375,
+     "latency_ms": 2800.1,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2142,
+     "output_tokens": 254,
+     "cost_usd": 0.0010435,
+     "latency_ms": 3408.4,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2148,
+     "output_tokens": 262,
+     "cost_usd": 0.001061,
+     "latency_ms": 4612.4,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2150,
+     "output_tokens": 266,
+     "cost_usd": 0.0010695,
+     "latency_ms": 4113.9,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 6,
+     "input_tokens": 4702,
+     "output_tokens": 534,
+     "cost_usd": 0.0022435,
+     "latency_ms": 10877.2,
+     "repairs": 1,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 6,
+     "input_tokens": 5008,
+     "output_tokens": 761,
+     "cost_usd": 0.002774,
+     "latency_ms": 11565.2,
+     "repairs": 1,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 4845,
+     "output_tokens": 659,
+     "cost_usd": 0.00252925,
+     "latency_ms": 10814.2,
+     "repairs": 1,
+     "uninspected": 0,
+     "tool_names": [
+      "define_search_tool",
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2142,
+     "output_tokens": 259,
+     "cost_usd": 0.0010535,
+     "latency_ms": 3660.5,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2148,
+     "output_tokens": 258,
+     "cost_usd": 0.001053,
+     "latency_ms": 3482.7,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 8,
+     "input_tokens": 2150,
+     "output_tokens": 345,
+     "cost_usd": 0.0012275,
+     "latency_ms": 4560.4,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "define_search_tool",
+      "query_dimensions",
+      "run_saved_search"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2161,
+     "output_tokens": 269,
+     "cost_usd": 0.00107825,
+     "latency_ms": 4754.2,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 5561,
+     "output_tokens": 322,
+     "cost_usd": 0.00203425,
+     "latency_ms": 4662.6,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 4,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 5614,
+     "output_tokens": 467,
+     "cost_usd": 0.0023375,
+     "latency_ms": 7372.2,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 5550,
+     "output_tokens": 316,
+     "cost_usd": 0.0020195,
+     "latency_ms": 4762.0,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 2,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 9,
+     "input_tokens": 5758,
+     "output_tokens": 445,
+     "cost_usd": 0.0023295,
+     "latency_ms": 7378.4,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "define_search_tool",
+      "query_dimensions",
+      "run_saved_search"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 5587,
+     "output_tokens": 335,
+     "cost_usd": 0.00206675,
+     "latency_ms": 5959.4,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 2,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 8,
+     "input_tokens": 9366,
+     "output_tokens": 551,
+     "cost_usd": 0.0034435,
+     "latency_ms": 8597.9,
+     "repairs": 1,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2147,
+     "output_tokens": 260,
+     "cost_usd": 0.00105675,
+     "latency_ms": 2974.3,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2159,
+     "output_tokens": 264,
+     "cost_usd": 0.00106775,
+     "latency_ms": 2899.0,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2142,
+     "output_tokens": 250,
+     "cost_usd": 0.0010355,
+     "latency_ms": 2921.1,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2148,
+     "output_tokens": 259,
+     "cost_usd": 0.001055,
+     "latency_ms": 3194.0,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2150,
+     "output_tokens": 261,
+     "cost_usd": 0.0010595,
+     "latency_ms": 2881.4,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2161,
+     "output_tokens": 270,
+     "cost_usd": 0.00108025,
+     "latency_ms": 3974.1,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2147,
+     "output_tokens": 260,
+     "cost_usd": 0.00105675,
+     "latency_ms": 2983.5,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2159,
+     "output_tokens": 267,
+     "cost_usd": 0.00107375,
+     "latency_ms": 3298.5,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2142,
+     "output_tokens": 255,
+     "cost_usd": 0.0010455,
+     "latency_ms": 3946.2,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2148,
+     "output_tokens": 258,
+     "cost_usd": 0.001053,
+     "latency_ms": 3920.7,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2150,
+     "output_tokens": 260,
+     "cost_usd": 0.0010575,
+     "latency_ms": 3931.8,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2161,
+     "output_tokens": 269,
+     "cost_usd": 0.00107825,
+     "latency_ms": 4364.4,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 5561,
+     "output_tokens": 321,
+     "cost_usd": 0.00203225,
+     "latency_ms": 5640.8,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 2,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 8,
+     "input_tokens": 5614,
+     "output_tokens": 371,
+     "cost_usd": 0.0021455,
+     "latency_ms": 7015.2,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 2,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 8,
+     "input_tokens": 5550,
+     "output_tokens": 363,
+     "cost_usd": 0.0021135,
+     "latency_ms": 5668.1,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 5577,
+     "output_tokens": 320,
+     "cost_usd": 0.00203425,
+     "latency_ms": 4992.0,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 5587,
+     "output_tokens": 325,
+     "cost_usd": 0.00204675,
+     "latency_ms": 4398.3,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 6,
+     "input_tokens": 5615,
+     "output_tokens": 310,
+     "cost_usd": 0.00202375,
+     "latency_ms": 4125.8,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2147,
+     "output_tokens": 258,
+     "cost_usd": 0.00105275,
+     "latency_ms": 2988.1,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2159,
+     "output_tokens": 264,
+     "cost_usd": 0.00106775,
+     "latency_ms": 3393.7,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2142,
+     "output_tokens": 255,
+     "cost_usd": 0.0010455,
+     "latency_ms": 3248.7,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2148,
+     "output_tokens": 261,
+     "cost_usd": 0.001059,
+     "latency_ms": 3840.5,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2150,
+     "output_tokens": 260,
+     "cost_usd": 0.0010575,
+     "latency_ms": 3673.9,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2161,
+     "output_tokens": 268,
+     "cost_usd": 0.00107625,
+     "latency_ms": 3864.8,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2147,
+     "output_tokens": 261,
+     "cost_usd": 0.00105875,
+     "latency_ms": 3666.0,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2159,
+     "output_tokens": 262,
+     "cost_usd": 0.00106375,
+     "latency_ms": 3907.5,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2142,
+     "output_tokens": 256,
+     "cost_usd": 0.0010475,
+     "latency_ms": 3698.6,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2148,
+     "output_tokens": 258,
+     "cost_usd": 0.001053,
+     "latency_ms": 3347.6,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2150,
+     "output_tokens": 269,
+     "cost_usd": 0.0010755,
+     "latency_ms": 3263.0,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 6,
+     "input_tokens": 2161,
+     "output_tokens": 272,
+     "cost_usd": 0.00108425,
+     "latency_ms": 3298.7,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 5561,
+     "output_tokens": 322,
+     "cost_usd": 0.00203425,
+     "latency_ms": 4179.8,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 6,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 5614,
+     "output_tokens": 560,
+     "cost_usd": 0.0025235,
+     "latency_ms": 7221.0,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 3,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 9,
+     "input_tokens": 5550,
+     "output_tokens": 403,
+     "cost_usd": 0.0021935,
+     "latency_ms": 5038.2,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 5577,
+     "output_tokens": 320,
+     "cost_usd": 0.00203425,
+     "latency_ms": 5228.8,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 6,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 7,
+     "input_tokens": 5587,
+     "output_tokens": 545,
+     "cost_usd": 0.00248675,
+     "latency_ms": 6862.7,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 5,
+     "total": 5,
+     "retrieved": 5,
+     "coverage_before_verdict": 1.0,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 2,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 8,
+     "input_tokens": 5615,
+     "output_tokens": 383,
+     "cost_usd": 0.00216975,
+     "latency_ms": 5721.5,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    }
+   ],
+   "rules_rows": 6,
+   "completed_runs_only": {
+    "fixed": {
+     "runs": 18,
+     "verdicts_right": 90,
+     "verdicts": 90
+    },
+    "react": {
+     "runs": 18,
+     "verdicts_right": 90,
+     "verdicts": 90
+    },
+    "fitwitness": {
+     "runs": 18,
+     "verdicts_right": 90,
+     "verdicts": 90
+    }
+   }
+  },
+  {
+   "run_id": 41032292254,
+   "url": "https://github.com/sokldjs554/fitwitness/actions/runs/41032292254",
+   "provider": "openai",
+   "model": "gpt-5-mini",
+   "reasoning_effort": "minimal",
+   "code": "bd70af4",
+   "setting": "hard: the six test families' thirty base drawings indexed together, twelve candidates returned, twelve queries (six families x SUS304 and AL6061), 3 repeats per mode",
+   "purpose": "more candidates than one plan can inspect, a family of the same kind beside the asked one, a second material",
+   "protocol": {
+    "code_sha": "bd70af4661c1690148984106c38a7fa550d10b11",
+    "provider": "openai",
+    "model": "gpt-5-mini",
+    "modes": [
+     "fixed",
+     "react",
+     "fitwitness"
+    ],
+    "repeats": 3,
+    "workspace": "split",
+    "workspace_drawings": 30,
+    "top_k": 12,
+    "materials": [
+     "SUS304",
+     "AL6061"
+    ],
+    "ceiling_usd": "0.9",
+    "per_run_cap_usd": "0.04",
+    "pricing_usd_per_million": {
+     "input": "0.25",
+     "output": "2.00"
+    }
+   },
+   "spent_usd": 0.38951975,
+   "by_mode": {
+    "rules": {
+     "runs": 12,
+     "completed": 12,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 0,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0,
+      "not_retrieved": 0
+     },
+     "stops": {
+      "null": 12
+     },
+     "model_calls_mean": 0,
+     "tool_calls_mean": 12.67,
+     "model_errors": 0,
+     "tool_errors": 0,
+     "schema_repairs": 0,
+     "cost_usd": 0.0,
+     "latency_ms_p50": 77.7
+    },
+    "fixed": {
+     "runs": 36,
+     "completed": 29,
+     "accuracy": 0.5476,
+     "agreement_with_rules": 0.5431,
+     "coverage_before_verdict": 0.543,
+     "challenger_turns": 0,
+     "invariant_violations": 14,
+     "failure_classes": {
+      "not_inspected": 112,
+      "inspected_wrong": 0,
+      "run_incomplete": 78,
+      "not_retrieved": 0
+     },
+     "stops": {
+      "null": 35,
+      "plan_stop": 1
+     },
+     "model_calls_mean": 1.44,
+     "tool_calls_mean": 7.39,
+     "model_errors": 23,
+     "tool_errors": 0,
+     "schema_repairs": 9,
+     "cost_usd": 0.086988,
+     "latency_ms_p50": 5761.6,
+     "cases": 12,
+     "repeats": 3,
+     "runs_fully_correct": 0,
+     "accuracy_wilson95_if_verdicts_were_independent": [
+      0.4998,
+      0.5946
+     ],
+     "pass_k": {
+      "cases": 12,
+      "k": 3,
+      "pass_power_k": 0.0,
+      "pass_power_k_ci95": [
+       0.0,
+       0.2425
+      ],
+      "pass_at_1": 0,
+      "cases_all_correct": 0
+     },
+     "cases_whose_verdicts_changed": 5
+    },
+    "react": {
+     "runs": 36,
+     "completed": 30,
+     "accuracy": 0.6412,
+     "agreement_with_rules": 0.6357,
+     "coverage_before_verdict": 0.567,
+     "challenger_turns": 0,
+     "invariant_violations": 12,
+     "failure_classes": {
+      "not_inspected": 89,
+      "inspected_wrong": 0,
+      "run_incomplete": 66,
+      "not_retrieved": 0
+     },
+     "stops": {
+      "null": 6,
+      "evidence_exhausted": 6,
+      "plan_stop": 24
+     },
+     "model_calls_mean": 2.44,
+     "tool_calls_mean": 9.78,
+     "model_errors": 15,
+     "tool_errors": 0,
+     "schema_repairs": 3,
+     "cost_usd": 0.134522,
+     "latency_ms_p50": 9187.2,
+     "cases": 12,
+     "repeats": 3,
+     "runs_fully_correct": 6,
+     "accuracy_wilson95_if_verdicts_were_independent": [
+      0.5949,
+      0.685
+     ],
+     "pass_k": {
+      "cases": 12,
+      "k": 3,
+      "pass_power_k": 0.0,
+      "pass_power_k_ci95": [
+       0.0,
+       0.2425
+      ],
+      "pass_at_1": 0.1667,
+      "cases_all_correct": 0
+     },
+     "cases_whose_verdicts_changed": 10
+    },
+    "fitwitness": {
+     "runs": 36,
+     "completed": 27,
+     "accuracy": 0.6161,
+     "agreement_with_rules": 0.6019,
+     "coverage_before_verdict": 0.499,
+     "challenger_turns": 27,
+     "invariant_violations": 22,
+     "failure_classes": {
+      "not_inspected": 64,
+      "inspected_wrong": 0,
+      "run_incomplete": 98,
+      "not_retrieved": 0
+     },
+     "stops": {
+      "null": 9,
+      "budget_stop": 4,
+      "evidence_exhausted": 6,
+      "plan_stop": 17
+     },
+     "model_calls_mean": 2.89,
+     "tool_calls_mean": 9.28,
+     "model_errors": 24,
+     "tool_errors": 1,
+     "schema_repairs": 6,
+     "cost_usd": 0.16801,
+     "latency_ms_p50": 9809.8,
+     "cases": 12,
+     "repeats": 3,
+     "runs_fully_correct": 7,
+     "accuracy_wilson95_if_verdicts_were_independent": [
+      0.5689,
+      0.6613
+     ],
+     "pass_k": {
+      "cases": 12,
+      "k": 3,
+      "pass_power_k": 0.0833,
+      "pass_power_k_ci95": [
+       0.0149,
+       0.3539
+      ],
+      "pass_at_1": 0.1944,
+      "cases_all_correct": 1
+     },
+     "cases_whose_verdicts_changed": 8
+    }
+   },
+   "model_errors": [
+    "fixed FW-F003:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"None\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F003:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F003:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio... no more useful tools'}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F012:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 10 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F029:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F012:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F012:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F012:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 10 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F015:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"2 validation errors for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\\noperations.7.stop_condition\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=\\\"All candidates' kind/mat...more tools add evidence\\\", input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F015:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio... 'material', 'width']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F029:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F029:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 10 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F012:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F012:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 10 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F015:AL6061 {\"role\": \"challenger\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.3\\n  Value error, invalid region [type=value_error, input_value={'revision_id': 'c7054229...bbox': [0, 0, 600, 800]}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F029:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.6.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F029:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F029:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F029:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 10 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F003:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio... 'material', 'width']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F012:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"None\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F012:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 10 [type=too_long, input_value=[{'name': 'query_dimensio... and material queried\\\"}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F012:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"2 validation errors for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\\noperations.7.stop_condition\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=\\\"All candidates' hole_spa...d, and material queried\\\", input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F014:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F014:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio... 'material', 'width']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F015:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio...'width']}, '], ': None}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F018:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio... 'material', 'width']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F029:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F029:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 10 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F015:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F015:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio... 'material', 'width']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F029:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"2 validation errors for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\\noperations.7.stop_condition\\n  Extra inputs are not permitted [type=extra_forbidden, input_value='No further dimensions ca... from listed candidates', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F029:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F003:AL6061 {\"role\": \"challenger\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"2 validation errors for SearchPlan\\noperations.3\\n  Value error, invalid region [type=value_error, input_value={'revision_id': '741bb518...bbox': [0, 0, 612, 792]}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error\\noperations.4.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value='false', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F012:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F012:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F012:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F012:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 10 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F015:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F015:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio... 'material', 'width']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F018:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio... 'material', 'width']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F029:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F003:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F003:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio... 'material', 'width']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F012:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F012:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F012:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 10 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F015:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio... 'material', 'width']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F029:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fixed FW-F029:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 10 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F012:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"2 validation errors for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\\noperations.7.stop_condition\\n  Extra inputs are not permitted [type=extra_forbidden, input_value='No more candidates can s...e three required fields', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F012:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 10 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F029:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"2 validation errors for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\\noperations.7.stop_condition\\n  Extra inputs are not permitted [type=extra_forbidden, input_value='All candidate revisions ...spacing, kind, material', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "react FW-F029:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 10 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F012:SUS304 {\"role\": \"challenger\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.],\\n  Extra inputs are not permitted [type=extra_forbidden, input_value='', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F012:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"None\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F012:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"None\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F015:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"2 validation errors for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\\noperations.7.stop_condition\\n  Extra inputs are not permitted [type=extra_forbidden, input_value='All candidates queried f...tools can add evidence.', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F015:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 12 [type=too_long, input_value=[{'name': 'query_dimensio... 'material', 'width']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F015:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"None\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F029:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations.7.stop\\n  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]\\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden\", \"raw_output\": \"\\\"\\\"\"}",
+    "fitwitness FW-F029:AL6061 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": null, \"parse_error\": \"1 validation error for SearchPlan\\noperations\\n  List should have at most 8 items after validation, not 10 [type=too_long, input_value=[{'name': 'query_dimensio..., 'kind', 'material']}}], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/too_long\", \"raw_output\": \"\\\"\\\"\"}"
+   ],
+   "rows": [
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 0,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fixed: unexpected events ['failed']",
+      "fixed: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 5616,
+     "output_tokens": 1881,
+     "cost_usd": 0.005166,
+     "latency_ms": 24068.2,
+     "repairs": 0,
+     "uninspected": 12,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 12
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F003:AL6061",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 9,
+     "input_tokens": 6334,
+     "output_tokens": 947,
+     "cost_usd": 0.0034775,
+     "latency_ms": 17545.2,
+     "repairs": 1,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2797,
+     "output_tokens": 396,
+     "cost_usd": 0.00149125,
+     "latency_ms": 17019.3,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F012:AL6061",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 7,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.7,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 8,
+     "input_tokens": 5882,
+     "output_tokens": 832,
+     "cost_usd": 0.0031345,
+     "latency_ms": 11242.4,
+     "repairs": 1,
+     "uninspected": 3,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 3
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2786,
+     "output_tokens": 387,
+     "cost_usd": 0.0014705,
+     "latency_ms": 5184.5,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F014:AL6061",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2782,
+     "output_tokens": 389,
+     "cost_usd": 0.0014735,
+     "latency_ms": 5286.0,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2785,
+     "output_tokens": 393,
+     "cost_usd": 0.00148225,
+     "latency_ms": 4517.8,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F015:AL6061",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2788,
+     "output_tokens": 385,
+     "cost_usd": 0.001467,
+     "latency_ms": 4625.6,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2786,
+     "output_tokens": 387,
+     "cost_usd": 0.0014705,
+     "latency_ms": 4784.7,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F018:AL6061",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2782,
+     "output_tokens": 388,
+     "cost_usd": 0.0014715,
+     "latency_ms": 5487.1,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 9,
+     "input_tokens": 6376,
+     "output_tokens": 982,
+     "cost_usd": 0.003558,
+     "latency_ms": 12421.6,
+     "repairs": 1,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F029:AL6061",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.8,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2617,
+     "output_tokens": 398,
+     "cost_usd": 0.00145025,
+     "latency_ms": 4588.9,
+     "repairs": 0,
+     "uninspected": 2,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 2
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 10,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 14,
+     "input_tokens": 12095,
+     "output_tokens": 661,
+     "cost_usd": 0.00434575,
+     "latency_ms": 8007.5,
+     "repairs": 0,
+     "uninspected": 2,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 2
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F003:AL6061",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 10,
+     "input_tokens": 7290,
+     "output_tokens": 669,
+     "cost_usd": 0.0031605,
+     "latency_ms": 8475.8,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 0,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "react: unexpected events ['failed']",
+      "react: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 6141,
+     "output_tokens": 973,
+     "cost_usd": 0.00348125,
+     "latency_ms": 18592.8,
+     "repairs": 0,
+     "uninspected": 12,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 12
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F012:AL6061",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.8,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 10,
+     "input_tokens": 10104,
+     "output_tokens": 1155,
+     "cost_usd": 0.004836,
+     "latency_ms": 16258.5,
+     "repairs": 1,
+     "uninspected": 2,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 2
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 10,
+     "input_tokens": 7293,
+     "output_tokens": 625,
+     "cost_usd": 0.00307325,
+     "latency_ms": 7202.7,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F014:AL6061",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 9,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 12,
+     "input_tokens": 11942,
+     "output_tokens": 617,
+     "cost_usd": 0.0042195,
+     "latency_ms": 7697.2,
+     "repairs": 0,
+     "uninspected": 3,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 3
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 0,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "react: unexpected events ['failed']",
+      "react: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 6174,
+     "output_tokens": 941,
+     "cost_usd": 0.0034255,
+     "latency_ms": 9960.0,
+     "repairs": 0,
+     "uninspected": 12,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 12
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F015:AL6061",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 10,
+     "input_tokens": 11777,
+     "output_tokens": 508,
+     "cost_usd": 0.00396025,
+     "latency_ms": 5624.5,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 10,
+     "input_tokens": 11782,
+     "output_tokens": 498,
+     "cost_usd": 0.0039415,
+     "latency_ms": 7062.3,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F018:AL6061",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 10,
+     "input_tokens": 7290,
+     "output_tokens": 633,
+     "cost_usd": 0.0030885,
+     "latency_ms": 8685.1,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 14,
+     "input_tokens": 7194,
+     "output_tokens": 783,
+     "cost_usd": 0.0033645,
+     "latency_ms": 9591.2,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F029:AL6061",
+     "repeat": 0,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "react: unexpected events ['failed']",
+      "react: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 5791,
+     "output_tokens": 903,
+     "cost_usd": 0.00325375,
+     "latency_ms": 10749.7,
+     "repairs": 0,
+     "uninspected": 10,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 10
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger",
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 4,
+     "tool_calls": 10,
+     "input_tokens": 17136,
+     "output_tokens": 541,
+     "cost_usd": 0.005366,
+     "latency_ms": 7661.6,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F003:AL6061",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 10,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger",
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 4,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 4,
+     "tool_calls": 13,
+     "input_tokens": 17818,
+     "output_tokens": 682,
+     "cost_usd": 0.0058185,
+     "latency_ms": 9517.6,
+     "repairs": 0,
+     "uninspected": 2,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 2
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 5,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 10,
+     "input_tokens": 7627,
+     "output_tokens": 648,
+     "cost_usd": 0.00320275,
+     "latency_ms": 8971.8,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F012:AL6061",
+     "repeat": 0,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fitwitness: unexpected events ['failed']",
+      "fitwitness: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 5747,
+     "output_tokens": 934,
+     "cost_usd": 0.00330475,
+     "latency_ms": 11392.1,
+     "repairs": 0,
+     "uninspected": 10,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 10
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger",
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 6,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 4,
+     "tool_calls": 12,
+     "input_tokens": 17237,
+     "output_tokens": 746,
+     "cost_usd": 0.00580125,
+     "latency_ms": 10530.5,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "define_search_tool",
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F014:AL6061",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 8,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 15,
+     "input_tokens": 7724,
+     "output_tokens": 756,
+     "cost_usd": 0.003443,
+     "latency_ms": 8479.4,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 10,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 6,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 12,
+     "input_tokens": 7727,
+     "output_tokens": 677,
+     "cost_usd": 0.00328575,
+     "latency_ms": 19694.4,
+     "repairs": 0,
+     "uninspected": 2,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 2
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F015:AL6061",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger",
+      "planner"
+     ],
+     "challenger_tools": 3,
+     "stop": "budget_stop",
+     "violations": [
+      "fitwitness: unexpected events ['budget_stop']"
+     ],
+     "model_calls": 4,
+     "tool_calls": 11,
+     "input_tokens": 17478,
+     "output_tokens": 797,
+     "cost_usd": 0.0059635,
+     "latency_ms": 11175.9,
+     "repairs": 1,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 8,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 14,
+     "input_tokens": 7729,
+     "output_tokens": 755,
+     "cost_usd": 0.00344225,
+     "latency_ms": 8017.0,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F018:AL6061",
+     "repeat": 0,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 8,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 10,
+     "input_tokens": 7724,
+     "output_tokens": 762,
+     "cost_usd": 0.003455,
+     "latency_ms": 7183.1,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 0,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fitwitness: unexpected events ['failed']",
+      "fitwitness: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 6101,
+     "output_tokens": 934,
+     "cost_usd": 0.00339325,
+     "latency_ms": 8523.9,
+     "repairs": 0,
+     "uninspected": 12,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 12
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F029:AL6061",
+     "repeat": 0,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fitwitness: unexpected events ['failed']",
+      "fitwitness: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 5790,
+     "output_tokens": 903,
+     "cost_usd": 0.0032535,
+     "latency_ms": 7714.8,
+     "repairs": 0,
+     "uninspected": 10,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 10
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 7,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.583,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 8,
+     "input_tokens": 6327,
+     "output_tokens": 912,
+     "cost_usd": 0.00340575,
+     "latency_ms": 9763.7,
+     "repairs": 1,
+     "uninspected": 5,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 5
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F003:AL6061",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2788,
+     "output_tokens": 383,
+     "cost_usd": 0.001463,
+     "latency_ms": 4156.1,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 9,
+     "input_tokens": 5640,
+     "output_tokens": 1895,
+     "cost_usd": 0.0052,
+     "latency_ms": 21385.5,
+     "repairs": 1,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F012:AL6061",
+     "repeat": 1,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fixed: unexpected events ['failed']",
+      "fixed: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 5882,
+     "output_tokens": 885,
+     "cost_usd": 0.0032405,
+     "latency_ms": 10604.6,
+     "repairs": 0,
+     "uninspected": 10,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 10
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 1,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fixed: unexpected events ['failed']",
+      "fixed: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 6090,
+     "output_tokens": 918,
+     "cost_usd": 0.0033585,
+     "latency_ms": 9396.8,
+     "repairs": 0,
+     "uninspected": 12,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 12
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F014:AL6061",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2782,
+     "output_tokens": 384,
+     "cost_usd": 0.0014635,
+     "latency_ms": 4712.3,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 9,
+     "input_tokens": 6312,
+     "output_tokens": 946,
+     "cost_usd": 0.00347,
+     "latency_ms": 10184.7,
+     "repairs": 1,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F015:AL6061",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2788,
+     "output_tokens": 383,
+     "cost_usd": 0.001463,
+     "latency_ms": 5275.0,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2786,
+     "output_tokens": 394,
+     "cost_usd": 0.0014845,
+     "latency_ms": 5807.8,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F018:AL6061",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 9,
+     "input_tokens": 6321,
+     "output_tokens": 950,
+     "cost_usd": 0.00348025,
+     "latency_ms": 12242.2,
+     "repairs": 1,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2801,
+     "output_tokens": 399,
+     "cost_usd": 0.00149825,
+     "latency_ms": 4619.1,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F029:AL6061",
+     "repeat": 1,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fixed: unexpected events ['failed']",
+      "fixed: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 5786,
+     "output_tokens": 892,
+     "cost_usd": 0.0032305,
+     "latency_ms": 9501.1,
+     "repairs": 0,
+     "uninspected": 10,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 10
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 12,
+     "input_tokens": 11766,
+     "output_tokens": 578,
+     "cost_usd": 0.0040975,
+     "latency_ms": 8005.9,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F003:AL6061",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 10,
+     "input_tokens": 7290,
+     "output_tokens": 623,
+     "cost_usd": 0.0030685,
+     "latency_ms": 11144.2,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 10,
+     "input_tokens": 7193,
+     "output_tokens": 694,
+     "cost_usd": 0.00318625,
+     "latency_ms": 10872.5,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F012:AL6061",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.8,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 10,
+     "input_tokens": 6835,
+     "output_tokens": 1030,
+     "cost_usd": 0.00376875,
+     "latency_ms": 11678.2,
+     "repairs": 0,
+     "uninspected": 2,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 2
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 22,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 16,
+     "input_tokens": 12265,
+     "output_tokens": 720,
+     "cost_usd": 0.00450625,
+     "latency_ms": 8593.2,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "define_search_tool",
+      "query_dimensions",
+      "run_saved_search",
+      "search_exact",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 10
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F014:AL6061",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 15,
+     "input_tokens": 7290,
+     "output_tokens": 716,
+     "cost_usd": 0.0032545,
+     "latency_ms": 7915.6,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 1,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "react: unexpected events ['failed']",
+      "react: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 6114,
+     "output_tokens": 959,
+     "cost_usd": 0.0034465,
+     "latency_ms": 11348.4,
+     "repairs": 0,
+     "uninspected": 12,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 12
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F015:AL6061",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 10,
+     "input_tokens": 11777,
+     "output_tokens": 666,
+     "cost_usd": 0.00427625,
+     "latency_ms": 9628.1,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 11,
+     "input_tokens": 7293,
+     "output_tokens": 659,
+     "cost_usd": 0.00314125,
+     "latency_ms": 9546.8,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F018:AL6061",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 14,
+     "input_tokens": 7290,
+     "output_tokens": 623,
+     "cost_usd": 0.0030685,
+     "latency_ms": 7522.4,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 9,
+     "input_tokens": 12173,
+     "output_tokens": 1150,
+     "cost_usd": 0.00534325,
+     "latency_ms": 12842.8,
+     "repairs": 1,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F029:AL6061",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.8,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 4,
+     "tool_calls": 10,
+     "input_tokens": 14216,
+     "output_tokens": 1166,
+     "cost_usd": 0.005886,
+     "latency_ms": 16046.1,
+     "repairs": 1,
+     "uninspected": 2,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 2
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 6,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 15,
+     "input_tokens": 7727,
+     "output_tokens": 665,
+     "cost_usd": 0.00326175,
+     "latency_ms": 8857.1,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_exact"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F003:AL6061",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 10,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger",
+      "planner"
+     ],
+     "challenger_tools": 3,
+     "stop": "budget_stop",
+     "violations": [
+      "fitwitness: unexpected events ['budget_stop']"
+     ],
+     "model_calls": 4,
+     "tool_calls": 12,
+     "input_tokens": 17948,
+     "output_tokens": 836,
+     "cost_usd": 0.006159,
+     "latency_ms": 12243.9,
+     "repairs": 1,
+     "uninspected": 2,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 2
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 1,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fitwitness: unexpected events ['failed']",
+      "fitwitness: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 6141,
+     "output_tokens": 973,
+     "cost_usd": 0.00348125,
+     "latency_ms": 11229.6,
+     "repairs": 0,
+     "uninspected": 12,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 12
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F012:AL6061",
+     "repeat": 1,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fitwitness: unexpected events ['failed']",
+      "fitwitness: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 5768,
+     "output_tokens": 866,
+     "cost_usd": 0.003174,
+     "latency_ms": 8199.1,
+     "repairs": 0,
+     "uninspected": 10,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 10
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger",
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 4,
+     "tool_calls": 9,
+     "input_tokens": 17179,
+     "output_tokens": 509,
+     "cost_usd": 0.00531275,
+     "latency_ms": 6900.7,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F014:AL6061",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger",
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 4,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 4,
+     "tool_calls": 15,
+     "input_tokens": 17967,
+     "output_tokens": 905,
+     "cost_usd": 0.00630175,
+     "latency_ms": 10751.7,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 1,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fitwitness: unexpected events ['failed']",
+      "fitwitness: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 6117,
+     "output_tokens": 961,
+     "cost_usd": 0.00345125,
+     "latency_ms": 10816.9,
+     "repairs": 0,
+     "uninspected": 12,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 12
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F015:AL6061",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 11,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger",
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 7,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 4,
+     "tool_calls": 13,
+     "input_tokens": 18173,
+     "output_tokens": 775,
+     "cost_usd": 0.00609325,
+     "latency_ms": 9148.6,
+     "repairs": 0,
+     "uninspected": 1,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 1
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger",
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 6,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 4,
+     "tool_calls": 13,
+     "input_tokens": 17674,
+     "output_tokens": 887,
+     "cost_usd": 0.0061925,
+     "latency_ms": 10101.9,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "define_search_tool",
+      "query_dimensions",
+      "run_saved_search",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F018:AL6061",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 7,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.583,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 4,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 9,
+     "input_tokens": 11029,
+     "output_tokens": 1099,
+     "cost_usd": 0.00495525,
+     "latency_ms": 14255.7,
+     "repairs": 1,
+     "uninspected": 5,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 5
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.583,
+     "roles": [
+      "planner",
+      "challenger",
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 9,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 4,
+     "tool_calls": 10,
+     "input_tokens": 16651,
+     "output_tokens": 875,
+     "cost_usd": 0.00591275,
+     "latency_ms": 13200.8,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F029:AL6061",
+     "repeat": 1,
+     "state": "completed",
+     "error": null,
+     "correct": 10,
+     "total": 12,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.8,
+     "roles": [
+      "planner",
+      "challenger",
+      "planner"
+     ],
+     "challenger_tools": 4,
+     "stop": "budget_stop",
+     "violations": [
+      "fitwitness: unexpected events ['budget_stop']"
+     ],
+     "model_calls": 4,
+     "tool_calls": 13,
+     "input_tokens": 15014,
+     "output_tokens": 1031,
+     "cost_usd": 0.0058155,
+     "latency_ms": 12946.3,
+     "repairs": 1,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 2
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 2,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fixed: unexpected events ['failed']",
+      "fixed: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 6094,
+     "output_tokens": 917,
+     "cost_usd": 0.0033575,
+     "latency_ms": 11562.8,
+     "repairs": 0,
+     "uninspected": 12,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 12
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F003:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2788,
+     "output_tokens": 383,
+     "cost_usd": 0.001463,
+     "latency_ms": 4391.0,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 2,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fixed: unexpected events ['failed']",
+      "fixed: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 6145,
+     "output_tokens": 979,
+     "cost_usd": 0.00349425,
+     "latency_ms": 11184.3,
+     "repairs": 0,
+     "uninspected": 12,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 12
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F012:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.8,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 9,
+     "input_tokens": 5888,
+     "output_tokens": 872,
+     "cost_usd": 0.003216,
+     "latency_ms": 11916.2,
+     "repairs": 1,
+     "uninspected": 2,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 2
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2786,
+     "output_tokens": 390,
+     "cost_usd": 0.0014765,
+     "latency_ms": 4762.2,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F014:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2782,
+     "output_tokens": 386,
+     "cost_usd": 0.0014675,
+     "latency_ms": 5026.5,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 9,
+     "input_tokens": 6327,
+     "output_tokens": 951,
+     "cost_usd": 0.00348375,
+     "latency_ms": 9585.7,
+     "repairs": 1,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F015:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2788,
+     "output_tokens": 390,
+     "cost_usd": 0.001477,
+     "latency_ms": 3869.5,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2786,
+     "output_tokens": 393,
+     "cost_usd": 0.0014825,
+     "latency_ms": 3819.6,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F018:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2782,
+     "output_tokens": 390,
+     "cost_usd": 0.0014755,
+     "latency_ms": 5715.5,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 2801,
+     "output_tokens": 404,
+     "cost_usd": 0.00150825,
+     "latency_ms": 3736.3,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fixed",
+     "case_id": "FW-F029:AL6061",
+     "repeat": 2,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fixed: unexpected events ['failed']",
+      "fixed: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 5782,
+     "output_tokens": 885,
+     "cost_usd": 0.0032155,
+     "latency_ms": 8821.1,
+     "repairs": 0,
+     "uninspected": 10,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 10
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 10,
+     "input_tokens": 11779,
+     "output_tokens": 498,
+     "cost_usd": 0.00394075,
+     "latency_ms": 8642.0,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F003:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 14,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 13,
+     "input_tokens": 12449,
+     "output_tokens": 585,
+     "cost_usd": 0.00428225,
+     "latency_ms": 8827.6,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "define_search_tool",
+      "query_dimensions",
+      "run_saved_search",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 2
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 10,
+     "input_tokens": 7193,
+     "output_tokens": 784,
+     "cost_usd": 0.00336625,
+     "latency_ms": 10053.4,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F012:AL6061",
+     "repeat": 2,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "react: unexpected events ['failed']",
+      "react: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 5821,
+     "output_tokens": 857,
+     "cost_usd": 0.00316925,
+     "latency_ms": 8219.3,
+     "repairs": 0,
+     "uninspected": 10,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 10
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 16,
+     "input_tokens": 7293,
+     "output_tokens": 698,
+     "cost_usd": 0.00321925,
+     "latency_ms": 6577.6,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F014:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 15,
+     "input_tokens": 7290,
+     "output_tokens": 721,
+     "cost_usd": 0.0032645,
+     "latency_ms": 8533.1,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 10,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 12,
+     "input_tokens": 12110,
+     "output_tokens": 717,
+     "cost_usd": 0.0044615,
+     "latency_ms": 20295.8,
+     "repairs": 0,
+     "uninspected": 2,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 2
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F015:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 10,
+     "input_tokens": 11777,
+     "output_tokens": 732,
+     "cost_usd": 0.00440825,
+     "latency_ms": 9680.1,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 9,
+     "input_tokens": 7293,
+     "output_tokens": 432,
+     "cost_usd": 0.00268725,
+     "latency_ms": 5172.8,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F018:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 15,
+     "input_tokens": 11756,
+     "output_tokens": 849,
+     "cost_usd": 0.004637,
+     "latency_ms": 9788.9,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_exact",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 9,
+     "input_tokens": 7194,
+     "output_tokens": 446,
+     "cost_usd": 0.0026905,
+     "latency_ms": 5161.3,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "react",
+     "case_id": "FW-F029:AL6061",
+     "repeat": 2,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "react: unexpected events ['failed']",
+      "react: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 5838,
+     "output_tokens": 871,
+     "cost_usd": 0.0032015,
+     "latency_ms": 10467.6,
+     "repairs": 0,
+     "uninspected": 10,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 10
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger",
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 1,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 4,
+     "tool_calls": 10,
+     "input_tokens": 17136,
+     "output_tokens": 555,
+     "cost_usd": 0.005394,
+     "latency_ms": 8447.6,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F003:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 10,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger",
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 6,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 4,
+     "tool_calls": 12,
+     "input_tokens": 17826,
+     "output_tokens": 751,
+     "cost_usd": 0.0059585,
+     "latency_ms": 16516.5,
+     "repairs": 0,
+     "uninspected": 2,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 2
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 8,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 16,
+     "input_tokens": 12956,
+     "output_tokens": 1262,
+     "cost_usd": 0.005763,
+     "latency_ms": 19992.6,
+     "repairs": 1,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_exact"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F012:AL6061",
+     "repeat": 2,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fitwitness: unexpected events ['failed']",
+      "fitwitness: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 5268,
+     "output_tokens": 3000,
+     "cost_usd": 0.007317,
+     "latency_ms": 28979.9,
+     "repairs": 0,
+     "uninspected": 10,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 10
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 0,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 9,
+     "input_tokens": 7729,
+     "output_tokens": 437,
+     "cost_usd": 0.00280625,
+     "latency_ms": 4588.2,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F014:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 11,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger",
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 6,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 4,
+     "tool_calls": 14,
+     "input_tokens": 18119,
+     "output_tokens": 747,
+     "cost_usd": 0.00602375,
+     "latency_ms": 9054.1,
+     "repairs": 0,
+     "uninspected": 1,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 1
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 2,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fitwitness: unexpected events ['failed']",
+      "fitwitness: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 6175,
+     "output_tokens": 945,
+     "cost_usd": 0.00343375,
+     "latency_ms": 10408.4,
+     "repairs": 0,
+     "uninspected": 12,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 12
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F015:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 9,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger",
+      "planner"
+     ],
+     "challenger_tools": 4,
+     "stop": "budget_stop",
+     "violations": [
+      "fitwitness: unexpected events ['budget_stop']"
+     ],
+     "model_calls": 4,
+     "tool_calls": 14,
+     "input_tokens": 15212,
+     "output_tokens": 2225,
+     "cost_usd": 0.008253,
+     "latency_ms": 26785.5,
+     "repairs": 1,
+     "uninspected": 3,
+     "tool_names": [
+      "define_search_tool",
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 3
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 8,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 14,
+     "input_tokens": 7729,
+     "output_tokens": 763,
+     "cost_usd": 0.00345825,
+     "latency_ms": 8856.1,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F018:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 4,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 10,
+     "input_tokens": 7724,
+     "output_tokens": 590,
+     "cost_usd": 0.003111,
+     "latency_ms": 6849.9,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 7,
+     "stop": "plan_stop",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 10,
+     "input_tokens": 7632,
+     "output_tokens": 745,
+     "cost_usd": 0.003398,
+     "latency_ms": 8144.8,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "openai",
+     "mode": "fitwitness",
+     "case_id": "FW-F029:AL6061",
+     "repeat": 2,
+     "state": "failed",
+     "error": "ValueError: model output failed schema validation",
+     "correct": 0,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.0,
+     "roles": [],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [
+      "fitwitness: unexpected events ['failed']",
+      "fitwitness: ended in failed"
+     ],
+     "model_calls": 2,
+     "tool_calls": 1,
+     "input_tokens": 5788,
+     "output_tokens": 903,
+     "cost_usd": 0.003253,
+     "latency_ms": 12121.8,
+     "repairs": 0,
+     "uninspected": 10,
+     "tool_names": [],
+     "failure_classes": [
+      "run_incomplete"
+     ],
+     "wrong_verdicts": 10
+    }
+   ],
+   "rules_rows": 12,
+   "completed_runs_only": {
+    "fixed": {
+     "runs": 29,
+     "verdicts_right": 230,
+     "verdicts": 342
+    },
+    "react": {
+     "runs": 30,
+     "verdicts_right": 277,
+     "verdicts": 366
+    },
+    "fitwitness": {
+     "runs": 27,
+     "verdicts_right": 260,
+     "verdicts": 324
+    }
+   }
+  }
+ ],
+ "findings": [
+  "Easy setting, gpt-5-mini, three repeats: all 54 runs (18 per structure) finished with every verdict right and no invariant violation. All three structures are at the ceiling, so the setting cannot rank them. 4 plans needed one schema repair.",
+  "Hard setting: none of the three structures is near the ceiling. Runs with every verdict right: single plan 0 of 36, repeated planning 6 of 36, planner plus challenger 7 of 36. Verdict accuracy over all runs 54.8%, 64.1%, 61.6%; over the runs that finished 67.3%, 75.7%, 80.2%. The two readings order the multi-turn structures differently because the challenger runs also failed more often (9 of 36 against 6 and 7), so the data do not rank repeated planning against planner plus challenger.",
+  "Every wrong verdict is a drawing nobody looked up (not_inspected 112, 89, 64) or a run that ended before its verdicts (run_incomplete 78, 66, 98); inspected_wrong is 0 in all 108 runs. The model never misjudged a drawing it had inspected; it stopped before it had inspected them all (coverage before the first verdict 54%, 57%, 50%).",
+  "The single plan cannot cover twelve candidates by construction: a plan holds at most 8 operations, one lookup each, so it can inspect 8 of 12 (the nine tool calls are the search and eight lookups). Its 0 of 36 is the harness's shape, not a finding about the model; the two multi-turn structures have the turns to cover all twelve and still stopped early in most runs (stop reason plan_stop 24 and 17 times).",
+  "Runs ended in failure on a plan that did not fit the schema even after the one repair: 7, 6 and 9 of 36 (ValueError: model output failed schema validation). In the easy setting none failed.",
+  "The same case gave different verdicts across its three repeats in 5, 10 and 8 of 12 cases; no case was right in all three repeats under the single plan or repeated planning, and one under planner plus challenger (pass^3 0, 0, 0.083)."
+ ],
+ "limitations": [
+  "One model (gpt-5-mini, minimal reasoning) in the repeated runs; the Claude Haiku 4.5 repeat was cut off by an empty balance after one repeat of two structures. Nothing here says how Claude behaves in the harder setting, and earlier Claude single runs (agent-trajectory.json) are not comparable with these.",
+  "Twelve cases (six families x two materials) times three repeats: the repeats of a case are not independent, so counts of runs overstate how much was observed; 12 cases cannot rank two structures that differ by one or two cases.",
+  "The harder setting is hard by the harness's limits (at most 8 operations per plan, 16 tool calls, 4 model calls, 12 candidates), not by the drawings. The single plan's ceiling of 8 of 12 is one of them.",
+  "Retrieval is the same for every structure (drawing-number and BM25 channels, 12 candidates returned, all of the family's own drawings among them in every case); semantic and image channels are not part of this measurement.",
+  "Synthetic drawings. The verdicts are the deterministic verifier's; a failure here is a path failure, not a misjudgement.",
+  "Run costs are priced from third-party listings entered by hand; the OpenAI invoice is the truth."
+ ],
+ "total_spent_usd": 0.554963
+}
