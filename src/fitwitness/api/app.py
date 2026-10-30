@@ -170,11 +170,20 @@ def create_app():
         cfg = live.load()
         if not cfg.enabled:
             raise HTTPException(409, "라이브 모델 읽기는 이 서버에서 꺼져 있습니다")
-        if jobs.admit(f"live-key:{s.tenant_id}:{idem}", 1):  # a repeated key is the same run: it reserves nothing again
-            if not jobs.admit(f"live-session:{s.tenant_id}", cfg.per_session):
-                raise HTTPException(429, f"체험 공간마다 라이브 모델 읽기는 {cfg.per_session}번까지입니다")
-            if not repo.live_reserve(live.today(), cfg.run_usd, cfg.daily_usd):
-                raise HTTPException(429, "오늘의 라이브 모델 호출 한도를 모두 썼습니다. 규칙 읽기로는 계속 쓸 수 있습니다")
+        key = f"live-key:{s.tenant_id}:{idem}"
+        if jobs.admit(key, 1):  # a repeated key is the same run: it reserves nothing again
+            taken = []
+            try:
+                if not jobs.admit(f"live-session:{s.tenant_id}", cfg.per_session):
+                    raise HTTPException(429, f"체험 공간마다 라이브 모델 읽기는 {cfg.per_session}번까지입니다")
+                taken.append(f"live-session:{s.tenant_id}")
+                if not repo.live_reserve(live.today(), cfg.run_usd, cfg.daily_usd):
+                    raise HTTPException(429, "오늘의 라이브 모델 호출 한도를 모두 썼습니다. 규칙 읽기로는 계속 쓸 수 있습니다")
+            except HTTPException:
+                # Nothing was reserved, so the key must not read as reserved: the same key sent again is checked again.
+                for bucket in (key, *taken):
+                    jobs.release_admission(bucket)
+                raise
         return {"provider": "anthropic", "model_id": cfg.model,
                 "budget": Budget(max_model_calls=3, max_tool_calls=1, max_tokens=12000, max_cost_usd=cfg.run_usd, deadline_seconds=90)}
 

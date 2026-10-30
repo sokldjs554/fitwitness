@@ -143,3 +143,18 @@ def test_answering_clears_the_deadline_and_the_ttl_is_configurable(env, monkeypa
     with repo.plain() as c:
         assert c.execute("SELECT count(*) AS n FROM fw_review_due WHERE run_id=%s", (run_id,)).fetchone()["n"] == 0
     assert jobs.get(scope, run_id).review_due_at is None
+
+
+def test_the_sign_off_rules_still_hold_when_the_question_is_past_the_first_page_of_events(env):
+    """resume() looked for the question in the first 500 events; in a run whose question came later it found none and
+    skipped the rules (a reason for a senior claim, a second person, the amount ceiling)."""
+    repo, jobs, _ = env
+    scope, run_id, _ = parked_claim(repo, jobs, senior=True)
+    with repo.connection(scope) as c:  # as if 600 events had come before the question
+        for i in range(600):
+            jobs._event(c, scope, run_id, "tool_call", {"filler": i})
+        c.execute("UPDATE fw_events SET seq=seq+1000 WHERE run_id=%s AND kind='waiting_input'", (run_id,))
+    assert len(jobs.events(scope, run_id)) == 500 and not [e for e in jobs.events(scope, run_id) if e["kind"] == "waiting_input"]
+    with pytest.raises(ReviewRuleError):  # a senior claim's approval needs a reason
+        jobs.resume(scope, run_id, {"outcome": "APPROVE", "reviewer": "김심사", "note": ""})
+    assert jobs.get(scope, run_id).state == "waiting_input"

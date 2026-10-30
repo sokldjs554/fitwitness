@@ -110,15 +110,25 @@ def _execute_run(
     # Read the row after the lease: the lease adds the wait that just ended to waited_seconds, and the deadline below
     # subtracts it. Read before, a claim answered three days later counted those days and died at once (found by
     # tests/integration/test_long_wait_resume.py, 2026-10-29).
-    raw = jobs.raw(scope, run_id)
-    request = RunRequest.model_validate(raw["request"])
+    try:
+        raw = jobs.raw(scope, run_id)
+        request = RunRequest.model_validate(raw["request"])
+    except ValueError as exc:
+        # The stored request is one this code cannot read (a run parked before a redeploy). Retrying reads it the same way.
+        jobs.fail(scope, run_id, token, f"실행 준비 실패: {type(exc).__name__}: {str(exc)[:300]}")
+        raise
     if request.kind == "claim":
         from fitwitness.claims.graph import execute_claim
 
         return execute_claim(repo, scope, run_id, raw=raw, token=token, jobs=jobs, request=request)
-    snapshot, _, facts = repo.corpus(scope)
-    budget = BudgetTracker(request.budget)
-    budget.usage = Usage.model_validate(raw["usage"])
+    try:
+        snapshot, _, facts = repo.corpus(scope)
+        budget = BudgetTracker(request.budget)
+        budget.usage = Usage.model_validate(raw["usage"])
+    except Exception as exc:
+        jobs.fail(scope, run_id, token, f"실행 준비 실패: {type(exc).__name__}: {str(exc)[:300]}",
+                  retryable=not isinstance(exc, ValueError))
+        raise
     # Deadline counts from creation, minus the time the run spent parked for a retry or a reviewer.
     budget.start -= max(
         0, (datetime.now(timezone.utc) - raw["created_at"]).total_seconds() - float(raw.get("waited_seconds") or 0)

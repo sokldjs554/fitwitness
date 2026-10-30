@@ -296,6 +296,14 @@ class Jobs:
                 raise RuntimeError("실행 소유권 만료")
         self._lease_seen[(run_id, token)] = monotonic()
 
+    def latest_event(self, scope, run_id, kind):
+        """Payload of the newest event of a kind, wherever it falls in the run (``events`` pages at 500)."""
+        with self.repo.connection(scope) as c:
+            row = c.execute(
+                "SELECT payload FROM fw_events WHERE run_id=%s AND kind=%s ORDER BY seq DESC LIMIT 1", (run_id, kind)
+            ).fetchone()
+        return row["payload"] if row else None
+
     def events(self, scope, run_id, after=0):
         with self.repo.connection(scope) as c:
             return c.execute(
@@ -448,7 +456,7 @@ class Jobs:
 
             human_input = {**ClaimReview.model_validate(human_input).model_dump(mode="json"), "receipt": None, "account": account or None}
             # The sign-off rules (a reason, a second person) belong to the question that was asked.
-            waiting = next((e["payload"] for e in reversed(self.events(scope, run_id)) if e["kind"] == "waiting_input"), {})
+            waiting = self.latest_event(scope, run_id, "waiting_input") or {}
             answer = ClaimReview.model_validate(human_input)
             check_answer(waiting, answer, escalated=bool(current.get("escalated_at")))
             if signer is not None:
@@ -474,11 +482,26 @@ class Jobs:
         return self.get(scope, run_id)
 
     def release_crashed(self, scope, run_id, token=None):
+        """A worker that died outside ``fail`` (killed, or raising before the run began) used a try.
+
+        The lease is expired so the dispatcher takes the run again, but the death counts as an attempt: attempts rose
+        only inside ``fail``, so a run whose worker kept dying (a stored request the new code cannot read) was
+        redispatched for ever, holding a dispatcher slot each time. At the cap it is dead-lettered like any other."""
         with self.repo.connection(scope) as c:
-            c.execute(
-                "UPDATE fw_runs SET lease_until=now()-interval '1 second' WHERE id=%s AND state='running' AND (%s::text IS NULL OR lease_token=%s)",
+            r = c.execute(
+                "SELECT attempts FROM fw_runs WHERE id=%s AND state='running' AND (%s::text IS NULL OR lease_token=%s) FOR UPDATE",
                 (run_id, token, token),
-            )
+            ).fetchone()
+            if not r:
+                return
+            attempt = r["attempts"] + 1
+            if attempt < self.MAX_ATTEMPTS:
+                c.execute("UPDATE fw_runs SET attempts=%s,lease_until=now()-interval '1 second' WHERE id=%s", (attempt, run_id))
+                return
+            error = "worker가 계속 비정상 종료되어 더 시도하지 않습니다"
+            c.execute("UPDATE fw_runs SET state='failed',attempts=%s,error=%s,lease_token=NULL WHERE id=%s", (attempt, error, run_id))
+            c.execute("DELETE FROM fw_dispatch WHERE run_id=%s", (run_id,))
+            self._event(c, scope, run_id, "dead_lettered", {"error": error, "attempts": attempt})
 
     def mark_fault_consumed(self, scope, run_id):
         with self.repo.connection(scope) as c:
@@ -567,6 +590,11 @@ class Jobs:
     def drop_dispatch(self, scope, run_id):
         with self.repo.connection(scope) as c:
             c.execute("DELETE FROM fw_dispatch WHERE run_id=%s", (run_id,))
+
+    def release_admission(self, bucket):
+        """Give back one place taken with ``admit`` when what it was taken for did not happen."""
+        with self.repo.plain() as c:
+            c.execute("UPDATE fw_admission SET used=used-1 WHERE bucket=%s AND used>0", (bucket,))
 
     def admit(self, bucket, limit):
         with self.repo.plain() as c:

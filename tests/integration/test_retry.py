@@ -83,3 +83,36 @@ def test_backoff_schedule_is_bounded():
 
     assert [backoff_seconds(a) for a in range(4)] == [5, 10, 20, 40]
     assert backoff_seconds(20) == 300
+
+
+def test_a_worker_that_keeps_dying_outside_fail_is_dead_lettered_at_the_attempt_cap(env):
+    """attempts only rose inside fail(); a worker that died before or outside it was redispatched for ever."""
+    r, j, s = env
+    run = j.enqueue(s, request(), "crash-loop-1")
+    for attempt in (1, 2):
+        token = j.claim(s, run.id)
+        j.release_crashed(s, run.id, token)
+        view = j.get(s, run.id)
+        assert view.state == "running" and view.attempts == attempt  # the lease is expired: the next claim takes it
+        assert (s.tenant_id, run.id) in j.pending()
+    j.release_crashed(s, run.id, j.claim(s, run.id))
+    view = j.get(s, run.id)
+    assert view.state == "failed" and view.attempts == 3
+    assert [e["kind"] for e in j.events(s, run.id)][-1] == "dead_lettered"
+    assert (s.tenant_id, run.id) not in j.pending() and j.claim(s, run.id) is None
+
+
+def test_a_saved_request_the_code_can_no_longer_read_fails_once_instead_of_looping(env):
+    """After a redeploy a stored request may not validate. The preparation sat outside the try: the worker died, the
+    lease expired, the dispatcher started it again, and nothing counted."""
+    import fitwitness.agents.graph as mod
+
+    r, j, s = env
+    run = j.enqueue(s, request(), "bad-request-1")
+    with r.connection(s) as c:
+        c.execute("UPDATE fw_runs SET request = request || '{\"a_field_from_another_version\": 1}'::jsonb WHERE id=%s", (run.id,))
+    with pytest.raises(Exception):
+        mod.execute_run(r, s, run.id)
+    view = j.get(s, run.id)
+    assert view.state == "failed" and "실행 준비" in (view.error or "")
+    assert (s.tenant_id, run.id) not in j.pending()

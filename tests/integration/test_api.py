@@ -297,6 +297,30 @@ def test_live_runs_reserve_the_days_ceiling_atomically_and_a_repeated_key_reserv
     assert ok.status_code == 200
 
 
+def test_a_refused_live_run_is_refused_again_under_the_same_key(tmp_path, monkeypatch):
+    """The key bucket was spent before the session and daily ceilings were looked at, so repeating a refused request
+    under the same key skipped the reservation and queued a model run nobody had paid for."""
+    import os
+    from decimal import Decimal
+    from fitwitness.storage.repository import Repository
+
+    repo = Repository(os.getenv("FITWITNESS_DATABASE_URL", "postgresql://fwadmin@/postgres?host=/tmp&port=55439"))
+    a, cases, day = live_client(tmp_path, monkeypatch, FITWITNESS_LIVE_PER_SESSION="1", FITWITNESS_LIVE_DAILY_USD="1.00")
+    assert a.post(f"/api/claims/cases/{cases[0]['case_id']}/run", headers={"x-claim-live": "1", "Idempotency-Key": "k-session-1"}).status_code == 200
+    for _ in range(2):  # the workspace's one live run is spent: the same refused key is refused every time
+        refused = a.post(f"/api/claims/cases/{cases[1]['case_id']}/run", headers={"x-claim-live": "1", "Idempotency-Key": "k-session-2"})
+        assert refused.status_code == 429 and "1번까지" in refused.json()["detail"]
+    assert Decimal(str(repo.live_reserved(day))) == Decimal("0.04")
+
+    a, cases, day = live_client(tmp_path, monkeypatch, FITWITNESS_LIVE_PER_SESSION="5", FITWITNESS_LIVE_DAILY_USD="0.04")
+    assert a.post(f"/api/claims/cases/{cases[0]['case_id']}/run", headers={"x-claim-live": "1", "Idempotency-Key": "k-day-1"}).status_code == 200
+    for _ in range(2):  # the day's ceiling is spent
+        refused = a.post(f"/api/claims/cases/{cases[1]['case_id']}/run", headers={"x-claim-live": "1", "Idempotency-Key": "k-day-2"})
+        assert refused.status_code == 429 and "한도" in refused.json()["detail"]
+    assert Decimal(str(repo.live_reserved(day))) == Decimal("0.04")
+    assert a.get("/api/capabilities").json()["live"]["remaining_today"] == 0
+
+
 def test_each_workspace_gets_a_few_live_runs(tmp_path, monkeypatch):
     a, cases, day = live_client(tmp_path, monkeypatch, FITWITNESS_LIVE_PER_SESSION="1", FITWITNESS_LIVE_DAILY_USD="1.00")
     first = a.post(f"/api/claims/cases/{cases[0]['case_id']}/run", headers={"x-claim-live": "1", "Idempotency-Key": "share-1"})
