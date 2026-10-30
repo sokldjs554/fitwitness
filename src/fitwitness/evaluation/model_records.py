@@ -277,11 +277,11 @@ def people_and_real_data():
         "posting": "실제 데이터 · 현업 검증의 범위",
         "question": "합성 데이터 밖에서 무엇을 확인했고, 무엇은 아직 없는가",
         "model": None,
-        "measured": "2026-10-24",
+        "measured": "2026-10-14 ~ 10-28",
         "cost_usd": None,
         "headline": [
-            {"label": "사용자 테스트", "value": "2명", "note": "지인: 비전문가 1, 생산기술 현업 5년 1"},
-            {"label": "비전문가 과제", "value": "4/5", "note": "막힌 곳 3곳은 모두 화면이 설명하지 않은 데서 왔고, 셋 다 고침"},
+            {"label": "사용자 테스트", "value": "3명", "note": "지인: 비전문가 1, 생산기술 현업 5년 1, 보험 현업 1"},
+            {"label": "비전문가 과제", "value": "4/5", "note": "기록이 스스로 과제 3은 기준대로면 X에 가깝다고 적어 엄격히는 3/5. 막힌 곳은 모두 화면이 설명하지 않은 데서 왔고 고침"},
             {"label": "현업자 검색어 10개의 치수 조건", "value": "0개", "note": "제가 쓴 90문장이 못 찾은 고장을 드러냄"},
         ],
         "table": {"caption": "합성이 아닌 데이터",
@@ -303,6 +303,8 @@ def build():
     cards = [trajectory(), claims_model(), claims_audit(), query_understanding(), shell_search(), title_block_vlm(),
              people_and_real_data()]
     paid = [c["cost_usd"] for c in cards if c["cost_usd"] is not None]
+    # the prompt experiment is a source of the title-block card, not a card of its own; its spend belongs in the total
+    paid.append(_usd(_load("title-block-vlm-prompts")["spent_usd_total"]))
     return {
         "status": "measured",
         "what": "2026-10-22 ~ 10-25에 실제 모델로 잰 것과 사람에게 쓰게 해 본 것. 모두 커밋된 기록에서 옮겼고, 이 화면을 열 때 모델을 부르지 않습니다.",
