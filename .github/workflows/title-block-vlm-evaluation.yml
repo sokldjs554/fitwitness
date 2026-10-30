@@ -63,7 +63,7 @@ jobs:
             curl -sSf --retry 3 -o "$p" "https://raw.githubusercontent.com/xiaofengShi/MechVQA/main/benchmark_data/$p"
           done < pages.sha256
           sha256sum -c --quiet pages.sha256 && echo "all $(wc -l < pages.sha256) pages match"
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
       - run: uv sync --frozen --no-dev
       - name: Read the title blocks
         env:

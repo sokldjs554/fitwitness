@@ -42,7 +42,7 @@ jobs:
           assert 0 < int(os.environ['INPUT_MAX_PAGES']) <= 240
           print('configuration present (values not printed)')
           PY
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
       - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0 tesseract-ocr tesseract-ocr-kor
       - run: uv sync --frozen --no-dev
       # Only the synthetic claims are needed (no database): the same generator and size scripts/setup.py uses.

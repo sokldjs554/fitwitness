@@ -31,7 +31,7 @@ jobs:
       FITWITNESS_SESSION_LIMIT_PER_PEER: '100'
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
         with:
           version: "0.9.4"  # the version Dockerfile and render.yaml pin
       - uses: actions/setup-node@v4
