@@ -110,7 +110,7 @@ jobs:
               for e in row.get('model_errors', []):
                   print('== model_error', row['arm'], row['case'], json.dumps({k: e.get(k) for k in ('role', 'attempt', 'error_type', 'status_code', 'stop_reason', 'parse_error', 'raw_output')}, ensure_ascii=False, default=str)[:6000])
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: shell-search-${{ github.run_id }}

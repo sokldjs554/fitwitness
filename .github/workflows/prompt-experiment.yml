@@ -94,7 +94,7 @@ jobs:
               print('by category', json.dumps(r['accuracy_by_category'], ensure_ascii=False))
               print('versus baseline', json.dumps(r['versus_baseline']))
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: prompts-local-${{ github.run_id }}
@@ -173,7 +173,7 @@ jobs:
               print('versus baseline', json.dumps(r['versus_baseline']))
           print('total measured cost USD', round(total, 6))
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: prompts-claude-${{ github.run_id }}

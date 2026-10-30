@@ -137,7 +137,7 @@ jobs:
               for e in row['run'].get('model_errors', []):
                   print('== model_error', row['case_id'], json.dumps({k: e.get(k) for k in ('role', 'attempt', 'repair', 'error_type', 'status_code', 'stop_reason', 'parse_error', 'raw_output')}, ensure_ascii=False, default=str)[:6000])
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: claims-model-${{ inputs.provider }}-${{ inputs.split }}-${{ inputs.scan }}-${{ github.run_id }}

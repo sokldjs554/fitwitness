@@ -145,7 +145,7 @@ jobs:
                   print('== retrieval_row', json.dumps({'id': row['id'], 'phrasing': row['phrasing'], 'relevant': row['relevant'], 'pool_recall': row['pool_recall'], 'pool_recall_widened': row.get('pool_recall_widened'),
                                                         'methods': {m: {k: v[k] for k in ('recall_at_5', 'ndcg_at_10', 'latency_ms')} for m, v in row['methods'].items()}}, ensure_ascii=False))
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: query-understanding-${{ inputs.provider }}-${{ inputs.queries }}-${{ inputs.split }}-${{ github.run_id }}

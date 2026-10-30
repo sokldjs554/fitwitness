@@ -39,7 +39,7 @@ jobs:
               z.write(root/'gold/labels.json','gold/labels.json')
           print('All 150 PDF and 150 PNG bytes match the frozen measured experiment.')
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: verified-retrieval-sources
           path: artifacts/retrieval-source-pdf-png.zip

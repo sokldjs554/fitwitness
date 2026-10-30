@@ -94,7 +94,7 @@ jobs:
                   print('== call', row['image'], json.dumps(c, ensure_ascii=False))
           PY
       # Only the report (readings, labels, hashes, usage) is kept; no page or crop image is uploaded.
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: title-block-vlm-${{ github.run_id }}

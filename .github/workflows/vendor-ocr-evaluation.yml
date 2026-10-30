@@ -53,7 +53,7 @@ jobs:
           INPUT_MAX_PAGES: ${{ inputs.max_pages }}
           UPSTAGE_API_KEY: ${{ secrets.UPSTAGE_API_KEY }}
         run: uv run python scripts/eval-vendor-ocr.py --level "$INPUT_LEVEL" --max-pages "$INPUT_MAX_PAGES" --output artifacts/vendor-ocr
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: vendor-ocr-${{ inputs.level }}-${{ github.run_id }}

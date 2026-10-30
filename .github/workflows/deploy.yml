@@ -55,7 +55,7 @@ jobs:
           echo "::error::the demo did not report $SHA within 30 minutes"; exit 1
       - name: Hosted check over HTTPS (readiness, assets, workers, claims, review, supplement, headers)
         run: python3 scripts/verify_hosted.py --url "$DEMO_URL" --output "artifacts/hosted-${SHA:0:7}.json"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: hosted-verification
