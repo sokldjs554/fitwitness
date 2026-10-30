@@ -1,0 +1,130 @@
+name: claims-model-decides-evaluation
+# The experiment the product does not run: the model also issues the verdict. It is shown the terms, the house rules in
+# words, the documents' printed rows and the payment keys already on the policy, and returns the outcome and the amount;
+# nothing checks its arithmetic. Scored against the gold beside the rules engine on the same claims, to count the wrong
+# payments. Evaluation only: no claim path imports it. Manual only.
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: anthropic (Claude Haiku 4.5, pricing fixed below) or openai (model and pricing from repository variables)
+        default: 'anthropic'
+        required: true
+        type: choice
+        options: [anthropic, openai]
+      split:
+        description: which claims (test = odd case numbers, 60 claims)
+        default: 'test'
+        required: true
+        type: choice
+        options: [test, dev, all]
+      repeats:
+        description: asks per claim (1 to 5); the answers to one claim are not independent observations
+        default: '2'
+        required: true
+      max_cases:
+        description: at most this many claims of the split (blank = all)
+        default: ''
+        required: false
+      max_usd:
+        description: hard ceiling for the whole batch in USD (at most 1.0)
+        default: '0.8'
+        required: true
+      per_call_usd:
+        description: budget of one call, reserved before it starts (at most 0.1)
+        default: '0.03'
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: claims-model-decides-evaluation
+  cancel-in-progress: false
+jobs:
+  measure:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PYTHONPATH: src
+      FITWITNESS_ANTHROPIC_INPUT_USD_PER_MILLION: '1'
+      FITWITNESS_ANTHROPIC_OUTPUT_USD_PER_MILLION: '5'
+      FITWITNESS_OPENAI_MODEL: ${{ vars.FITWITNESS_OPENAI_MODEL }}
+      FITWITNESS_OPENAI_INPUT_USD_PER_MILLION: ${{ vars.FITWITNESS_OPENAI_INPUT_USD_PER_MILLION }}
+      FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION: ${{ vars.FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION }}
+      PROVIDER: ${{ inputs.provider }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require a privately configured credential, a model with a price, and a sane ceiling
+        env:
+          INPUT_MAX_USD: ${{ inputs.max_usd }}
+          INPUT_PER_CALL_USD: ${{ inputs.per_call_usd }}
+          INPUT_REPEATS: ${{ inputs.repeats }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os, re
+          provider = os.environ['PROVIDER']
+          need = ['ANTHROPIC_API_KEY'] if provider == 'anthropic' else ['OPENAI_API_KEY', 'FITWITNESS_OPENAI_MODEL', 'FITWITNESS_OPENAI_INPUT_USD_PER_MILLION', 'FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION']
+          missing = [k for k in need if not os.getenv(k)]
+          if missing:
+              raise SystemExit(f'missing for provider {provider}: {", ".join(missing)}. Nothing was called.')
+          ceiling, cap = float(os.environ['INPUT_MAX_USD']), float(os.environ['INPUT_PER_CALL_USD'])
+          assert 0 < ceiling <= 1.0, ceiling
+          assert 0 < cap <= 0.1, cap
+          assert re.fullmatch(r'[1-5]', os.environ['INPUT_REPEATS']), os.environ['INPUT_REPEATS']
+          print('configuration present for', provider, '(values not printed)')
+          PY
+      - uses: astral-sh/setup-uv@v6
+      - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
+      - run: uv sync --frozen --no-dev
+      - run: uv run python -c "from pathlib import Path; from fitwitness.claims.synth import generate_cases; generate_cases(Path('var/claims'), n=120)"
+      - name: Ask the model for the verdict on every claim of the split
+        env:
+          INPUT_MAX_USD: ${{ inputs.max_usd }}
+          INPUT_PER_CALL_USD: ${{ inputs.per_call_usd }}
+          INPUT_PROVIDER: ${{ inputs.provider }}
+          INPUT_REPEATS: ${{ inputs.repeats }}
+          INPUT_SPLIT: ${{ inputs.split }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          MAX_CASES: ${{ inputs.max_cases }}
+        run: >-
+          uv run python -m fitwitness.evaluation.claims_model_decides
+          --provider "$INPUT_PROVIDER" --split "$INPUT_SPLIT" --repeats "$INPUT_REPEATS"
+          ${MAX_CASES:+--max-cases "$MAX_CASES"}
+          --max-cost-usd "$INPUT_MAX_USD" --per-call-usd "$INPUT_PER_CALL_USD"
+          --output artifacts/claims-model-decides
+      - name: Summary
+        if: always()
+        run: |
+          uv run python - <<'PY'
+          import json
+          from pathlib import Path
+          f = Path('artifacts/claims-model-decides/report.json')
+          if not f.exists():
+              print('no report'); raise SystemExit(0)
+          r = json.loads(f.read_text())
+          # The artifact cannot always be fetched from where the log is read, so everything is printed here, rows first and
+          # the totals last: the end of a long log is what can be read.
+          for row in r['rows']:
+              print('== row', json.dumps({'case_id': row['case_id'], 'repeat': row['repeat'], 'scenario': row['scenario'], 'gold': row['gold'], 'rules': [row['rules']['predicted'], row['rules']['amount']], 'model': [row['model']['predicted'], row['model']['amount']], 'wrong_pay': row['model']['wrong_pay'], 'kind': row['model']['wrong_pay_kind'], 'error': row['error'], 'cost_usd': row['cost_usd'], 'latency_ms': row['latency_ms'], 'repairs': row['repairs']}, ensure_ascii=False, default=str))
+          for row in r['rows']:
+              if row['model']['wrong_pay']:
+                  print('== wrong_pay', row['case_id'], row['repeat'], json.dumps({'gold': row['gold'], 'verdict': row['verdict']}, ensure_ascii=False, default=str)[:2500])
+          for row in r['rows']:
+              for e in row.get('model_errors', []):
+                  print('== model_error', row['case_id'], json.dumps({k: e.get(k) for k in ('role', 'attempt', 'repair', 'error_type', 'status_code', 'stop_reason', 'parse_error', 'raw_output')}, ensure_ascii=False, default=str)[:3000])
+          print('== protocol', json.dumps({k: v for k, v in r['protocol'].items() if k not in ('prompt', 'coverage_labels')}, ensure_ascii=False))
+          print('== skipped', json.dumps(r['skipped'][:3]), 'stopped', r['stopped'])
+          s = r['summary']
+          print('== model', json.dumps(s['model'], ensure_ascii=False))
+          print('== rules', json.dumps(s['rules_engine_on_the_same_claims'], ensure_ascii=False))
+          print('== repeats', json.dumps(s['repeats'], ensure_ascii=False), 'agreement', s['agreement_with_rules'], 'spent', s['spent_usd'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: claims-model-decides-${{ inputs.provider }}-${{ inputs.split }}-${{ github.run_id }}
+          path: artifacts/claims-model-decides/
+          if-no-files-found: warn
