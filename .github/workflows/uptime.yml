@@ -3,13 +3,22 @@ name: uptime
 # minutes and the first visitor then waits about 90 s (measured 2026-10-27). /health does not touch the
 # database, so the probe does not keep Neon's compute running. GitHub can start a scheduled run late, so an
 # external monitor every 5 minutes is the dependable layer (docs/DEPLOYMENT.md); this one also leaves a record:
-# a failed run means the demo did not answer, and GitHub mails the failure.
+# a failed run means the demo did not answer. A person is told by an issue: the first failure opens "demo not answering"
+# (a comment on it for each further failure), the first good probe after it comments and closes it. GitHub mails the
+# repository's watchers about issues, to the address each of them set in their own notification settings; no address is
+# written anywhere in this repository.
 on:
   schedule:
     - cron: '4,14,24,34,44,54 * * * *'
   workflow_dispatch:
+    inputs:
+      simulate_failure:
+        description: 'true: take the failure path without the demo being down (opens the alert issue, then the next normal run closes it)'
+        default: 'false'
+        required: false
 permissions:
   contents: read
+  issues: write
 concurrency:
   group: uptime
   cancel-in-progress: false
@@ -19,11 +28,37 @@ jobs:
     timeout-minutes: 6
     steps:
       - name: GET /health on the public demo (a reply over 20 s means it had been asleep)
+        id: probe
+        continue-on-error: true
+        env:
+          SIMULATE: ${{ inputs.simulate_failure }}
         run: |
           set -u
           result=$(curl -sS -o /tmp/health.json --max-time 180 -w '%{http_code} %{time_total}' https://fitwitness.onrender.com/health) || result="000 $?"
+          if [ "$SIMULATE" = "true" ]; then result="000 simulated"; fi
           code=${result%% *}; seconds=${result#* }
           sha=$(python3 -c "import json;print(json.load(open('/tmp/health.json')).get('sha','')[:7])" 2>/dev/null || echo "-")
           state=awake; awk "BEGIN{exit !($seconds > 20)}" 2>/dev/null && state=woken
           echo "uptime $(date -u +%FT%TZ) code=$code seconds=$seconds sha=$sha state=$state" | tee -a "$GITHUB_STEP_SUMMARY"
           test "$code" = 200
+      - name: Tell a person (an issue) when the demo does not answer, and close it when it does again
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OUTCOME: ${{ steps.probe.outcome }}
+          SIMULATED: ${{ inputs.simulate_failure }}
+        run: |
+          set -eu
+          title="demo not answering (uptime probe)"
+          open=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')
+          run="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          if [ "$OUTCOME" = "failure" ]; then
+            body="The probe of https://fitwitness.onrender.com/health got no 200 at $(date -u +%FT%TZ)$([ "$SIMULATED" = "true" ] && echo ' (simulated: the demo is up)'). The free instance may be asleep or down; this run: $run. The issue closes itself at the first good probe."
+            if [ -n "$open" ]; then gh issue comment "$open" --repo "$GITHUB_REPOSITORY" --body "$body"; else gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body"; fi
+          elif [ -n "$open" ]; then
+            gh issue comment "$open" --repo "$GITHUB_REPOSITORY" --body "The demo answers again ($run)."
+            gh issue close "$open" --repo "$GITHUB_REPOSITORY" --reason completed
+          fi
+      - name: Fail the run when the probe failed
+        if: steps.probe.outcome == 'failure'
+        run: exit 1
