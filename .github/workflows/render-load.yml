@@ -1,0 +1,55 @@
+name: render-load
+# A bounded load test of the PUBLIC demo from this runner's one address (scripts/render-load.py): at most 20 workspaces and
+# 100 runs, stop rules on the error rate and the slowest checks. It uses part of the hourly budgets the demo shares with its
+# visitors (100 workspaces and 200 runs an hour), so run it when nobody is looking at the demo. Manual only.
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: the demo to load
+        default: 'https://fitwitness.onrender.com'
+        required: true
+      steps:
+        description: concurrent visitors per step, comma separated (at most 20)
+        default: '1,5,10,20'
+        required: true
+      checks:
+        description: checks each visitor does in each step, one number per step
+        default: '3,3,3,2'
+        required: true
+      max_runs:
+        description: ceiling on the runs the whole test starts (at most 100)
+        default: '90'
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: render-load
+  cancel-in-progress: false
+jobs:
+  load:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.9.4"
+      - name: Run
+        env:
+          INPUT_URL: ${{ inputs.url }}
+          INPUT_STEPS: ${{ inputs.steps }}
+          INPUT_CHECKS: ${{ inputs.checks }}
+          INPUT_MAX_RUNS: ${{ inputs.max_runs }}
+        run: |
+          case "$INPUT_URL" in https://*) ;; *) echo "https only"; exit 1;; esac
+          case "$INPUT_STEPS$INPUT_CHECKS" in *[!0-9,]*) echo "steps and checks: digits and commas only"; exit 1;; esac
+          case "$INPUT_MAX_RUNS" in ''|*[!0-9]*) echo "max_runs: digits only"; exit 1;; esac
+          uv run --with httpx==0.28.1 python scripts/render-load.py --url "$INPUT_URL" --steps "$INPUT_STEPS" --checks "$INPUT_CHECKS" --max-runs "$INPUT_MAX_RUNS" --output load.json
+          echo "== report $(python3 -c "import json;print(json.dumps(json.load(open('load.json'))))")"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: render-load-${{ github.run_id }}
+          path: load.json
+          if-no-files-found: warn
