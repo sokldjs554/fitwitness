@@ -53,7 +53,7 @@ jobs:
       FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION: ${{ vars.FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION }}
       PROVIDER: ${{ inputs.provider }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Require a privately configured credential, a model with a price, and a sane ceiling
         env:
           INPUT_MAX_USD: ${{ inputs.max_usd }}
@@ -73,7 +73,7 @@ jobs:
           assert 0 < cap <= 0.1, cap
           print('configuration present for', provider, '(values not printed)')
           PY
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
       - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
       - run: uv sync --frozen --no-dev
       - run: uv run python -c "from pathlib import Path; from fitwitness.claims.synth import generate_cases; generate_cases(Path('var/claims'), n=120)"
@@ -112,7 +112,7 @@ jobs:
               for e in row.get('model_errors', []):
                   print('== model_error', row['case_id'], json.dumps({k: e.get(k) for k in ('role', 'attempt', 'repair', 'error_type', 'status_code', 'stop_reason', 'parse_error', 'raw_output')}, ensure_ascii=False, default=str)[:6000])
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: claims-audit-${{ inputs.provider }}-${{ inputs.mode }}-${{ inputs.split }}-${{ github.run_id }}

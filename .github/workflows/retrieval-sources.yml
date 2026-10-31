@@ -14,8 +14,8 @@ jobs:
     env:
       PYTHONPATH: src
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
       - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
       - run: uv sync --frozen
       - run: uv run python -m fitwitness.data.generate
@@ -39,7 +39,7 @@ jobs:
               z.write(root/'gold/labels.json','gold/labels.json')
           print('All 150 PDF and 150 PNG bytes match the frozen measured experiment.')
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: verified-retrieval-sources
           path: artifacts/retrieval-source-pdf-png.zip

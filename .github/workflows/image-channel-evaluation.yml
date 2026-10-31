@@ -30,8 +30,8 @@ jobs:
       HF_HUB_OFFLINE: '1'
       TRANSFORMERS_OFFLINE: '1'
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
       - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
       - run: uv sync --frozen --extra dev --extra models
       - run: uv run python scripts/setup.py
@@ -54,7 +54,7 @@ jobs:
           for m in r['methods']:
               print('== method', m['id'], json.dumps({'overall': m['metrics'], 'categories': {c: {k: v[k] for k in ('recall_at_5', 'ndcg_at_10', 'attempts')} for c, v in m['categories'].items()}}, ensure_ascii=False))
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: image-channel-${{ github.run_id }}
