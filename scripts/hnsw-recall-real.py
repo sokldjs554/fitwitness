@@ -130,6 +130,8 @@ def timed(fn):
 def measure(repo, encoder, fingerprint, n, queries):
     scope = TenantScope(tenant_id=f"real-{n}-{uuid4().hex[:8]}", user_id="scale")
     with repo.plain() as c:
+        # An earlier size of this script's own run would otherwise stay in the index and be filtered out of every answer.
+        c.execute("DELETE FROM fw_vectors WHERE tenant_id LIKE 'real-%'")
         for channel in HNSW_CHANNELS:
             c.execute(f"DROP INDEX IF EXISTS fw_vectors_hnsw_{channel}")
     rng = random.Random(n)
@@ -183,9 +185,12 @@ def measure(repo, encoder, fingerprint, n, queries):
             got.append([r["revision_id"] for r in rows])
             ms.append(t)
         recalls = [len(set(g) & tr) / 50 for g, tr in zip(got, truth)]
+        worst = min(range(len(recalls)), key=recalls.__getitem__)
         out[f"ef_{ef}"] = {
             "recall_at_50": round(statistics.mean(recalls), 3),
             "recall_at_50_worst_query": round(min(recalls), 3),
+            "worst_query_text": qtexts[worst],
+            "queries_below_half": sum(1 for x in recalls if x < 0.5),
             "recall_at_10": round(
                 statistics.mean(
                     len(set(g[:10]) & set(list(tr_order)[:10])) / 10
@@ -217,6 +222,7 @@ def main():
 
         encoder = Encoders()
         fingerprint = encoder.fingerprint
+    print("== meta", json.dumps({"code_sha": git_sha(dirty_suffix=True), "encoder_fingerprint": fingerprint}), flush=True)
     results = []
     for n in args.sizes:
         result = measure(repo, encoder, fingerprint, n, args.queries)

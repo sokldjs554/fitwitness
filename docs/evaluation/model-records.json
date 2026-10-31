@@ -10,10 +10,10 @@
   "title-block-vlm": "9a14e5b43854f508",
   "title-block-vlm-prompts": "de01d310dcc51d67",
   "openai": "e7e97f71f6c7bf14",
-  "agent-trajectory-repeats": "655c3b35efd2f2e1",
+  "agent-trajectory-repeats": "9e3539720922fd28",
   "claims-model-decides": "ee50b7aa03e78470"
  },
- "spent_usd": 7.865966,
+ "spent_usd": 8.312141,
  "cards": [
   {
    "id": "trajectory",
@@ -551,7 +551,7 @@
    "question": "세 구조의 차이가 반복해도 남는가, 후보가 많아지면 모델이 모든 도면을 열어 보는가, 그 답이 모델이 바뀌어도 같은가",
    "model": "gpt-5-mini · claude-haiku-4-5-20251001",
    "measured": "2026-10-30 ~ 10-31",
-   "cost_usd": 1.788563,
+   "cost_usd": 2.234738,
    "headline": [
     {
      "label": "쉬운 설정에서 모두 정답인 실행",
@@ -653,7 +653,7 @@
     "Two models in the repeated runs, each in its own runs: gpt-5-mini at minimal reasoning effort (2026-10-30) and Claude Haiku 4.5 without extended thinking (2026-10-31). The earlier partial Claude run (41030461645) was cut off by an empty balance after one repeat of two structures and is not used. Neither model's result says how a third model behaves, and earlier Claude single runs (agent-trajectory.json) are not comparable with these.",
     "Twelve cases (six families x two materials) times three repeats: the repeats of a case are not independent, so counts of runs overstate how much was observed; 12 cases cannot rank two structures that differ by one or two cases.",
     "The harder setting is hard by the harness's limits (at most 8 operations per plan, 16 tool calls, 4 model calls, 12 candidates), not by the drawings. The single plan's ceiling of 8 of 12 is one of them.",
-    "The hard-setting Claude run has two repeats for the single plan and for repeated planning, and one or two for planner plus challenger, not the three planned: the 0.9 USD ceiling stopped it with 37 of 108 model runs not started. Compare shares, not run counts, between the two models' hard runs (108 against 71 runs)."
+    "The first hard-setting Claude run has two repeats for the single plan and for repeated planning, and one or two for planner plus challenger, not the three planned: the 0.9 USD ceiling stopped it with 37 of 108 model runs not started. The third repeat was run afterwards on its own (41201737876), so the three repeats come from two runs on the same code except for the harness flag; the one planner-plus-challenger run of FW-F029:AL6061 that the ceiling cut off was not made up. Compare shares, not run counts, between the two models' hard runs."
    ],
    "links": [
     {

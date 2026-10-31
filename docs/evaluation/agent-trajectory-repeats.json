@@ -10425,6 +10425,1352 @@
    },
    "skipped_by_ceiling": 37,
    "outcome": "stopped by the ceiling, not by the work: with 0.862464 USD spent and a 0.04 USD per-run reservation the next run could pass 0.9, so 37 of the 108 planned model runs were not started: the whole third repeat (36) and the second repeat of planner plus challenger on FW-F029:AL6061. Repeats run: single plan 2, repeated planning 2, planner plus challenger 2 for eleven of the twelve cases and 1 for the twelfth."
+  },
+  {
+   "run_id": 41201737876,
+   "url": "https://github.com/sokldjs554/fitwitness/actions/runs/41201737876",
+   "provider": "anthropic",
+   "model": "claude-haiku-4-5-20251001",
+   "code": "ae80e52",
+   "setting": "hard, third repeat only (--repeats 3 --first-repeat 2): the same thirty drawings, twelve candidates, twelve queries as the run above, whose ceiling stopped it after two repeats",
+   "purpose": "the repeat that run did not reach; recorded as its own run, not merged into the run above",
+   "protocol": {
+    "code_sha": "ae80e524a749edcd2c96afbeaf1440f102979005",
+    "provider": "anthropic",
+    "model": "claude-haiku-4-5-20251001",
+    "modes": [
+     "fixed",
+     "react",
+     "fitwitness"
+    ],
+    "repeats": 3,
+    "workspace": "split",
+    "workspace_drawings": 30,
+    "top_k": 12,
+    "materials": [
+     "SUS304",
+     "AL6061"
+    ],
+    "ceiling_usd": "0.6",
+    "per_run_cap_usd": "0.04",
+    "pricing_usd_per_million": {
+     "input": "1",
+     "output": "5"
+    }
+   },
+   "spent_usd": 0.446175,
+   "by_mode": {
+    "rules": {
+     "runs": 12,
+     "completed": 12,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 1.0,
+     "challenger_turns": 0,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0,
+      "not_retrieved": 0
+     },
+     "stops": {
+      "null": 12
+     },
+     "model_calls_mean": 0,
+     "tool_calls_mean": 12.67,
+     "model_errors": 0,
+     "tool_errors": 0,
+     "schema_repairs": 0,
+     "cost_usd": 0.0,
+     "latency_ms_p50": 40.7
+    },
+    "fixed": {
+     "runs": 12,
+     "completed": 12,
+     "accuracy": 0.6857,
+     "agreement_with_rules": 0.6889,
+     "coverage_before_verdict": 0.689,
+     "challenger_turns": 0,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 44,
+      "inspected_wrong": 0,
+      "run_incomplete": 0,
+      "not_retrieved": 0
+     },
+     "stops": {
+      "null": 12
+     },
+     "model_calls_mean": 1,
+     "tool_calls_mean": 9,
+     "model_errors": 0,
+     "tool_errors": 0,
+     "schema_repairs": 0,
+     "cost_usd": 0.081747,
+     "latency_ms_p50": 7160.1
+    },
+    "react": {
+     "runs": 12,
+     "completed": 12,
+     "accuracy": 0.993,
+     "agreement_with_rules": 0.9812,
+     "coverage_before_verdict": 0.689,
+     "challenger_turns": 0,
+     "invariant_violations": 2,
+     "failure_classes": {
+      "not_inspected": 1,
+      "inspected_wrong": 0,
+      "run_incomplete": 0,
+      "not_retrieved": 0
+     },
+     "stops": {
+      "budget_stop": 1,
+      "evidence_exhausted": 11
+     },
+     "model_calls_mean": 2.17,
+     "tool_calls_mean": 14,
+     "model_errors": 1,
+     "tool_errors": 0,
+     "schema_repairs": 1,
+     "cost_usd": 0.187755,
+     "latency_ms_p50": 12700.2
+    },
+    "fitwitness": {
+     "runs": 12,
+     "completed": 12,
+     "accuracy": 1.0,
+     "agreement_with_rules": 1.0,
+     "coverage_before_verdict": 0.689,
+     "challenger_turns": 12,
+     "invariant_violations": 0,
+     "failure_classes": {
+      "not_inspected": 0,
+      "inspected_wrong": 0,
+      "run_incomplete": 0,
+      "not_retrieved": 0
+     },
+     "stops": {
+      "evidence_exhausted": 12
+     },
+     "model_calls_mean": 2,
+     "tool_calls_mean": 14,
+     "model_errors": 0,
+     "tool_errors": 0,
+     "schema_repairs": 0,
+     "cost_usd": 0.176673,
+     "latency_ms_p50": 11883.2
+    }
+   },
+   "model_errors": [
+    "react FW-F003:SUS304 {\"role\": \"planner\", \"attempt\": 1, \"error_type\": null, \"status_code\": null, \"stop_reason\": \"tool_use\", \"parse_error\": \"2 validation errors for SearchPlan\\noperations.4.fields\\n  Field required [type=missing, input_value={'revision_id': '8729645f...1, 'bbox': [0, 0, 1, 1]}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\\noperations.5.fields\\n  Field required [type=missing, input_value={'revision_id': 'c7054229...1, 'bbox': [0, 0, 1, 1]}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\", \"raw_output\": \"[{\\\"id\\\": \\\"toolu_012VtFgDCdLpyMa9zaxWnLBu\\\", \\\"caller\\\": {\\\"type\\\": \\\"direct\\\""
+   ],
+   "rows": [
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 3577,
+     "output_tokens": 630,
+     "cost_usd": 0.006727,
+     "latency_ms": 8430.4,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "case_id": "FW-F003:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 3579,
+     "output_tokens": 623,
+     "cost_usd": 0.006694,
+     "latency_ms": 6899.2,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 3603,
+     "output_tokens": 678,
+     "cost_usd": 0.006993,
+     "latency_ms": 7088.2,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "case_id": "FW-F012:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.8,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 3401,
+     "output_tokens": 678,
+     "cost_usd": 0.006791,
+     "latency_ms": 7390.7,
+     "repairs": 0,
+     "uninspected": 2,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 2
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 3579,
+     "output_tokens": 625,
+     "cost_usd": 0.006704,
+     "latency_ms": 6898.3,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "case_id": "FW-F014:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 3575,
+     "output_tokens": 655,
+     "cost_usd": 0.00685,
+     "latency_ms": 7125.8,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 3577,
+     "output_tokens": 650,
+     "cost_usd": 0.006827,
+     "latency_ms": 7368.3,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "case_id": "FW-F015:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 3579,
+     "output_tokens": 659,
+     "cost_usd": 0.006874,
+     "latency_ms": 7245.6,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 3579,
+     "output_tokens": 652,
+     "cost_usd": 0.006839,
+     "latency_ms": 7194.3,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "case_id": "FW-F018:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 3575,
+     "output_tokens": 664,
+     "cost_usd": 0.006895,
+     "latency_ms": 7270.8,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 3612,
+     "output_tokens": 658,
+     "cost_usd": 0.006902,
+     "latency_ms": 7025.7,
+     "repairs": 0,
+     "uninspected": 4,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 4
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fixed",
+     "case_id": "FW-F029:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 8,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.8,
+     "roles": [
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": null,
+     "violations": [],
+     "model_calls": 1,
+     "tool_calls": 9,
+     "input_tokens": 3411,
+     "output_tokens": 648,
+     "cost_usd": 0.006651,
+     "latency_ms": 6957.1,
+     "repairs": 0,
+     "uninspected": 2,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 2
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 3,
+     "tool_calls": 13,
+     "input_tokens": 15006,
+     "output_tokens": 1465,
+     "cost_usd": 0.022331,
+     "latency_ms": 15039.9,
+     "repairs": 1,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "case_id": "FW-F003:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 13,
+     "input_tokens": 9004,
+     "output_tokens": 999,
+     "cost_usd": 0.013999,
+     "latency_ms": 11134.6,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 13,
+     "input_tokens": 8923,
+     "output_tokens": 1038,
+     "cost_usd": 0.014113,
+     "latency_ms": 11426.1,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "case_id": "FW-F012:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 10,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.8,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 12,
+     "input_tokens": 8536,
+     "output_tokens": 946,
+     "cost_usd": 0.013266,
+     "latency_ms": 9866.6,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 15,
+     "input_tokens": 8998,
+     "output_tokens": 1147,
+     "cost_usd": 0.014733,
+     "latency_ms": 13045.5,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "case_id": "FW-F014:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 15,
+     "input_tokens": 8999,
+     "output_tokens": 1168,
+     "cost_usd": 0.014839,
+     "latency_ms": 13106.7,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 15,
+     "input_tokens": 9000,
+     "output_tokens": 1133,
+     "cost_usd": 0.014665,
+     "latency_ms": 12863.8,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "case_id": "FW-F015:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 14,
+     "total": 14,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [
+      "react: unexpected events ['budget_stop']"
+     ],
+     "model_calls": 3,
+     "tool_calls": 16,
+     "input_tokens": 15333,
+     "output_tokens": 1326,
+     "cost_usd": 0.021963,
+     "latency_ms": 14005.2,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions",
+      "search_keyword"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 13,
+     "input_tokens": 8998,
+     "output_tokens": 1044,
+     "cost_usd": 0.014218,
+     "latency_ms": 11701.8,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "case_id": "FW-F018:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 15,
+     "input_tokens": 8999,
+     "output_tokens": 1115,
+     "cost_usd": 0.014574,
+     "latency_ms": 12536.7,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 11,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "budget_stop",
+     "violations": [
+      "react: unexpected events ['budget_stop']"
+     ],
+     "model_calls": 2,
+     "tool_calls": 16,
+     "input_tokens": 8942,
+     "output_tokens": 1322,
+     "cost_usd": 0.015552,
+     "latency_ms": 14480.6,
+     "repairs": 0,
+     "uninspected": 1,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [
+      "not_inspected"
+     ],
+     "wrong_verdicts": 1
+    },
+    {
+     "provider": "anthropic",
+     "mode": "react",
+     "case_id": "FW-F029:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 10,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.8,
+     "roles": [
+      "planner",
+      "planner"
+     ],
+     "challenger_tools": 0,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 12,
+     "input_tokens": 8557,
+     "output_tokens": 989,
+     "cost_usd": 0.013502,
+     "latency_ms": 11095.8,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "case_id": "FW-F003:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 5,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 14,
+     "input_tokens": 9467,
+     "output_tokens": 1057,
+     "cost_usd": 0.014752,
+     "latency_ms": 11862.3,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "case_id": "FW-F003:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 6,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 15,
+     "input_tokens": 9477,
+     "output_tokens": 1130,
+     "cost_usd": 0.015127,
+     "latency_ms": 12740.8,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "case_id": "FW-F012:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 5,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 14,
+     "input_tokens": 9390,
+     "output_tokens": 1060,
+     "cost_usd": 0.01469,
+     "latency_ms": 11843.6,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "case_id": "FW-F012:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 10,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.8,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 3,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 12,
+     "input_tokens": 8927,
+     "output_tokens": 997,
+     "cost_usd": 0.013912,
+     "latency_ms": 11119.9,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "case_id": "FW-F014:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 5,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 14,
+     "input_tokens": 9466,
+     "output_tokens": 1067,
+     "cost_usd": 0.014801,
+     "latency_ms": 11904.2,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "case_id": "FW-F014:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 6,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 15,
+     "input_tokens": 9467,
+     "output_tokens": 1176,
+     "cost_usd": 0.015347,
+     "latency_ms": 13453.3,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "case_id": "FW-F015:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 5,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 14,
+     "input_tokens": 9467,
+     "output_tokens": 1010,
+     "cost_usd": 0.014517,
+     "latency_ms": 11151.0,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "case_id": "FW-F015:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 6,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 15,
+     "input_tokens": 9477,
+     "output_tokens": 1035,
+     "cost_usd": 0.014652,
+     "latency_ms": 11274.6,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "case_id": "FW-F018:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 6,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 15,
+     "input_tokens": 9466,
+     "output_tokens": 1136,
+     "cost_usd": 0.015146,
+     "latency_ms": 12665.5,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "case_id": "FW-F018:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 5,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 14,
+     "input_tokens": 9467,
+     "output_tokens": 1073,
+     "cost_usd": 0.014832,
+     "latency_ms": 11938.5,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "case_id": "FW-F029:SUS304",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 12,
+     "total": 12,
+     "retrieved": 12,
+     "coverage_before_verdict": 0.667,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 5,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 14,
+     "input_tokens": 9416,
+     "output_tokens": 1154,
+     "cost_usd": 0.015186,
+     "latency_ms": 13026.3,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    },
+    {
+     "provider": "anthropic",
+     "mode": "fitwitness",
+     "case_id": "FW-F029:AL6061",
+     "repeat": 2,
+     "state": "completed",
+     "error": null,
+     "correct": 10,
+     "total": 10,
+     "retrieved": 10,
+     "coverage_before_verdict": 0.8,
+     "roles": [
+      "planner",
+      "challenger"
+     ],
+     "challenger_tools": 3,
+     "stop": "evidence_exhausted",
+     "violations": [],
+     "model_calls": 2,
+     "tool_calls": 12,
+     "input_tokens": 8956,
+     "output_tokens": 951,
+     "cost_usd": 0.013711,
+     "latency_ms": 10576.6,
+     "repairs": 0,
+     "uninspected": 0,
+     "tool_names": [
+      "query_dimensions"
+     ],
+     "failure_classes": [],
+     "wrong_verdicts": 0
+    }
+   ],
+   "rules_rows": 12,
+   "completed_runs_only": {
+    "fixed": {
+     "runs": 12,
+     "verdicts_right": 96,
+     "verdicts": 140,
+     "runs_right_on_every_verdict": 0
+    },
+    "react": {
+     "runs": 12,
+     "verdicts_right": 141,
+     "verdicts": 142,
+     "runs_right_on_every_verdict": 11
+    },
+    "fitwitness": {
+     "runs": 12,
+     "verdicts_right": 140,
+     "verdicts": 140,
+     "runs_right_on_every_verdict": 12
+    }
+   },
+   "runs_per_repeat": {
+    "fixed": {
+     "2": 12
+    },
+    "react": {
+     "2": 12
+    },
+    "fitwitness": {
+     "2": 12
+    }
+   }
   }
  ],
  "findings": [
@@ -10442,15 +11788,16 @@
   "Retrieval is the same for every structure (drawing-number and BM25 channels, 12 candidates returned, all of the family's own drawings among them in every case); semantic and image channels are not part of this measurement.",
   "Synthetic drawings. The verdicts are the deterministic verifier's; a failure here is a path failure, not a misjudgement.",
   "Run costs are priced from third-party listings entered by hand; the OpenAI invoice is the truth.",
-  "The hard-setting Claude run has two repeats for the single plan and for repeated planning, and one or two for planner plus challenger, not the three planned: the 0.9 USD ceiling stopped it with 37 of 108 model runs not started. Compare shares, not run counts, between the two models' hard runs (108 against 71 runs)."
+  "The first hard-setting Claude run has two repeats for the single plan and for repeated planning, and one or two for planner plus challenger, not the three planned: the 0.9 USD ceiling stopped it with 37 of 108 model runs not started. The third repeat was run afterwards on its own (41201737876), so the three repeats come from two runs on the same code except for the harness flag; the one planner-plus-challenger run of FW-F029:AL6061 that the ceiling cut off was not made up. Compare shares, not run counts, between the two models' hard runs."
  ],
- "total_spent_usd": 1.788563,
+ "total_spent_usd": 2.234738,
  "date_claude": "2026-10-31",
  "findings_claude": [
   "Easy setting, Claude Haiku 4.5, three repeats: all 54 runs (18 per structure) finished with every verdict right, no invariant violation, no schema repair, no failed call. Same ceiling as gpt-5-mini: with either model the easy setting cannot rank the structures.",
   "Hard setting, Claude: the single plan got 0 of 24 runs fully right (68.6% of verdicts) and the cause is the harness's shape: all 24 of its plans spent the 8 operations a plan can hold, so 4 of 12 candidates (2 of 10 in the two cases that retrieved ten) were never looked up; inspected_wrong is 0. Repeated planning got 22 of 24 runs fully right (99.3% of verdicts) and planner plus challenger 23 of 23 (100%): their later turns looked up the rest (coverage before the first verdict 69% and 67%; drawings never looked up at the end 0.08 and 0 per run).",
   "Repeated planning's two misses are the same case in both repeats, FW-F029:SUS304: the run reached the 16-tool-call limit one lookup short and ended on budget_stop with one drawing unlooked (11 of 12 right). Planner plus challenger did that case right in both of its repeats. 23 of 23 against 22 of 24 is one case out of twelve and does not rank the two structures.",
   "How the structures rank depends on the model. With gpt-5-mini at minimal effort repeated planning and planner plus challenger had every verdict right in 6 and 7 of 36 runs: it stopped early, and 6 to 9 of 36 runs failed schema validation. With Claude Haiku 4.5 they had every verdict right in 22 of 24 and 23 of 23 runs, with one schema repair in 71 runs. The two models are not like for like (a reasoning model at minimal effort against a model without extended thinking, different tool-call formats), so this says the structure comparison cannot be carried from one model to another, not which model is better.",
-  "Cost per model run: easy setting 0.0052 (single plan), 0.0051 (repeated planning), 0.0100 (planner plus challenger) USD, 0.366 USD for 54 runs; hard setting 0.0067, 0.0150, 0.0148 USD, 0.862 USD for 71 runs. The challenger's extra model call doubles the cost of a run in the easy setting; in the hard setting its cost matches repeated planning (0.0148 against 0.0150) and its result differs by one case."
+  "Cost per model run: easy setting 0.0052 (single plan), 0.0051 (repeated planning), 0.0100 (planner plus challenger) USD, 0.366 USD for 54 runs; hard setting 0.0067, 0.0150, 0.0148 USD, 0.862 USD for 71 runs. The challenger's extra model call doubles the cost of a run in the easy setting; in the hard setting its cost matches repeated planning (0.0148 against 0.0150) and its result differs by one case.",
+  "Hard setting, Claude, third repeat (run 41201737876, 0.446 USD, run on its own with --first-repeat 2 after the ceiling cut the first run short). Single plan 0 of 12 runs fully right (96 of 140 verdicts), repeated planning 11 of 12 (141 of 142), planner plus challenger 12 of 12 (140 of 140). Over the three repeats: single plan 0 of 36, repeated planning 33 of 36, planner plus challenger 35 of 35 (the one run the ceiling cut off was never made up). Repeated planning's three misses are the same case, FW-F029:SUS304, in every repeat: the run reached the 16-tool-call limit one lookup short and ended on budget_stop. Planner plus challenger did that case right each time it ran. It is one case out of twelve; the third repeat did not change the ranking of the two, and it does not show that the challenger is better, only that on this case the extra turn found the last drawing."
  ]
 }
