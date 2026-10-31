@@ -13,8 +13,16 @@ says the proxy chain is longer). An entry no proxy could have added, such as an 
 real one after it, falls back to the address the connection reports.
 
 ``FITWITNESS_TRUSTED_PROXY_HOPS`` sets how many trusted proxies stand in front: 0 reads no header at all (the address
-the connection reports, as before this module), 1 is one proxy. Unset, it is 1 on Render (which sets ``RENDER``) and 0
-anywhere else, so a direct deployment, the tests and the load test behave as they did.
+the connection reports, as before this module), 1 is one proxy, 2 is an edge in front of the platform's balancer. Unset,
+it is 2 on Render (which sets ``RENDER``) and 0 anywhere else, so a direct deployment, the tests and the load test behave
+as they did.
+
+Why 2 on Render: the first deployment of this module used 1 and the per-address limit stopped counting at all. The probe
+(run 41224993810, 2026-10-31) opened 30 workspaces from one address without a refusal, where the same probe had been
+refused at the 21st before. The rightmost public entry is therefore not the visitor but a hop that changes from request
+to request, added after the visitor's own entry; the visitor is the entry before it. If the platform's chain changes,
+the same probe says so: no refusal means too few hops are trusted, a header of the probe's own making let through means
+too many.
 """
 
 from __future__ import annotations
@@ -30,7 +38,7 @@ def trusted_proxy_hops() -> int:
         if hops < 0:
             raise ValueError("FITWITNESS_TRUSTED_PROXY_HOPS must be 0 or more")
         return hops
-    return 1 if os.getenv("RENDER") else 0
+    return 2 if os.getenv("RENDER") else 0
 
 
 def _entry(text: str):
