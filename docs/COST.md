@@ -1,8 +1,8 @@
 # 건당 모델 비용과 지연
 
-모델 호출이 한 건에 얼마나 들고 얼마나 걸리는지를, 이미 커밋된 측정 기록에서 다시 계산한 표입니다. 새로 호출하지 않았고, 아래 값은 모두 `docs/evaluation/*.json`의 행별 기록(`cost_usd`, `latency_ms`)을 평균·중앙값·95번째 백분위로 줄인 것입니다. 표의 줄은 `python scripts/cost-table.py`가 그대로 찍습니다(2026-10-24 계산, 마지막 세 줄은 2026-10-25에 더함).
+모델 호출이 한 건에 얼마나 들고 얼마나 걸리는지를, 이미 커밋된 측정 기록에서 다시 계산한 표입니다. 새로 호출하지 않았고, 아래 값은 모두 `docs/evaluation/*.json`의 행별 기록(`cost_usd`, `latency_ms`)을 평균·중앙값·95번째 백분위로 줄인 것입니다. 표의 줄은 `python scripts/cost-table.py`가 그대로 찍습니다(2026-10-24 계산, 2026-10-25에 세 줄, 2026-10-30·31에 OpenAI와 Claude 줄을 더함).
 
-모델은 `[OpenAI gpt-5-mini]`로 표시한 마지막 네 줄(입력 $0.25/M·출력 $2.00/M 토큰, 실행할 때 입력한 값)을 빼고 모두 Claude Haiku 4.5(`claude-haiku-4-5-20251001`)이고, 단가는 기록에 적힌 입력 $1/M·출력 $5/M 토큰입니다. 두 모델의 줄은 같은 일의 비교가 아닙니다(추론 설정, 입력 길이가 다름). 응답의 토큰 수로 계산한 값이라 청구서 결산액이 아닙니다. 캐시 할인과 세금은 넣지 않았습니다.
+모델은 `[OpenAI gpt-5-mini]`로 표시한 네 줄(입력 $0.25/M·출력 $2.00/M 토큰, 실행할 때 입력한 값)을 빼고 모두 Claude Haiku 4.5(`claude-haiku-4-5-20251001`)이고, 단가는 기록에 적힌 입력 $1/M·출력 $5/M 토큰입니다. 두 모델의 줄은 같은 일의 비교가 아닙니다(추론 설정, 입력 길이가 다름). 응답의 토큰 수로 계산한 값이라 청구서 결산액이 아닙니다. 캐시 할인과 세금은 넣지 않았습니다.
 
 | 한 건 | 표본 | 비용 평균 | 지연 p50 / p95 | 기록 |
 |---|---|---|---|---|
@@ -25,6 +25,9 @@
 | [OpenAI gpt-5-mini] 청구 한 건을 모델이 판정까지(추론 low, 모델 호출 한 번) | 60건 × 2회 | $0.0018 | 8.5 / 14.9초 | [claims-model-decides.json](evaluation/claims-model-decides.json) |
 | [OpenAI gpt-5-mini] 에이전트 실행 한 번, 쉬운 설정(다섯 장), 단일 · 반복 · planner+challenger | 18회씩 | $0.0011 · $0.0012 · $0.0022 | 중앙값 3.4 · 3.8 · 5.7초 | [agent-trajectory-repeats.json](evaluation/agent-trajectory-repeats.json) |
 | [OpenAI gpt-5-mini] 에이전트 실행 한 번, 어려운 설정(서른 장, 후보 12개), 단일 · 반복 · planner+challenger | 36회씩 | $0.0024 · $0.0037 · $0.0047 | 중앙값 5.8 · 9.2 · 9.8초 | [agent-trajectory-repeats.json](evaluation/agent-trajectory-repeats.json) |
+| [Claude Haiku 4.5] 청구 한 건을 모델이 판정까지(확장 사고 없음, 모델 호출 한 번) | 60건 × 2회 | $0.0045 | 3.2 / 11.5초 | [claims-model-decides.json](evaluation/claims-model-decides.json) |
+| [Claude Haiku 4.5] 에이전트 실행 한 번, 쉬운 설정(다섯 장), 단일 · 반복 · planner+challenger | 18회씩 | $0.0052 · $0.0051 · $0.0100 | 중앙값 5.2 · 5.1 · 7.0초 | [agent-trajectory-repeats.json](evaluation/agent-trajectory-repeats.json) |
+| [Claude Haiku 4.5] 에이전트 실행 한 번, 어려운 설정(서른 장, 후보 12개), 단일 · 반복 · planner+challenger | 24 · 24 · 23회 | $0.0067 · $0.0150 · $0.0148 | 중앙값 7.0 · 12.4 · 12.3초 | [agent-trajectory-repeats.json](evaluation/agent-trajectory-repeats.json) |
 
 ## 읽는 법
 

@@ -467,63 +467,91 @@ def openai_evidence():
     }
 
 
+def _repeat_counts(run, mode):
+    """How many repeats a mode got: the same for every case, or a range when a ceiling stopped the run part-way."""
+    per = (run.get("runs_per_repeat") or {}).get(mode)
+    if not per:
+        return f"{run['by_mode'][mode]['pass_k']['k']}회"
+    n = len(per)
+    return f"{n}회" if len(set(per.values())) == 1 else f"{n - 1}~{n}회"
+
+
 def trajectory_repeats():
     t = _load("agent-trajectory-repeats")
-    easy = next(r for r in t["runs"] if r.get("run_id") == 41032282374)
-    hard = next(r for r in t["runs"] if r.get("run_id") == 41032292254)
+    by_id = {r.get("run_id"): r for r in t["runs"]}
+    runs = [
+        ("gpt-5-mini", by_id[41032282374], by_id[41032292254]),
+        ("Claude Haiku 4.5", by_id[41154974238], by_id[41155731372]),
+    ]
     rows = []
-    for mode, label in MODES.items():
-        e, h = easy["by_mode"][mode], hard["by_mode"][mode]
-        done = hard["completed_runs_only"][mode]
-        rows.append(
-            [
-                label,
-                f"{e['runs_fully_correct']}/{e['runs']}",
-                f"{h['runs_fully_correct']}/{h['runs']}",
-                _pct(h["accuracy"]),
-                _pct(done["verdicts_right"] / done["verdicts"]),
-                f"{h['runs'] - h['completed']}/{h['runs']}",
-                f"{h['pass_k']['cases_all_correct']}/{h['pass_k']['cases']}",
-                f"${h['cost_usd']:.3f}",
-            ]
-        )
-    fixed = hard["by_mode"]["fixed"]["failure_classes"]
+    for name, easy, hard in runs:
+        for mode, label in MODES.items():
+            e, h = easy["by_mode"][mode], hard["by_mode"][mode]
+            done = hard["completed_runs_only"][mode]
+            rows.append(
+                [
+                    f"{name} · {label}",
+                    f"{e['runs_fully_correct']}/{e['runs']}",
+                    f"{h['runs_fully_correct']}/{h['runs']}",
+                    _pct(h["accuracy"]),
+                    _pct(done["verdicts_right"] / done["verdicts"]),
+                    f"{h['runs'] - h['completed']}/{h['runs']}",
+                    f"{h['pass_k']['cases_all_correct']}/{h['pass_k']['cases']} ({_repeat_counts(hard, mode)})",
+                    f"${e['cost_usd'] + h['cost_usd']:.3f}",
+                ]
+            )
+
+    def total(run, key):
+        return sum(m["failure_classes"][key] for m in run["by_mode"].values() if "failure_classes" in m)
+
+    gpt_hard, claude_hard = runs[0][2], runs[1][2]
+    hard_right = lambda run: " · ".join(f"{run['by_mode'][m]['runs_fully_correct']}" for m in MODES)  # noqa: E731
+    hard_runs = lambda run: "·".join(str(run["by_mode"][m]["runs"]) for m in MODES)  # noqa: E731
     return {
         "id": "trajectory-repeats",
-        "title": "구조 비교를 세 번씩, 더 어려운 설정에서",
+        "title": "구조 비교를 반복해서, 더 어려운 설정에서, 두 모델로",
         "posting": "주요업무 1 · Agentic System Design",
-        "question": "세 구조의 차이가 반복해도 남는가, 후보가 많아지면 모델이 모든 도면을 열어 보는가",
-        "model": easy["model"],
-        "measured": t["date"],
+        "question": "세 구조의 차이가 반복해도 남는가, 후보가 많아지면 모델이 모든 도면을 열어 보는가, 그 답이 모델이 바뀌어도 같은가",
+        "model": f"{runs[0][1]['model']} · {runs[1][1]['model']}",
+        "measured": f"{t['date']} ~ {t['date_claude'][5:]}",
         "cost_usd": _usd(t["total_spent_usd"]),
         "headline": [
-            {"label": "쉬운 설정에서 모두 정답인 실행", "value": "54/54", "note": "세 구조 × 6 family × 3회. 천장이라 구조를 가를 수 없음"},
             {
-                "label": "어려운 설정에서 모두 정답인 실행",
-                "value": " · ".join(f"{hard['by_mode'][m]['runs_fully_correct']}" for m in MODES) + " / 36씩",
-                "note": "단일 · 반복 · 탐색+반례 (도면 30장, 후보 12개, 재료 2종)",
+                "label": "쉬운 설정에서 모두 정답인 실행",
+                "value": "108/108",
+                "note": "두 모델 × 세 구조 × 6 family × 3회씩. 천장이라 구조를 가를 수 없음",
             },
             {
-                "label": "틀린 판정의 원인",
-                "value": f"조회 안 함 {fixed['not_inspected']}",
-                "note": "단일 계획 기준. 세 구조 모두 조회하고도 틀린 판정은 0",
+                "label": "어려운 설정, gpt-5-mini: 모두 정답인 실행",
+                "value": f"{hard_right(gpt_hard)} / 36씩",
+                "note": "단일 · 반복 · 탐색+반례 (도면 30장, 후보 12개, 재료 2종). 일찍 멈추거나 계획 형식을 못 지킨 실행이 많음",
+            },
+            {
+                "label": "어려운 설정, Claude Haiku 4.5: 모두 정답인 실행",
+                "value": f"{hard_right(claude_hard)} / {hard_runs(claude_hard)}",
+                "note": "같은 설정. 단일 계획은 구조상 12개 중 8개만 열 수 있어 0. 상한 $0.9에서 멈춰 반복은 2회(탐색+반례는 1~2회)",
+            },
+            {
+                "label": "조회하고도 틀린 판정",
+                "value": str(total(gpt_hard, "inspected_wrong") + total(claude_hard, "inspected_wrong")),
+                "note": f"두 모델 모두. 틀린 판정은 조회 안 한 도면(gpt-5-mini {total(gpt_hard, 'not_inspected')}개, Claude {total(claude_hard, 'not_inspected')}개)이거나 끝나지 못한 실행",
             },
         ],
         "table": {
-            "caption": "gpt-5-mini, 케이스(family × 재료)마다 3회. 쉬운 설정은 6케이스, 어려운 설정은 12케이스",
+            "caption": "케이스(family × 재료)마다 반복. 쉬운 설정은 6케이스 × 3회, 어려운 설정은 12케이스(gpt-5-mini 3회, Claude 2회 안팎). 어려운 설정의 실행 수는 모델마다 다름",
             "columns": [
-                "구조",
+                "모델 · 구조",
                 "쉬운: 모두 정답",
                 "어려운: 모두 정답",
                 "어려운: 판정 정확도(전체)",
                 "어려운: 끝난 실행만",
                 "어려운: 실패한 실행",
-                "어려운: 3회 모두 정답인 케이스",
-                "비용",
+                "어려운: 모든 반복에서 정답인 케이스",
+                "비용(쉬운+어려운)",
             ],
             "rows": rows,
         },
-        "caveats": t["limitations"][:4],
+        "caveats": [t["limitations"][i] for i in (0, 1, 2, 6)],
         "links": [
             _link("기록 JSON", "docs/evaluation/agent-trajectory-repeats.json"),
             _link("설명", "docs/evaluation/README.md"),
@@ -533,54 +561,58 @@ def trajectory_repeats():
 
 def claims_decides():
     d = _load("claims-model-decides")
-    s = d["summary"]
-    m, r, rep = s["model"], s["rules_engine_on_the_same_claims"], s["repeats"]
+    gs, g = d["summary"], d["summary"]["model"]
+    cs = d["claude"]["summary"]
+    c, r = cs["model"], cs["rules_engine_on_the_same_claims"]
+    assert r == gs["rules_engine_on_the_same_claims"], "the rules path is deterministic: both runs must have the same rules numbers"
+    ci = cs["repeats"]["wrong_pay_wilson95_if_answers_were_independent"]
+    gname, cname = d["model"]["id"], d["claude"]["model"]["id"]
+
+    def line(label, m):
+        return [
+            label,
+            _pct(m["decision_accuracy"]),
+            _pct(m["auto_rate"]),
+            f"{m['wrong_pay_count']}/{m['answers']}",
+            _pct(m["review_rate"]),
+            f"{m['overpaid_krw']:,}원",
+        ]
+
     return {
         "id": "claims-decides",
         "title": "모델이 최종 판정까지 내리게 하면",
         "posting": "주요업무 · 에이전트가 돈이 움직이는 결정을 어디까지 맡는가",
         "question": "제품에서는 하지 않는 설계로, 모델이 지급 여부와 금액까지 내리면 잘못된 지급이 나오는가",
-        "model": d["model"]["id"],
-        "measured": d["date"],
-        "cost_usd": _usd(s["spent_usd"]),
+        "model": f"{gname} · {cname}",
+        "measured": f"{d['date']} ~ {d['date_claude'][5:]}",
+        "cost_usd": _usd(gs["spent_usd"] + cs["spent_usd"]),
         "headline": [
             {
-                "label": "잘못된 지급",
-                "value": f"{m['wrong_pay_count']}/{m['answers']}",
-                "note": f"규칙 경로는 {r['wrong_pay_count']}/{r['answers']}. 청구당 두 번 물은 120번 중. 95% 구간 {_pct(rep['wrong_pay_wilson95_if_answers_were_independent'][0])}~{_pct(rep['wrong_pay_wilson95_if_answers_were_independent'][1])}(두 번의 답은 독립이 아님)",
+                "label": "잘못된 지급, Claude Haiku 4.5",
+                "value": f"{c['wrong_pay_count']}/{c['answers']}",
+                "note": f"청구 60건을 두 번씩 물은 120번 중. 95% 구간 {_pct(ci[0])}~{_pct(ci[1])}(두 번의 답은 독립이 아님). 규칙 경로는 {r['wrong_pay_count']}/{r['answers']}",
             },
             {
-                "label": "결정 정확도",
-                "value": _pct(m["decision_accuracy"]),
-                "note": f"같은 청구에서 규칙 판독기+엔진 {_pct(r['decision_accuracy'])}",
+                "label": "잘못된 지급, gpt-5-mini",
+                "value": f"{g['wrong_pay_count']}/{g['answers']}",
+                "note": "같은 청구, 같은 프롬프트. 추론 모델(low)과 확장 사고 없는 모델이라 두 모델의 우열을 가린 숫자는 아님",
             },
             {
-                "label": "같은 청구에 두 번 물어 답이 바뀐 청구",
-                "value": f"{rep['claims_whose_answer_changed']}/{rep['claims']}",
-                "note": f"두 번 다 정답인 청구 {rep['pass_k']['cases_all_correct']}/{rep['claims']}",
+                "label": "잘못 나간 금액",
+                "value": f"{c['overpaid_krw']:,}원",
+                "note": f"Claude 기준 120번의 합. gpt-5-mini {g['overpaid_krw']:,}원, 규칙 경로 0원",
             },
         ],
         "table": {
-            "caption": "청구 test 60건. 정답은 claims/synth.py의 gold(참값에 규칙 엔진을 돌린 결과)",
-            "columns": ["경로", "결정 정확도", "자동 지급률", "잘못된 지급", "담당자 확인 비율"],
+            "caption": "청구 test 60건. 정답은 claims/synth.py의 gold(참값에 규칙 엔진을 돌린 결과). 모델 경로는 청구당 두 번 물은 120번, 규칙 경로는 60번",
+            "columns": ["경로", "결정 정확도", "자동 지급률", "잘못된 지급", "담당자 확인 비율", "잘못 나간 금액"],
             "rows": [
-                [
-                    "규칙 판독기 + 엔진",
-                    _pct(r["decision_accuracy"]),
-                    _pct(r["auto_rate"]),
-                    f"{r['wrong_pay_count']}/{r['answers']}",
-                    _pct(r["review_rate"]),
-                ],
-                [
-                    f"모델이 판정까지 ({d['model']['id']})",
-                    _pct(m["decision_accuracy"]),
-                    _pct(m["auto_rate"]),
-                    f"{m['wrong_pay_count']}/{m['answers']}",
-                    _pct(m["review_rate"]),
-                ],
+                line("규칙 판독기 + 엔진", r),
+                line(f"모델이 판정까지 ({gname})", g),
+                line(f"모델이 판정까지 ({cname})", c),
             ],
         },
-        "caveats": d["limitations"][:4],
+        "caveats": [d["limitations"][0], d["claude"]["findings"][2], d["limitations"][1], d["limitations"][2]],
         "links": [_link("기록 JSON", "docs/evaluation/claims-model-decides.json"), _link("설명", "docs/CLAIMS.md")],
     }
 
@@ -603,7 +635,7 @@ def build():
     paid.append(_usd(_load("title-block-vlm-prompts")["spent_usd_total"]))
     return {
         "status": "measured",
-        "what": "2026-10-22 ~ 10-30에 실제 모델(Claude Haiku 4.5, OpenAI gpt-5-mini)로 잰 것과 사람에게 쓰게 해 본 것. 모두 커밋된 기록에서 옮겼고, 이 화면을 열 때 모델을 부르지 않습니다.",
+        "what": "2026-10-22 ~ 10-31에 실제 모델(Claude Haiku 4.5, OpenAI gpt-5-mini)로 잰 것과 사람에게 쓰게 해 본 것. 모두 커밋된 기록에서 옮겼고, 이 화면을 열 때 모델을 부르지 않습니다.",
         "sources": {name: hashlib.sha256((E / f"{name}.json").read_bytes()).hexdigest()[:16] for name in SOURCES},
         "spent_usd": round(sum(paid), 6),
         "cards": cards,

@@ -1,6 +1,6 @@
 {
  "status": "measured",
- "what": "2026-10-22 ~ 10-30에 실제 모델(Claude Haiku 4.5, OpenAI gpt-5-mini)로 잰 것과 사람에게 쓰게 해 본 것. 모두 커밋된 기록에서 옮겼고, 이 화면을 열 때 모델을 부르지 않습니다.",
+ "what": "2026-10-22 ~ 10-31에 실제 모델(Claude Haiku 4.5, OpenAI gpt-5-mini)로 잰 것과 사람에게 쓰게 해 본 것. 모두 커밋된 기록에서 옮겼고, 이 화면을 열 때 모델을 부르지 않습니다.",
  "sources": {
   "agent-trajectory": "e940bf5310d5bfa6",
   "claims-model": "989d5e37e068934c",
@@ -10,10 +10,10 @@
   "title-block-vlm": "9a14e5b43854f508",
   "title-block-vlm-prompts": "de01d310dcc51d67",
   "openai": "e7e97f71f6c7bf14",
-  "agent-trajectory-repeats": "06e05e9cc2dec72b",
-  "claims-model-decides": "80fe928488c35271"
+  "agent-trajectory-repeats": "655c3b35efd2f2e1",
+  "claims-model-decides": "b4e855c8b8b36130"
  },
- "spent_usd": 5.590339,
+ "spent_usd": 7.365779,
  "cards": [
   {
    "id": "trajectory",
@@ -546,79 +546,114 @@
   },
   {
    "id": "trajectory-repeats",
-   "title": "구조 비교를 세 번씩, 더 어려운 설정에서",
+   "title": "구조 비교를 반복해서, 더 어려운 설정에서, 두 모델로",
    "posting": "주요업무 1 · Agentic System Design",
-   "question": "세 구조의 차이가 반복해도 남는가, 후보가 많아지면 모델이 모든 도면을 열어 보는가",
-   "model": "gpt-5-mini",
-   "measured": "2026-10-30",
-   "cost_usd": 0.554963,
+   "question": "세 구조의 차이가 반복해도 남는가, 후보가 많아지면 모델이 모든 도면을 열어 보는가, 그 답이 모델이 바뀌어도 같은가",
+   "model": "gpt-5-mini · claude-haiku-4-5-20251001",
+   "measured": "2026-10-30 ~ 10-31",
+   "cost_usd": 1.788563,
    "headline": [
     {
      "label": "쉬운 설정에서 모두 정답인 실행",
-     "value": "54/54",
-     "note": "세 구조 × 6 family × 3회. 천장이라 구조를 가를 수 없음"
+     "value": "108/108",
+     "note": "두 모델 × 세 구조 × 6 family × 3회씩. 천장이라 구조를 가를 수 없음"
     },
     {
-     "label": "어려운 설정에서 모두 정답인 실행",
+     "label": "어려운 설정, gpt-5-mini: 모두 정답인 실행",
      "value": "0 · 6 · 7 / 36씩",
-     "note": "단일 · 반복 · 탐색+반례 (도면 30장, 후보 12개, 재료 2종)"
+     "note": "단일 · 반복 · 탐색+반례 (도면 30장, 후보 12개, 재료 2종). 일찍 멈추거나 계획 형식을 못 지킨 실행이 많음"
     },
     {
-     "label": "틀린 판정의 원인",
-     "value": "조회 안 함 112",
-     "note": "단일 계획 기준. 세 구조 모두 조회하고도 틀린 판정은 0"
+     "label": "어려운 설정, Claude Haiku 4.5: 모두 정답인 실행",
+     "value": "0 · 22 · 23 / 24·24·23",
+     "note": "같은 설정. 단일 계획은 구조상 12개 중 8개만 열 수 있어 0. 상한 $0.9에서 멈춰 반복은 2회(탐색+반례는 1~2회)"
+    },
+    {
+     "label": "조회하고도 틀린 판정",
+     "value": "0",
+     "note": "두 모델 모두. 틀린 판정은 조회 안 한 도면(gpt-5-mini 265개, Claude 90개)이거나 끝나지 못한 실행"
     }
    ],
    "table": {
-    "caption": "gpt-5-mini, 케이스(family × 재료)마다 3회. 쉬운 설정은 6케이스, 어려운 설정은 12케이스",
+    "caption": "케이스(family × 재료)마다 반복. 쉬운 설정은 6케이스 × 3회, 어려운 설정은 12케이스(gpt-5-mini 3회, Claude 2회 안팎). 어려운 설정의 실행 수는 모델마다 다름",
     "columns": [
-     "구조",
+     "모델 · 구조",
      "쉬운: 모두 정답",
      "어려운: 모두 정답",
      "어려운: 판정 정확도(전체)",
      "어려운: 끝난 실행만",
      "어려운: 실패한 실행",
-     "어려운: 3회 모두 정답인 케이스",
-     "비용"
+     "어려운: 모든 반복에서 정답인 케이스",
+     "비용(쉬운+어려운)"
     ],
     "rows": [
      [
-      "단일 계획",
+      "gpt-5-mini · 단일 계획",
       "18/18",
       "0/36",
       "54.8%",
       "67.3%",
       "7/36",
-      "0/12",
-      "$0.087"
+      "0/12 (3회)",
+      "$0.107"
      ],
      [
-      "반복 계획",
+      "gpt-5-mini · 반복 계획",
       "18/18",
       "6/36",
       "64.1%",
       "75.7%",
       "6/36",
-      "0/12",
-      "$0.135"
+      "0/12 (3회)",
+      "$0.157"
      ],
      [
-      "탐색 + 반례 검토",
+      "gpt-5-mini · 탐색 + 반례 검토",
       "18/18",
       "7/36",
       "61.6%",
       "80.2%",
       "9/36",
-      "1/12",
-      "$0.168"
+      "1/12 (3회)",
+      "$0.208"
+     ],
+     [
+      "Claude Haiku 4.5 · 단일 계획",
+      "18/18",
+      "0/24",
+      "68.6%",
+      "68.6%",
+      "0/24",
+      "0/12 (2회)",
+      "$0.255"
+     ],
+     [
+      "Claude Haiku 4.5 · 반복 계획",
+      "18/18",
+      "22/24",
+      "99.3%",
+      "99.3%",
+      "0/24",
+      "11/12 (2회)",
+      "$0.452"
+     ],
+     [
+      "Claude Haiku 4.5 · 탐색 + 반례 검토",
+      "18/18",
+      "23/23",
+      "100.0%",
+      "100.0%",
+      "0/23",
+      "12/12 (1~2회)",
+      "$0.521"
      ]
     ]
    },
    "caveats": [
-    "One model (gpt-5-mini, minimal reasoning) in the repeated runs; the Claude Haiku 4.5 repeat was cut off by an empty balance after one repeat of two structures. Nothing here says how Claude behaves in the harder setting, and earlier Claude single runs (agent-trajectory.json) are not comparable with these.",
+    "Two models in the repeated runs, each in its own runs: gpt-5-mini at minimal reasoning effort (2026-10-30) and Claude Haiku 4.5 without extended thinking (2026-10-31). The earlier partial Claude run (41030461645) was cut off by an empty balance after one repeat of two structures and is not used. Neither model's result says how a third model behaves, and earlier Claude single runs (agent-trajectory.json) are not comparable with these.",
     "Twelve cases (six families x two materials) times three repeats: the repeats of a case are not independent, so counts of runs overstate how much was observed; 12 cases cannot rank two structures that differ by one or two cases.",
     "The harder setting is hard by the harness's limits (at most 8 operations per plan, 16 tool calls, 4 model calls, 12 candidates), not by the drawings. The single plan's ceiling of 8 of 12 is one of them.",
-    "Retrieval is the same for every structure (drawing-number and BM25 channels, 12 candidates returned, all of the family's own drawings among them in every case); semantic and image channels are not part of this measurement."
+    "The hard-setting Claude run has two repeats for the single plan and for repeated planning, and one or two for planner plus challenger, not the three planned: the 0.9 USD ceiling stopped it with 37 of 108 model runs not started. Compare shares, not run counts, between the two models' hard runs (108 against 71 runs)."
    ],
    "links": [
     {
@@ -636,34 +671,35 @@
    "title": "모델이 최종 판정까지 내리게 하면",
    "posting": "주요업무 · 에이전트가 돈이 움직이는 결정을 어디까지 맡는가",
    "question": "제품에서는 하지 않는 설계로, 모델이 지급 여부와 금액까지 내리면 잘못된 지급이 나오는가",
-   "model": "gpt-5-mini",
-   "measured": "2026-10-30",
-   "cost_usd": 0.221383,
+   "model": "gpt-5-mini · claude-haiku-4-5-20251001",
+   "measured": "2026-10-30 ~ 10-31",
+   "cost_usd": 0.763223,
    "headline": [
     {
-     "label": "잘못된 지급",
+     "label": "잘못된 지급, Claude Haiku 4.5",
+     "value": "49/120",
+     "note": "청구 60건을 두 번씩 물은 120번 중. 95% 구간 32.5%~49.8%(두 번의 답은 독립이 아님). 규칙 경로는 0/60"
+    },
+    {
+     "label": "잘못된 지급, gpt-5-mini",
      "value": "1/120",
-     "note": "규칙 경로는 0/60. 청구당 두 번 물은 120번 중. 95% 구간 0.1%~4.6%(두 번의 답은 독립이 아님)"
+     "note": "같은 청구, 같은 프롬프트. 추론 모델(low)과 확장 사고 없는 모델이라 두 모델의 우열을 가린 숫자는 아님"
     },
     {
-     "label": "결정 정확도",
-     "value": "85.8%",
-     "note": "같은 청구에서 규칙 판독기+엔진 88.3%"
-    },
-    {
-     "label": "같은 청구에 두 번 물어 답이 바뀐 청구",
-     "value": "9/60",
-     "note": "두 번 다 정답인 청구 48/60"
+     "label": "잘못 나간 금액",
+     "value": "156,060,000원",
+     "note": "Claude 기준 120번의 합. gpt-5-mini 300,000원, 규칙 경로 0원"
     }
    ],
    "table": {
-    "caption": "청구 test 60건. 정답은 claims/synth.py의 gold(참값에 규칙 엔진을 돌린 결과)",
+    "caption": "청구 test 60건. 정답은 claims/synth.py의 gold(참값에 규칙 엔진을 돌린 결과). 모델 경로는 청구당 두 번 물은 120번, 규칙 경로는 60번",
     "columns": [
      "경로",
      "결정 정확도",
      "자동 지급률",
      "잘못된 지급",
-     "담당자 확인 비율"
+     "담당자 확인 비율",
+     "잘못 나간 금액"
     ],
     "rows": [
      [
@@ -671,22 +707,32 @@
       "88.3%",
       "85.7%",
       "0/60",
-      "45.0%"
+      "45.0%",
+      "0원"
      ],
      [
       "모델이 판정까지 (gpt-5-mini)",
       "85.8%",
       "78.6%",
       "1/120",
-      "47.5%"
+      "47.5%",
+      "300,000원"
+     ],
+     [
+      "모델이 판정까지 (claude-haiku-4-5-20251001)",
+      "29.2%",
+      "28.6%",
+      "49/120",
+      "22.5%",
+      "156,060,000원"
      ]
     ]
    },
    "caveats": [
-    "One model (gpt-5-mini at low reasoning effort), one prompt written once from the engine's rules before the run and not tuned on these claims, two asks per claim: one wrong payment cannot give a rate, and another model or effort could pay more or less wrongly.",
+    "Two models, each in its own run: gpt-5-mini at low reasoning effort (summary) and Claude Haiku 4.5 without extended thinking (claude block). One prompt written once from the engine's rules before either run and not tuned on these claims, two asks per claim: neither run gives a stable rate, and another model or effort could pay more or less wrongly.",
+    "In 17 of the 30 wrong amounts the reasons text itself contains the gold amount while total_amount carries another number (CLM-00085: the reasons compute 6 days x 30,000 = 180,000 won, total_amount says 270,000). The schema the model fills asks for the amount before the reasons, so the number is written before the calculation. This is an observed pattern, not a tested cause: re-running with the reasons first on these same 60 test claims would be tuning on the test split, and it was not done.",
     "The gold is the rule engine applied to the true values (claims/synth.py), so 'right' means 'what the engine's rules say'. The experiment measures how far a model's own application of the same written rules strays from the engine, not how far it strays from a human adjudicator.",
-    "The prompt hands the model the house rules in words, including the ones that exist only in the engine (a payable item beside a denied one goes to a person, a payable total above the limit goes to a person). A model told less would be further from the gold.",
-    "Synthetic claims with one text layer per document. The scanned inputs were not run."
+    "The prompt hands the model the house rules in words, including the ones that exist only in the engine (a payable item beside a denied one goes to a person, a payable total above the limit goes to a person). A model told less would be further from the gold."
    ],
    "links": [
     {

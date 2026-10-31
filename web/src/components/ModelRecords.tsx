@@ -34,7 +34,7 @@ export function ModelRecords() {
   }, []);
   const card = report?.cards?.find(c => c.id === selected) || report?.cards?.[0];
   return <section className="retrieval-trials model-records" aria-label="최신 모델 측정">
-    <div className="section-heading"><div><span className="kicker">CLAUDE HAIKU 4.5 · OPENAI GPT-5-MINI / RECORDED / 2026-10-22 ~ 10-30</span><h2>최신 모델 측정</h2>
+    <div className="section-heading"><div><span className="kicker">CLAUDE HAIKU 4.5 · OPENAI GPT-5-MINI / RECORDED / 2026-10-22 ~ 10-31</span><h2>최신 모델 측정</h2>
       <p>실제 모델로 잰 경로·추출·감사·질의 읽기·명령 검색·표제란, 그리고 사람에게 쓰게 해 본 결과입니다. 이 화면은 모델을 부르지 않고 커밋된 기록을 보여 줍니다.</p></div>
       <a className="secondary" href="/api/evaluations/models" download="fitwitness-model-records.json">요약 JSON</a></div>
     {error ? <p role="alert">최신 측정 기록을 불러오지 못했습니다.</p> :

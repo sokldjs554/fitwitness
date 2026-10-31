@@ -94,3 +94,12 @@ for setting, rid in (("쉬운", 41032282374), ("어려운", 41032292254)):
         rows = [r for r in run["rows"] if r["mode"] == mode]
         s = stats(rows)
         print(f"| [OpenAI] 에이전트 실행 한 번, {setting} 설정, {label} | {s['n']}회 | ${s['cost']:.4f} | 중앙값 {s['p50']:.1f}초 |")
+
+# Claude Haiku 4.5 (2026-10-31), the same two settings and the same claims experiment, priced at $1 / $5 per million tokens.
+show("[Claude 10-31] 청구 한 건을 모델이 판정까지 (확장 사고 없음, 모델 호출 한 번)", [dec["claude"]["rows"]], "60건 × 2회")
+for setting, rid in (("쉬운", 41154974238), ("어려운", 41155731372)):
+    run = next(r for r in rep["runs"] if r.get("run_id") == rid)
+    for mode, label in (("fixed", "단일 도구 계획"), ("react", "반복 계획"), ("fitwitness", "planner+challenger")):
+        rows = [r for r in run["rows"] if r["mode"] == mode]
+        s = stats(rows)
+        print(f"| [Claude 10-31] 에이전트 실행 한 번, {setting} 설정, {label} | {s['n']}회 | ${s['cost']:.4f} | 중앙값 {s['p50']:.1f}초 |")
