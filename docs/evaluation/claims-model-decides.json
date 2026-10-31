@@ -8403,6 +8403,5347 @@
     "One model without extended thinking, one prompt, one run of 120 answers on 60 claims; the unchanged order was run once, not repeated, so how much two runs of the same schema differ is only visible through its two asks (25 and 24 wrong payments), and a difference of ten answers is of that order.",
     "The test split was used for both orders. The ablation was declared before it ran and is one pre-stated change, but the schema it tests was chosen after the first run's test results were seen; it is not a held-out measurement of a tuned prompt, and no tuned prompt is claimed."
    ]
+  },
+  "prompt_variants": {
+   "question": "Can a change of output format or prompt cut Claude Haiku 4.5's wrong payments (49 of 120 on the test claims with the first format)? Extended thinking is not an option: the verdict is a forced tool call.",
+   "declared_before_any_run": "commit 1a33fbf: v0 the first run; v1 the reasons first (only the field order changes); v2 a working line per requested coverage (rule, quoted values, arithmetic, judged, amount) before the outcome and total; v3 v2 with a stated procedure added to the unchanged house rules; no other variant. Dev: the even-numbered claims of the 120 (seed 7), one ask each. Selection: the variant with the fewest wrong payments on dev; within two of each other the earlier variant wins. Confirmation: v0 and the chosen variant once each on 60 fresh claims (seed 20261031, never read before), one ask each. The test split (odd numbers) is not touched. Reported whatever it shows.",
+   "selected": "v2 (4 wrong payments on dev against v3's 6: within two, so the earlier variant)",
+   "runs": {
+    "v0_dev": {
+     "run_id": 41200877933,
+     "url": "https://github.com/sokldjs554/fitwitness/actions/runs/41200877933",
+     "code": "1a33fbf",
+     "variant": "v0",
+     "split": "dev (even-numbered claims, seed 7)",
+     "field_order": [
+      "outcome",
+      "total_amount",
+      "line_items",
+      "reasons"
+     ],
+     "answers": 60,
+     "wrong_payments": 24,
+     "wrong_payments_95_interval": [
+      0.286,
+      0.526
+     ],
+     "wrong_payment_kinds": {
+      "amount": 15,
+      "gold_review": 6,
+      "gold_deny": 3
+     },
+     "overpaid_krw": 120000000,
+     "auto_rate": 0.2917,
+     "review_rate": 0.1667,
+     "decision_accuracy": 0.3667,
+     "outcome_accuracy": 0.6833,
+     "wrong_denials": 7,
+     "schema_error_events": 0,
+     "failed_calls": 0,
+     "own_lines_disagree_with_own_total": null,
+     "spent_usd": 0.25736,
+     "latency_ms_median": 3061.1,
+     "rules_engine_same_claims": {
+      "decision_accuracy": 0.9667,
+      "wrong_payments": 0
+     },
+     "wrong_payments_by_scenario": {
+      "clean": 15,
+      "format_variance": 3,
+      "high_amount": 1,
+      "missing_doc": 1,
+      "waiting_period": 4
+     },
+     "rows": [
+      {
+       "case_id": "CLM-00000",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        210000
+       ],
+       "model": [
+        "APPROVE",
+        300000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00002",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        150000
+       ],
+       "model": [
+        "APPROVE",
+        210000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00004",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00006",
+       "scenario": "exclusion",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00008",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00010",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        200000
+       ],
+       "model": [
+        "APPROVE",
+        200000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00012",
+       "scenario": "ocr_noise",
+       "gold": [
+        "APPROVE",
+        270000
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00014",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        90000
+       ],
+       "model": [
+        "APPROVE",
+        2290000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00016",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        150000
+       ],
+       "model": [
+        "APPROVE",
+        30000000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00018",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00020",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        12230000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00022",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        420000
+       ],
+       "model": [
+        "APPROVE",
+        1300000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00024",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        210000
+       ],
+       "model": [
+        "APPROVE",
+        300000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00026",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        30000000
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00028",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        270000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00030",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00032",
+       "scenario": "grade_missing",
+       "gold": [
+        "REVIEW",
+        5210000
+       ],
+       "model": [
+        "REVIEW",
+        2370000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00034",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        150000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00036",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        300000
+       ],
+       "model": [
+        "APPROVE",
+        300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00038",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        550000
+       ],
+       "model": [
+        "APPROVE",
+        31500000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00040",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        350000
+       ],
+       "model": [
+        "APPROVE",
+        350000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00042",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00044",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00046",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        650000
+       ],
+       "model": [
+        "APPROVE",
+        1730000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00048",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00050",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00052",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        180000
+       ],
+       "model": [
+        "APPROVE",
+        270000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00054",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00056",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00058",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        60000
+       ],
+       "model": [
+        "APPROVE",
+        120000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00060",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        250000
+       ],
+       "model": [
+        "APPROVE",
+        250000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00062",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        300000
+       ],
+       "model": [
+        "APPROVE",
+        300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00064",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00066",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        7000000
+       ],
+       "model": [
+        "REVIEW",
+        2500000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00068",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        120000
+       ],
+       "model": [
+        "REVIEW",
+        210000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00070",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        100000
+       ],
+       "model": [
+        "APPROVE",
+        6000000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00072",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        150000
+       ],
+       "model": [
+        "APPROVE",
+        150000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00074",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00076",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00078",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        680000
+       ],
+       "model": [
+        "APPROVE",
+        3610000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00080",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        680000
+       ],
+       "model": [
+        "APPROVE",
+        2450000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00082",
+       "scenario": "format_variance",
+       "gold": [
+        "REVIEW",
+        10000000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00084",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        220000
+       ],
+       "model": [
+        "APPROVE",
+        1200000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00086",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        550000
+       ],
+       "model": [
+        "APPROVE",
+        550000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00088",
+       "scenario": "clean",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "APPROVE",
+        60000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_deny"
+      },
+      {
+       "case_id": "CLM-00090",
+       "scenario": "waiting_period",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "APPROVE",
+        30000000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_deny"
+      },
+      {
+       "case_id": "CLM-00092",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        680000
+       ],
+       "model": [
+        "APPROVE",
+        4100000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00094",
+       "scenario": "format_variance",
+       "gold": [
+        "REVIEW",
+        6030000
+       ],
+       "model": [
+        "APPROVE",
+        6300000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00096",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        370000
+       ],
+       "model": [
+        "APPROVE",
+        1300000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00098",
+       "scenario": "ocr_noise",
+       "gold": [
+        "APPROVE",
+        350000
+       ],
+       "model": [
+        "REVIEW",
+        350000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00100",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        590000
+       ],
+       "model": [
+        "APPROVE",
+        1980000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00102",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        12410000
+       ],
+       "model": [
+        "APPROVE",
+        4900000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00104",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        190000
+       ],
+       "model": [
+        "APPROVE",
+        4000000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00106",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        480000
+       ],
+       "model": [
+        "APPROVE",
+        3070000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00108",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        600000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00110",
+       "scenario": "format_variance",
+       "gold": [
+        "REVIEW",
+        100000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00112",
+       "scenario": "clean",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "APPROVE",
+        600000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_deny"
+      },
+      {
+       "case_id": "CLM-00114",
+       "scenario": "date_conflict",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00116",
+       "scenario": "exclusion",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00118",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      }
+     ]
+    },
+    "v1_dev": {
+     "run_id": 41200890400,
+     "url": "https://github.com/sokldjs554/fitwitness/actions/runs/41200890400",
+     "code": "1a33fbf",
+     "variant": "v1",
+     "split": "dev (even-numbered claims, seed 7)",
+     "field_order": [
+      "reasons",
+      "outcome",
+      "total_amount",
+      "line_items"
+     ],
+     "answers": 60,
+     "wrong_payments": 18,
+     "wrong_payments_95_interval": [
+      0.199,
+      0.425
+     ],
+     "wrong_payment_kinds": {
+      "amount": 9,
+      "gold_review": 6,
+      "gold_deny": 3
+     },
+     "overpaid_krw": 74270000,
+     "auto_rate": 0.5417,
+     "review_rate": 0.15,
+     "decision_accuracy": 0.5,
+     "outcome_accuracy": 0.6667,
+     "wrong_denials": 8,
+     "schema_error_events": 0,
+     "failed_calls": 0,
+     "own_lines_disagree_with_own_total": null,
+     "spent_usd": 0.252965,
+     "latency_ms_median": 3147.1,
+     "rules_engine_same_claims": {
+      "decision_accuracy": 0.9667,
+      "wrong_payments": 0
+     },
+     "wrong_payments_by_scenario": {
+      "clean": 10,
+      "format_variance": 2,
+      "grade_missing": 1,
+      "high_amount": 2,
+      "missing_doc": 1,
+      "waiting_period": 2
+     },
+     "rows": [
+      {
+       "case_id": "CLM-00000",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        210000
+       ],
+       "model": [
+        "APPROVE",
+        300000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00002",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        150000
+       ],
+       "model": [
+        "APPROVE",
+        150000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00004",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00006",
+       "scenario": "exclusion",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00008",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00010",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        200000
+       ],
+       "model": [
+        "APPROVE",
+        200000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00012",
+       "scenario": "ocr_noise",
+       "gold": [
+        "APPROVE",
+        270000
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00014",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        90000
+       ],
+       "model": [
+        "APPROVE",
+        590000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00016",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        150000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00018",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00020",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        12230000
+       ],
+       "model": [
+        "APPROVE",
+        12260000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00022",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        420000
+       ],
+       "model": [
+        "APPROVE",
+        420000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00024",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        210000
+       ],
+       "model": [
+        "APPROVE",
+        300000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00026",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        30000000
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00028",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        270000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00030",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00032",
+       "scenario": "grade_missing",
+       "gold": [
+        "REVIEW",
+        5210000
+       ],
+       "model": [
+        "APPROVE",
+        3210000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00034",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        150000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00036",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        300000
+       ],
+       "model": [
+        "APPROVE",
+        300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00038",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        550000
+       ],
+       "model": [
+        "REVIEW",
+        550000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00040",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        350000
+       ],
+       "model": [
+        "APPROVE",
+        350000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00042",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00044",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00046",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        650000
+       ],
+       "model": [
+        "APPROVE",
+        1900000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00048",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00050",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00052",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        180000
+       ],
+       "model": [
+        "APPROVE",
+        180000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00054",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00056",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00058",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        60000
+       ],
+       "model": [
+        "APPROVE",
+        120000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00060",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        250000
+       ],
+       "model": [
+        "APPROVE",
+        250000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00062",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        300000
+       ],
+       "model": [
+        "APPROVE",
+        300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00064",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00066",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        7000000
+       ],
+       "model": [
+        "REVIEW",
+        7000000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00068",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        120000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00070",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        100000
+       ],
+       "model": [
+        "APPROVE",
+        30100000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00072",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        150000
+       ],
+       "model": [
+        "APPROVE",
+        150000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00074",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00076",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00078",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        680000
+       ],
+       "model": [
+        "APPROVE",
+        1790000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00080",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        680000
+       ],
+       "model": [
+        "APPROVE",
+        680000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00082",
+       "scenario": "format_variance",
+       "gold": [
+        "REVIEW",
+        10000000
+       ],
+       "model": [
+        "DENY",
+        10000000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00084",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        220000
+       ],
+       "model": [
+        "APPROVE",
+        220000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00086",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        550000
+       ],
+       "model": [
+        "APPROVE",
+        550000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00088",
+       "scenario": "clean",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "APPROVE",
+        60000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_deny"
+      },
+      {
+       "case_id": "CLM-00090",
+       "scenario": "waiting_period",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "APPROVE",
+        30000000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_deny"
+      },
+      {
+       "case_id": "CLM-00092",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        680000
+       ],
+       "model": [
+        "APPROVE",
+        4100000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00094",
+       "scenario": "format_variance",
+       "gold": [
+        "REVIEW",
+        6030000
+       ],
+       "model": [
+        "APPROVE",
+        6030000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00096",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        370000
+       ],
+       "model": [
+        "APPROVE",
+        1000000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00098",
+       "scenario": "ocr_noise",
+       "gold": [
+        "APPROVE",
+        350000
+       ],
+       "model": [
+        "REVIEW",
+        350000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00100",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        590000
+       ],
+       "model": [
+        "APPROVE",
+        590000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00102",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        12410000
+       ],
+       "model": [
+        "APPROVE",
+        3400000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00104",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        190000
+       ],
+       "model": [
+        "APPROVE",
+        3700000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00106",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        480000
+       ],
+       "model": [
+        "APPROVE",
+        3100000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00108",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        600000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00110",
+       "scenario": "format_variance",
+       "gold": [
+        "REVIEW",
+        100000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00112",
+       "scenario": "clean",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "APPROVE",
+        900000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_deny"
+      },
+      {
+       "case_id": "CLM-00114",
+       "scenario": "date_conflict",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00116",
+       "scenario": "exclusion",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00118",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      }
+     ]
+    },
+    "v2_dev": {
+     "run_id": 41201311558,
+     "url": "https://github.com/sokldjs554/fitwitness/actions/runs/41201311558",
+     "code": "fddbde7",
+     "variant": "v2",
+     "split": "dev (even-numbered claims, seed 7)",
+     "field_order": [
+      "coverage_lines",
+      "outcome",
+      "total_amount"
+     ],
+     "answers": 60,
+     "wrong_payments": 4,
+     "wrong_payments_95_interval": [
+      0.026,
+      0.159
+     ],
+     "wrong_payment_kinds": {
+      "gold_review": 4
+     },
+     "overpaid_krw": 500000,
+     "auto_rate": 0.75,
+     "review_rate": 0.35,
+     "decision_accuracy": 0.7167,
+     "outcome_accuracy": 0.75,
+     "wrong_denials": 3,
+     "schema_error_events": 5,
+     "failed_calls": 0,
+     "own_lines_disagree_with_own_total": 1,
+     "spent_usd": 0.292763,
+     "latency_ms_median": 4260.5,
+     "rules_engine_same_claims": {
+      "decision_accuracy": 0.9667,
+      "wrong_payments": 0
+     },
+     "wrong_payments_by_scenario": {
+      "format_variance": 2,
+      "high_amount": 1,
+      "missing_doc": 1
+     },
+     "rows": [
+      {
+       "case_id": "CLM-00000",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        210000
+       ],
+       "model": [
+        "APPROVE",
+        210000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00002",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        150000
+       ],
+       "model": [
+        "APPROVE",
+        150000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00004",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00006",
+       "scenario": "exclusion",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00008",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00010",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        200000
+       ],
+       "model": [
+        "APPROVE",
+        200000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00012",
+       "scenario": "ocr_noise",
+       "gold": [
+        "APPROVE",
+        270000
+       ],
+       "model": [
+        "APPROVE",
+        270000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00014",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        90000
+       ],
+       "model": [
+        "APPROVE",
+        590000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00016",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        150000
+       ],
+       "model": [
+        "REVIEW",
+        200000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00018",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00020",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        12230000
+       ],
+       "model": [
+        "APPROVE",
+        12230000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00022",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        420000
+       ],
+       "model": [
+        "APPROVE",
+        420000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00024",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        210000
+       ],
+       "model": [
+        "APPROVE",
+        210000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00026",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        30000000
+       ],
+       "model": [
+        "REVIEW",
+        30000000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00028",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        270000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00030",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00032",
+       "scenario": "grade_missing",
+       "gold": [
+        "REVIEW",
+        5210000
+       ],
+       "model": [
+        "REVIEW",
+        5210000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00034",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        150000
+       ],
+       "model": [
+        "REVIEW",
+        150000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00036",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        300000
+       ],
+       "model": [
+        "APPROVE",
+        300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00038",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        550000
+       ],
+       "model": [
+        "REVIEW",
+        550000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00040",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        350000
+       ],
+       "model": [
+        "APPROVE",
+        350000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00042",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00044",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00046",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        650000
+       ],
+       "model": [
+        "REVIEW",
+        650000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00048",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00050",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00052",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        180000
+       ],
+       "model": [
+        "APPROVE",
+        180000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00054",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00056",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00058",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        60000
+       ],
+       "model": [
+        "APPROVE",
+        60000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00060",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        250000
+       ],
+       "model": [
+        "APPROVE",
+        250000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00062",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        300000
+       ],
+       "model": [
+        "APPROVE",
+        300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00064",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00066",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        7000000
+       ],
+       "model": [
+        "REVIEW",
+        7000000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00068",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        120000
+       ],
+       "model": [
+        "REVIEW",
+        120000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00070",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        100000
+       ],
+       "model": [
+        "REVIEW",
+        100000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00072",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        150000
+       ],
+       "model": [
+        "APPROVE",
+        150000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00074",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00076",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00078",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        680000
+       ],
+       "model": [
+        "REVIEW",
+        680000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00080",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        680000
+       ],
+       "model": [
+        "APPROVE",
+        680000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00082",
+       "scenario": "format_variance",
+       "gold": [
+        "REVIEW",
+        10000000
+       ],
+       "model": [
+        "APPROVE",
+        10000000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00084",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        220000
+       ],
+       "model": [
+        "REVIEW",
+        220000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00086",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        550000
+       ],
+       "model": [
+        "APPROVE",
+        550000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00088",
+       "scenario": "clean",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00090",
+       "scenario": "waiting_period",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00092",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        680000
+       ],
+       "model": [
+        "APPROVE",
+        680000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00094",
+       "scenario": "format_variance",
+       "gold": [
+        "REVIEW",
+        6030000
+       ],
+       "model": [
+        "APPROVE",
+        6030000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00096",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        370000
+       ],
+       "model": [
+        "REVIEW",
+        370000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00098",
+       "scenario": "ocr_noise",
+       "gold": [
+        "APPROVE",
+        350000
+       ],
+       "model": [
+        "APPROVE",
+        350000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00100",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        590000
+       ],
+       "model": [
+        "REVIEW",
+        590000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00102",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        12410000
+       ],
+       "model": [
+        "REVIEW",
+        12410000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00104",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        190000
+       ],
+       "model": [
+        "REVIEW",
+        190000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00106",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        480000
+       ],
+       "model": [
+        "APPROVE",
+        480000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00108",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        600000
+       ],
+       "model": [
+        "REVIEW",
+        650000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00110",
+       "scenario": "format_variance",
+       "gold": [
+        "REVIEW",
+        100000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00112",
+       "scenario": "clean",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00114",
+       "scenario": "date_conflict",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00116",
+       "scenario": "exclusion",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00118",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      }
+     ]
+    },
+    "v3_dev": {
+     "run_id": 41201635486,
+     "url": "https://github.com/sokldjs554/fitwitness/actions/runs/41201635486",
+     "code": "3444750",
+     "variant": "v3",
+     "split": "dev (even-numbered claims, seed 7)",
+     "field_order": [
+      "coverage_lines",
+      "outcome",
+      "total_amount"
+     ],
+     "answers": 60,
+     "wrong_payments": 6,
+     "wrong_payments_95_interval": [
+      0.047,
+      0.201
+     ],
+     "wrong_payment_kinds": {
+      "gold_review": 5,
+      "amount": 1
+     },
+     "overpaid_krw": 530000,
+     "auto_rate": 0.9167,
+     "review_rate": 0.2167,
+     "decision_accuracy": 0.7667,
+     "outcome_accuracy": 0.8167,
+     "wrong_denials": 4,
+     "schema_error_events": 1,
+     "failed_calls": 0,
+     "own_lines_disagree_with_own_total": 1,
+     "spent_usd": 0.279308,
+     "latency_ms_median": 3637.6,
+     "rules_engine_same_claims": {
+      "decision_accuracy": 0.9667,
+      "wrong_payments": 0
+     },
+     "wrong_payments_by_scenario": {
+      "clean": 1,
+      "exclusion": 1,
+      "format_variance": 1,
+      "missing_doc": 2,
+      "waiting_period": 1
+     },
+     "rows": [
+      {
+       "case_id": "CLM-00000",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        210000
+       ],
+       "model": [
+        "APPROVE",
+        210000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00002",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        150000
+       ],
+       "model": [
+        "APPROVE",
+        150000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00004",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00006",
+       "scenario": "exclusion",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00008",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00010",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        200000
+       ],
+       "model": [
+        "APPROVE",
+        200000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00012",
+       "scenario": "ocr_noise",
+       "gold": [
+        "APPROVE",
+        270000
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00014",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        90000
+       ],
+       "model": [
+        "APPROVE",
+        590000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00016",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        150000
+       ],
+       "model": [
+        "REVIEW",
+        200000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00018",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00020",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        12230000
+       ],
+       "model": [
+        "REVIEW",
+        12230000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00022",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        420000
+       ],
+       "model": [
+        "APPROVE",
+        420000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00024",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        210000
+       ],
+       "model": [
+        "APPROVE",
+        210000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00026",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        30000000
+       ],
+       "model": [
+        "REVIEW",
+        30000000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00028",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        270000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00030",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00032",
+       "scenario": "grade_missing",
+       "gold": [
+        "REVIEW",
+        5210000
+       ],
+       "model": [
+        "REVIEW",
+        5210000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00034",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        150000
+       ],
+       "model": [
+        "APPROVE",
+        150000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00036",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        300000
+       ],
+       "model": [
+        "APPROVE",
+        300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00038",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        550000
+       ],
+       "model": [
+        "REVIEW",
+        550000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00040",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        350000
+       ],
+       "model": [
+        "APPROVE",
+        350000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00042",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00044",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00046",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        650000
+       ],
+       "model": [
+        "APPROVE",
+        650000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00048",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00050",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00052",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        180000
+       ],
+       "model": [
+        "APPROVE",
+        180000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00054",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00056",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00058",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        60000
+       ],
+       "model": [
+        "APPROVE",
+        60000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00060",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        250000
+       ],
+       "model": [
+        "APPROVE",
+        250000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00062",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        300000
+       ],
+       "model": [
+        "APPROVE",
+        300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00064",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00066",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        7000000
+       ],
+       "model": [
+        "REVIEW",
+        5000000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00068",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        120000
+       ],
+       "model": [
+        "APPROVE",
+        120000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00070",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        100000
+       ],
+       "model": [
+        "APPROVE",
+        100000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00072",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        150000
+       ],
+       "model": [
+        "APPROVE",
+        150000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00074",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00076",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00078",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        680000
+       ],
+       "model": [
+        "APPROVE",
+        680000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00080",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        680000
+       ],
+       "model": [
+        "APPROVE",
+        710000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00082",
+       "scenario": "format_variance",
+       "gold": [
+        "REVIEW",
+        10000000
+       ],
+       "model": [
+        "REVIEW",
+        10000000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00084",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        220000
+       ],
+       "model": [
+        "APPROVE",
+        220000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00086",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        550000
+       ],
+       "model": [
+        "APPROVE",
+        550000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00088",
+       "scenario": "clean",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00090",
+       "scenario": "waiting_period",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00092",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        680000
+       ],
+       "model": [
+        "APPROVE",
+        680000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00094",
+       "scenario": "format_variance",
+       "gold": [
+        "REVIEW",
+        6030000
+       ],
+       "model": [
+        "APPROVE",
+        6030000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00096",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        370000
+       ],
+       "model": [
+        "APPROVE",
+        370000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00098",
+       "scenario": "ocr_noise",
+       "gold": [
+        "APPROVE",
+        350000
+       ],
+       "model": [
+        "APPROVE",
+        350000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00100",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        590000
+       ],
+       "model": [
+        "APPROVE",
+        590000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00102",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        12410000
+       ],
+       "model": [
+        "REVIEW",
+        12410000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00104",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        190000
+       ],
+       "model": [
+        "APPROVE",
+        190000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00106",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        480000
+       ],
+       "model": [
+        "APPROVE",
+        480000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00108",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        600000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00110",
+       "scenario": "format_variance",
+       "gold": [
+        "REVIEW",
+        100000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00112",
+       "scenario": "clean",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00114",
+       "scenario": "date_conflict",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00116",
+       "scenario": "exclusion",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00118",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      }
+     ]
+    },
+    "v0_fresh": {
+     "run_id": 41203007572,
+     "url": "https://github.com/sokldjs554/fitwitness/actions/runs/41203007572",
+     "code": "a9aa20d",
+     "variant": "v0",
+     "split": "60 fresh claims (seed 20261031)",
+     "field_order": [
+      "outcome",
+      "total_amount",
+      "line_items",
+      "reasons"
+     ],
+     "answers": 60,
+     "wrong_payments": 25,
+     "wrong_payments_95_interval": [
+      0.301,
+      0.543
+     ],
+     "wrong_payment_kinds": {
+      "amount": 13,
+      "gold_review": 10,
+      "gold_deny": 2
+     },
+     "overpaid_krw": 198950000,
+     "auto_rate": 0.0909,
+     "review_rate": 0.25,
+     "decision_accuracy": 0.2833,
+     "outcome_accuracy": 0.5833,
+     "wrong_denials": 8,
+     "schema_error_events": 4,
+     "failed_calls": 0,
+     "own_lines_disagree_with_own_total": null,
+     "spent_usd": 0.290692,
+     "latency_ms_median": 2916.1,
+     "rules_engine_same_claims": {
+      "decision_accuracy": 0.9333,
+      "wrong_payments": 0
+     },
+     "wrong_payments_by_scenario": {
+      "clean": 7,
+      "format_variance": 5,
+      "grade_missing": 2,
+      "high_amount": 2,
+      "missing_doc": 3,
+      "ocr_noise": 1,
+      "waiting_period": 5
+     },
+     "rows": [
+      {
+       "case_id": "CLM-00000",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        300000
+       ],
+       "model": [
+        "APPROVE",
+        2590000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00001",
+       "scenario": "ocr_noise",
+       "gold": [
+        "APPROVE",
+        330000
+       ],
+       "model": [
+        "REVIEW",
+        330000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00002",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        280000
+       ],
+       "model": [
+        "APPROVE",
+        1200000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00003",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        6000000
+       ],
+       "model": [
+        "APPROVE",
+        7000000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00004",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00005",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        400000
+       ],
+       "model": [
+        "APPROVE",
+        30600000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00006",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        30000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00007",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00008",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00009",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        12290000
+       ],
+       "model": [
+        "APPROVE",
+        2630000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00010",
+       "scenario": "grade_missing",
+       "gold": [
+        "REVIEW",
+        120000
+       ],
+       "model": [
+        "REVIEW",
+        910000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00011",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        480000
+       ],
+       "model": [
+        "APPROVE",
+        4200000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00012",
+       "scenario": "ocr_noise",
+       "gold": [
+        "APPROVE",
+        740000
+       ],
+       "model": [
+        "APPROVE",
+        3390000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00013",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        590000
+       ],
+       "model": [
+        "APPROVE",
+        2300000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00014",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        30000
+       ],
+       "model": [
+        "APPROVE",
+        600000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00015",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00016",
+       "scenario": "waiting_period",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "APPROVE",
+        30000000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_deny"
+      },
+      {
+       "case_id": "CLM-00017",
+       "scenario": "exclusion",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00018",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00019",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00020",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        11260000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00021",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        2180000
+       ],
+       "model": [
+        "APPROVE",
+        10000000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00022",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        240000
+       ],
+       "model": [
+        "APPROVE",
+        630000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00023",
+       "scenario": "ocr_noise",
+       "gold": [
+        "REVIEW",
+        350000
+       ],
+       "model": [
+        "REVIEW",
+        2500000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00024",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        2270000
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00025",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        150000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00026",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        500000
+       ],
+       "model": [
+        "REVIEW",
+        500000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00027",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        550000
+       ],
+       "model": [
+        "APPROVE",
+        30000000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00028",
+       "scenario": "exclusion",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00029",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00030",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00031",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        2100000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00032",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        2000000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00033",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        2300000
+       ],
+       "model": [
+        "APPROVE",
+        9000000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00034",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        500000
+       ],
+       "model": [
+        "APPROVE",
+        500000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00035",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        100000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00036",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        300000
+       ],
+       "model": [
+        "REVIEW",
+        300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00037",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        600000
+       ],
+       "model": [
+        "REVIEW",
+        30600000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00038",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        150000
+       ],
+       "model": [
+        "APPROVE",
+        240000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00039",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00040",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        400000
+       ],
+       "model": [
+        "APPROVE",
+        9000000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00041",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        450000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00042",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        50000
+       ],
+       "model": [
+        "APPROVE",
+        30000000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00043",
+       "scenario": "format_variance",
+       "gold": [
+        "REVIEW",
+        11060000
+       ],
+       "model": [
+        "APPROVE",
+        6500000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00044",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        680000
+       ],
+       "model": [
+        "APPROVE",
+        3810000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00045",
+       "scenario": "clean",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "APPROVE",
+        60000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_deny"
+      },
+      {
+       "case_id": "CLM-00046",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        550000
+       ],
+       "model": [
+        "APPROVE",
+        30600000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00047",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        500000
+       ],
+       "model": [
+        "REVIEW",
+        500000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00048",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        350000
+       ],
+       "model": [
+        "REVIEW",
+        350000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00049",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        100000
+       ],
+       "model": [
+        "REVIEW",
+        300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00050",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        250000
+       ],
+       "model": [
+        "APPROVE",
+        1030000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00051",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        2120000
+       ],
+       "model": [
+        "REVIEW",
+        2310000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00052",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        50000
+       ],
+       "model": [
+        "APPROVE",
+        5000000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00053",
+       "scenario": "exclusion",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00054",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        370000
+       ],
+       "model": [
+        "APPROVE",
+        4200000
+       ],
+       "wrong_pay": true,
+       "kind": "amount"
+      },
+      {
+       "case_id": "CLM-00055",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        6000000
+       ],
+       "model": [
+        "REVIEW",
+        1000000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00056",
+       "scenario": "ocr_noise",
+       "gold": [
+        "APPROVE",
+        500000
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00057",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        350000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00058",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        300000
+       ],
+       "model": [
+        "APPROVE",
+        300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00059",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        120000
+       ],
+       "model": [
+        "APPROVE",
+        210000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      }
+     ]
+    },
+    "v2_fresh": {
+     "run_id": 41203009585,
+     "url": "https://github.com/sokldjs554/fitwitness/actions/runs/41203009585",
+     "code": "a9aa20d",
+     "variant": "v2",
+     "split": "60 fresh claims (seed 20261031)",
+     "field_order": [
+      "coverage_lines",
+      "outcome",
+      "total_amount"
+     ],
+     "answers": 60,
+     "wrong_payments": 5,
+     "wrong_payments_95_interval": [
+      0.036,
+      0.181
+     ],
+     "wrong_payment_kinds": {
+      "gold_review": 5
+     },
+     "overpaid_krw": 6300000,
+     "auto_rate": 0.7273,
+     "review_rate": 0.45,
+     "decision_accuracy": 0.75,
+     "outcome_accuracy": 0.7833,
+     "wrong_denials": 1,
+     "schema_error_events": 2,
+     "failed_calls": 0,
+     "own_lines_disagree_with_own_total": 1,
+     "spent_usd": 0.293199,
+     "latency_ms_median": 4550.1,
+     "rules_engine_same_claims": {
+      "decision_accuracy": 0.9333,
+      "wrong_payments": 0
+     },
+     "wrong_payments_by_scenario": {
+      "format_variance": 1,
+      "high_amount": 2,
+      "missing_doc": 2
+     },
+     "rows": [
+      {
+       "case_id": "CLM-00000",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        300000
+       ],
+       "model": [
+        "REVIEW",
+        300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00001",
+       "scenario": "ocr_noise",
+       "gold": [
+        "APPROVE",
+        330000
+       ],
+       "model": [
+        "REVIEW",
+        300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00002",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        280000
+       ],
+       "model": [
+        "APPROVE",
+        280000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00003",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        6000000
+       ],
+       "model": [
+        "REVIEW",
+        6000000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00004",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00005",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        400000
+       ],
+       "model": [
+        "REVIEW",
+        400000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00006",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        30000
+       ],
+       "model": [
+        "REVIEW",
+        30000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00007",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00008",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00009",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        12290000
+       ],
+       "model": [
+        "APPROVE",
+        12290000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00010",
+       "scenario": "grade_missing",
+       "gold": [
+        "REVIEW",
+        120000
+       ],
+       "model": [
+        "REVIEW",
+        120000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00011",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        480000
+       ],
+       "model": [
+        "APPROVE",
+        480000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00012",
+       "scenario": "ocr_noise",
+       "gold": [
+        "APPROVE",
+        740000
+       ],
+       "model": [
+        "APPROVE",
+        740000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00013",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        590000
+       ],
+       "model": [
+        "REVIEW",
+        590000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00014",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        30000
+       ],
+       "model": [
+        "APPROVE",
+        330000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00015",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00016",
+       "scenario": "waiting_period",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "REVIEW",
+        30000000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00017",
+       "scenario": "exclusion",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00018",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00019",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00020",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        11260000
+       ],
+       "model": [
+        "REVIEW",
+        11260000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00021",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        2180000
+       ],
+       "model": [
+        "APPROVE",
+        2180000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00022",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        240000
+       ],
+       "model": [
+        "APPROVE",
+        240000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00023",
+       "scenario": "ocr_noise",
+       "gold": [
+        "REVIEW",
+        350000
+       ],
+       "model": [
+        "REVIEW",
+        350000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00024",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        2270000
+       ],
+       "model": [
+        "APPROVE",
+        2270000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00025",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        150000
+       ],
+       "model": [
+        "REVIEW",
+        150000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00026",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        500000
+       ],
+       "model": [
+        "REVIEW",
+        500000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00027",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        550000
+       ],
+       "model": [
+        "REVIEW",
+        550000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00028",
+       "scenario": "exclusion",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00029",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00030",
+       "scenario": "lapsed_policy",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00031",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        2100000
+       ],
+       "model": [
+        "APPROVE",
+        8100000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00032",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        2000000
+       ],
+       "model": [
+        "APPROVE",
+        2000000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00033",
+       "scenario": "high_amount",
+       "gold": [
+        "REVIEW",
+        2300000
+       ],
+       "model": [
+        "REVIEW",
+        2300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00034",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        500000
+       ],
+       "model": [
+        "APPROVE",
+        500000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00035",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        100000
+       ],
+       "model": [
+        "REVIEW",
+        100000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00036",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        300000
+       ],
+       "model": [
+        "REVIEW",
+        300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00037",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        600000
+       ],
+       "model": [
+        "REVIEW",
+        600000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00038",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        150000
+       ],
+       "model": [
+        "APPROVE",
+        150000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00039",
+       "scenario": "duplicate",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00040",
+       "scenario": "grade_missing",
+       "gold": [
+        "APPROVE",
+        400000
+       ],
+       "model": [
+        "APPROVE",
+        400000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00041",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        450000
+       ],
+       "model": [
+        "REVIEW",
+        450000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00042",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        50000
+       ],
+       "model": [
+        "REVIEW",
+        50000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00043",
+       "scenario": "format_variance",
+       "gold": [
+        "REVIEW",
+        11060000
+       ],
+       "model": [
+        "APPROVE",
+        11060000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      },
+      {
+       "case_id": "CLM-00044",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        680000
+       ],
+       "model": [
+        "REVIEW",
+        680000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00045",
+       "scenario": "clean",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00046",
+       "scenario": "waiting_period",
+       "gold": [
+        "REVIEW",
+        550000
+       ],
+       "model": [
+        "REVIEW",
+        600000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00047",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        500000
+       ],
+       "model": [
+        "REVIEW",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00048",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        350000
+       ],
+       "model": [
+        "APPROVE",
+        350000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00049",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        100000
+       ],
+       "model": [
+        "REVIEW",
+        100000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00050",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        250000
+       ],
+       "model": [
+        "REVIEW",
+        250000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00051",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        2120000
+       ],
+       "model": [
+        "APPROVE",
+        2120000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00052",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        50000
+       ],
+       "model": [
+        "APPROVE",
+        50000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00053",
+       "scenario": "exclusion",
+       "gold": [
+        "DENY",
+        0
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00054",
+       "scenario": "format_variance",
+       "gold": [
+        "APPROVE",
+        370000
+       ],
+       "model": [
+        "APPROVE",
+        370000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00055",
+       "scenario": "date_conflict",
+       "gold": [
+        "REVIEW",
+        6000000
+       ],
+       "model": [
+        "REVIEW",
+        6000000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00056",
+       "scenario": "ocr_noise",
+       "gold": [
+        "APPROVE",
+        500000
+       ],
+       "model": [
+        "APPROVE",
+        500000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00057",
+       "scenario": "exclusion",
+       "gold": [
+        "REVIEW",
+        350000
+       ],
+       "model": [
+        "DENY",
+        0
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00058",
+       "scenario": "clean",
+       "gold": [
+        "APPROVE",
+        300000
+       ],
+       "model": [
+        "APPROVE",
+        300000
+       ],
+       "wrong_pay": false,
+       "kind": null
+      },
+      {
+       "case_id": "CLM-00059",
+       "scenario": "missing_doc",
+       "gold": [
+        "REVIEW",
+        120000
+       ],
+       "model": [
+        "APPROVE",
+        120000
+       ],
+       "wrong_pay": true,
+       "kind": "gold_review"
+      }
+     ]
+    }
+   },
+   "spent_usd": 1.666287,
+   "findings": [
+    "Dev, 60 claims, one ask each, wrong payments: v0 24, v1 18, v2 4, v3 6. The rule picked v2.",
+    "Confirmation on 60 claims nobody had read: v0 25 wrong payments (decision accuracy 28.3%, 198,950,000 won overpaid), v2 5 (75.0%, 6,300,000 won). The rules path paid wrongly in 0 of the same 60. The drop from 25 to 5 reproduced on claims that were not used to choose the variant, so it is not an artefact of selection on dev.",
+    "What changed is how the model is asked to work, not what it knows: v2 makes it write, for each requested coverage, the rule, the values it read, the arithmetic and the judged amount before it commits to the outcome and the total. Wrong amounts (an approval with the wrong total) fell from 13 to 0 on the fresh claims.",
+    "What did not change: all 5 remaining wrong payments with v2 are claims the gold sends to a person (gold_review) and the model approved: two above the automatic limit, two with a missing document, one with a format variation. These are the cases the rules path routes to review by construction, so with the best format found here the model still pays where the rules do not (5 of 60 against 0 of 60).",
+    "v3 (v2 plus a stated procedure) was not better than v2 on dev (6 against 4); the extra procedure text did not help."
+   ],
+   "limitations": [
+    "One model, one ask per claim, 60 claims per cell: the intervals (wrong payments 5 of 60: about 4% to 18%) are wide, and v2 against v3 (4 against 6) is inside the noise, which the selection rule says in advance.",
+    "Four variants were tried; v2 was chosen from them on dev. The confirmation set is the only unbiased number. The test split used for the first Claude run (49 of 120) was left alone.",
+    "The prompt (house rules in words) was not rewritten for any variant; only the output format and, in v3, a stated procedure were added. A prompt tuned on the failures themselves could do better or worse and would need its own confirmation set.",
+    "The gold is the rules engine on the true values (as in the first run), so the experiment measures agreement with the engine, not with an adjuster's judgement.",
+    "Wrong-payment counts are against a model with no tools: it did arithmetic in text. A model given a calculator tool is a different experiment."
+   ]
   }
  },
  "date_claude": "2026-10-31"

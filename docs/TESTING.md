@@ -6,8 +6,8 @@
 
 | 구분 | 개수 | 확인 방법 |
 |---|---|---|
-| Python(pytest) | **585**: 단위 440 + 통합 145 | `uv run pytest --collect-only -q \| tail -1` |
-| 그 가운데 서로 다른 테스트 함수 | 491 | 같은 목록에서 `[...]`를 뗀 이름 |
+| Python(pytest) | **589**: 단위 442 + 통합 147 | `uv run pytest --collect-only -q \| tail -1` |
+| 그 가운데 서로 다른 테스트 함수 | 495 | 같은 목록에서 `[...]`를 뗀 이름 |
 | 파라미터를 바꿔 늘어난 사례 | 94(함수 22개가 116사례) | 한 함수가 45사례(허용 목록 밖 명령 거부)를 차지합니다 |
 | Playwright(브라우저) | **80**: 시나리오 40 × 데스크톱·모바일 두 화면 | `cd web && npx playwright test --list` |
 | 평가 게이트(pytest 밖) | 매 커밋 API 없이 실행해 커밋된 기준선과 비교 | [EVALUATION-GATE.md](EVALUATION-GATE.md) |
@@ -25,10 +25,11 @@
 | 2026-10-29 밤 | 벡터 색인 7사례(함수 6), 담당자 신원 9, 사흘 대기 뒤 재개 1 | 556 |
 | 2026-10-30 | 감사에서 재현한 결함마다 먼저 실패하는 시험을 둠: 청구 규칙(보험기간 날짜, 흐린 날짜의 부지급, 코드 없는 수술, 조정 승인의 키) 5, 값과 인용의 일치 2, 손으로 계산한 정답 26건을 도는 시험 1, 도번 정규화 4, 같은 키 재시도로 예약을 건너뛰는 것·죽는 worker의 시도 횟수·준비 구간 실패·500건 넘는 이벤트 5, `/docs` 끄기 1. 브라우저 시나리오 셋(접근성 검사)과 호출 트리 확인 | 574(브라우저 80) |
 | 2026-10-30 오후 | 모델이 판정까지 내리는 비교 실험의 채점·스텁 실행·전부 지급하는 모델 5, 구조 비교의 더 어려운 작업 공간(정답이 gold에서 계산되고 무료 규칙 경로와 일치)·후보가 돌아오지 않은 도면·반복 집계 3, OpenAI 추론 모델의 설정·function calling 체인 3 | 585 |
+| 2026-10-31 | 방문자 주소를 프록시가 붙인 항목에서 읽는 단위 시험 둘(클라이언트가 쓴 `X-Forwarded-For`가 맨 앞에 와도 세어지는 주소가 안 바뀜)과 그것을 API에서 확인하는 시험 하나, 반례 역할을 다른 모델이 맡는 실행이 같은 예산 한도와 거절 규칙을 따르는지 보는 시험 하나 | 589 |
 
 ## 묶음별로 무엇을 막는가
 
-한 테스트가 둘 이상의 위험에 걸칠 수 있어서 가장 가까운 묶음에 한 번만 넣었습니다. 사례 수 합계가 585입니다.
+한 테스트가 둘 이상의 위험에 걸칠 수 있어서 가장 가까운 묶음에 한 번만 넣었습니다. 사례 수 합계가 589입니다.
 
 | 막으려는 고장 | 사례(함수) | 파일 | 실패로 바뀌는 사례의 예 |
 |---|---|---|---|
@@ -36,11 +37,11 @@
 | **중간에 죽거나 실패한 뒤 다시 시작하는 것, 큐가 멈춰 서는 것** | 58(51) | `test_recovery`, `test_review_recovery`, `test_retry`, `test_provider_retry`, `test_review`, `test_pool`, `test_pool_worker`, `test_workflow`, `test_dispatcher`, `test_provider_contract`, `test_heartbeat` | `real_worker_crash_resumes_without_repeating_retrieval`, `old_worker_fencing_token_cannot_complete`, `exhausted_retries_are_dead_lettered`, `timeout_kills_the_worker_and_the_next_job_still_runs`, `cancelled_run_cannot_finalize`, `a_finished_run_starts_the_next_queued_one_without_waiting_for_the_poll` |
 | **서류와 질의에 든 지시문, 모델이 지어낸 값을 받아들이는 것** | 27(27) | `test_claims_extract`, `test_claims_injection_model`, `test_query_understanding` | `a_field_label_inside_a_remark_never_becomes_the_value_and_cannot_ground_a_model`, `grounding_keeps_only_values_whose_snippet_is_in_the_document`, `a_proposal_is_kept_only_when_its_quote_is_in_the_query`, `an_exclusion_removes_the_material_the_pattern_took_as_wanted` |
 | **모르는 것을 맞다고 하는 것** | 35(29) | `test_conditions`, `test_review_guards`, `test_agent_evidence`, `test_graph_evidence` | `40mm_rejects_42mm`, `missing_material_is_unknown`, `uncertain_ocr_is_unknown`, `search_does_not_supply_inspection_evidence`, `graph_does_not_approve_uninspected_search_results`, `a_plan_whose_every_tool_failed_gets_one_more_turn_and_only_one` |
-| **에이전트의 도구, 예산, 경로가 정해진 범위를 벗어나는 것** | 103(50) | `test_tools`, `test_shell_search`, `test_shell_search_tool`, `test_saved_tools`, `test_agent_pilot`, `test_agent_trajectory`, `test_agent_trajectory_run`, `test_trajectory`, `test_trajectory_gate` | `arbitrary_code_cannot_be_a_tool`, `budget_never_allows_an_extra_call`, `everything_outside_the_closed_set_is_refused`(45사례), `a_command_that_would_fail_for_want_of_a_shell_is_refused_with_how_to_type_it`, `each_wrong_road_is_caught`, `a_broken_claim_graph_is_seen_by_the_path_checks` |
+| **에이전트의 도구, 예산, 경로가 정해진 범위를 벗어나는 것** | 104(51) | `test_tools`, `test_shell_search`, `test_shell_search_tool`, `test_saved_tools`, `test_agent_pilot`, `test_agent_trajectory`, `test_agent_trajectory_run`, `test_trajectory`, `test_trajectory_gate` | `arbitrary_code_cannot_be_a_tool`, `budget_never_allows_an_extra_call`, `everything_outside_the_closed_set_is_refused`(45사례), `a_command_that_would_fail_for_want_of_a_shell_is_refused_with_how_to_type_it`, `each_wrong_road_is_caught`, `a_broken_claim_graph_is_seen_by_the_path_checks` |
 | **검색이 엉뚱한 도면을 올리거나 낡은 색인을 읽는 것** | 80(70) | `test_drawing_number`, `test_retrieval_ids`, `test_retrieval`, `test_korean_search`, `test_reranking`, `test_indexing`, `test_dense_index`, `test_geometry`, `test_corpus_state`, `test_number_index`, `test_vector_index`| `one_edit_typo_falls_back_to_fuzzy_only_when_nothing_matches_exactly`, `material_code_is_not_mistaken_for_an_identifier`, `constraint_order_never_displaces_an_explicit_drawing_number`, `search_rejects_old_snapshot_before_reading_vectors` |
 | **스캔·OCR·표제란·이미지 읽기가 틀린 값을 사실로 올리는 것** | 90(74) | `test_scan_examples`, `test_ocr`, `test_ocr_scan`, `test_official`, `test_official_scan`, `test_title_block`, `test_vision`, `test_ingest` | `a_badly_degraded_scan_never_ends_in_a_wrong_payment`, `a_field_the_clerk_left_empty_is_not_invented`, `a_material_grade_is_not_taken_for_a_drawing_number_and_a_page_footer_is_not_either`, `unknown_or_invalid_vision_numbers_are_not_promoted_to_facts` |
 | **측정이 스스로를 속이는 것** | 53(52) | `test_evaluation`, `test_evaluation_api`, `test_evaluation_runner`, `test_gate`, `test_stats`, `test_retrieval_metrics`, `test_retrieval_ablation`, `test_dataset`, `test_prompt_experiment`, `test_claims_model_eval`, `test_vendor_ocr`, `test_shell_search_model`, `test_synth_determinism` | `model_input_never_contains_gold_or_prediction`, `gate_never_tolerates_a_wrong_payout`, `gate_requires_the_degraded_control_to_be_worse`, `editing_a_prompt_after_the_dev_run_voids_the_dev_report`, `family_splits_disjoint` |
-| **다른 고객의 데이터가 보이거나 지난 판이 바뀌는 것, 답한 사람이 누구인지 모르는 것** | 41(40) | `test_storage`, `test_api`, `test_managed_role`, `test_live_config`, `test_identity`, `test_identity_api`| `foreign_tenant_cannot_read_revision_or_asset`, `immutable_revision`, `public_demo_cannot_spend_configured_provider_keys`, `migration_grants_set_to_non_superuser_owner`, `every_other_token_is_refused`, `the_second_approval_must_come_from_another_account_whatever_the_name_says` |
+| **다른 고객의 데이터가 보이거나 지난 판이 바뀌는 것, 답한 사람이 누구인지 모르는 것** | 44(43) | `test_storage`, `test_api`, `test_visitor_address`, `test_managed_role`, `test_live_config`, `test_identity`, `test_identity_api`| `foreign_tenant_cannot_read_revision_or_asset`, `immutable_revision`, `public_demo_cannot_spend_configured_provider_keys`, `migration_grants_set_to_non_superuser_owner`, `every_other_token_is_refused`, `the_second_approval_must_come_from_another_account_whatever_the_name_says` |
 | **관측이 비거나, 관측 때문에 실행이 깨지는 것** | 17(17) | `test_observability`, `test_otlp_export`, `test_otlp`, `test_trace` | `a_paused_run_is_not_exported_until_it_ends`, `an_unreachable_or_refusing_backend_never_fails_the_caller`, `counters_do_not_go_down_when_a_workspace_expires_and_waits_are_exported`, `an_unhandled_error_is_counted_as_a_500` |
 
 ## 이 표가 말하지 않는 것

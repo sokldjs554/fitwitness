@@ -10,10 +10,10 @@
   "title-block-vlm": "9a14e5b43854f508",
   "title-block-vlm-prompts": "de01d310dcc51d67",
   "openai": "e7e97f71f6c7bf14",
-  "agent-trajectory-repeats": "9e3539720922fd28",
-  "claims-model-decides": "ee50b7aa03e78470"
+  "agent-trajectory-repeats": "c4d80a2bb538ce09",
+  "claims-model-decides": "3b6ac002dd10f4a9"
  },
- "spent_usd": 8.312141,
+ "spent_usd": 10.209228,
  "cards": [
   {
    "id": "trajectory",
@@ -551,7 +551,7 @@
    "question": "세 구조의 차이가 반복해도 남는가, 후보가 많아지면 모델이 모든 도면을 열어 보는가, 그 답이 모델이 바뀌어도 같은가",
    "model": "gpt-5-mini · claude-haiku-4-5-20251001",
    "measured": "2026-10-30 ~ 10-31",
-   "cost_usd": 2.234738,
+   "cost_usd": 2.465538,
    "headline": [
     {
      "label": "쉬운 설정에서 모두 정답인 실행",
@@ -567,6 +567,16 @@
      "label": "어려운 설정, Claude Haiku 4.5: 모두 정답인 실행",
      "value": "0 · 22 · 23 / 24·24·23",
      "note": "같은 설정. 단일 계획은 구조상 12개 중 8개만 열 수 있어 0. 상한 $0.9에서 멈춰 반복은 2회(탐색+반례는 1~2회)"
+    },
+    {
+     "label": "어려운 설정, Claude 셋째 반복(따로 실행): 모두 정답인 실행",
+     "value": "0 · 11 · 12 / 12씩",
+     "note": "앞 실행이 상한에서 멈춘 뒤 그 반복만 다시 돌림. 세 반복을 합치면 단일 0/36 · 반복 33/36 · 탐색+반례 35/35. 반복 계획이 놓친 세 번은 모두 같은 케이스"
+    },
+    {
+     "label": "다른 모델이 반례 역할을 하면(Claude 계획자 + gpt-5-mini)",
+     "value": "10/24",
+     "note": "모두 정답인 실행. 판정 81.8%. 같은 Claude가 반례를 맡으면 35/35. 틀린 판정은 모두 조회하지 않은 도면: 반례 쪽이 일찍 멈춤(plan_stop 13/24)"
     },
     {
      "label": "조회하고도 틀린 판정",
@@ -653,7 +663,8 @@
     "Two models in the repeated runs, each in its own runs: gpt-5-mini at minimal reasoning effort (2026-10-30) and Claude Haiku 4.5 without extended thinking (2026-10-31). The earlier partial Claude run (41030461645) was cut off by an empty balance after one repeat of two structures and is not used. Neither model's result says how a third model behaves, and earlier Claude single runs (agent-trajectory.json) are not comparable with these.",
     "Twelve cases (six families x two materials) times three repeats: the repeats of a case are not independent, so counts of runs overstate how much was observed; 12 cases cannot rank two structures that differ by one or two cases.",
     "The harder setting is hard by the harness's limits (at most 8 operations per plan, 16 tool calls, 4 model calls, 12 candidates), not by the drawings. The single plan's ceiling of 8 of 12 is one of them.",
-    "The first hard-setting Claude run has two repeats for the single plan and for repeated planning, and one or two for planner plus challenger, not the three planned: the 0.9 USD ceiling stopped it with 37 of 108 model runs not started. The third repeat was run afterwards on its own (41201737876), so the three repeats come from two runs on the same code except for the harness flag; the one planner-plus-challenger run of FW-F029:AL6061 that the ceiling cut off was not made up. Compare shares, not run counts, between the two models' hard runs."
+    "The first hard-setting Claude run has two repeats for the single plan and for repeated planning, and one or two for planner plus challenger, not the three planned: the 0.9 USD ceiling stopped it with 37 of 108 model runs not started. The third repeat was run afterwards on its own (41201737876), so the three repeats come from two runs on the same code except for the harness flag; the one planner-plus-challenger run of FW-F029:AL6061 that the ceiling cut off was not made up. Compare shares, not run counts, between the two models' hard runs.",
+    "The different-model challenger run is one configuration (Claude planner, gpt-5-mini at minimal effort as challenger), twelve cases and two repeats, one run; the repeats of a case are not independent; a challenger at a higher reasoning effort, or the pairing the other way round, was not run."
    ],
    "links": [
     {
@@ -673,7 +684,7 @@
    "question": "제품에서는 하지 않는 설계로, 모델이 지급 여부와 금액까지 내리면 잘못된 지급이 나오는가",
    "model": "gpt-5-mini · claude-haiku-4-5-20251001",
    "measured": "2026-10-30 ~ 10-31",
-   "cost_usd": 1.26341,
+   "cost_usd": 2.929697,
    "headline": [
     {
      "label": "잘못된 지급, Claude Haiku 4.5",
@@ -691,13 +702,18 @@
      "note": "같은 청구, 같은 프롬프트에 양식의 필드 순서만 바꿈. 금액 오류 30→20, 담당자 확인·부지급인 청구를 지급한 것은 그대로(19→19)"
     },
     {
+     "label": "금액 앞에 청구 항목별 작업 줄을 쓰게 하면, Claude",
+     "value": "5/60",
+     "note": "dev 60건에서 네 변형 중 고른 것을 한 번도 읽지 않은 새 청구 60건에 한 번씩 물음. 첫 양식은 같은 청구에서 25/60. 남은 5건은 모두 담당자 확인 대상인 청구를 지급한 것. 규칙 경로 0/60"
+    },
+    {
      "label": "잘못 나간 금액",
      "value": "156,060,000원",
      "note": "Claude 기준 120번의 합. gpt-5-mini 300,000원, 규칙 경로 0원"
     }
    ],
    "table": {
-    "caption": "청구 test 60건. 정답은 claims/synth.py의 gold(참값에 규칙 엔진을 돌린 결과). 모델 경로는 청구당 두 번 물은 120번, 규칙 경로는 60번",
+    "caption": "위 네 줄은 청구 test 60건. 정답은 claims/synth.py의 gold(참값에 규칙 엔진을 돌린 결과). 모델 경로는 청구당 두 번 물은 120번, 규칙 경로는 60번. 아래 두 줄은 새로 만든 청구 60건(씨앗 20261031)에 한 번씩이라 앞 줄과 같은 청구가 아니다",
     "columns": [
      "경로",
      "결정 정확도",
@@ -738,6 +754,22 @@
       "39/120",
       "25.0%",
       "125,340,000원"
+     ],
+     [
+      "새 청구 60건, 한 번씩: 첫 양식 (claude-haiku-4-5-20251001)",
+      "28.3%",
+      "9.1%",
+      "25/60",
+      "25.0%",
+      "198,950,000원"
+     ],
+     [
+      "새 청구 60건, 한 번씩: 청구 항목별 작업 줄 먼저 (claude-haiku-4-5-20251001)",
+      "75.0%",
+      "72.7%",
+      "5/60",
+      "45.0%",
+      "6,300,000원"
      ]
     ]
    },
@@ -745,7 +777,8 @@
     "Two models, each in its own run: gpt-5-mini at low reasoning effort (summary) and Claude Haiku 4.5 without extended thinking (claude block). One prompt written once from the engine's rules before either run and not tuned on these claims, two asks per claim: neither run gives a stable rate, and another model or effort could pay more or less wrongly.",
     "In 17 of the 30 wrong amounts the reasons text itself contains the gold amount while total_amount carries another number (CLM-00085: the reasons compute 6 days x 30,000 = 180,000 won, total_amount says 270,000). The schema the model fills asks for the amount before the reasons, so the number is written before the calculation. This is an observed pattern; it was tested afterwards in a stated ablation (reasons_first_ablation): with the reasons first, wrong payments fell from 49 to 39 of 120 and wrong amounts from 30 to 20, so the order explains part of it and not the over-approvals.",
     "The test split was used for both orders. The ablation was declared before it ran and is one pre-stated change, but the schema it tests was chosen after the first run's test results were seen; it is not a held-out measurement of a tuned prompt, and no tuned prompt is claimed.",
-    "The gold is the rule engine applied to the true values (claims/synth.py), so 'right' means 'what the engine's rules say'. The experiment measures how far a model's own application of the same written rules strays from the engine, not how far it strays from a human adjudicator."
+    "The gold is the rule engine applied to the true values (claims/synth.py), so 'right' means 'what the engine's rules say'. The experiment measures how far a model's own application of the same written rules strays from the engine, not how far it strays from a human adjudicator.",
+    "Four variants were tried; v2 was chosen from them on dev. The confirmation set is the only unbiased number. The test split used for the first Claude run (49 of 120) was left alone."
    ],
    "links": [
     {

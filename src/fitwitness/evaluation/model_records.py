@@ -505,6 +505,13 @@ def trajectory_repeats():
         return sum(m["failure_classes"][key] for m in run["by_mode"].values() if "failure_classes" in m)
 
     gpt_hard, claude_hard = runs[0][2], runs[1][2]
+    third, cross = by_id[41201737876], by_id[41203308968]
+
+    def all_right(mode):  # completed runs of the first Claude hard run and its third repeat that are right on every verdict
+        done = [r for run in (claude_hard, third) for r in run["rows"] if r["mode"] == mode and r["state"] == "completed"]
+        return f"{sum(r['correct'] == r['total'] for r in done)}/{len(done)}"
+
+    cross_done = cross["completed_runs_only"]["fitwitness"]
     hard_right = lambda run: " · ".join(f"{run['by_mode'][m]['runs_fully_correct']}" for m in MODES)  # noqa: E731
     hard_runs = lambda run: "·".join(str(run["by_mode"][m]["runs"]) for m in MODES)  # noqa: E731
     return {
@@ -532,8 +539,24 @@ def trajectory_repeats():
                 "note": "같은 설정. 단일 계획은 구조상 12개 중 8개만 열 수 있어 0. 상한 $0.9에서 멈춰 반복은 2회(탐색+반례는 1~2회)",
             },
             {
+                "label": "어려운 설정, Claude 셋째 반복(따로 실행): 모두 정답인 실행",
+                "value": " · ".join(str(third["completed_runs_only"][m]["runs_right_on_every_verdict"]) for m in MODES)
+                + f" / {third['completed_runs_only']['fitwitness']['runs']}씩",
+                "note": f"앞 실행이 상한에서 멈춘 뒤 그 반복만 다시 돌림. 세 반복을 합치면 단일 {all_right('fixed')} · 반복 {all_right('react')} · 탐색+반례 {all_right('fitwitness')}. 반복 계획이 놓친 세 번은 모두 같은 케이스",
+            },
+            {
+                "label": "다른 모델이 반례 역할을 하면(Claude 계획자 + gpt-5-mini)",
+                "value": f"{cross_done['runs_right_on_every_verdict']}/{cross_done['runs']}",
+                "note": f"모두 정답인 실행. 판정 {_pct(cross_done['verdicts_right'] / cross_done['verdicts'])}. 같은 Claude가 반례를 맡으면 {all_right('fitwitness')}. 틀린 판정은 모두 조회하지 않은 도면: 반례 쪽이 일찍 멈춤(plan_stop {cross['stops']['plan_stop']}/{cross_done['runs']})",
+            },
+            {
                 "label": "조회하고도 틀린 판정",
-                "value": str(total(gpt_hard, "inspected_wrong") + total(claude_hard, "inspected_wrong")),
+                "value": str(
+                    total(gpt_hard, "inspected_wrong")
+                    + total(claude_hard, "inspected_wrong")
+                    + total(third, "inspected_wrong")
+                    + total(cross, "inspected_wrong")
+                ),
                 "note": f"두 모델 모두. 틀린 판정은 조회 안 한 도면(gpt-5-mini {total(gpt_hard, 'not_inspected')}개, Claude {total(claude_hard, 'not_inspected')}개)이거나 끝나지 못한 실행",
             },
         ],
@@ -551,7 +574,7 @@ def trajectory_repeats():
             ],
             "rows": rows,
         },
-        "caveats": [t["limitations"][i] for i in (0, 1, 2, 6)],
+        "caveats": [t["limitations"][i] for i in (0, 1, 2, 6, 7)],
         "links": [
             _link("기록 JSON", "docs/evaluation/agent-trajectory-repeats.json"),
             _link("설명", "docs/evaluation/README.md"),
@@ -568,7 +591,19 @@ def claims_decides():
     ci = cs["repeats"]["wrong_pay_wilson95_if_answers_were_independent"]
     ab = d["claude"]["reasons_first_ablation"]["summary"]
     a = ab["model"]
+    pv = d["claude"]["prompt_variants"]
+    f0, f2 = pv["runs"]["v0_fresh"], pv["runs"]["v2_fresh"]
     gname, cname = d["model"]["id"], d["claude"]["model"]["id"]
+
+    def fresh(label, m):
+        return [
+            label,
+            _pct(m["decision_accuracy"]),
+            _pct(m["auto_rate"]),
+            f"{m['wrong_payments']}/{m['answers']}",
+            _pct(m["review_rate"]),
+            f"{m['overpaid_krw']:,}원",
+        ]
 
     def line(label, m):
         return [
@@ -587,7 +622,7 @@ def claims_decides():
         "question": "제품에서는 하지 않는 설계로, 모델이 지급 여부와 금액까지 내리면 잘못된 지급이 나오는가",
         "model": f"{gname} · {cname}",
         "measured": f"{d['date']} ~ {d['date_claude'][5:]}",
-        "cost_usd": _usd(gs["spent_usd"] + cs["spent_usd"] + ab["spent_usd"]),
+        "cost_usd": _usd(gs["spent_usd"] + cs["spent_usd"] + ab["spent_usd"] + pv["spent_usd"]),
         "headline": [
             {
                 "label": "잘못된 지급, Claude Haiku 4.5",
@@ -605,19 +640,26 @@ def claims_decides():
                 "note": f"같은 청구, 같은 프롬프트에 양식의 필드 순서만 바꿈. 금액 오류 {c['wrong_pay_kinds']['amount']}→{a['wrong_pay_kinds']['amount']}, 담당자 확인·부지급인 청구를 지급한 것은 그대로({c['wrong_pay_kinds']['gold_review'] + c['wrong_pay_kinds']['gold_deny']}→{a['wrong_pay_kinds']['gold_review'] + a['wrong_pay_kinds']['gold_deny']})",
             },
             {
+                "label": "금액 앞에 청구 항목별 작업 줄을 쓰게 하면, Claude",
+                "value": f"{f2['wrong_payments']}/{f2['answers']}",
+                "note": f"dev 60건에서 네 변형 중 고른 것을 한 번도 읽지 않은 새 청구 60건에 한 번씩 물음. 첫 양식은 같은 청구에서 {f0['wrong_payments']}/{f0['answers']}. 남은 {f2['wrong_payments']}건은 모두 담당자 확인 대상인 청구를 지급한 것. 규칙 경로 0/60",
+            },
+            {
                 "label": "잘못 나간 금액",
                 "value": f"{c['overpaid_krw']:,}원",
                 "note": f"Claude 기준 120번의 합. gpt-5-mini {g['overpaid_krw']:,}원, 규칙 경로 0원",
             },
         ],
         "table": {
-            "caption": "청구 test 60건. 정답은 claims/synth.py의 gold(참값에 규칙 엔진을 돌린 결과). 모델 경로는 청구당 두 번 물은 120번, 규칙 경로는 60번",
+            "caption": "위 네 줄은 청구 test 60건. 정답은 claims/synth.py의 gold(참값에 규칙 엔진을 돌린 결과). 모델 경로는 청구당 두 번 물은 120번, 규칙 경로는 60번. 아래 두 줄은 새로 만든 청구 60건(씨앗 20261031)에 한 번씩이라 앞 줄과 같은 청구가 아니다",
             "columns": ["경로", "결정 정확도", "자동 지급률", "잘못된 지급", "담당자 확인 비율", "잘못 나간 금액"],
             "rows": [
                 line("규칙 판독기 + 엔진", r),
                 line(f"모델이 판정까지 ({gname})", g),
                 line(f"모델이 판정까지 ({cname})", c),
                 line(f"모델이 판정까지 ({cname}, 근거를 금액 앞에)", a),
+                fresh(f"새 청구 60건, 한 번씩: 첫 양식 ({cname})", f0),
+                fresh(f"새 청구 60건, 한 번씩: 청구 항목별 작업 줄 먼저 ({cname})", f2),
             ],
         },
         "caveats": [
@@ -625,6 +667,7 @@ def claims_decides():
             d["claude"]["findings"][2],
             d["claude"]["reasons_first_ablation"]["limitations"][1],
             d["limitations"][1],
+            pv["limitations"][1],
         ],
         "links": [_link("기록 JSON", "docs/evaluation/claims-model-decides.json"), _link("설명", "docs/CLAIMS.md")],
     }
