@@ -1,0 +1,293 @@
+{
+ "what": "A bounded load test of the PUBLIC demo (one free Render instance, 0.1 CPU, 512 MB, shared database) from one address, with stop rules, run by scripts/render-load.py through the manual workflow render-load.",
+ "date": "2026-10-31",
+ "run": {
+  "run_id": 41204780439,
+  "url": "https://github.com/sokldjs554/fitwitness/actions/runs/41204780439",
+  "code": "36f393c",
+  "deployed_commit_tested": "c386374e8c1859184caf0ba4e4d92281fcb7c88e",
+  "deployed_commit_note": "the demo was still running c386374, which does not carry the address fix (eccd7fe); the load test sends no header that changes the address it is counted under, so the fix does not change what it measures",
+  "inputs": {
+   "steps": "1,5,10,20",
+   "checks": "3,3,3,2",
+   "max_runs": 90,
+   "pool": 20
+  },
+  "from": "one GitHub-hosted runner (one address)"
+ },
+ "budgets_used": "20 workspaces of the 20 an hour per address (and of the 100 an hour for everyone) and 88 runs of the 200 an hour for everyone, in one UTC hour (13:00 to 14:00)",
+ "report": {
+  "url": "https://fitwitness.onrender.com",
+  "started": "2026-10-31T13:16:12.884756+00:00",
+  "wake": {
+   "awake_after_seconds": 0.5,
+   "health": {
+    "status": "ok",
+    "version": "0.1.0",
+    "sha": "c386374e8c1859184caf0ba4e4d92281fcb7c88e"
+   }
+  },
+  "health_before": {
+   "answers": [
+    200,
+    200,
+    200,
+    200,
+    200
+   ],
+   "ms_median": 250.5,
+   "ms_max": 394.3
+  },
+  "pool": 20,
+  "steps": [
+   {
+    "requests": 9,
+    "outcomes": {
+     "ok": 9,
+     "rejected": 0,
+     "client_error": 0,
+     "server_error": 0,
+     "transport_error": 0
+    },
+    "error_rate": 0.0,
+    "checks": {
+     "started": 3,
+     "completed": 3
+    },
+    "check_states": {
+     "completed": 3
+    },
+    "check_seconds": {
+     "p50": 1.7,
+     "p95": 2.1,
+     "max": 2.1
+    },
+    "endpoints": {
+     "GET /api/runs/{id}": {
+      "n": 3,
+      "ms_p50": 410.5,
+      "ms_p95": 779.5,
+      "statuses": {
+       "200": 3
+      },
+      "transport_errors": 0
+     },
+     "GET /api/runs/{id}/events": {
+      "n": 3,
+      "ms_p50": 291.1,
+      "ms_p95": 390.5,
+      "statuses": {
+       "200": 3
+      },
+      "transport_errors": 0
+     },
+     "POST /api/runs": {
+      "n": 3,
+      "ms_p50": 316.2,
+      "ms_p95": 321.9,
+      "statuses": {
+       "200": 3
+      },
+      "transport_errors": 0
+     }
+    },
+    "visitors": 1,
+    "checks_each": 3,
+    "wall_seconds": 8.6
+   },
+   {
+    "requests": 89,
+    "outcomes": {
+     "ok": 89,
+     "rejected": 0,
+     "client_error": 0,
+     "server_error": 0,
+     "transport_error": 0
+    },
+    "error_rate": 0.0,
+    "checks": {
+     "started": 15,
+     "completed": 15
+    },
+    "check_states": {
+     "completed": 15
+    },
+    "check_seconds": {
+     "p50": 3.9,
+     "p95": 19.1,
+     "max": 19.1
+    },
+    "endpoints": {
+     "GET /api/runs/{id}": {
+      "n": 37,
+      "ms_p50": 498.9,
+      "ms_p95": 1030.1,
+      "statuses": {
+       "200": 37
+      },
+      "transport_errors": 0
+     },
+     "GET /api/runs/{id}/events": {
+      "n": 37,
+      "ms_p50": 595.2,
+      "ms_p95": 1267.1,
+      "statuses": {
+       "200": 37
+      },
+      "transport_errors": 0
+     },
+     "POST /api/runs": {
+      "n": 15,
+      "ms_p50": 494.2,
+      "ms_p95": 1349.0,
+      "statuses": {
+       "200": 15
+      },
+      "transport_errors": 0
+     }
+    },
+    "visitors": 5,
+    "checks_each": 3,
+    "wall_seconds": 27.2
+   },
+   {
+    "requests": 446,
+    "outcomes": {
+     "ok": 446,
+     "rejected": 0,
+     "client_error": 0,
+     "server_error": 0,
+     "transport_error": 0
+    },
+    "error_rate": 0.0,
+    "checks": {
+     "started": 30,
+     "completed": 30
+    },
+    "check_states": {
+     "completed": 30
+    },
+    "check_seconds": {
+     "p50": 16.1,
+     "p95": 24.0,
+     "max": 28.8
+    },
+    "endpoints": {
+     "GET /api/runs/{id}": {
+      "n": 208,
+      "ms_p50": 889.8,
+      "ms_p95": 1505.3,
+      "statuses": {
+       "200": 208
+      },
+      "transport_errors": 0
+     },
+     "GET /api/runs/{id}/events": {
+      "n": 208,
+      "ms_p50": 1095.2,
+      "ms_p95": 1796.7,
+      "statuses": {
+       "200": 208
+      },
+      "transport_errors": 0
+     },
+     "POST /api/runs": {
+      "n": 30,
+      "ms_p50": 1215.2,
+      "ms_p95": 3581.0,
+      "statuses": {
+       "200": 30
+      },
+      "transport_errors": 0
+     }
+    },
+    "visitors": 10,
+    "checks_each": 3,
+    "wall_seconds": 57.1
+   },
+   {
+    "requests": 1092,
+    "outcomes": {
+     "ok": 1092,
+     "rejected": 0,
+     "client_error": 0,
+     "server_error": 0,
+     "transport_error": 0
+    },
+    "error_rate": 0.0,
+    "checks": {
+     "started": 40,
+     "completed": 40
+    },
+    "check_states": {
+     "completed": 40
+    },
+    "check_seconds": {
+     "p50": 55.7,
+     "p95": 77.3,
+     "max": 84.9
+    },
+    "endpoints": {
+     "GET /api/runs/{id}": {
+      "n": 526,
+      "ms_p50": 2198.3,
+      "ms_p95": 3599.4,
+      "statuses": {
+       "200": 526
+      },
+      "transport_errors": 0
+     },
+     "GET /api/runs/{id}/events": {
+      "n": 526,
+      "ms_p50": 2803.3,
+      "ms_p95": 4311.0,
+      "statuses": {
+       "200": 526
+      },
+      "transport_errors": 0
+     },
+     "POST /api/runs": {
+      "n": 40,
+      "ms_p50": 3820.9,
+      "ms_p95": 5755.8,
+      "statuses": {
+       "200": 40
+      },
+      "transport_errors": 0
+     }
+    },
+    "visitors": 20,
+    "checks_each": 2,
+    "wall_seconds": 120.1
+   }
+  ],
+  "stopped_by": null,
+  "runs_started": 88,
+  "run_ceiling": 90,
+  "health_after": {
+   "answers": [
+    200,
+    200,
+    200,
+    200,
+    200
+   ],
+   "ms_median": 243.7,
+   "ms_max": 261.6
+  },
+  "finished": "2026-10-31T13:20:28.445310+00:00"
+ },
+ "findings": [
+  "No request failed and nothing was refused: 1,636 requests over four steps (1, 5, 10 and 20 visitors working at once), 88 runs, all answered 200, no 429, no timeout, no dropped connection. The stop rules did not stop it; the run ceiling (90) was not reached. /health answered in about 250 ms before and 244 ms after, and the instance was awake at the start.",
+  "What grows is the time, not the failures. A check (open a run, then poll it and its events once a second until it ends) took 1.7 s with one visitor, 3.9 s (median, 19.1 s for the slowest tenth) with five, 16.1 s (24.0 s) with ten and 55.7 s (77.3 s, longest 84.9 s) with twenty. POST /api/runs took 316 ms, 494 ms, 1.2 s and 3.8 s at the median.",
+  "Throughput stops growing early: about 0.35, 0.55, 0.53 and 0.33 checks completed per second at 1, 5, 10 and 20 visitors (wall time includes each visitor's 0.5 to 2 s pause between checks), so from about five visitors on, each added visitor adds waiting, not work done. With 0.1 CPU the instance runs one visitor's work at a time; 20 visitors queue up (20 visitors x 0.33 checks per second x 55.7 s is about 18 checks in flight, Little's law).",
+  "The polling is part of the load: at 20 visitors the instance answered about 9 requests a second, 96% of them status polls (526 + 526 of 1,092). That is what the browser does, so the numbers are what a visitor would see, but a push-based status would take most of that load away."
+ ],
+ "limitations": [
+  "One address, one runner, one instance, one hour: the demo's per-address limit (20 workspaces an hour) caps this test at 20 concurrent visitors, so it cannot say where the instance would fall over, only that 20 visitors from one address get answers, slowly. A real crowd comes from many addresses and is limited by the 100 workspaces an hour and 200 runs an hour for everyone, which this test did not exceed.",
+  "The checks are rule-path runs (no model call): the demo's public API refuses paid models. Their CPU cost is the price of a run on the free instance, not of a model call.",
+  "The instance was already awake (an uptime probe pings it), so this does not measure a cold start; the earlier measurement of the start-up time (89.5 s) is in the deployment document.",
+  "The stop rule on slow checks compared seconds with milliseconds (check_seconds are seconds, the rule multiplied the limit by 1,000), so it could not fire. It would have fired after the 20-visitor step (77.3 s against the rule's 30 s), which was the last step, so this run was not changed by it. Fixed after the run in scripts/render-load.py.",
+  "The tested commit (c386374) is not the current main; the address fix needs a redeploy by the operator, after which the public-address-probe workflow should say that the per-address limit holds."
+ ]
+}

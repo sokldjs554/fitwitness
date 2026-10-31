@@ -1,0 +1,216 @@
+{
+ "what": "HNSW recall against the exact scan on vectors the pinned multilingual-E5 text encoder wrote (384 dimensions), for 10,000 and 100,000 synthetic drawings; 50 natural-language queries of the kind the product receives; recall@50 and recall@10 at four hnsw.ef_search values (the shipped default is 400). Free: no model API is called.",
+ "date": "2026-10-31",
+ "script": "scripts/hnsw-recall-real.py (workflow vector-recall-real)",
+ "database": "PostgreSQL 16 with pgvector in a GitHub Actions service container",
+ "earlier_record": "docs/evaluation/scale-vectors-hnsw.json (2026-10-29) used random vectors, the worst case for HNSW: recall@50 0.93 at 10,000 and 0.57 at 100,000",
+ "runs": [
+  {
+   "run_id": 41201129526,
+   "url": "https://github.com/sokldjs554/fitwitness/actions/runs/41201129526",
+   "code": "bb25a93",
+   "condition": "the 100,000-drawing measurement ran with the 10,000-drawing tenant's vectors still in the same index (110,000 rows; the script did not delete them); the worst query's text and the encoder fingerprint were not recorded",
+   "results": [
+    {
+     "drawings": 10000,
+     "encode_seconds": 99.0,
+     "distinct_texts": 10000,
+     "index_build_ms": 1971.8,
+     "queries": 50,
+     "exact_ms_median": 29.6,
+     "plan": "->  Index Scan using fw_vectors_hnsw_text on fw_vectors  (cost=42.77..278.62 rows=50 width=45)",
+     "ef_40": {
+      "recall_at_50": 0.906,
+      "recall_at_50_worst_query": 0.0,
+      "recall_at_10": 0.93,
+      "rows_returned_min": 50,
+      "ms_median": 13.8,
+      "ms_max": 19.1
+     },
+     "ef_100": {
+      "recall_at_50": 0.95,
+      "recall_at_50_worst_query": 0.0,
+      "recall_at_10": 0.96,
+      "rows_returned_min": 50,
+      "ms_median": 13.7,
+      "ms_max": 19.8
+     },
+     "ef_200": {
+      "recall_at_50": 0.992,
+      "recall_at_50_worst_query": 0.86,
+      "recall_at_10": 0.998,
+      "rows_returned_min": 50,
+      "ms_median": 14.1,
+      "ms_max": 20.8
+     },
+     "ef_400": {
+      "recall_at_50": 0.996,
+      "recall_at_50_worst_query": 0.86,
+      "recall_at_10": 0.998,
+      "rows_returned_min": 50,
+      "ms_median": 13.9,
+      "ms_max": 28.2
+     }
+    },
+    {
+     "drawings": 100000,
+     "encode_seconds": 1028.4,
+     "distinct_texts": 100000,
+     "index_build_ms": 17379.2,
+     "queries": 50,
+     "exact_ms_median": 446.6,
+     "plan": "->  Index Scan using fw_vectors_hnsw_text on fw_vectors  (cost=271.64..2999.40 rows=455 width=45)",
+     "ef_40": {
+      "recall_at_50": 0.828,
+      "recall_at_50_worst_query": 0.04,
+      "recall_at_10": 0.894,
+      "rows_returned_min": 40,
+      "ms_median": 148.2,
+      "ms_max": 245.6
+     },
+     "ef_100": {
+      "recall_at_50": 0.936,
+      "recall_at_50_worst_query": 0.4,
+      "recall_at_10": 0.958,
+      "rows_returned_min": 50,
+      "ms_median": 154.1,
+      "ms_max": 254.5
+     },
+     "ef_200": {
+      "recall_at_50": 0.964,
+      "recall_at_50_worst_query": 0.42,
+      "recall_at_10": 0.974,
+      "rows_returned_min": 50,
+      "ms_median": 157.5,
+      "ms_max": 271.1
+     },
+     "ef_400": {
+      "recall_at_50": 0.979,
+      "recall_at_50_worst_query": 0.42,
+      "recall_at_10": 0.986,
+      "rows_returned_min": 50,
+      "ms_median": 152.0,
+      "ms_max": 243.9
+     }
+    }
+   ]
+  },
+  {
+   "run_id": 41203219070,
+   "url": "https://github.com/sokldjs554/fitwitness/actions/runs/41203219070",
+   "code": "18a5717",
+   "encoder_fingerprint": "0b4f8f7ec137da00ecdf98d1cabfcc95956ace2cc38527aa4ad39d41729a5bc3",
+   "condition": "each size measured with only its own vectors in the index (the script now deletes its earlier size's rows); the worst query's text is recorded",
+   "results": [
+    {
+     "drawings": 10000,
+     "encode_seconds": 146.8,
+     "distinct_texts": 10000,
+     "index_build_ms": 2519.5,
+     "queries": 50,
+     "exact_ms_median": 55.6,
+     "plan": "->  Index Scan using fw_vectors_hnsw_text on fw_vectors  (cost=42.77..278.62 rows=50 width=45)",
+     "ef_40": {
+      "recall_at_50": 0.94,
+      "recall_at_50_worst_query": 0.34,
+      "worst_query_text": "플랜지 두께 126mm",
+      "queries_below_half": 1,
+      "recall_at_10": 0.958,
+      "rows_returned_min": 50,
+      "ms_median": 24.1,
+      "ms_max": 34.1
+     },
+     "ef_100": {
+      "recall_at_50": 0.98,
+      "recall_at_50_worst_query": 0.78,
+      "worst_query_text": "플랜지 구멍 간격 80mm",
+      "queries_below_half": 0,
+      "recall_at_10": 0.99,
+      "rows_returned_min": 50,
+      "ms_median": 23.5,
+      "ms_max": 33.1
+     },
+     "ef_200": {
+      "recall_at_50": 0.992,
+      "recall_at_50_worst_query": 0.86,
+      "worst_query_text": "플랜지 구멍 간격 80mm",
+      "queries_below_half": 0,
+      "recall_at_10": 0.998,
+      "rows_returned_min": 50,
+      "ms_median": 24.3,
+      "ms_max": 44.2
+     },
+     "ef_400": {
+      "recall_at_50": 0.997,
+      "recall_at_50_worst_query": 0.86,
+      "worst_query_text": "플랜지 구멍 간격 80mm",
+      "queries_below_half": 0,
+      "recall_at_10": 1.0,
+      "rows_returned_min": 50,
+      "ms_median": 24.4,
+      "ms_max": 36.3
+     }
+    },
+    {
+     "drawings": 100000,
+     "encode_seconds": 1471.6,
+     "distinct_texts": 100000,
+     "index_build_ms": 19831.3,
+     "queries": 50,
+     "exact_ms_median": 715.3,
+     "plan": "->  Index Scan using fw_vectors_hnsw_text on fw_vectors  (cost=271.56..2754.25 rows=500 width=45)",
+     "ef_40": {
+      "recall_at_50": 0.829,
+      "recall_at_50_worst_query": 0.0,
+      "worst_query_text": "축 구멍 간격 191mm AL6061",
+      "queries_below_half": 5,
+      "recall_at_10": 0.886,
+      "rows_returned_min": 50,
+      "ms_median": 239.9,
+      "ms_max": 353.7
+     },
+     "ef_100": {
+      "recall_at_50": 0.905,
+      "recall_at_50_worst_query": 0.0,
+      "worst_query_text": "축 구멍 간격 191mm AL6061",
+      "queries_below_half": 4,
+      "recall_at_10": 0.926,
+      "rows_returned_min": 50,
+      "ms_median": 239.7,
+      "ms_max": 362.1
+     },
+     "ef_200": {
+      "recall_at_50": 0.941,
+      "recall_at_50_worst_query": 0.0,
+      "worst_query_text": "축 구멍 간격 191mm AL6061",
+      "queries_below_half": 3,
+      "recall_at_10": 0.952,
+      "rows_returned_min": 50,
+      "ms_median": 248.6,
+      "ms_max": 356.7
+     },
+     "ef_400": {
+      "recall_at_50": 0.962,
+      "recall_at_50_worst_query": 0.0,
+      "worst_query_text": "축 구멍 간격 191mm AL6061",
+      "queries_below_half": 1,
+      "recall_at_10": 0.97,
+      "rows_returned_min": 50,
+      "ms_median": 245.2,
+      "ms_max": 354.0
+     }
+    }
+   ]
+  }
+ ],
+ "findings": [
+  "With real encoder vectors the index is far better than on random ones: at 100,000 drawings recall@50 at the shipped ef_search of 400 is 0.979 (first run) and 0.962 (second run), against 0.57 on random vectors; at 10,000 it is 0.996 and 0.997. The two runs differ probably because the parallel index build is not deterministic and the first run's index also held 10,000 rows of another tenant; the spread (0.96 to 0.98) is the honest figure, not either point.",
+  "ef_search matters: at 100,000 drawings recall@50 goes 0.829 (ef 40) → 0.905 (100) → 0.941 (200) → 0.962 (400) in the second run (0.828 → 0.936 → 0.964 → 0.979 in the first). recall@10 is higher at every value (0.970 at ef 400, second run). The cost is small on this machine: the median search took 240 to 249 ms across the four values at 100,000 (148 to 158 ms in the first run, on another runner); the exact scan took 447 ms and 715 ms on the two runners.",
+  "The average hides queries that fail. At 100,000 drawings and ef 400 one query of 50 had recall 0.0 in the second run (\"축 구멍 간격 191mm AL6061\", a shaft with a hole spacing, which the templated shaft texts never mention) and 5 of 50 queries were below 0.5 at ef 40. A recall of 0 means the 50 neighbours the index returned share none with the exact 50. For a query no document answers the exact top 50 are close to arbitrary too (the distances are nearly flat), so this does not show the index's answer is worse for a person; it does show the index and the exact scan can disagree completely on such a query, and I did not examine the distances.",
+  "Rows returned: in the first run, with another tenant's 10,000 rows in the index, at least one query returned only 40 rows when 50 were asked for at ef 40 (the index looks at ef_search candidates and the tenant filter drops the other tenant's rows afterwards). In the second run, with only one tenant in the index, every query returned 50. The shipped ef of 400 and the planner's choice of the exact path for small tenants avoid this in the product, but a mid-size tenant inside a large shared index was not measured, and iterative index scans (pgvector 0.8) are not used."
+ ],
+ "limitations": [
+  "The texts are templated (four kinds, a few dozen distinct values), so the vectors cluster more tightly than a real shop's drawings would; only the text channel is measured (image encoders would need images); synthetic data on a CI container; 50 queries per size, one build per size per run; the queries are phrased by the author, not by users.",
+  "The two runs are not the same condition (see each run's condition), and run times and latencies depend on the runner: compare recall, not milliseconds, across runs."
+ ]
+}

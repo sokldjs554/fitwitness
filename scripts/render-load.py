@@ -199,8 +199,8 @@ async def main_async(args) -> dict:
             if summary["error_rate"] > args.max_error_rate:
                 stopped = f"after {n} visitors: {summary['error_rate']:.1%} of requests failed (rule: more than {args.max_error_rate:.0%})"
                 break
-            if (summary["check_seconds"]["p95"] or 0) > args.max_p95_seconds * 1000:
-                stopped = f"after {n} visitors: the slowest tenth of checks took {summary['check_seconds']['p95'] / 1000:.1f} s (rule: over {args.max_p95_seconds} s)"
+            if (summary["check_seconds"]["p95"] or 0) > args.max_p95_seconds:  # check_seconds are seconds (the endpoint figures are ms)
+                stopped = f"after {n} visitors: the slowest tenth of checks took {summary['check_seconds']['p95']:.1f} s (rule: over {args.max_p95_seconds} s)"
                 break
             if budget["runs"] >= budget["max"]:
                 stopped = f"the run ceiling of {budget['max']} was reached"
