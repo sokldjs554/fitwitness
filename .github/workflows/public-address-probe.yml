@@ -1,0 +1,25 @@
+name: public-address-probe
+# Opens at most 34 workspaces on the public demo from this runner's one address, to see whether the per-address limit
+# counts the address the proxy saw or one the visitor wrote in X-Forwarded-For. Manual only; scripts/probe_address_limit.py.
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: the demo to probe
+        default: 'https://fitwitness.onrender.com'
+        required: true
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe
+        env:
+          INPUT_URL: ${{ inputs.url }}
+        run: |
+          case "$INPUT_URL" in https://*) ;; *) echo "https only"; exit 1;; esac
+          python3 scripts/probe_address_limit.py --url "$INPUT_URL" | tee probe.json
+          echo "== probe $(python3 -c "import json;print(json.dumps(json.load(open('probe.json'))))")"
