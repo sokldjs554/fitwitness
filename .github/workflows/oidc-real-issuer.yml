@@ -36,8 +36,8 @@ jobs:
       FITWITNESS_DATABASE_URL: postgresql://fitwitness:test-only@localhost:5432/fitwitness
       PYTHONPATH: src
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
         with:
           version: "0.9.4"  # the version Dockerfile and render.yaml pin
       - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
@@ -60,7 +60,7 @@ jobs:
           for c in r['checks']:
               print('==', 'ok  ' if c['ok'] else 'FAIL', c['check'], '|', c['detail'][:120])
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: oidc-real-issuer-${{ github.run_id }}

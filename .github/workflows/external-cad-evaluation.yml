@@ -17,8 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
       - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
       - run: uv sync --frozen --extra dev
       - name: Download pinned public NIST STEP archive
@@ -51,7 +51,7 @@ jobs:
           uv run python -m fitwitness.evaluation.external_cad
           --source-zip artifacts/nist-source/NIST-PMI-STEP-Files.zip
           --output artifacts/nist-cad-${{ github.run_id }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: nist-cad-${{ github.run_id }}

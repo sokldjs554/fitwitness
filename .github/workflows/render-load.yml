@@ -31,8 +31,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
         with:
           version: "0.9.4"
       - name: Run
@@ -47,7 +47,7 @@ jobs:
           case "$INPUT_MAX_RUNS" in ''|*[!0-9]*) echo "max_runs: digits only"; exit 1;; esac
           uv run --with httpx==0.28.1 python scripts/render-load.py --url "$INPUT_URL" --steps "$INPUT_STEPS" --checks "$INPUT_CHECKS" --max-runs "$INPUT_MAX_RUNS" --output load.json
           echo "== report $(python3 -c "import json;print(json.dumps(json.load(open('load.json'))))")"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: render-load-${{ github.run_id }}
