@@ -87,6 +87,16 @@ class ModelVerdict(Strict):
     reasons: list[str] = Field(default_factory=list, description="short, in Korean, each quoting the row or the term it rests on")
 
 
+class ModelVerdictReasonsFirst(Strict):
+    """The same four fields and descriptions, the reasons first. The tool-call arguments are written in field order, so
+    here the calculation is written before the amount; nothing else differs (``--reasons-first``)."""
+
+    reasons: list[str] = Field(default_factory=list, description="short, in Korean, each quoting the row or the term it rests on")
+    outcome: Literal["APPROVE", "DENY", "REVIEW"]
+    total_amount: int = Field(description="KRW; 0 for DENY; the payable total otherwise")
+    line_items: list[LineAmount] = Field(default_factory=list)
+
+
 def payload(policy: Policy, product: Product, requested: list[str], rows: str, prior_keys: list[str], kinds: set[str]) -> str:
     submitted = ", ".join(f"{k}({DOC_LABELS.get(k, k)})" for k in sorted(kinds)) or "없음"
     return (
@@ -237,7 +247,9 @@ def evaluate(
     split: str = "test",
     repeats: int = 1,
     max_cases: int | None = None,
+    reasons_first: bool = False,
 ) -> dict:
+    schema = ModelVerdictReasonsFirst if reasons_first else ModelVerdict
     manifest = json.loads((root / "manifest.json").read_text())
     gold = json.loads((root / "gold.json").read_text())
     chosen = [c for c in manifest["cases"] if SPLITS[split](int(c["case_id"].split("-")[-1]))][: max_cases or None]
@@ -274,7 +286,7 @@ def evaluate(
             ledger.reserve(cap)
             started, verdict, error = time.perf_counter(), None, None
             try:
-                verdict, _meta = client.structured(ModelVerdict, DECIDE_PROMPT, body, role="adjudicator")
+                verdict, _meta = client.structured(schema, DECIDE_PROMPT, body, role="adjudicator")
             except Exception as exc:  # noqa: BLE001 - the failure is the finding
                 error = f"{type(exc).__name__}: {str(exc)[:300]}"
             usage = budget.usage if budget is not None else None
@@ -348,6 +360,11 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--max-cases", type=int, default=None)
     p.add_argument("--max-cost-usd", type=float, required=True, help="hard ceiling for the whole batch (at most 1.0)")
     p.add_argument("--per-call-usd", type=float, default=0.03, help="budget of one call, reserved before it starts (at most 0.1)")
+    p.add_argument(
+        "--reasons-first",
+        action="store_true",
+        help="ablation: the tool-call fields in the order reasons, outcome, total_amount, line_items (nothing else changes)",
+    )
     p.add_argument("--output", default="artifacts/claims-model-decides")
     args = p.parse_args(argv)
     assert 0 < args.max_cost_usd <= 1.0, "the ceiling is at most 1 USD"
@@ -370,6 +387,7 @@ def main(argv: list[str] | None = None) -> int:
         split=args.split,
         repeats=args.repeats,
         max_cases=args.max_cases,
+        reasons_first=args.reasons_first,
     )
     prefix = f"FITWITNESS_{args.provider.upper()}"
     report["protocol"] = {
@@ -380,6 +398,9 @@ def main(argv: list[str] | None = None) -> int:
         "split": args.split,
         "repeats": args.repeats,
         "max_cases": args.max_cases,
+        "field_order": ["reasons", "outcome", "total_amount", "line_items"]
+        if args.reasons_first
+        else ["outcome", "total_amount", "line_items", "reasons"],
         "ceiling_usd": str(args.max_cost_usd),
         "per_call_cap_usd": str(args.per_call_usd),
         "pricing_usd_per_million": {

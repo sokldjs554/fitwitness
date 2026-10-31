@@ -35,13 +35,31 @@ def test_the_prompt_carries_the_rules_the_engine_applies_and_nothing_that_names_
     assert "Never infer a surgery grade from the name of the surgery" in p
 
 
-def test_the_stub_run_reproduces_the_rules_engine_and_counts_nothing_wrong(tmp_path):
+def test_the_stub_run_reproduces_the_rules_engine_and_counts_nothing_wrong(tmp_path, monkeypatch):
     generate_cases(tmp_path, n=24, seed=5)
     report = D.evaluate(tmp_path, provider="stub", model="", ceiling=Decimal("0.5"), cap=Decimal("0.03"), split="all", repeats=2)
     s = report["summary"]
     assert s["model"]["answers"] == 48 and s["agreement_with_rules"] == 1.0 and s["model"]["wrong_pay_count"] == 0
     assert s["repeats"]["claims"] == 24 and s["repeats"]["claims_whose_answer_changed"] == 0 and s["spent_usd"] == 0.0
     assert s["rules_engine_on_the_same_claims"]["answers"] == 24 and not report["skipped"]
+    # the reasons-first ablation hands the model the same fields in another order, and nothing else changes
+    seen = []
+
+    class Recorder(D.StubModel):
+        def structured(self, schema, prompt, body, role="adjudicator"):
+            seen.append((schema, prompt))
+            return super().structured(schema, prompt, body, role)
+
+    monkeypatch.setattr(D, "_client", lambda provider, model, cap, decision: (Recorder(decision), None))
+    first = D.evaluate(tmp_path, provider="x", model="", ceiling=Decimal("0.5"), cap=Decimal("0.03"), split="all", reasons_first=True)
+    plain = D.evaluate(tmp_path, provider="x", model="", ceiling=Decimal("0.5"), cap=Decimal("0.03"), split="all")
+    assert {sch for sch, _ in seen[:24]} == {D.ModelVerdictReasonsFirst} and {sch for sch, _ in seen[24:]} == {D.ModelVerdict}
+    assert len({p for _, p in seen}) == 1, "one prompt for both orders"
+    assert first["summary"]["model"]["wrong_pay_count"] == plain["summary"]["model"]["wrong_pay_count"] == 0
+    assert list(D.ModelVerdict.model_fields) == ["outcome", "total_amount", "line_items", "reasons"]
+    assert list(D.ModelVerdictReasonsFirst.model_fields) == ["reasons", "outcome", "total_amount", "line_items"]
+    assert D.ModelVerdictReasonsFirst.model_fields["reasons"].description == D.ModelVerdict.model_fields["reasons"].description
+    assert first["summary"]["agreement_with_rules"] == 1.0
 
 
 def test_a_model_that_approves_everything_is_counted_by_kind_and_scenario(tmp_path, monkeypatch):

@@ -22,6 +22,12 @@ on:
         description: asks per claim (1 to 5); the answers to one claim are not independent observations
         default: '2'
         required: true
+      reasons_first:
+        description: ablation - the tool-call fields in the order reasons, outcome, total_amount, line_items (the default order writes the amount before the reasons)
+        default: 'false'
+        required: true
+        type: choice
+        options: ['false', 'true']
       max_cases:
         description: at most this many claims of the split (blank = all)
         default: ''
@@ -108,10 +114,11 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           MAX_CASES: ${{ inputs.max_cases }}
+          REASONS_FIRST: ${{ inputs.reasons_first == 'true' && '--reasons-first' || '' }}
         run: >-
           uv run python -m fitwitness.evaluation.claims_model_decides
           --provider "$INPUT_PROVIDER" --split "$INPUT_SPLIT" --repeats "$INPUT_REPEATS"
-          ${MAX_CASES:+--max-cases "$MAX_CASES"}
+          ${MAX_CASES:+--max-cases "$MAX_CASES"} $REASONS_FIRST
           --max-cost-usd "$INPUT_MAX_USD" --per-call-usd "$INPUT_PER_CALL_USD"
           --output artifacts/claims-model-decides
       - name: Summary
