@@ -44,3 +44,29 @@ def test_the_number_of_proxies_defaults_to_two_on_render_and_zero_elsewhere(monk
         monkeypatch.setenv("FITWITNESS_TRUSTED_PROXY_HOPS", bad)
         with pytest.raises(ValueError):
             visitor.trusted_proxy_hops()
+
+
+def test_behind_an_edge_network_its_header_is_counted_and_the_shape_names_no_address(monkeypatch):
+    for name in ("FITWITNESS_CLIENT_IP_HEADER", "RENDER"):
+        monkeypatch.delenv(name, raising=False)
+    assert visitor.edge_client_header() == ""
+    monkeypatch.setenv("RENDER", "true")
+    assert visitor.edge_client_header() == "cf-connecting-ip"
+    monkeypatch.setenv("FITWITNESS_CLIENT_IP_HEADER", "none")
+    assert visitor.edge_client_header() == ""
+
+    count = visitor.count_address
+    # the number of edge entries after the visitor's changes from request to request; the edge header does not
+    one = {"cf-connecting-ip": "1.1.1.1", "x-forwarded-for": "1.1.1.1, 104.16.0.1"}
+    two = {"cf-connecting-ip": "1.1.1.1", "x-forwarded-for": "9.9.9.9, 1.1.1.1, 104.16.0.1, 172.64.0.9"}
+    assert count(one, "10.0.0.9", 2, "cf-connecting-ip") == count(two, "10.0.0.9", 2, "cf-connecting-ip") == "1.1.1.1"
+    # missing or not a public address: the X-Forwarded-For reading, then the connection
+    assert count({"x-forwarded-for": "1.1.1.1, 104.16.0.1"}, "10.0.0.9", 2, "cf-connecting-ip") == "1.1.1.1"
+    assert count({"cf-connecting-ip": "10.1.2.3"}, "10.0.0.9", 2, "cf-connecting-ip") == "10.0.0.9"
+    assert count(one, "10.0.0.9", 0, "") == "10.0.0.9", "no edge header and no trusted proxy: the connection, as before"
+
+    s = visitor.shape(two, "10.0.0.9", 2, "cf-connecting-ip")
+    assert s["forwarded_for_entries"] == ["public"] * 4 and s["counted_from"] == "edge header"
+    assert s["edge_header_is_in_forwarded_for"] and s["counted_entry_from_the_right"] == 2
+    text = repr(s)
+    assert not any(a in text for a in ("1.1.1.1", "9.9.9.9", "104.16", "172.64", "10.0.0.9")), "the shape carries no address"

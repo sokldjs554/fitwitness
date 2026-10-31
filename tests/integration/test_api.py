@@ -455,3 +455,22 @@ def test_a_client_that_writes_x_forwarded_for_is_still_counted_under_the_address
     refused = client.post("/api/demo-sessions", headers=behind_proxy("4.4.4.4"))
     assert refused.status_code == 429, "three writers, one address the proxy saw: the third is over the limit of 2"
     assert client.post("/api/demo-sessions", headers={"X-Forwarded-For": "5.5.5.5"}).status_code == 200, "another address has its own count"
+
+
+def test_behind_cloudflare_the_edge_header_is_counted_however_many_entries_x_forwarded_for_has(monkeypatch):
+    """On Render the per-address limit counts CF-Connecting-IP, which Cloudflare writes; the number of edge entries in
+    X-Forwarded-For after the visitor's own changed from request to request on the public demo. /api/visitor-shape
+    describes the headers for the probe and names no address."""
+    from fitwitness.api.app import create_app
+
+    monkeypatch.setenv("FITWITNESS_TRUSTED_PROXY_HOPS", "2")
+    monkeypatch.setenv("FITWITNESS_CLIENT_IP_HEADER", "cf-connecting-ip")
+    monkeypatch.setenv("FITWITNESS_SESSION_LIMIT_PER_PEER", "2")
+    client = TestClient(create_app())
+    visitor = "6.6.6.6"
+    chains = [f"8.8.8.8, {visitor}, 104.16.0.1", f"{visitor}, 104.16.0.2, 172.64.0.3", f"9.9.9.9, {visitor}, 172.64.1.1, 104.16.9.9"]
+    statuses = [client.post("/api/demo-sessions", headers={"CF-Connecting-IP": visitor, "X-Forwarded-For": c}).status_code for c in chains]
+    assert statuses == [200, 200, 429], statuses
+    shape = client.get("/api/visitor-shape", headers={"CF-Connecting-IP": visitor, "X-Forwarded-For": chains[2]}).json()
+    assert shape["counted_from"] == "edge header" and shape["forwarded_for_entries"] == ["public"] * 4
+    assert visitor not in repr(shape) and "104.16" not in repr(shape)

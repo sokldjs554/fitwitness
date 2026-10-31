@@ -23,10 +23,12 @@ import urllib.request
 MAX_PLAIN = 30
 
 
-def create(base: str, xff: str | None = None) -> int:
+def create(base: str, xff: str | None = None, extra: dict | None = None) -> int:
     request = urllib.request.Request(base + "/api/demo-sessions", data=b"", method="POST", headers={"Origin": base})
     if xff:
         request.add_header("X-Forwarded-For", xff)
+    for name, value in (extra or {}).items():
+        request.add_header(name, value)
     try:
         with urllib.request.urlopen(request, timeout=90) as response:
             response.read()
@@ -36,8 +38,22 @@ def create(base: str, xff: str | None = None) -> int:
         return error.code
 
 
+def shapes(base: str, n: int = 5) -> list:
+    """What /api/visitor-shape says about this runner's requests (no address in it); [] on a server without it."""
+    out = []
+    for _ in range(n):
+        try:
+            with urllib.request.urlopen(base + "/api/visitor-shape", timeout=90) as response:
+                out.append(json.loads(response.read()))
+        except urllib.error.HTTPError as error:
+            error.read()
+            return []
+    return out
+
+
 def probe(base: str) -> dict:
     out: dict = {"url": base, "started": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+    out["shapes"] = shapes(base)
     statuses: list[int] = []
     for _ in range(MAX_PLAIN):
         statuses.append(create(base))
@@ -51,6 +67,7 @@ def probe(base: str) -> dict:
         return out
     spoofed = {"one invented address": "198.51.100.7", "two invented addresses": "198.51.100.8, 203.0.113.9", "a third": "203.0.113.77"}
     out["with_a_header_of_my_own"] = {label: create(base, value) for label, value in spoofed.items()}
+    out["with_a_header_of_my_own"]["an edge header of my own"] = create(base, extra={"CF-Connecting-IP": "198.51.100.42"})
     out["plain_again"] = create(base)
     escaped = [label for label, status in out["with_a_header_of_my_own"].items() if status == 200]
     out["verdict"] = (

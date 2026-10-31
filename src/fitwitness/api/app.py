@@ -80,6 +80,7 @@ def create_app():
     # address is undone by trying every address.
     peer_key = hmac.new(key.encode(), b"fitwitness-peer-v1", hashlib.sha256).digest()
     proxy_hops = visitor.trusted_proxy_hops()
+    edge_header = visitor.edge_client_header()
 
     # Runs execute in their own process; warm ones have already paid the interpreter and
     # import cost (seconds on a shared CPU) before a job arrives. Without the lifespan
@@ -290,12 +291,19 @@ def create_app():
         manifest = json.loads((CORPUS / "manifest.json").read_text())["document_entries"]
         return [e for e in manifest if e["family_id"] in DEMO_FAMILIES and not e["is_revision_update"]]
 
+    @app.get("/api/visitor-shape", include_in_schema=False)
+    def visitor_shape(request: Request):
+        """How this request's address headers look, without any address: lets the probe check after a deployment which
+        header the per-address limit counts (scripts/probe_address_limit.py)."""
+        connection = request.client.host if request.client else "unknown"
+        return visitor.shape(request.headers, connection, proxy_hops, edge_header)
+
     @app.post("/api/demo-sessions")
     def session(response: Response, request: Request):
         bucket = "sessions:" + str(int(time.time() // 3600))
         connection = request.client.host if request.client else "unknown"
         peer = hmac.new(
-            peer_key, visitor.address(request.headers.get("x-forwarded-for"), connection, proxy_hops).encode(), hashlib.sha256
+            peer_key, visitor.count_address(request.headers, connection, proxy_hops, edge_header).encode(), hashlib.sha256
         ).hexdigest()[:16]
         per_peer = int(os.getenv("FITWITNESS_SESSION_LIMIT_PER_PEER", "20"))
         # the address's own budget first: an address that is over it must not also use up the shared one

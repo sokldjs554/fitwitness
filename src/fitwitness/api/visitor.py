@@ -17,12 +17,15 @@ the connection reports, as before this module), 1 is one proxy, 2 is an edge in 
 it is 2 on Render (which sets ``RENDER``) and 0 anywhere else, so a direct deployment, the tests and the load test behave
 as they did.
 
-Why 2 on Render: the first deployment of this module used 1 and the per-address limit stopped counting at all. The probe
-(run 41224993810, 2026-10-31) opened 30 workspaces from one address without a refusal, where the same probe had been
-refused at the 21st before. The rightmost public entry is therefore not the visitor but a hop that changes from request
-to request, added after the visitor's own entry; the visitor is the entry before it. If the platform's chain changes,
-the same probe says so: no refusal means too few hops are trusted, a header of the probe's own making let through means
-too many.
+Counting hops was not enough on Render. With 1 the per-address limit stopped counting at all (run 41224993810: 30
+workspaces from one address, no refusal; the rightmost entry changes from request to request). With 2 it held for most
+requests but not all (run 41226556755: refused at the 23rd, then two headers of the probe's own making and one plain
+request let through), so the number of edge entries after the visitor's own changes from request to request too.
+Render is fronted by Cloudflare (its responses carry ``server: cloudflare`` and ``cf-ray``), and Cloudflare writes the
+address it saw in ``CF-Connecting-IP``, replacing a header of that name a client sent. So on Render the visitor is that
+header (``FITWITNESS_CLIENT_IP_HEADER``, ``none`` turns it off), and the X-Forwarded-For reading above is the fallback
+when it is missing. ``shape`` describes a request's headers without any address in it, for the probe to check this from
+outside after a deployment.
 """
 
 from __future__ import annotations
@@ -39,6 +42,16 @@ def trusted_proxy_hops() -> int:
             raise ValueError("FITWITNESS_TRUSTED_PROXY_HOPS must be 0 or more")
         return hops
     return 2 if os.getenv("RENDER") else 0
+
+
+def edge_client_header() -> str:
+    """The header an edge network in front writes with the visitor's address (replacing one a client sent), or "" for none.
+    Unset, it is ``cf-connecting-ip`` on Render and none anywhere else."""
+    raw = os.getenv("FITWITNESS_CLIENT_IP_HEADER")
+    if raw is not None:
+        name = raw.strip().lower()
+        return "" if name in ("", "none") else name
+    return "cf-connecting-ip" if os.getenv("RENDER") else ""
 
 
 def _entry(text: str):
@@ -64,3 +77,41 @@ def address(forwarded_for: str | None, connection: str, hops: int) -> str:
         if ip is not None and ip.is_global:
             return str(ip)
     return connection
+
+
+def count_address(headers, connection: str, hops: int, edge_header: str) -> str:
+    """The address a visit is counted under: the edge network's header when it names a public address, else ``address``."""
+    if edge_header:
+        ip = _entry(headers.get(edge_header) or "")
+        if ip is not None and ip.is_global:
+            return str(ip)
+    return address(headers.get("x-forwarded-for"), connection, hops)
+
+
+def shape(headers, connection: str, hops: int, edge_header: str) -> dict:
+    """What a request's address headers look like, with no address in the answer: how many X-Forwarded-For entries and
+    of which kind, whether the edge header is there, and where the counted address came from."""
+    chain = [e for e in (part.strip() for part in (headers.get("x-forwarded-for") or "").split(",")) if e]
+    kinds = []
+    for text in chain:
+        ip = _entry(text)
+        kinds.append("invalid" if ip is None else "public" if ip.is_global else "not public")
+    edge = _entry(headers.get(edge_header) or "") if edge_header else None
+    counted = count_address(headers, connection, hops, edge_header)
+    from_right = None
+    for i, text in enumerate(reversed(chain)):
+        ip = _entry(text)
+        if ip is not None and str(ip) == counted:
+            from_right = i
+            break
+    source = "edge header" if edge is not None and edge.is_global else "connection" if counted == connection else "x-forwarded-for"
+    return {
+        "forwarded_for_entries": kinds,
+        "edge_header": edge_header or None,
+        "edge_header_present": bool(edge_header and headers.get(edge_header)),
+        "edge_header_is_public": bool(edge is not None and edge.is_global),
+        "edge_header_is_in_forwarded_for": bool(edge is not None and any(_entry(t) == edge for t in chain)),
+        "counted_from": source,
+        "counted_entry_from_the_right": from_right,
+        "trusted_hops": hops,
+    }
