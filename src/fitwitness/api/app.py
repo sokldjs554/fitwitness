@@ -402,7 +402,7 @@ def create_app():
             # (/api/runs/{id}/supplement). A client-supplied claim would choose its own claim id, policy and dates, and with
             # them what the payout ledger and the duplicate check protect.
             raise HTTPException(422, "청구 심사는 청구 건에서 시작해 주세요")
-        if body.provider != "rules":
+        if body.provider != "rules" or body.challenger_provider:
             # Public anonymous demo never has authority to spend provider funds.
             # Live research runs use the CLI with explicit server-side credentials.
             raise HTTPException(

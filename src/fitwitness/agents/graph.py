@@ -146,6 +146,10 @@ def _execute_run(repo, scope, run_id, *, encoders=None, fault_after_retrieval=Fa
             return
         tools = EvidenceTools(scope, snapshot, repo, budget, encoders, run_id=run_id, facts=facts)
         model = create_model(request.provider, request.model_id, budget) if request.provider != "rules" else None
+        # The challenger's turn may be played by another model (RunRequest.challenger_provider); both spend the same budget.
+        challenger_model = (
+            create_model(request.challenger_provider, request.challenger_model_id, budget) if request.challenger_provider else None
+        )
 
         def guard(check_budget=True):
             budget.check(resources=check_budget)
@@ -155,6 +159,9 @@ def _execute_run(repo, scope, run_id, *, encoders=None, fault_after_retrieval=Fa
         if model:
             model.guard = guard
             model.emit = emit
+            if challenger_model:
+                challenger_model.guard = guard
+                challenger_model.emit = emit
             # Operator opt-in; anonymous rules demo cannot invoke vision.
             if os.getenv("FITWITNESS_VISION", "off") == "enabled":
                 tools.vision = model
@@ -238,7 +245,8 @@ def _execute_run(repo, scope, run_id, *, encoders=None, fault_after_retrieval=Fa
                     retrieval={"ranked_top_k": request.search.top_k, "active_drawings": len(snapshot.revision_ids)},
                 )
                 try:
-                    plan, metadata = model.plan(context, role=role)
+                    speaker = challenger_model if (role == "challenger" and challenger_model) else model
+                    plan, metadata = speaker.plan(context, role=role)
                     emit("model", metadata)
                 except BudgetExhausted as exc:
                     guard(False)

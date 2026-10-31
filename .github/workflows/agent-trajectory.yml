@@ -22,6 +22,12 @@ on:
         description: comma separated graph modes to run on every family
         default: 'fixed,react,fitwitness'
         required: true
+      challenger_provider:
+        description: a second model for the challenger's turn in mode fitwitness (empty = the planner's model plays both roles). Needs that provider's key, and for openai its model and price variables
+        default: ''
+        required: false
+        type: choice
+        options: ['', openai, anthropic]
       first_repeat:
         description: the repeat to start at (0 runs them all; 2 with repeats 3 runs only the third, for a run a ceiling had cut short)
         default: '0'
@@ -105,6 +111,7 @@ jobs:
           INPUT_PER_RUN_USD: ${{ inputs.per_run_usd }}
           INPUT_REPEATS: ${{ inputs.repeats }}
           INPUT_FIRST_REPEAT: ${{ inputs.first_repeat }}
+          INPUT_CHALLENGER_PROVIDER: ${{ inputs.challenger_provider }}
           INPUT_MATERIALS: ${{ inputs.materials }}
           INPUT_TOP_K: ${{ inputs.top_k }}
           INPUT_FAMILIES: ${{ inputs.families }}
@@ -123,6 +130,12 @@ jobs:
           assert 0 < cap <= 0.1, cap
           assert re.fullmatch(r'(?:[1-9]|10)', os.environ['INPUT_REPEATS']), os.environ['INPUT_REPEATS']
           assert re.fullmatch(r'[0-9]', os.environ['INPUT_FIRST_REPEAT']) and int(os.environ['INPUT_FIRST_REPEAT']) < int(os.environ['INPUT_REPEATS'])
+          second = os.environ.get('INPUT_CHALLENGER_PROVIDER', '')
+          if second and second != provider:
+              need2 = ['ANTHROPIC_API_KEY'] if second == 'anthropic' else ['OPENAI_API_KEY', 'FITWITNESS_OPENAI_MODEL', 'FITWITNESS_OPENAI_INPUT_USD_PER_MILLION', 'FITWITNESS_OPENAI_OUTPUT_USD_PER_MILLION']
+              missing2 = [k for k in need2 if not os.getenv(k)]
+              if missing2:
+                  raise SystemExit(f'missing for the challenger provider {second}: {", ".join(missing2)}. Nothing was called.')
           assert re.fullmatch(r'[A-Za-z0-9]+(?:,[A-Za-z0-9]+)*', os.environ['INPUT_MATERIALS']), os.environ['INPUT_MATERIALS']
           assert re.fullmatch(r'[0-9]{1,2}', os.environ['INPUT_TOP_K']) and int(os.environ['INPUT_TOP_K']) <= 50
           assert re.fullmatch(r'(?:FW-F[0-9]{3}(?: FW-F[0-9]{3})*)?', os.environ['INPUT_FAMILIES']), os.environ['INPUT_FAMILIES']
@@ -140,6 +153,7 @@ jobs:
           INPUT_PROVIDER: ${{ inputs.provider }}
           INPUT_REPEATS: ${{ inputs.repeats }}
           INPUT_FIRST_REPEAT: ${{ inputs.first_repeat }}
+          INPUT_CHALLENGER_PROVIDER: ${{ inputs.challenger_provider }}
           INPUT_WORKSPACE: ${{ inputs.workspace }}
           INPUT_MATERIALS: ${{ inputs.materials }}
           INPUT_TOP_K: ${{ inputs.top_k }}
@@ -151,7 +165,7 @@ jobs:
           --provider "$INPUT_PROVIDER"
           --modes "$INPUT_MODES"
           --max-cost-usd "$INPUT_MAX_USD" --per-run-usd "$INPUT_PER_RUN_USD"
-          --repeats "$INPUT_REPEATS" --first-repeat "$INPUT_FIRST_REPEAT" --workspace "$INPUT_WORKSPACE" --materials "$INPUT_MATERIALS" --top-k "$INPUT_TOP_K"
+          --repeats "$INPUT_REPEATS" --first-repeat "$INPUT_FIRST_REPEAT" ${INPUT_CHALLENGER_PROVIDER:+--challenger-provider "$INPUT_CHALLENGER_PROVIDER"} --workspace "$INPUT_WORKSPACE" --materials "$INPUT_MATERIALS" --top-k "$INPUT_TOP_K"
           ${INPUT_FAMILIES:+--families $INPUT_FAMILIES}
           --output artifacts/agent-trajectory
       - name: Summary

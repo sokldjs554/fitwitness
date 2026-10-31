@@ -364,6 +364,7 @@ def run(args) -> dict:
         "materials": list(materials),
         "provider": args.provider,
         "model": args.model,
+        "challenger": {"provider": args.challenger_provider, "model": args.challenger_model} if args.challenger_provider else None,
         "modes": modes,
         "ceiling_usd": str(ceiling),
         "per_run_cap_usd": str(cap),
@@ -427,6 +428,11 @@ def run(args) -> dict:
                     provider=args.provider,
                     model_id=args.model,
                     mode=mode,
+                    **(
+                        {"challenger_provider": args.challenger_provider, "challenger_model_id": args.challenger_model}
+                        if args.challenger_provider and mode == "fitwitness"
+                        else {}
+                    ),
                     budget=Budget(max_cost_usd=cap, max_tokens=64000, max_model_calls=4, max_tool_calls=16, deadline_seconds=240),
                 )
                 row = run_one(repo, jobs, root, case, request, repeat)
@@ -477,6 +483,13 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--corpus", default="var/corpus")
     p.add_argument("--split", default="test")
     p.add_argument("--repeats", type=int, default=1, help="runs per mode and case; repeat 0 is the first")
+    p.add_argument(
+        "--challenger-provider",
+        choices=["", "openai", "anthropic"],
+        default="",
+        help="a second model for the challenger's turn in mode fitwitness (the planner's model plays both roles when empty)",
+    )
+    p.add_argument("--challenger-model", default="", help="the second model's id (openai: FITWITNESS_OPENAI_MODEL when empty)")
     p.add_argument("--first-repeat", type=int, default=0, help="the repeat to start at: 2 with --repeats 3 runs only the third")
     p.add_argument("--workspace", choices=["family", "split"], default="family", help="index one family's drawings, or the whole split's")
     p.add_argument("--materials", default="SUS304", help="comma separated materials, one query per family and material")
@@ -488,6 +501,12 @@ def main(argv: list[str] | None = None) -> int:
         "claude-haiku-4-5-20251001" if args.provider == "anthropic" else os.environ.get("FITWITNESS_OPENAI_MODEL", "")
     )
     assert args.model, "no model id: pass --model or set FITWITNESS_OPENAI_MODEL"
+    if args.challenger_provider:
+        args.challenger_model = args.challenger_model or (
+            "claude-haiku-4-5-20251001" if args.challenger_provider == "anthropic" else os.environ.get("FITWITNESS_OPENAI_MODEL", "")
+        )
+        assert args.challenger_model, "no challenger model id: pass --challenger-model or set FITWITNESS_OPENAI_MODEL"
+        assert args.challenger_provider != args.provider or args.challenger_model != args.model, "that is the same model"
     assert 0 < args.max_cost_usd <= 1.0, "the ceiling is at most 1 USD"
     assert 0 < args.per_run_usd <= 0.1
     assert 1 <= args.repeats <= 10 and 0 <= args.first_repeat < args.repeats and 0 <= args.top_k <= 50

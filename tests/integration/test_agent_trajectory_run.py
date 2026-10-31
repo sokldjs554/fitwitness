@@ -60,3 +60,40 @@ def test_the_free_reference_path_reproduces_the_independent_labels_in_the_harder
             wrong.append((case["case_id"], row["failures"]))
         assert set(case["revision_ids"]) <= set(row["actual"]), "every drawing of the family is looked up"
     assert not wrong, wrong
+
+
+def test_the_challenger_can_be_another_model_than_the_planner_and_spends_the_same_budget(env, monkeypatch):  # noqa: F811
+    """RunRequest.challenger_provider hands the challenger's turn to a second model; the planner's model keeps the planner's."""
+    repo, jobs, _ = env
+    case = A.family_cases(ROOT)[1]
+    ids = sorted(case["revision_ids"])
+    planner, challenger = ScriptedPair(ids), ScriptedPair(ids)
+    made = []
+
+    def create(provider, model_id, budget):
+        made.append((provider, model_id))
+        return planner if provider == "anthropic" else challenger
+
+    monkeypatch.setattr(graph, "create_model", create)
+    request = RunRequest(
+        search=SearchRequest(text=case["query"]),
+        provider="anthropic",
+        model_id="planner-model",
+        challenger_provider="openai",
+        challenger_model_id="challenger-model",
+        mode="fitwitness",
+        budget=Budget(max_cost_usd=Decimal("0.04"), max_tokens=64000, max_model_calls=4),
+    )
+    row = A.run_one(repo, jobs, ROOT, case, request)
+    assert row["state"] == "completed" and row["roles"] == ["planner", "challenger"]
+    assert made == [("anthropic", "planner-model"), ("openai", "challenger-model")]
+    assert planner.calls == ["planner"] and challenger.calls == ["challenger"], "each model played only its own role"
+    # a second model only makes sense for a model run in mode fitwitness
+    for bad in (
+        {"mode": "react"},
+        {"provider": "rules"},
+    ):
+        with pytest.raises(ValueError):
+            RunRequest(**{"provider": "anthropic", "mode": "fitwitness", "challenger_provider": "openai", **bad})
+    with pytest.raises(ValueError):
+        RunRequest(provider="anthropic", mode="fitwitness", challenger_model_id="x")

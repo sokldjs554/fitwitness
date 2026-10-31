@@ -213,9 +213,20 @@ class RunRequest(Strict):
     mode: Literal["fixed", "react", "fitwitness"] = "fitwitness"
     provider: Literal["openai", "anthropic", "rules"] = "rules"
     model_id: str = Field(default="", max_length=100)
+    # An optional second model for the challenger's turn (mode fitwitness only). Empty: the planner's model plays both roles.
+    challenger_provider: Literal["", "openai", "anthropic"] = ""
+    challenger_model_id: str = Field(default="", max_length=100)
     budget: Budget = Field(default_factory=Budget)
     # "on_unknown": stop and wait for a reviewer when a required verdict stays unknown.
     review: Literal["none", "on_unknown"] = "none"
+
+    @model_validator(mode="after")
+    def _challenger_model_needs_a_model_run(self):
+        if self.challenger_provider and (self.mode != "fitwitness" or self.provider == "rules"):
+            raise ValueError("a challenger model needs mode fitwitness and a model provider for the planner")
+        if self.challenger_model_id and not self.challenger_provider:
+            raise ValueError("challenger_model_id without challenger_provider")
+        return self
 
 
 class RunView(Strict):
