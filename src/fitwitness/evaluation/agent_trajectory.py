@@ -357,6 +357,7 @@ def run(args) -> dict:
         "cases": [c["case_id"] for c in cases],
         "queries": {c["case_id"]: c["query"] for c in cases},
         "repeats": args.repeats,
+        "first_repeat": args.first_repeat,
         "workspace": args.workspace,
         "workspace_drawings": len(cases[0]["expected"]) if cases else 0,
         "top_k": args.top_k or 6,
@@ -410,7 +411,7 @@ def run(args) -> dict:
                 RunRequest(search=search_for(case), provider="rules", budget=Budget(max_tokens=64000)),
             )
         )
-    for repeat in range(args.repeats):  # repeat outermost: a ceiling that cuts the batch short cuts every mode alike
+    for repeat in range(args.first_repeat, args.repeats):  # repeat outermost: a ceiling that cuts the batch short cuts every mode alike
         for mode in modes:
             for case in cases:
                 skip = {"case_id": case["case_id"], "repeat": repeat, "mode": mode}
@@ -476,6 +477,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--corpus", default="var/corpus")
     p.add_argument("--split", default="test")
     p.add_argument("--repeats", type=int, default=1, help="runs per mode and case; repeat 0 is the first")
+    p.add_argument("--first-repeat", type=int, default=0, help="the repeat to start at: 2 with --repeats 3 runs only the third")
     p.add_argument("--workspace", choices=["family", "split"], default="family", help="index one family's drawings, or the whole split's")
     p.add_argument("--materials", default="SUS304", help="comma separated materials, one query per family and material")
     p.add_argument("--top-k", type=int, default=0, help="candidates the search returns (0 keeps the default, 6)")
@@ -488,7 +490,7 @@ def main(argv: list[str] | None = None) -> int:
     assert args.model, "no model id: pass --model or set FITWITNESS_OPENAI_MODEL"
     assert 0 < args.max_cost_usd <= 1.0, "the ceiling is at most 1 USD"
     assert 0 < args.per_run_usd <= 0.1
-    assert 1 <= args.repeats <= 10 and 0 <= args.top_k <= 50
+    assert 1 <= args.repeats <= 10 and 0 <= args.first_repeat < args.repeats and 0 <= args.top_k <= 50
     report = run(args)
     s = report["summary"]
     for mode, m in s["by_mode"].items():
