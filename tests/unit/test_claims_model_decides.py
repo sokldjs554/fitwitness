@@ -42,7 +42,8 @@ def test_the_stub_run_reproduces_the_rules_engine_and_counts_nothing_wrong(tmp_p
     assert s["model"]["answers"] == 48 and s["agreement_with_rules"] == 1.0 and s["model"]["wrong_pay_count"] == 0
     assert s["repeats"]["claims"] == 24 and s["repeats"]["claims_whose_answer_changed"] == 0 and s["spent_usd"] == 0.0
     assert s["rules_engine_on_the_same_claims"]["answers"] == 24 and not report["skipped"]
-    # the reasons-first ablation hands the model the same fields in another order, and nothing else changes
+    # every variant hands the model the same claim in another schema or with a procedure added to the same rules, and the
+    # stub that answers with the engine's own decision scores as the rules path scores in all of them
     seen = []
 
     class Recorder(D.StubModel):
@@ -51,15 +52,22 @@ def test_the_stub_run_reproduces_the_rules_engine_and_counts_nothing_wrong(tmp_p
             return super().structured(schema, prompt, body, role)
 
     monkeypatch.setattr(D, "_client", lambda provider, model, cap, decision: (Recorder(decision), None))
-    first = D.evaluate(tmp_path, provider="x", model="", ceiling=Decimal("0.5"), cap=Decimal("0.03"), split="all", reasons_first=True)
-    plain = D.evaluate(tmp_path, provider="x", model="", ceiling=Decimal("0.5"), cap=Decimal("0.03"), split="all")
-    assert {sch for sch, _ in seen[:24]} == {D.ModelVerdictReasonsFirst} and {sch for sch, _ in seen[24:]} == {D.ModelVerdict}
-    assert len({p for _, p in seen}) == 1, "one prompt for both orders"
-    assert first["summary"]["model"]["wrong_pay_count"] == plain["summary"]["model"]["wrong_pay_count"] == 0
+    for name, (schema, prompt) in D.VARIANTS.items():
+        seen.clear()
+        got = D.evaluate(tmp_path, provider="x", model="", ceiling=Decimal("0.5"), cap=Decimal("0.03"), split="all", variant=name)
+        assert {sch for sch, _ in seen} == {schema} and {p for _, p in seen} == {prompt} and len(seen) == 24
+        assert got["summary"]["model"]["wrong_pay_count"] == 0 and got["summary"]["agreement_with_rules"] == 1.0
+    worked = got["rows"][0]
+    assert worked["lines_sum_matches_total"] is True and got["summary"]["model"]["own_lines_disagree_with_own_total"] == 0
+    seen.clear()
+    D.evaluate(tmp_path, provider="x", model="", ceiling=Decimal("0.5"), cap=Decimal("0.03"), split="all", reasons_first=True)
+    assert {sch for sch, _ in seen} == {D.ModelVerdictReasonsFirst}, "the older flag still means the reasons first"
     assert list(D.ModelVerdict.model_fields) == ["outcome", "total_amount", "line_items", "reasons"]
     assert list(D.ModelVerdictReasonsFirst.model_fields) == ["reasons", "outcome", "total_amount", "line_items"]
     assert D.ModelVerdictReasonsFirst.model_fields["reasons"].description == D.ModelVerdict.model_fields["reasons"].description
-    assert first["summary"]["agreement_with_rules"] == 1.0
+    assert list(D.ModelVerdictWorked.model_fields) == ["coverage_lines", "outcome", "total_amount"]
+    # the procedure adds to the house rules and takes none away
+    assert all(line in D.PROCEDURE_PROMPT for line in D.DECIDE_PROMPT.split("\n")) and D.STEPS in D.PROCEDURE_PROMPT
 
 
 def test_a_model_that_approves_everything_is_counted_by_kind_and_scenario(tmp_path, monkeypatch):

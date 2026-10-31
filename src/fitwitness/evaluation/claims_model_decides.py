@@ -75,6 +75,21 @@ DECIDE_PROMPT = (
 )
 
 
+STEPS = (
+    "Work through the claim in this order and write the working in coverage_lines before you give the outcome. First check "
+    "rule 1 (the contract status, and the event date against the coverage period). Then write one line in coverage_lines for "
+    "each requested coverage: the rule you apply, the values you read from the rows (quote them), the arithmetic written out in "
+    "full (for example 'nights 12 - deductible 3 = 9 days x 30,000 = 270,000'), then judged = payable, denied or needs_person, "
+    "and the amount (0 unless payable). Then total_amount is the sum of the amounts of the lines judged payable, 0 for DENY; "
+    "compare it with the automatic approval limit in the terms before you choose the outcome by rule 7. The outcome and the "
+    "total_amount you give must agree with your lines.\n"
+)
+PROCEDURE_PROMPT = DECIDE_PROMPT.replace(
+    "Decide with these house rules and nothing else.\n", "Decide with these house rules and nothing else.\n" + STEPS, 1
+)
+assert PROCEDURE_PROMPT != DECIDE_PROMPT
+
+
 class LineAmount(Strict):
     coverage: Literal["hospitalization_daily", "surgery", "diagnosis"]
     amount: int
@@ -95,6 +110,31 @@ class ModelVerdictReasonsFirst(Strict):
     outcome: Literal["APPROVE", "DENY", "REVIEW"]
     total_amount: int = Field(description="KRW; 0 for DENY; the payable total otherwise")
     line_items: list[LineAmount] = Field(default_factory=list)
+
+
+class LineWork(Strict):
+    coverage: Literal["hospitalization_daily", "surgery", "diagnosis"]
+    working: str = Field(description="the rule applied, the values read (quoted from the rows) and the arithmetic written out")
+    judged: Literal["payable", "denied", "needs_person"]
+    amount: int = Field(description="KRW this coverage pays; 0 unless payable")
+
+
+class ModelVerdictWorked(Strict):
+    """The working first: one line per requested coverage, then the outcome and the total (``--variant v2`` and ``v3``)."""
+
+    coverage_lines: list[LineWork] = Field(description="one line for every requested coverage, written before the outcome")
+    outcome: Literal["APPROVE", "DENY", "REVIEW"]
+    total_amount: int = Field(description="KRW; the sum of the amounts of the lines judged payable; 0 for DENY")
+
+
+# What the model is given in each variant: the tool-call schema and the prompt. v0 is the first run; v1 changes only the
+# order of its fields; v2 asks for the working per coverage before the verdict; v3 adds the procedure to the prompt.
+VARIANTS = {
+    "v0": (ModelVerdict, DECIDE_PROMPT),
+    "v1": (ModelVerdictReasonsFirst, DECIDE_PROMPT),
+    "v2": (ModelVerdictWorked, DECIDE_PROMPT),
+    "v3": (ModelVerdictWorked, PROCEDURE_PROMPT),
+}
 
 
 def payload(policy: Policy, product: Product, requested: list[str], rows: str, prior_keys: list[str], kinds: set[str]) -> str:
@@ -119,12 +159,14 @@ class StubModel:
 
     def structured(self, schema, prompt, body, role="adjudicator"):
         d = self.decision
-        verdict = ModelVerdict(
+        fields = dict(
             outcome=d.outcome,
             total_amount=d.total_amount,
             line_items=[LineAmount(coverage=li.coverage, amount=li.amount) for li in d.line_items],
             reasons=[r.message for r in d.reasons][:3],
+            coverage_lines=[LineWork(coverage=li.coverage, working="stub", judged="payable", amount=li.amount) for li in d.line_items],
         )
+        verdict = schema(**{k: v for k, v in fields.items() if k in schema.model_fields})
         usage = {"input_tokens": len(body) // 4, "output_tokens": 40}
         return verdict, {"role": role, "attempt": 1, "repair": 0, "latency_ms": 0.0, "provider": "stub", "model_id": "stub", "usage": usage}
 
@@ -203,6 +245,11 @@ def summarise(rows: list[dict], path: str) -> dict:
         out.update(
             {
                 "failed_calls": n - len(done),
+                "own_lines_disagree_with_own_total": (
+                    sum(1 for r in done if r.get("lines_sum_matches_total") is False)
+                    if any(r.get("lines_sum_matches_total") is not None for r in done)
+                    else None
+                ),
                 "repairs": sum(r["repairs"] for r in rows),
                 "model_errors": sum(len(r["model_errors"]) for r in rows),
                 "cost_usd": round(sum(r["cost_usd"] for r in rows), 6),
@@ -247,9 +294,10 @@ def evaluate(
     split: str = "test",
     repeats: int = 1,
     max_cases: int | None = None,
+    variant: str = "v0",
     reasons_first: bool = False,
 ) -> dict:
-    schema = ModelVerdictReasonsFirst if reasons_first else ModelVerdict
+    schema, prompt = VARIANTS["v1" if reasons_first else variant]
     manifest = json.loads((root / "manifest.json").read_text())
     gold = json.loads((root / "gold.json").read_text())
     chosen = [c for c in manifest["cases"] if SPLITS[split](int(c["case_id"].split("-")[-1]))][: max_cases or None]
@@ -286,7 +334,7 @@ def evaluate(
             ledger.reserve(cap)
             started, verdict, error = time.perf_counter(), None, None
             try:
-                verdict, _meta = client.structured(schema, DECIDE_PROMPT, body, role="adjudicator")
+                verdict, _meta = client.structured(schema, prompt, body, role="adjudicator")
             except Exception as exc:  # noqa: BLE001 - the failure is the finding
                 error = f"{type(exc).__name__}: {str(exc)[:300]}"
             usage = budget.usage if budget is not None else None
@@ -303,6 +351,11 @@ def evaluate(
                     "rules": {**judge(g, engine.outcome, engine.total_amount), "rule_ids": engine.rule_ids()},
                     "model": judge(g, verdict.outcome if verdict else None, verdict.total_amount if verdict else None),
                     "verdict": verdict.model_dump() if verdict else None,
+                    "lines_sum_matches_total": (
+                        sum(line.amount for line in verdict.coverage_lines if line.judged == "payable") == verdict.total_amount
+                        if verdict is not None and hasattr(verdict, "coverage_lines")
+                        else None
+                    ),
                     "error": error,
                     "latency_ms": round((time.perf_counter() - started) * 1000, 1),
                     "cost_usd": float(usage.cost_usd or 0) if usage is not None else 0.0,
@@ -361,10 +414,13 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--max-cost-usd", type=float, required=True, help="hard ceiling for the whole batch (at most 1.0)")
     p.add_argument("--per-call-usd", type=float, default=0.03, help="budget of one call, reserved before it starts (at most 0.1)")
     p.add_argument(
-        "--reasons-first",
-        action="store_true",
-        help="ablation: the tool-call fields in the order reasons, outcome, total_amount, line_items (nothing else changes)",
+        "--variant",
+        choices=list(VARIANTS),
+        default="v0",
+        help="v0 the first run; v1 the reasons first (nothing else changes); v2 the working per coverage before the verdict; "
+        "v3 v2 with the procedure in the prompt",
     )
+    p.add_argument("--reasons-first", action="store_true", help="the same as --variant v1")
     p.add_argument("--output", default="artifacts/claims-model-decides")
     args = p.parse_args(argv)
     assert 0 < args.max_cost_usd <= 1.0, "the ceiling is at most 1 USD"
@@ -387,8 +443,10 @@ def main(argv: list[str] | None = None) -> int:
         split=args.split,
         repeats=args.repeats,
         max_cases=args.max_cases,
-        reasons_first=args.reasons_first,
+        variant="v1" if args.reasons_first else args.variant,
     )
+    chosen = "v1" if args.reasons_first else args.variant
+    schema, prompt_used = VARIANTS[chosen]
     prefix = f"FITWITNESS_{args.provider.upper()}"
     report["protocol"] = {
         "code_sha": _sha(),
@@ -398,16 +456,15 @@ def main(argv: list[str] | None = None) -> int:
         "split": args.split,
         "repeats": args.repeats,
         "max_cases": args.max_cases,
-        "field_order": ["reasons", "outcome", "total_amount", "line_items"]
-        if args.reasons_first
-        else ["outcome", "total_amount", "line_items", "reasons"],
+        "variant": chosen,
+        "field_order": list(schema.model_fields),
         "ceiling_usd": str(args.max_cost_usd),
         "per_call_cap_usd": str(args.per_call_usd),
         "pricing_usd_per_million": {
             "input": os.getenv(f"{prefix}_INPUT_USD_PER_MILLION"),
             "output": os.getenv(f"{prefix}_OUTPUT_USD_PER_MILLION"),
         },
-        "prompt": DECIDE_PROMPT,
+        "prompt": prompt_used,
         "coverage_labels": COVERAGE_LABELS,
         "what_is_asked": "the model reads the printed rows and returns the outcome and the amount; no rule of the engine runs on its answer",
         "scoring": "outcome and amount against the gold of claims/synth.py (the engine on the true values); a wrong payment is APPROVE where the gold does not approve that amount",
