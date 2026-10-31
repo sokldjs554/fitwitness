@@ -13,7 +13,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from decimal import Decimal
-from fitwitness.api import identity, live
+from fitwitness.api import identity, live, visitor
 from fitwitness.contracts import Budget, TenantScope, RunRequest, DrawingRevision, SearchRequest, ReviewInput
 from fitwitness.claims.models import ClaimRequest, ClaimReview, ClaimSupplement, Policy
 from fitwitness.claims.synth import SCENARIO_LABELS
@@ -79,6 +79,7 @@ def create_app():
     # The per-address session count is stored under a keyed hash of the address: a bare SHA-256 of an IPv4
     # address is undone by trying every address.
     peer_key = hmac.new(key.encode(), b"fitwitness-peer-v1", hashlib.sha256).digest()
+    proxy_hops = visitor.trusted_proxy_hops()
 
     # Runs execute in their own process; warm ones have already paid the interpreter and
     # import cost (seconds on a shared CPU) before a job arrives. Without the lifespan
@@ -292,7 +293,10 @@ def create_app():
     @app.post("/api/demo-sessions")
     def session(response: Response, request: Request):
         bucket = "sessions:" + str(int(time.time() // 3600))
-        peer = hmac.new(peer_key, (request.client.host if request.client else "unknown").encode(), hashlib.sha256).hexdigest()[:16]
+        connection = request.client.host if request.client else "unknown"
+        peer = hmac.new(
+            peer_key, visitor.address(request.headers.get("x-forwarded-for"), connection, proxy_hops).encode(), hashlib.sha256
+        ).hexdigest()[:16]
         per_peer = int(os.getenv("FITWITNESS_SESSION_LIMIT_PER_PEER", "20"))
         # the address's own budget first: an address that is over it must not also use up the shared one
         if not jobs.admit(bucket + ":" + peer, per_peer) or not jobs.admit(bucket, 100):

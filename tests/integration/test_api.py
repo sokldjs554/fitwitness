@@ -437,3 +437,21 @@ def test_the_interactive_api_pages_are_off_unless_the_operator_turns_them_on(cli
     assert a.get("/openapi.json").status_code == 200  # the schema itself stays
     monkeypatch.setenv("FITWITNESS_API_DOCS", "on")
     assert TestClient(create_app()).get("/docs").status_code == 200
+
+
+def test_a_client_that_writes_x_forwarded_for_is_still_counted_under_the_address_the_proxy_added(monkeypatch):
+    """Behind a proxy (the default on Render) the per-address session limit counts the rightmost public entry of the
+    header, the one the proxy added. Observed on the public demo before this: a header of the client's own making was
+    counted as its address and stepped around the limit."""
+    from fitwitness.api.app import create_app
+
+    monkeypatch.setenv("FITWITNESS_TRUSTED_PROXY_HOPS", "1")
+    monkeypatch.setenv("FITWITNESS_SESSION_LIMIT_PER_PEER", "2")
+    client = TestClient(create_app())
+    one = "7.7.7.7"  # an address of its own, so the test does not share a count with the other tests (all "testclient")
+    behind_proxy = lambda written: {"X-Forwarded-For": f"{written}, {one}"}  # noqa: E731 - the proxy added `one` after what the client wrote
+    assert client.post("/api/demo-sessions", headers=behind_proxy("8.8.8.8")).status_code == 200
+    assert client.post("/api/demo-sessions", headers=behind_proxy("9.9.9.9")).status_code == 200
+    refused = client.post("/api/demo-sessions", headers=behind_proxy("4.4.4.4"))
+    assert refused.status_code == 429, "three writers, one address the proxy saw: the third is over the limit of 2"
+    assert client.post("/api/demo-sessions", headers={"X-Forwarded-For": "5.5.5.5"}).status_code == 200, "another address has its own count"
