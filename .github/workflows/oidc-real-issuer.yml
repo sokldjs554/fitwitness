@@ -1,0 +1,68 @@
+name: oidc-real-issuer
+# The reviewer-identity check (api/identity.py) against a REAL OpenID issuer: GitHub Actions' own ID tokens, whose keys
+# the verifier finds through the issuer's discovery document and whose claims the tests did not write. Free: no model is
+# called. Runs on pushes to main that touch the identity code and by hand; scripts/verify_real_issuer.py says what it checks.
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/fitwitness/api/identity.py
+      - src/fitwitness/api/app.py
+      - scripts/verify_real_issuer.py
+      - .github/workflows/oidc-real-issuer.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write  # lets the job ask GitHub for an ID token; nothing is written anywhere
+concurrency:
+  group: oidc-real-issuer-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: fitwitness
+          POSTGRES_PASSWORD: test-only
+          POSTGRES_DB: fitwitness
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U fitwitness"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      FITWITNESS_DATABASE_URL: postgresql://fitwitness:test-only@localhost:5432/fitwitness
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.9.4"  # the version Dockerfile and render.yaml pin
+      - run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0
+      - run: uv sync --frozen --no-dev
+      - run: uv run python scripts/setup.py
+      - name: Verify the identity checks against GitHub's issuer
+        run: uv run python scripts/verify_real_issuer.py --output artifacts/oidc-real-issuer.json
+      - name: Summary
+        if: always()
+        run: |
+          uv run python - <<'PY'
+          import json
+          from pathlib import Path
+          f = Path('artifacts/oidc-real-issuer.json')
+          if not f.exists():
+              print('no report'); raise SystemExit(0)
+          r = json.loads(f.read_text())
+          print('== oidc-real-issuer', r['status'], len(r['checks']), 'checks', r['seconds'], 's')
+          print('== claims', json.dumps(r['token_claims_used']))
+          for c in r['checks']:
+              print('==', 'ok  ' if c['ok'] else 'FAIL', c['check'], '|', c['detail'][:120])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: oidc-real-issuer-${{ github.run_id }}
+          path: artifacts/oidc-real-issuer.json
+          if-no-files-found: warn
