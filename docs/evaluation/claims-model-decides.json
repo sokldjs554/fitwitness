@@ -38,6 +38,12 @@
    "provider": "anthropic",
    "code": "fe49f31",
    "result": "Claude Haiku 4.5, 60 claims x 2 asks, ceiling 0.8 USD, per-call cap 0.03: all 120 calls answered, 0.54184 USD. The numbers in the claude block are from this run."
+  },
+  {
+   "run_id": 41170866034,
+   "provider": "anthropic",
+   "code": "a28f275",
+   "result": "Claude Haiku 4.5, reasons-first ablation, 60 claims x 2 asks, ceiling 0.8 USD: all 120 calls answered, 0.500187 USD. The numbers in claude.reasons_first_ablation are from this run."
   }
  ],
  "summary": {
@@ -5612,13 +5618,2792 @@
   "findings": [
    "49 wrong payments in 120 answers (40.8%; 95% interval 32.5% to 49.8% if the answers were independent, which two asks of one claim are not), against 0 in the 60 decisions of the rules path and 1 in 120 for gpt-5-mini. 30 are an approval with the right outcome and an amount above the gold (1.33 to 40 times it), 15 an approval where the gold sends the claim to a person, 4 an approval where the gold refuses. The answers overpaid 156,060,000 won in all (gpt-5-mini: 300,000).",
    "Decision accuracy 29.2% (outcome alone 65.8%) against 88.3% for the rules path and 85.8% for gpt-5-mini. 24 of the 25 claims that were ever paid wrongly were paid wrongly on both asks: the errors belong to the claims, they are not sampling noise. Clean claims are where it overpays most (24 wrong payments in 34 answers, 9 right); the garbled ocr_noise claims it paid none of (0 of 14 right, none paid), and it made 14 refusals the gold does not make (12 of them where the gold sends the claim to a person).",
-   "In 17 of the 30 wrong amounts the reasons text itself contains the gold amount while total_amount carries another number (CLM-00085: the reasons compute 6 days x 30,000 = 180,000 won, total_amount says 270,000). The schema the model fills asks for the amount before the reasons, so the number is written before the calculation. This is an observed pattern, not a tested cause: re-running with the reasons first on these same 60 test claims would be tuning on the test split, and it was not done.",
+   "In 17 of the 30 wrong amounts the reasons text itself contains the gold amount while total_amount carries another number (CLM-00085: the reasons compute 6 days x 30,000 = 180,000 won, total_amount says 270,000). The schema the model fills asks for the amount before the reasons, so the number is written before the calculation. This is an observed pattern; it was tested afterwards in a stated ablation (reasons_first_ablation): with the reasons first, wrong payments fell from 49 to 39 of 120 and wrong amounts from 30 to 20, so the order explains part of it and not the over-approvals.",
    "Claude Haiku 4.5 was used without extended thinking and gpt-5-mini is a reasoning model at low effort: they are different kinds of model, so 49 against 1 wrong payments is not a ranking of the two vendors. What both runs show is the design point of the product: a model that issues the verdict can pay wrongly, and how often depends on the model and the prompt, while the engine on the same claims paid wrongly 0 times in 60."
   ],
   "limitations": [
    "One model (claude-haiku-4-5, no extended thinking), the same prompt as the gpt-5-mini run (written once from the engine's rules before either run, not tuned), two asks per claim on the test split. 120 answers on 60 claims; the 49 wrong payments are on 25 claims.",
-   "The tool-call schema orders amount before reasons (see the third finding); another schema, extended thinking or a larger Claude model could give a different rate. Not measured."
-  ]
+   "The tool-call schema orders amount before reasons (see the third finding); the reasons-first ablation changed that order and left 39 wrong payments in 120. Extended thinking or a larger Claude model could give a different rate. Not measured."
+  ],
+  "reasons_first_ablation": {
+   "purpose": "test the guess of the first Claude run: the tool-call fields were written in the order outcome, total_amount, line_items, reasons, so the amount was filed before the calculation. Here the same fields and descriptions are in the order reasons, outcome, total_amount, line_items and nothing else changes.",
+   "declared_before_the_run": "commit a28f275: same 60 test claims, two asks each, same prompt, ceiling 0.8 USD, one run; the expectation was that wrong amounts fall; whatever the result, it is recorded beside the first run as an ablation, not as a replacement and not as a tuned product number, and no further variant follows.",
+   "run": {
+    "run_id": 41170866034,
+    "url": "https://github.com/sokldjs554/fitwitness/actions/runs/41170866034",
+    "date": "2026-10-31",
+    "code": "a28f275",
+    "field_order": [
+     "reasons",
+     "outcome",
+     "total_amount",
+     "line_items"
+    ],
+    "setting": "60 claims x 2 asks, ceiling 0.8 USD, per-call cap 0.03, workflow input reasons_first=true",
+    "result": "all 120 calls answered, none failed or repaired; 1 first attempt returned reasons as a JSON string and did not parse and still ended with an answer. 0.500187 USD, 8 minutes."
+   },
+   "summary": {
+    "model": {
+     "answers": 120,
+     "decision_accuracy": 0.3417,
+     "outcome_accuracy": 0.6083,
+     "approved": 60,
+     "wrong_pay_count": 39,
+     "wrong_pay_rate_of_answers": 0.325,
+     "wrong_pay_kinds": {
+      "gold_review": 16,
+      "gold_deny": 3,
+      "amount": 20
+     },
+     "overpaid_krw": 125340000,
+     "wrong_deny_count": 16,
+     "review_rate": 0.25,
+     "auto_rate": 0.375,
+     "by_scenario": {
+      "clean": {
+       "answers": 34,
+       "correct": 14,
+       "wrong_pay": 17,
+       "approved": 31
+      },
+      "date_conflict": {
+       "answers": 2,
+       "correct": 2,
+       "wrong_pay": 0,
+       "approved": 0
+      },
+      "duplicate": {
+       "answers": 8,
+       "correct": 7,
+       "wrong_pay": 0,
+       "approved": 0
+      },
+      "exclusion": {
+       "answers": 6,
+       "correct": 0,
+       "wrong_pay": 2,
+       "approved": 2
+      },
+      "format_variance": {
+       "answers": 18,
+       "correct": 5,
+       "wrong_pay": 4,
+       "approved": 9
+      },
+      "grade_missing": {
+       "answers": 8,
+       "correct": 2,
+       "wrong_pay": 2,
+       "approved": 4
+      },
+      "high_amount": {
+       "answers": 6,
+       "correct": 0,
+       "wrong_pay": 5,
+       "approved": 5
+      },
+      "lapsed_policy": {
+       "answers": 6,
+       "correct": 6,
+       "wrong_pay": 0,
+       "approved": 0
+      },
+      "missing_doc": {
+       "answers": 8,
+       "correct": 3,
+       "wrong_pay": 2,
+       "approved": 2
+      },
+      "ocr_noise": {
+       "answers": 14,
+       "correct": 0,
+       "wrong_pay": 2,
+       "approved": 2
+      },
+      "waiting_period": {
+       "answers": 10,
+       "correct": 2,
+       "wrong_pay": 5,
+       "approved": 5
+      }
+     },
+     "failed_calls": 0,
+     "repairs": 0,
+     "model_errors": 1,
+     "cost_usd": 0.500187,
+     "latency_ms_median": 3196.4,
+     "input_tokens": 289542,
+     "output_tokens": 42129
+    },
+    "rules_engine_on_the_same_claims": {
+     "answers": 60,
+     "decision_accuracy": 0.8833,
+     "outcome_accuracy": 0.9333,
+     "approved": 24,
+     "wrong_pay_count": 0,
+     "wrong_pay_rate_of_answers": 0.0,
+     "wrong_pay_kinds": {},
+     "overpaid_krw": 0,
+     "wrong_deny_count": 0,
+     "review_rate": 0.45,
+     "auto_rate": 0.8571,
+     "by_scenario": {
+      "clean": {
+       "answers": 17,
+       "correct": 17,
+       "wrong_pay": 0,
+       "approved": 17
+      },
+      "date_conflict": {
+       "answers": 1,
+       "correct": 1,
+       "wrong_pay": 0,
+       "approved": 0
+      },
+      "duplicate": {
+       "answers": 4,
+       "correct": 4,
+       "wrong_pay": 0,
+       "approved": 0
+      },
+      "exclusion": {
+       "answers": 3,
+       "correct": 3,
+       "wrong_pay": 0,
+       "approved": 0
+      },
+      "format_variance": {
+       "answers": 9,
+       "correct": 9,
+       "wrong_pay": 0,
+       "approved": 6
+      },
+      "grade_missing": {
+       "answers": 4,
+       "correct": 4,
+       "wrong_pay": 0,
+       "approved": 1
+      },
+      "high_amount": {
+       "answers": 3,
+       "correct": 3,
+       "wrong_pay": 0,
+       "approved": 0
+      },
+      "lapsed_policy": {
+       "answers": 3,
+       "correct": 3,
+       "wrong_pay": 0,
+       "approved": 0
+      },
+      "missing_doc": {
+       "answers": 4,
+       "correct": 4,
+       "wrong_pay": 0,
+       "approved": 0
+      },
+      "ocr_noise": {
+       "answers": 7,
+       "correct": 0,
+       "wrong_pay": 0,
+       "approved": 0
+      },
+      "waiting_period": {
+       "answers": 5,
+       "correct": 5,
+       "wrong_pay": 0,
+       "approved": 0
+      }
+     }
+    },
+    "repeats": {
+     "claims": 60,
+     "repeats": 2,
+     "claims_with_a_wrong_payment_in_some_repeat": 25,
+     "claims_with_a_wrong_payment_in_every_repeat": 14,
+     "claims_whose_answer_changed": 26,
+     "pass_k": {
+      "cases": 60,
+      "k": 2,
+      "pass_power_k": 0.2667,
+      "pass_power_k_ci95": [
+       0.1713,
+       0.3901
+      ],
+      "pass_at_1": 0.3417,
+      "cases_all_correct": 16
+     },
+     "wrong_pay_wilson95_if_answers_were_independent": [
+      0.2478,
+      0.4131
+     ]
+    },
+    "agreement_with_rules": 0.425,
+    "spent_usd": 0.500187,
+    "outcome_matrix_gold_to_model": {
+     "REVIEW->REVIEW": 18,
+     "DENY->DENY": 14,
+     "REVIEW->APPROVE": 16,
+     "APPROVE->REVIEW": 11,
+     "DENY->APPROVE": 3,
+     "APPROVE->APPROVE": 41,
+     "REVIEW->DENY": 12,
+     "APPROVE->DENY": 4,
+     "DENY->REVIEW": 1
+    }
+   },
+   "paired_with_the_first_run": {
+    "answers": 120,
+    "wrong_in_both": 33,
+    "wrong_only_with_amount_first": 16,
+    "wrong_only_with_reasons_first": 6,
+    "right_in_both": 65,
+    "exact_sign_test_two_sided_p": 0.0525,
+    "wrong_payments_per_ask": {
+     "amount_first": {
+      "ask_1": 25,
+      "ask_2": 24
+     },
+     "reasons_first": {
+      "ask_1": 18,
+      "ask_2": 21
+     }
+    }
+   },
+   "rows": [
+    {
+     "case_id": "CLM-00001",
+     "repeat": 0,
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      100000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003547,
+     "latency_ms": 2542.9
+    },
+    {
+     "case_id": "CLM-00003",
+     "repeat": 0,
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      11000000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.004931,
+     "latency_ms": 4763.4
+    },
+    {
+     "case_id": "CLM-00005",
+     "repeat": 0,
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      450000
+     ],
+     "rules": [
+      "REVIEW",
+      450000
+     ],
+     "model": [
+      "REVIEW",
+      450000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.004366,
+     "latency_ms": 3880.3
+    },
+    {
+     "case_id": "CLM-00007",
+     "repeat": 0,
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003504,
+     "latency_ms": 2519.9
+    },
+    {
+     "case_id": "CLM-00009",
+     "repeat": 0,
+     "scenario": "high_amount",
+     "gold": [
+      "REVIEW",
+      31600000
+     ],
+     "rules": [
+      "REVIEW",
+      31600000
+     ],
+     "model": [
+      "APPROVE",
+      33000000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.00509,
+     "latency_ms": 5238.0
+    },
+    {
+     "case_id": "CLM-00011",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      540000
+     ],
+     "rules": [
+      "APPROVE",
+      540000
+     ],
+     "model": [
+      "REVIEW",
+      2300000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003912,
+     "latency_ms": 2614.1
+    },
+    {
+     "case_id": "CLM-00013",
+     "repeat": 0,
+     "scenario": "format_variance",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "APPROVE",
+      1950000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_deny",
+     "cost_usd": 0.003898,
+     "latency_ms": 3467.8
+    },
+    {
+     "case_id": "CLM-00015",
+     "repeat": 0,
+     "scenario": "date_conflict",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003138,
+     "latency_ms": 1993.4
+    },
+    {
+     "case_id": "CLM-00017",
+     "repeat": 0,
+     "scenario": "exclusion",
+     "gold": [
+      "REVIEW",
+      30000
+     ],
+     "rules": [
+      "REVIEW",
+      30000
+     ],
+     "model": [
+      "APPROVE",
+      30000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.005217,
+     "latency_ms": 5150.3
+    },
+    {
+     "case_id": "CLM-00019",
+     "repeat": 0,
+     "scenario": "lapsed_policy",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003035,
+     "latency_ms": 1229.1
+    },
+    {
+     "case_id": "CLM-00021",
+     "repeat": 0,
+     "scenario": "grade_missing",
+     "gold": [
+      "APPROVE",
+      350000
+     ],
+     "rules": [
+      "APPROVE",
+      350000
+     ],
+     "model": [
+      "APPROVE",
+      350000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003449,
+     "latency_ms": 2425.7
+    },
+    {
+     "case_id": "CLM-00023",
+     "repeat": 0,
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      60000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003802,
+     "latency_ms": 3282.9
+    },
+    {
+     "case_id": "CLM-00025",
+     "repeat": 0,
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      550000
+     ],
+     "rules": [
+      "REVIEW",
+      550000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003441,
+     "latency_ms": 2371.9
+    },
+    {
+     "case_id": "CLM-00027",
+     "repeat": 0,
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      550000
+     ],
+     "rules": [
+      "REVIEW",
+      550000
+     ],
+     "model": [
+      "APPROVE",
+      550000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.004622,
+     "latency_ms": 4504.6
+    },
+    {
+     "case_id": "CLM-00029",
+     "repeat": 0,
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003625,
+     "latency_ms": 1634.3
+    },
+    {
+     "case_id": "CLM-00031",
+     "repeat": 0,
+     "scenario": "high_amount",
+     "gold": [
+      "REVIEW",
+      32650000
+     ],
+     "rules": [
+      "REVIEW",
+      32650000
+     ],
+     "model": [
+      "APPROVE",
+      30000000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.003789,
+     "latency_ms": 2972.6
+    },
+    {
+     "case_id": "CLM-00033",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      330000
+     ],
+     "rules": [
+      "APPROVE",
+      330000
+     ],
+     "model": [
+      "APPROVE",
+      1320000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.004815,
+     "latency_ms": 4594.3
+    },
+    {
+     "case_id": "CLM-00035",
+     "repeat": 0,
+     "scenario": "high_amount",
+     "gold": [
+      "REVIEW",
+      12290000
+     ],
+     "rules": [
+      "REVIEW",
+      12290000
+     ],
+     "model": [
+      "APPROVE",
+      12260000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.005584,
+     "latency_ms": 5561.6
+    },
+    {
+     "case_id": "CLM-00037",
+     "repeat": 0,
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      550000
+     ],
+     "rules": [
+      "APPROVE",
+      550000
+     ],
+     "model": [
+      "APPROVE",
+      550000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.0037,
+     "latency_ms": 3209.8
+    },
+    {
+     "case_id": "CLM-00039",
+     "repeat": 0,
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2270000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003806,
+     "latency_ms": 2564.6
+    },
+    {
+     "case_id": "CLM-00041",
+     "repeat": 0,
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "rules": [
+      "APPROVE",
+      150000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.00377,
+     "latency_ms": 3360.3
+    },
+    {
+     "case_id": "CLM-00043",
+     "repeat": 0,
+     "scenario": "grade_missing",
+     "gold": [
+      "REVIEW",
+      10000000
+     ],
+     "rules": [
+      "REVIEW",
+      10000000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.006941,
+     "latency_ms": 8745.9
+    },
+    {
+     "case_id": "CLM-00045",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      530000
+     ],
+     "rules": [
+      "APPROVE",
+      530000
+     ],
+     "model": [
+      "APPROVE",
+      1820000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.005148,
+     "latency_ms": 4920.0
+    },
+    {
+     "case_id": "CLM-00047",
+     "repeat": 0,
+     "scenario": "lapsed_policy",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003481,
+     "latency_ms": 1911.0
+    },
+    {
+     "case_id": "CLM-00049",
+     "repeat": 0,
+     "scenario": "lapsed_policy",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.0028,
+     "latency_ms": 1372.4
+    },
+    {
+     "case_id": "CLM-00051",
+     "repeat": 0,
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      2000000
+     ],
+     "rules": [
+      "APPROVE",
+      2000000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.005738,
+     "latency_ms": 6625.8
+    },
+    {
+     "case_id": "CLM-00053",
+     "repeat": 0,
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      1000000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.005123,
+     "latency_ms": 4824.7
+    },
+    {
+     "case_id": "CLM-00055",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "rules": [
+      "APPROVE",
+      150000
+     ],
+     "model": [
+      "APPROVE",
+      150000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.004064,
+     "latency_ms": 3558.3
+    },
+    {
+     "case_id": "CLM-00057",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      450000
+     ],
+     "rules": [
+      "APPROVE",
+      450000
+     ],
+     "model": [
+      "APPROVE",
+      400000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.004099,
+     "latency_ms": 3774.8
+    },
+    {
+     "case_id": "CLM-00059",
+     "repeat": 0,
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      270000
+     ],
+     "rules": [
+      "REVIEW",
+      270000
+     ],
+     "model": [
+      "APPROVE",
+      570000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.003999,
+     "latency_ms": 3195.9
+    },
+    {
+     "case_id": "CLM-00061",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      680000
+     ],
+     "rules": [
+      "APPROVE",
+      680000
+     ],
+     "model": [
+      "APPROVE",
+      680000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.00513,
+     "latency_ms": 5046.5
+    },
+    {
+     "case_id": "CLM-00063",
+     "repeat": 0,
+     "scenario": "grade_missing",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "APPROVE",
+      0
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.004404,
+     "latency_ms": 3832.0
+    },
+    {
+     "case_id": "CLM-00065",
+     "repeat": 0,
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      30150000
+     ],
+     "rules": [
+      "REVIEW",
+      30000000
+     ],
+     "model": [
+      "REVIEW",
+      30000000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003979,
+     "latency_ms": 3393.4
+    },
+    {
+     "case_id": "CLM-00067",
+     "repeat": 0,
+     "scenario": "exclusion",
+     "gold": [
+      "REVIEW",
+      90000
+     ],
+     "rules": [
+      "REVIEW",
+      90000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003551,
+     "latency_ms": 2397.2
+    },
+    {
+     "case_id": "CLM-00069",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      330000
+     ],
+     "rules": [
+      "APPROVE",
+      330000
+     ],
+     "model": [
+      "APPROVE",
+      330000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.004226,
+     "latency_ms": 2893.8
+    },
+    {
+     "case_id": "CLM-00071",
+     "repeat": 0,
+     "scenario": "exclusion",
+     "gold": [
+      "REVIEW",
+      180000
+     ],
+     "rules": [
+      "REVIEW",
+      180000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.00328,
+     "latency_ms": 1812.9
+    },
+    {
+     "case_id": "CLM-00073",
+     "repeat": 0,
+     "scenario": "grade_missing",
+     "gold": [
+      "REVIEW",
+      210000
+     ],
+     "rules": [
+      "REVIEW",
+      210000
+     ],
+     "model": [
+      "REVIEW",
+      2200000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.004464,
+     "latency_ms": 3282.7
+    },
+    {
+     "case_id": "CLM-00075",
+     "repeat": 0,
+     "scenario": "format_variance",
+     "gold": [
+      "REVIEW",
+      30200000
+     ],
+     "rules": [
+      "REVIEW",
+      30200000
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.004043,
+     "latency_ms": 3322.8
+    },
+    {
+     "case_id": "CLM-00077",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      270000
+     ],
+     "rules": [
+      "APPROVE",
+      270000
+     ],
+     "model": [
+      "APPROVE",
+      270000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003731,
+     "latency_ms": 3196.8
+    },
+    {
+     "case_id": "CLM-00079",
+     "repeat": 0,
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      200000
+     ],
+     "rules": [
+      "REVIEW",
+      200000
+     ],
+     "model": [
+      "APPROVE",
+      30200000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.004592,
+     "latency_ms": 4338.1
+    },
+    {
+     "case_id": "CLM-00081",
+     "repeat": 0,
+     "scenario": "format_variance",
+     "gold": [
+      "REVIEW",
+      30150000
+     ],
+     "rules": [
+      "REVIEW",
+      30150000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.006578,
+     "latency_ms": 7802.8
+    },
+    {
+     "case_id": "CLM-00083",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      560000
+     ],
+     "rules": [
+      "APPROVE",
+      560000
+     ],
+     "model": [
+      "APPROVE",
+      1610000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.004865,
+     "latency_ms": 4608.3
+    },
+    {
+     "case_id": "CLM-00085",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      180000
+     ],
+     "rules": [
+      "APPROVE",
+      180000
+     ],
+     "model": [
+      "APPROVE",
+      270000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.004024,
+     "latency_ms": 3621.6
+    },
+    {
+     "case_id": "CLM-00087",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      240000
+     ],
+     "rules": [
+      "APPROVE",
+      240000
+     ],
+     "model": [
+      "APPROVE",
+      330000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.003966,
+     "latency_ms": 3742.4
+    },
+    {
+     "case_id": "CLM-00089",
+     "repeat": 0,
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      50000
+     ],
+     "rules": [
+      "REVIEW",
+      50000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.004438,
+     "latency_ms": 3938.1
+    },
+    {
+     "case_id": "CLM-00091",
+     "repeat": 0,
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      680000
+     ],
+     "rules": [
+      "APPROVE",
+      680000
+     ],
+     "model": [
+      "APPROVE",
+      680000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.004666,
+     "latency_ms": 4126.7
+    },
+    {
+     "case_id": "CLM-00093",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "rules": [
+      "APPROVE",
+      150000
+     ],
+     "model": [
+      "APPROVE",
+      6000000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.004167,
+     "latency_ms": 3413.1
+    },
+    {
+     "case_id": "CLM-00095",
+     "repeat": 0,
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.002943,
+     "latency_ms": 2089.4
+    },
+    {
+     "case_id": "CLM-00097",
+     "repeat": 0,
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      200000
+     ],
+     "rules": [
+      "APPROVE",
+      200000
+     ],
+     "model": [
+      "APPROVE",
+      200000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003949,
+     "latency_ms": 3611.7
+    },
+    {
+     "case_id": "CLM-00099",
+     "repeat": 0,
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2060000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "APPROVE",
+      2510000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.005123,
+     "latency_ms": 5691.3
+    },
+    {
+     "case_id": "CLM-00101",
+     "repeat": 0,
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      740000
+     ],
+     "rules": [
+      "APPROVE",
+      740000
+     ],
+     "model": [
+      "REVIEW",
+      1930000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003547,
+     "latency_ms": 1935.4
+    },
+    {
+     "case_id": "CLM-00103",
+     "repeat": 0,
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2120000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003436,
+     "latency_ms": 2021.7
+    },
+    {
+     "case_id": "CLM-00105",
+     "repeat": 0,
+     "scenario": "waiting_period",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003168,
+     "latency_ms": 1858.5
+    },
+    {
+     "case_id": "CLM-00107",
+     "repeat": 0,
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.002845,
+     "latency_ms": 1477.0
+    },
+    {
+     "case_id": "CLM-00109",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      500000
+     ],
+     "rules": [
+      "APPROVE",
+      500000
+     ],
+     "model": [
+      "APPROVE",
+      500000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003703,
+     "latency_ms": 2536.6
+    },
+    {
+     "case_id": "CLM-00111",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      770000
+     ],
+     "rules": [
+      "APPROVE",
+      770000
+     ],
+     "model": [
+      "APPROVE",
+      3190000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.003678,
+     "latency_ms": 2329.3
+    },
+    {
+     "case_id": "CLM-00113",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      400000
+     ],
+     "rules": [
+      "APPROVE",
+      400000
+     ],
+     "model": [
+      "APPROVE",
+      400000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003606,
+     "latency_ms": 2945.3
+    },
+    {
+     "case_id": "CLM-00115",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      180000
+     ],
+     "rules": [
+      "APPROVE",
+      180000
+     ],
+     "model": [
+      "APPROVE",
+      180000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003752,
+     "latency_ms": 3137.4
+    },
+    {
+     "case_id": "CLM-00117",
+     "repeat": 0,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      400000
+     ],
+     "rules": [
+      "APPROVE",
+      400000
+     ],
+     "model": [
+      "APPROVE",
+      400000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003851,
+     "latency_ms": 3469.6
+    },
+    {
+     "case_id": "CLM-00119",
+     "repeat": 0,
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      11000000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003601,
+     "latency_ms": 2225.5
+    },
+    {
+     "case_id": "CLM-00001",
+     "repeat": 1,
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      100000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      2500000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.004332,
+     "latency_ms": 4094.5
+    },
+    {
+     "case_id": "CLM-00003",
+     "repeat": 1,
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      11000000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.004991,
+     "latency_ms": 4708.8
+    },
+    {
+     "case_id": "CLM-00005",
+     "repeat": 1,
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      450000
+     ],
+     "rules": [
+      "REVIEW",
+      450000
+     ],
+     "model": [
+      "REVIEW",
+      9450000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.004606,
+     "latency_ms": 4291.5
+    },
+    {
+     "case_id": "CLM-00007",
+     "repeat": 1,
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003469,
+     "latency_ms": 2294.5
+    },
+    {
+     "case_id": "CLM-00009",
+     "repeat": 1,
+     "scenario": "high_amount",
+     "gold": [
+      "REVIEW",
+      31600000
+     ],
+     "rules": [
+      "REVIEW",
+      31600000
+     ],
+     "model": [
+      "APPROVE",
+      33500000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.005045,
+     "latency_ms": 5057.8
+    },
+    {
+     "case_id": "CLM-00011",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      540000
+     ],
+     "rules": [
+      "APPROVE",
+      540000
+     ],
+     "model": [
+      "REVIEW",
+      930000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003907,
+     "latency_ms": 2547.2
+    },
+    {
+     "case_id": "CLM-00013",
+     "repeat": 1,
+     "scenario": "format_variance",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "APPROVE",
+      2400000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_deny",
+     "cost_usd": 0.003498,
+     "latency_ms": 2749.3
+    },
+    {
+     "case_id": "CLM-00015",
+     "repeat": 1,
+     "scenario": "date_conflict",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003598,
+     "latency_ms": 2983.9
+    },
+    {
+     "case_id": "CLM-00017",
+     "repeat": 1,
+     "scenario": "exclusion",
+     "gold": [
+      "REVIEW",
+      30000
+     ],
+     "rules": [
+      "REVIEW",
+      30000
+     ],
+     "model": [
+      "APPROVE",
+      2900000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.004772,
+     "latency_ms": 4260.3
+    },
+    {
+     "case_id": "CLM-00019",
+     "repeat": 1,
+     "scenario": "lapsed_policy",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.00342,
+     "latency_ms": 1892.3
+    },
+    {
+     "case_id": "CLM-00021",
+     "repeat": 1,
+     "scenario": "grade_missing",
+     "gold": [
+      "APPROVE",
+      350000
+     ],
+     "rules": [
+      "APPROVE",
+      350000
+     ],
+     "model": [
+      "APPROVE",
+      350000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003624,
+     "latency_ms": 2814.1
+    },
+    {
+     "case_id": "CLM-00023",
+     "repeat": 1,
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      60000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003512,
+     "latency_ms": 2814.8
+    },
+    {
+     "case_id": "CLM-00025",
+     "repeat": 1,
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      550000
+     ],
+     "rules": [
+      "REVIEW",
+      550000
+     ],
+     "model": [
+      "REVIEW",
+      550000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003996,
+     "latency_ms": 3143.2
+    },
+    {
+     "case_id": "CLM-00027",
+     "repeat": 1,
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      550000
+     ],
+     "rules": [
+      "REVIEW",
+      550000
+     ],
+     "model": [
+      "APPROVE",
+      550000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.004732,
+     "latency_ms": 4489.3
+    },
+    {
+     "case_id": "CLM-00029",
+     "repeat": 1,
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003855,
+     "latency_ms": 2054.6
+    },
+    {
+     "case_id": "CLM-00031",
+     "repeat": 1,
+     "scenario": "high_amount",
+     "gold": [
+      "REVIEW",
+      32650000
+     ],
+     "rules": [
+      "REVIEW",
+      32650000
+     ],
+     "model": [
+      "APPROVE",
+      30000000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.003674,
+     "latency_ms": 2737.3
+    },
+    {
+     "case_id": "CLM-00033",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      330000
+     ],
+     "rules": [
+      "APPROVE",
+      330000
+     ],
+     "model": [
+      "APPROVE",
+      1070000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.005705,
+     "latency_ms": 6311.0
+    },
+    {
+     "case_id": "CLM-00035",
+     "repeat": 1,
+     "scenario": "high_amount",
+     "gold": [
+      "REVIEW",
+      12290000
+     ],
+     "rules": [
+      "REVIEW",
+      12290000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.004594,
+     "latency_ms": 3857.0
+    },
+    {
+     "case_id": "CLM-00037",
+     "repeat": 1,
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      550000
+     ],
+     "rules": [
+      "APPROVE",
+      550000
+     ],
+     "model": [
+      "APPROVE",
+      550000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.00368,
+     "latency_ms": 3073.9
+    },
+    {
+     "case_id": "CLM-00039",
+     "repeat": 1,
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2270000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003526,
+     "latency_ms": 2165.2
+    },
+    {
+     "case_id": "CLM-00041",
+     "repeat": 1,
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "rules": [
+      "APPROVE",
+      150000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003205,
+     "latency_ms": 2261.9
+    },
+    {
+     "case_id": "CLM-00043",
+     "repeat": 1,
+     "scenario": "grade_missing",
+     "gold": [
+      "REVIEW",
+      10000000
+     ],
+     "rules": [
+      "REVIEW",
+      10000000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.004671,
+     "latency_ms": 4579.0
+    },
+    {
+     "case_id": "CLM-00045",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      530000
+     ],
+     "rules": [
+      "APPROVE",
+      530000
+     ],
+     "model": [
+      "APPROVE",
+      530000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.004263,
+     "latency_ms": 3490.9
+    },
+    {
+     "case_id": "CLM-00047",
+     "repeat": 1,
+     "scenario": "lapsed_policy",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003586,
+     "latency_ms": 1932.9
+    },
+    {
+     "case_id": "CLM-00049",
+     "repeat": 1,
+     "scenario": "lapsed_policy",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.002875,
+     "latency_ms": 1608.6
+    },
+    {
+     "case_id": "CLM-00051",
+     "repeat": 1,
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      2000000
+     ],
+     "rules": [
+      "APPROVE",
+      2000000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003948,
+     "latency_ms": 3222.5
+    },
+    {
+     "case_id": "CLM-00053",
+     "repeat": 1,
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003663,
+     "latency_ms": 2165.2
+    },
+    {
+     "case_id": "CLM-00055",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "rules": [
+      "APPROVE",
+      150000
+     ],
+     "model": [
+      "APPROVE",
+      150000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003514,
+     "latency_ms": 2749.7
+    },
+    {
+     "case_id": "CLM-00057",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      450000
+     ],
+     "rules": [
+      "APPROVE",
+      450000
+     ],
+     "model": [
+      "REVIEW",
+      2000000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003344,
+     "latency_ms": 2522.7
+    },
+    {
+     "case_id": "CLM-00059",
+     "repeat": 1,
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      270000
+     ],
+     "rules": [
+      "REVIEW",
+      270000
+     ],
+     "model": [
+      "APPROVE",
+      570000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.004644,
+     "latency_ms": 4328.1
+    },
+    {
+     "case_id": "CLM-00061",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      680000
+     ],
+     "rules": [
+      "APPROVE",
+      680000
+     ],
+     "model": [
+      "APPROVE",
+      680000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.00494,
+     "latency_ms": 4431.0
+    },
+    {
+     "case_id": "CLM-00063",
+     "repeat": 1,
+     "scenario": "grade_missing",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "APPROVE",
+      0
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.004164,
+     "latency_ms": 3265.2
+    },
+    {
+     "case_id": "CLM-00065",
+     "repeat": 1,
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      30150000
+     ],
+     "rules": [
+      "REVIEW",
+      30000000
+     ],
+     "model": [
+      "APPROVE",
+      30150000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.003974,
+     "latency_ms": 3095.2
+    },
+    {
+     "case_id": "CLM-00067",
+     "repeat": 1,
+     "scenario": "exclusion",
+     "gold": [
+      "REVIEW",
+      90000
+     ],
+     "rules": [
+      "REVIEW",
+      90000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003796,
+     "latency_ms": 2740.7
+    },
+    {
+     "case_id": "CLM-00069",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      330000
+     ],
+     "rules": [
+      "APPROVE",
+      330000
+     ],
+     "model": [
+      "APPROVE",
+      1820000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.009481,
+     "latency_ms": 11786.9
+    },
+    {
+     "case_id": "CLM-00071",
+     "repeat": 1,
+     "scenario": "exclusion",
+     "gold": [
+      "REVIEW",
+      180000
+     ],
+     "rules": [
+      "REVIEW",
+      180000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.00333,
+     "latency_ms": 1913.5
+    },
+    {
+     "case_id": "CLM-00073",
+     "repeat": 1,
+     "scenario": "grade_missing",
+     "gold": [
+      "REVIEW",
+      210000
+     ],
+     "rules": [
+      "REVIEW",
+      210000
+     ],
+     "model": [
+      "REVIEW",
+      660000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003659,
+     "latency_ms": 2220.4
+    },
+    {
+     "case_id": "CLM-00075",
+     "repeat": 1,
+     "scenario": "format_variance",
+     "gold": [
+      "REVIEW",
+      30200000
+     ],
+     "rules": [
+      "REVIEW",
+      30200000
+     ],
+     "model": [
+      "REVIEW",
+      2000000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.005278,
+     "latency_ms": 5540.2
+    },
+    {
+     "case_id": "CLM-00077",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      270000
+     ],
+     "rules": [
+      "APPROVE",
+      270000
+     ],
+     "model": [
+      "APPROVE",
+      2160000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.003761,
+     "latency_ms": 3243.5
+    },
+    {
+     "case_id": "CLM-00079",
+     "repeat": 1,
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      200000
+     ],
+     "rules": [
+      "REVIEW",
+      200000
+     ],
+     "model": [
+      "APPROVE",
+      30200000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_review",
+     "cost_usd": 0.005307,
+     "latency_ms": 5837.1
+    },
+    {
+     "case_id": "CLM-00081",
+     "repeat": 1,
+     "scenario": "format_variance",
+     "gold": [
+      "REVIEW",
+      30150000
+     ],
+     "rules": [
+      "REVIEW",
+      30150000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.005548,
+     "latency_ms": 6114.5
+    },
+    {
+     "case_id": "CLM-00083",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      560000
+     ],
+     "rules": [
+      "APPROVE",
+      560000
+     ],
+     "model": [
+      "APPROVE",
+      1590000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.004985,
+     "latency_ms": 4585.6
+    },
+    {
+     "case_id": "CLM-00085",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      180000
+     ],
+     "rules": [
+      "APPROVE",
+      180000
+     ],
+     "model": [
+      "APPROVE",
+      270000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.003839,
+     "latency_ms": 3254.3
+    },
+    {
+     "case_id": "CLM-00087",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      240000
+     ],
+     "rules": [
+      "APPROVE",
+      240000
+     ],
+     "model": [
+      "APPROVE",
+      330000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.003791,
+     "latency_ms": 3186.4
+    },
+    {
+     "case_id": "CLM-00089",
+     "repeat": 1,
+     "scenario": "waiting_period",
+     "gold": [
+      "REVIEW",
+      50000
+     ],
+     "rules": [
+      "REVIEW",
+      50000
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003638,
+     "latency_ms": 2527.3
+    },
+    {
+     "case_id": "CLM-00091",
+     "repeat": 1,
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      680000
+     ],
+     "rules": [
+      "APPROVE",
+      680000
+     ],
+     "model": [
+      "APPROVE",
+      1430000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.010338,
+     "latency_ms": 7873.8
+    },
+    {
+     "case_id": "CLM-00093",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      150000
+     ],
+     "rules": [
+      "APPROVE",
+      150000
+     ],
+     "model": [
+      "APPROVE",
+      200000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.003932,
+     "latency_ms": 3102.5
+    },
+    {
+     "case_id": "CLM-00095",
+     "repeat": 1,
+     "scenario": "missing_doc",
+     "gold": [
+      "REVIEW",
+      0
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003403,
+     "latency_ms": 2804.5
+    },
+    {
+     "case_id": "CLM-00097",
+     "repeat": 1,
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      200000
+     ],
+     "rules": [
+      "APPROVE",
+      200000
+     ],
+     "model": [
+      "APPROVE",
+      200000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003874,
+     "latency_ms": 3228.3
+    },
+    {
+     "case_id": "CLM-00099",
+     "repeat": 1,
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2060000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003383,
+     "latency_ms": 2153.5
+    },
+    {
+     "case_id": "CLM-00101",
+     "repeat": 1,
+     "scenario": "format_variance",
+     "gold": [
+      "APPROVE",
+      740000
+     ],
+     "rules": [
+      "APPROVE",
+      740000
+     ],
+     "model": [
+      "APPROVE",
+      4200000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.004222,
+     "latency_ms": 3462.2
+    },
+    {
+     "case_id": "CLM-00103",
+     "repeat": 1,
+     "scenario": "ocr_noise",
+     "gold": [
+      "APPROVE",
+      2120000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003536,
+     "latency_ms": 2344.0
+    },
+    {
+     "case_id": "CLM-00105",
+     "repeat": 1,
+     "scenario": "waiting_period",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "APPROVE",
+      30000000
+     ],
+     "wrong_pay": true,
+     "kind": "gold_deny",
+     "cost_usd": 0.003813,
+     "latency_ms": 2678.3
+    },
+    {
+     "case_id": "CLM-00107",
+     "repeat": 1,
+     "scenario": "duplicate",
+     "gold": [
+      "DENY",
+      0
+     ],
+     "rules": [
+      "DENY",
+      0
+     ],
+     "model": [
+      "DENY",
+      0
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.002795,
+     "latency_ms": 1295.9
+    },
+    {
+     "case_id": "CLM-00109",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      500000
+     ],
+     "rules": [
+      "APPROVE",
+      500000
+     ],
+     "model": [
+      "APPROVE",
+      500000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003928,
+     "latency_ms": 3053.0
+    },
+    {
+     "case_id": "CLM-00111",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      770000
+     ],
+     "rules": [
+      "APPROVE",
+      770000
+     ],
+     "model": [
+      "APPROVE",
+      2330000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.004288,
+     "latency_ms": 3475.1
+    },
+    {
+     "case_id": "CLM-00113",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      400000
+     ],
+     "rules": [
+      "APPROVE",
+      400000
+     ],
+     "model": [
+      "APPROVE",
+      400000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003661,
+     "latency_ms": 2931.1
+    },
+    {
+     "case_id": "CLM-00115",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      180000
+     ],
+     "rules": [
+      "APPROVE",
+      180000
+     ],
+     "model": [
+      "APPROVE",
+      1020000
+     ],
+     "wrong_pay": true,
+     "kind": "amount",
+     "cost_usd": 0.004247,
+     "latency_ms": 4196.1
+    },
+    {
+     "case_id": "CLM-00117",
+     "repeat": 1,
+     "scenario": "clean",
+     "gold": [
+      "APPROVE",
+      400000
+     ],
+     "rules": [
+      "APPROVE",
+      400000
+     ],
+     "model": [
+      "APPROVE",
+      400000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003696,
+     "latency_ms": 3068.2
+    },
+    {
+     "case_id": "CLM-00119",
+     "repeat": 1,
+     "scenario": "ocr_noise",
+     "gold": [
+      "REVIEW",
+      11000000
+     ],
+     "rules": [
+      "REVIEW",
+      0
+     ],
+     "model": [
+      "REVIEW",
+      1000000
+     ],
+     "wrong_pay": false,
+     "kind": null,
+     "cost_usd": 0.003591,
+     "latency_ms": 2223.9
+    }
+   ],
+   "findings": [
+    "With the reasons first, wrong payments fell from 49 to 39 of 120 answers (40.8% to 32.5%; 95% intervals 32.5% to 49.8% and 24.8% to 41.3% if the answers were independent, which two asks of one claim are not; the intervals overlap). Paired on the same claim and ask: 65 right in both, 33 wrong in both, 16 wrong only with the amount first, 6 wrong only with the reasons first (an exact sign test on those 22 gives two-sided p of about 0.05, which answers that are not independent do not support reading as significance). Each ask is lower than either ask of the first run (18 and 21 wrong payments against 25 and 24). Overpaid 125,340,000 won (156,060,000 before); decision accuracy 34.2% (29.2%).",
+    "The change is in the amounts: answers with the right outcome and a larger amount fell from 30 to 20. Approvals where the gold sends the claim to a person (15 to 16) or refuses it (4 to 3) did not move: the claims with a total above the automatic limit (high_amount: 6 of 6 wrong before, 5 of 6 now), a waiting period or a missing document were still paid. The order of the fields explains part of the wrong amounts and none of those over-approvals.",
+    "In 10 of the 20 remaining wrong amounts the reasons text still contains the gold amount while total_amount carries another number (17 of 30 before). Writing the reasons first did not remove the disagreement between what the model writes and the number it files, so the first run's guess is at most part of the cause. What the rest is cannot be told from this experiment.",
+    "The wrong payments belong less to particular claims than before: 14 claims were paid wrongly on both asks (24 before) and 25 on at least one ask (25 before); the answer to a claim changed between the two asks for 26 of 60 claims (25 before).",
+    "Cost 0.500187 USD (0.541840 before), 289,542 input and 42,129 output tokens, median latency 3.2 s."
+   ],
+   "limitations": [
+    "One model without extended thinking, one prompt, one run of 120 answers on 60 claims; the unchanged order was run once, not repeated, so how much two runs of the same schema differ is only visible through its two asks (25 and 24 wrong payments), and a difference of ten answers is of that order.",
+    "The test split was used for both orders. The ablation was declared before it ran and is one pre-stated change, but the schema it tests was chosen after the first run's test results were seen; it is not a held-out measurement of a tuned prompt, and no tuned prompt is claimed."
+   ]
+  }
  },
  "date_claude": "2026-10-31"
 }

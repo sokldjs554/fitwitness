@@ -11,9 +11,9 @@
   "title-block-vlm-prompts": "de01d310dcc51d67",
   "openai": "e7e97f71f6c7bf14",
   "agent-trajectory-repeats": "655c3b35efd2f2e1",
-  "claims-model-decides": "b4e855c8b8b36130"
+  "claims-model-decides": "ee50b7aa03e78470"
  },
- "spent_usd": 7.365779,
+ "spent_usd": 7.865966,
  "cards": [
   {
    "id": "trajectory",
@@ -673,7 +673,7 @@
    "question": "제품에서는 하지 않는 설계로, 모델이 지급 여부와 금액까지 내리면 잘못된 지급이 나오는가",
    "model": "gpt-5-mini · claude-haiku-4-5-20251001",
    "measured": "2026-10-30 ~ 10-31",
-   "cost_usd": 0.763223,
+   "cost_usd": 1.26341,
    "headline": [
     {
      "label": "잘못된 지급, Claude Haiku 4.5",
@@ -684,6 +684,11 @@
      "label": "잘못된 지급, gpt-5-mini",
      "value": "1/120",
      "note": "같은 청구, 같은 프롬프트. 추론 모델(low)과 확장 사고 없는 모델이라 두 모델의 우열을 가린 숫자는 아님"
+    },
+    {
+     "label": "근거를 금액 앞에 두면, Claude",
+     "value": "39/120",
+     "note": "같은 청구, 같은 프롬프트에 양식의 필드 순서만 바꿈. 금액 오류 30→20, 담당자 확인·부지급인 청구를 지급한 것은 그대로(19→19)"
     },
     {
      "label": "잘못 나간 금액",
@@ -725,14 +730,22 @@
       "49/120",
       "22.5%",
       "156,060,000원"
+     ],
+     [
+      "모델이 판정까지 (claude-haiku-4-5-20251001, 근거를 금액 앞에)",
+      "34.2%",
+      "37.5%",
+      "39/120",
+      "25.0%",
+      "125,340,000원"
      ]
     ]
    },
    "caveats": [
     "Two models, each in its own run: gpt-5-mini at low reasoning effort (summary) and Claude Haiku 4.5 without extended thinking (claude block). One prompt written once from the engine's rules before either run and not tuned on these claims, two asks per claim: neither run gives a stable rate, and another model or effort could pay more or less wrongly.",
-    "In 17 of the 30 wrong amounts the reasons text itself contains the gold amount while total_amount carries another number (CLM-00085: the reasons compute 6 days x 30,000 = 180,000 won, total_amount says 270,000). The schema the model fills asks for the amount before the reasons, so the number is written before the calculation. This is an observed pattern, not a tested cause: re-running with the reasons first on these same 60 test claims would be tuning on the test split, and it was not done.",
-    "The gold is the rule engine applied to the true values (claims/synth.py), so 'right' means 'what the engine's rules say'. The experiment measures how far a model's own application of the same written rules strays from the engine, not how far it strays from a human adjudicator.",
-    "The prompt hands the model the house rules in words, including the ones that exist only in the engine (a payable item beside a denied one goes to a person, a payable total above the limit goes to a person). A model told less would be further from the gold."
+    "In 17 of the 30 wrong amounts the reasons text itself contains the gold amount while total_amount carries another number (CLM-00085: the reasons compute 6 days x 30,000 = 180,000 won, total_amount says 270,000). The schema the model fills asks for the amount before the reasons, so the number is written before the calculation. This is an observed pattern; it was tested afterwards in a stated ablation (reasons_first_ablation): with the reasons first, wrong payments fell from 49 to 39 of 120 and wrong amounts from 30 to 20, so the order explains part of it and not the over-approvals.",
+    "The test split was used for both orders. The ablation was declared before it ran and is one pre-stated change, but the schema it tests was chosen after the first run's test results were seen; it is not a held-out measurement of a tuned prompt, and no tuned prompt is claimed.",
+    "The gold is the rule engine applied to the true values (claims/synth.py), so 'right' means 'what the engine's rules say'. The experiment measures how far a model's own application of the same written rules strays from the engine, not how far it strays from a human adjudicator."
    ],
    "links": [
     {

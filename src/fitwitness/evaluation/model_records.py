@@ -566,6 +566,8 @@ def claims_decides():
     c, r = cs["model"], cs["rules_engine_on_the_same_claims"]
     assert r == gs["rules_engine_on_the_same_claims"], "the rules path is deterministic: both runs must have the same rules numbers"
     ci = cs["repeats"]["wrong_pay_wilson95_if_answers_were_independent"]
+    ab = d["claude"]["reasons_first_ablation"]["summary"]
+    a = ab["model"]
     gname, cname = d["model"]["id"], d["claude"]["model"]["id"]
 
     def line(label, m):
@@ -585,7 +587,7 @@ def claims_decides():
         "question": "제품에서는 하지 않는 설계로, 모델이 지급 여부와 금액까지 내리면 잘못된 지급이 나오는가",
         "model": f"{gname} · {cname}",
         "measured": f"{d['date']} ~ {d['date_claude'][5:]}",
-        "cost_usd": _usd(gs["spent_usd"] + cs["spent_usd"]),
+        "cost_usd": _usd(gs["spent_usd"] + cs["spent_usd"] + ab["spent_usd"]),
         "headline": [
             {
                 "label": "잘못된 지급, Claude Haiku 4.5",
@@ -596,6 +598,11 @@ def claims_decides():
                 "label": "잘못된 지급, gpt-5-mini",
                 "value": f"{g['wrong_pay_count']}/{g['answers']}",
                 "note": "같은 청구, 같은 프롬프트. 추론 모델(low)과 확장 사고 없는 모델이라 두 모델의 우열을 가린 숫자는 아님",
+            },
+            {
+                "label": "근거를 금액 앞에 두면, Claude",
+                "value": f"{a['wrong_pay_count']}/{a['answers']}",
+                "note": f"같은 청구, 같은 프롬프트에 양식의 필드 순서만 바꿈. 금액 오류 {c['wrong_pay_kinds']['amount']}→{a['wrong_pay_kinds']['amount']}, 담당자 확인·부지급인 청구를 지급한 것은 그대로({c['wrong_pay_kinds']['gold_review'] + c['wrong_pay_kinds']['gold_deny']}→{a['wrong_pay_kinds']['gold_review'] + a['wrong_pay_kinds']['gold_deny']})",
             },
             {
                 "label": "잘못 나간 금액",
@@ -610,9 +617,15 @@ def claims_decides():
                 line("규칙 판독기 + 엔진", r),
                 line(f"모델이 판정까지 ({gname})", g),
                 line(f"모델이 판정까지 ({cname})", c),
+                line(f"모델이 판정까지 ({cname}, 근거를 금액 앞에)", a),
             ],
         },
-        "caveats": [d["limitations"][0], d["claude"]["findings"][2], d["limitations"][1], d["limitations"][2]],
+        "caveats": [
+            d["limitations"][0],
+            d["claude"]["findings"][2],
+            d["claude"]["reasons_first_ablation"]["limitations"][1],
+            d["limitations"][1],
+        ],
         "links": [_link("기록 JSON", "docs/evaluation/claims-model-decides.json"), _link("설명", "docs/CLAIMS.md")],
     }
 

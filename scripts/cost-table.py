@@ -97,6 +97,11 @@ for setting, rid in (("쉬운", 41032282374), ("어려운", 41032292254)):
 
 # Claude Haiku 4.5 (2026-10-31), the same two settings and the same claims experiment, priced at $1 / $5 per million tokens.
 show("[Claude 10-31] 청구 한 건을 모델이 판정까지 (확장 사고 없음, 모델 호출 한 번)", [dec["claude"]["rows"]], "60건 × 2회")
+show(
+    "[Claude 10-31] 같은 실험, 양식에서 근거를 금액 앞에",
+    [dec["claude"]["reasons_first_ablation"]["rows"]],
+    "60건 × 2회",
+)
 for setting, rid in (("쉬운", 41154974238), ("어려운", 41155731372)):
     run = next(r for r in rep["runs"] if r.get("run_id") == rid)
     for mode, label in (("fixed", "단일 도구 계획"), ("react", "반복 계획"), ("fitwitness", "planner+challenger")):

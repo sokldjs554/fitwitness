@@ -26,6 +26,7 @@
 | [OpenAI gpt-5-mini] 에이전트 실행 한 번, 쉬운 설정(다섯 장), 단일 · 반복 · planner+challenger | 18회씩 | $0.0011 · $0.0012 · $0.0022 | 중앙값 3.4 · 3.8 · 5.7초 | [agent-trajectory-repeats.json](evaluation/agent-trajectory-repeats.json) |
 | [OpenAI gpt-5-mini] 에이전트 실행 한 번, 어려운 설정(서른 장, 후보 12개), 단일 · 반복 · planner+challenger | 36회씩 | $0.0024 · $0.0037 · $0.0047 | 중앙값 5.8 · 9.2 · 9.8초 | [agent-trajectory-repeats.json](evaluation/agent-trajectory-repeats.json) |
 | [Claude Haiku 4.5] 청구 한 건을 모델이 판정까지(확장 사고 없음, 모델 호출 한 번) | 60건 × 2회 | $0.0045 | 3.2 / 11.5초 | [claims-model-decides.json](evaluation/claims-model-decides.json) |
+| [Claude Haiku 4.5] 같은 실험, 양식에서 근거를 금액 앞에 | 60건 × 2회 | $0.0042 | 3.2 / 6.1초 | [claims-model-decides.json](evaluation/claims-model-decides.json) |
 | [Claude Haiku 4.5] 에이전트 실행 한 번, 쉬운 설정(다섯 장), 단일 · 반복 · planner+challenger | 18회씩 | $0.0052 · $0.0051 · $0.0100 | 중앙값 5.2 · 5.1 · 7.0초 | [agent-trajectory-repeats.json](evaluation/agent-trajectory-repeats.json) |
 | [Claude Haiku 4.5] 에이전트 실행 한 번, 어려운 설정(서른 장, 후보 12개), 단일 · 반복 · planner+challenger | 24 · 24 · 23회 | $0.0067 · $0.0150 · $0.0148 | 중앙값 7.0 · 12.4 · 12.3초 | [agent-trajectory-repeats.json](evaluation/agent-trajectory-repeats.json) |
 
