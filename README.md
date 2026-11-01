@@ -31,15 +31,16 @@
 | 보험 청구 자동 심사, 합성 120건 (API 없음) | 잘못 지급 0건, 결정 정확도 92.5%, 자동 처리 88.5%. 스캔·모델 추출·감사 경로는 전체 표 | [CLAIMS.md](docs/CLAIMS.md) |
 | 모델이 판정까지 내리게 하면(제품에는 없는 비교 실험), 청구 60건 × 2회 | OpenAI `gpt-5-mini`는 잘못 지급 1/120(진단서가 없는 청구에 수술비까지 지급), 규칙 경로는 0/60. 모델이 틀린 나머지는 지급할 것을 담당자 확인으로 돌린 쪽이었음. 같은 프롬프트의 Claude Haiku 4.5(확장 사고 없음)는 49/120(40.8%), 잘못 나간 금액 합 156,060,000원(gpt-5-mini 300,000원)이었고 대부분 맞는 결과에 더 큰 금액을 적은 것. 모델 종류가 달라 우열이 아니라, 모델에게 판정을 맡기면 잘못된 지급의 빈도가 모델과 출력 형식에 따라 크게 갈린다는 것. 양식에서 근거를 금액 앞에 두고 같은 청구에 다시 돌리면 39/120(32.5%)로 줄었지만 줄어든 것은 금액 오류(30→20)뿐이고 담당자 확인·부지급 청구를 지급한 것은 그대로(19→19)였음. 변형 네 가지를 dev 60건에서 24·18·4·6으로 재고(미리 정한 규칙으로 4건인 담보별 작업 줄 먼저 쓰기를 선택), 한 번도 읽지 않은 새 청구 60건에 처음 양식과 함께 물으면 25/60 → 5/60(규칙 경로 0/60). 남은 5건은 모두 담당자 확인 대상을 지급한 것 | [CLAIMS.md](docs/CLAIMS.md#모델이-최종-판정까지-내리면-2026-10-30) |
 | 자동 검증 | Python 591개, Playwright 80개, API 없는 평가 게이트, 알림 규칙의 promtool 테스트. 공개 데모는 배포 때마다 15항목 검증 | [TESTING.md](docs/TESTING.md) · [검증 기록](docs/verification/hosted-20261029-88a7484.json) |
-| 한계 | 합성 데이터뿐이고 실제 고객 도면·병원 서류가 없음. 사람이 받은 알림 없음. 무료 단일 인스턴스 | [JOB_FIT_AUDIT](docs/JOB_FIT_AUDIT.md) |
+| 한계 | 합성 데이터뿐이고 실제 고객 도면·병원 서류가 없음. 실제 장애 알림을 받은 적 없음(알림 경로는 가짜 장애로만 확인). 무료 단일 인스턴스 | [JOB_FIT_AUDIT](docs/JOB_FIT_AUDIT.md) |
 
 나머지 30여 개 측정(스캔 읽기, 상용 OCR 비교, 표제란, 프롬프트 비교, 사용자 테스트, 부하, 비용 등)은 [전체 측정 표](docs/RESULTS.md)에 있습니다.
 
 ## 만든 방식과 역할
 
 - **개발 도구**: 2026-10-04~06은 Codex(설계서와 초기 구현·리뷰 기록), 2026-10-06부터는 Claude Code입니다. 2026-10-31 기준 커밋 262개 중 197개의 작성자가 `Claude`이고 그 커밋에 세션 링크가 있습니다. 이력은 고치지 않았습니다. 한 줄 한 줄을 사람이 직접 썼다고 주장하지 않습니다.
-- **지원자가 한 일(저장소 기록 기준)**: 공고를 고르고 범위를 정한 것, 유료 모델 호출의 승인과 상한(예: [OPERATOR.md](docs/OPERATOR.md)의 합계 1 USD, OpenAI 측정 $0.10)과 API 키 등록, Render 수동 배포와 배포 뒤 확인([DEPLOYMENT.md](docs/DEPLOYMENT.md)), 사용자 테스트 세 명의 모집·진행·인용 동의([USER-TEST.md](docs/USER-TEST.md)).
-- **개발 도구가 한 일**: 구현, 테스트, 측정 실행의 설계와 기록, 문서. 측정마다 실행 id·코드 SHA·비용을 남기고, 독립 리뷰([REVIEW.md](docs/REVIEW.md))와 보안 점검([SECURITY.md](docs/SECURITY.md))의 발견과 수정을 같은 저장소에 기록했습니다.
+- **지원자가 정한 것**: 그래프의 노드 구성, 지급 기준표의 규칙 구조, 평가 게이트의 지표와 임계값. 첫 판이 들어간 커밋은 도면 그래프 [`421f915`](https://github.com/sokldjs554/fitwitness/commit/421f915)(2026-10-04)와 평가 게이트 [`92e3805`](https://github.com/sokldjs554/fitwitness/commit/92e3805)(2026-10-06, 둘 다 지원자 계정의 커밋이고 이 시기의 구현은 Codex), 청구 지급 기준표 [`160a8bc`](https://github.com/sokldjs554/fitwitness/commit/160a8bc)(2026-10-06, Claude Code 세션)입니다. 커밋 기록은 누가 썼는지를 보여 줄 뿐 누가 정했는지는 보여 주지 않으므로, 이 항목은 지원자의 설명입니다.
+- **지원자가 한 일(저장소 기록으로 확인되는 것)**: 공고를 고르고 범위를 정한 것, 유료 모델 호출의 승인과 상한(예: [OPERATOR.md](docs/OPERATOR.md)의 합계 1 USD, OpenAI 측정 $0.10)과 API 키 등록, Render 수동 배포와 배포 뒤 확인([DEPLOYMENT.md](docs/DEPLOYMENT.md)), 사용자 테스트 세 명의 모집·진행·인용 동의([USER-TEST.md](docs/USER-TEST.md)).
+- **개발 도구가 한 일**: 위 결정에 따른 구현과 그 뒤의 고침, 테스트, 측정 실행의 설계와 기록, 문서. 게이트에 나중에 더한 묶음(청구, 경로, 주입 판)과 측정 하니스도 여기에 듭니다. 측정마다 실행 id·코드 SHA·비용을 남기고, 독립 리뷰([REVIEW.md](docs/REVIEW.md))와 보안 점검([SECURITY.md](docs/SECURITY.md))의 발견과 수정을 같은 저장소에 기록했습니다.
 
 ## 구현된 기능
 
@@ -55,8 +56,8 @@
 - 방문자별 세션·RLS, typed tools, OpenAI·Claude 어댑터, 실행 예산
 - 에이전트가 스스로 정의해 재사용하는 저장 검색 도구(`define_search_tool` / `run_saved_search`), 테넌트별 격리·개수 제한
 - 실행·이벤트 테이블에서 계산하는 Prometheus 지표, 실행별 span tree(`/api/runs/{id}/trace`), 환경 변수 하나로 켜는 OpenTelemetry(OTLP) 전송. Jaeger에서 중단 후 복구된 실행까지 한 trace로 확인했습니다 ([docs/OBSERVABILITY.md](docs/OBSERVABILITY.md)). 내보내는 span은 OTel GenAI 의미 규약의 이름(`gen_ai.operation.name`, `gen_ai.agent.name`, `gen_ai.tool.name`, `gen_ai.usage.*`)을 달고 schema URL을 고정합니다
-- 공개 데모는 10분마다 `/health`를 확인하도록 예약한 GitHub Actions(`uptime.yml`)가 응답 코드·시간을 기록하고, 응답이 없으면 메일로 알립니다. GitHub가 예약을 열 시간에 두 번만 돌려 깨워 두기에는 외부 모니터를 함께 씁니다(두 번 모두 잠든 데모를 32.7초·36.0초에 깨움) ([docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#깨워-두기-2026-10-27))
-- Prometheus 알림 규칙 13개와 기록 규칙 14개, Grafana 대시보드(`deploy/prometheus`, `deploy/grafana`). SLO는 끝난 실행의 99%가 완료이고, 큐 정지·보류함·실패 소진·모델 오류·비용·지연·5xx를 봅니다. promtool 단위 테스트가 알림마다 울릴 때와 조용할 때를 확인하고, 실제 Prometheus 3.5.0이 로컬 앱을 긁어 큐 정지 알림이 울리는 것을 보았습니다. Alertmanager 0.28.1이 등급(page·ticket)에 따라 나누어 로컬 수신기까지 보내는 것(울림과 해소)을 확인했고 CI가 알림 13개의 경로를 검사합니다. 메일·Slack은 설정하지 않아 사람이 받은 알림도, 공개 데모를 긁는 Prometheus도 없습니다 ([docs/OBSERVABILITY.md](docs/OBSERVABILITY.md#알림-규칙과-slo))
+- 공개 데모는 10분마다 `/health`를 확인하도록 예약한 GitHub Actions(`uptime.yml`)가 응답 코드·시간을 기록하고, 응답이 없으면 GitHub 이슈를 열어 메일로 알리며 다시 응답하면 닫습니다(가짜 장애로 열기·닫기를 확인, [이슈 21](https://github.com/sokldjs554/fitwitness/issues/21)). GitHub가 예약을 열 시간에 두 번만 돌려 깨워 두기에는 외부 모니터를 함께 씁니다(두 번 모두 잠든 데모를 32.7초·36.0초에 깨움) ([docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#깨워-두기-2026-10-27))
+- Prometheus 알림 규칙 13개와 기록 규칙 14개, Grafana 대시보드(`deploy/prometheus`, `deploy/grafana`). SLO는 끝난 실행의 99%가 완료이고, 큐 정지·보류함·실패 소진·모델 오류·비용·지연·5xx를 봅니다. promtool 단위 테스트가 알림마다 울릴 때와 조용할 때를 확인하고, 실제 Prometheus 3.5.0이 로컬 앱을 긁어 큐 정지 알림이 울리는 것을 보았습니다. Alertmanager 0.28.1이 등급(page·ticket)에 따라 나누어 로컬 수신기까지 보내는 것(울림과 해소)을 확인했고 CI가 알림 13개의 경로를 검사합니다. Alertmanager의 메일·Slack은 설정하지 않았고 공개 데모를 긁는 Prometheus도 없습니다. 공개 데모가 응답하지 않을 때의 알림은 위의 주기 점검이 GitHub 이슈로 보냅니다 ([docs/OBSERVABILITY.md](docs/OBSERVABILITY.md#알림-규칙과-slo))
 - 바깥 연결 없이 도는 범위(규칙 경로, 로컬 Tesseract, 미리 옮긴 인코더 가중치, 같은 망의 Jaeger)와 켜는 순서는 [docs/ONPREM.md](docs/ONPREM.md)에 적었습니다. 매 커밋 CI가 이미지를 바깥으로 나갈 길이 없는 Docker 내부망에 PostgreSQL과 함께 띄워, 바깥 주소가 닿지 않는 것을 확인한 뒤 데모 검증 전체와 청구 8건을 돌립니다(실제 고객 폐쇄망은 아님)
 - React·Three.js 도면 검토대: 후보 필터, 근거 위치, 실제 CAD 3D, 개정판·실행 기록 검사, 담당자 확인 입력
 - LLM 실험실: 맨 위의 "최신 모델 측정"이 실제 모델로 잰 경로·청구 추출·지급 감사·질의 읽기·명령 검색·VLM 표제란과 사용자 테스트·실제 데이터의 범위를 커밋된 기록에서 보여 줍니다(`docs/evaluation/model-records.json`, 화면을 열 때 모델은 부르지 않음). 그 아래에 Qwen/Claude 모델 선택, 오류 사례·반복 실행별 원시 출력, 실제 Agent 호출 기록, 평가 프로토콜
