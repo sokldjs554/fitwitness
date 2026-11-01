@@ -38,9 +38,9 @@
 ## 만든 방식과 역할
 
 - **개발 도구**: 2026-10-04~06은 Codex(설계서와 초기 구현·리뷰 기록), 2026-10-06부터는 Claude Code입니다. 2026-10-31 기준 커밋 262개 중 197개의 작성자가 `Claude`이고 그 커밋에 세션 링크가 있습니다. 이력은 고치지 않았습니다. 한 줄 한 줄을 사람이 직접 썼다고 주장하지 않습니다.
-- **지원자가 정한 것**: 그래프의 노드 구성, 지급 기준표의 규칙 구조, 평가 게이트의 지표와 임계값. 첫 판이 들어간 커밋은 도면 그래프 [`421f915`](https://github.com/sokldjs554/fitwitness/commit/421f915)(2026-10-04)와 평가 게이트 [`92e3805`](https://github.com/sokldjs554/fitwitness/commit/92e3805)(2026-10-06, 둘 다 지원자 계정의 커밋이고 이 시기의 구현은 Codex), 청구 지급 기준표 [`160a8bc`](https://github.com/sokldjs554/fitwitness/commit/160a8bc)(2026-10-06, Claude Code 세션)입니다. 커밋 기록은 누가 썼는지를 보여 줄 뿐 누가 정했는지는 보여 주지 않으므로, 이 항목은 지원자의 설명입니다.
-- **지원자가 한 일(저장소 기록으로 확인되는 것)**: 공고를 고르고 범위를 정한 것, 유료 모델 호출의 승인과 상한(예: [OPERATOR.md](docs/OPERATOR.md)의 합계 1 USD, OpenAI 측정 $0.10)과 API 키 등록, Render 수동 배포와 배포 뒤 확인([DEPLOYMENT.md](docs/DEPLOYMENT.md)), 사용자 테스트 세 명의 모집·진행·인용 동의([USER-TEST.md](docs/USER-TEST.md)).
-- **개발 도구가 한 일**: 위 결정에 따른 구현과 그 뒤의 고침, 테스트, 측정 실행의 설계와 기록, 문서. 게이트에 나중에 더한 묶음(청구, 경로, 주입 판)과 측정 하니스도 여기에 듭니다. 측정마다 실행 id·코드 SHA·비용을 남기고, 독립 리뷰([REVIEW.md](docs/REVIEW.md))와 보안 점검([SECURITY.md](docs/SECURITY.md))의 발견과 수정을 같은 저장소에 기록했습니다.
+- **지원자가 정하고 검토한 것**: 무엇을 만들지와 그 범위(공고를 골라 도면 검색과 청구 심사 두 문제로 정한 것), 그래프의 노드 구성, 지급 기준표의 규칙 구조, 평가 게이트의 지표와 임계값을 정했고, 개발 도구가 낸 구현·측정 결과·문서를 검토해 받아들이거나 다시 고치게 했습니다. 첫 판이 들어간 커밋은 도면 그래프 [`421f915`](https://github.com/sokldjs554/fitwitness/commit/421f915)(2026-10-04), 평가 게이트 [`92e3805`](https://github.com/sokldjs554/fitwitness/commit/92e3805)(2026-10-06), 청구 지급 기준표 [`160a8bc`](https://github.com/sokldjs554/fitwitness/commit/160a8bc)(2026-10-06)입니다.
+- **지원자가 그 밖에 한 일**: 유료 모델 호출의 승인과 상한(예: [OPERATOR.md](docs/OPERATOR.md)의 합계 1 USD, OpenAI 측정 $0.10)과 API 키 등록, Render 수동 배포와 배포 뒤 확인([DEPLOYMENT.md](docs/DEPLOYMENT.md)), 사용자 테스트 세 명의 모집·진행·인용 동의([USER-TEST.md](docs/USER-TEST.md)).
+- **개발 도구가 한 일**: 그 결정에 따른 구현과 고침, 테스트, 측정 하니스의 구현·실행과 기록, 문서. 측정마다 실행 id·코드 SHA·비용을 남겼고, 별도 문맥의 리뷰어가 한 코드 리뷰([REVIEW.md](docs/REVIEW.md))와 보안 점검([SECURITY.md](docs/SECURITY.md))의 발견과 수정을 같은 저장소에 기록했습니다.
 
 ## 구현된 기능
 
