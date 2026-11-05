@@ -30,11 +30,11 @@ jobs:
       PYTHONPATH: src
       FITWITNESS_SESSION_LIMIT_PER_PEER: '100'
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
         with:
           version: "0.9.4"  # the version Dockerfile and render.yaml pin
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
@@ -63,7 +63,7 @@ jobs:
       - run: node scripts/capture-demo.mjs
         env:
           FITWITNESS_DEMO_URL: http://127.0.0.1:8787
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: verification-round-${{ matrix.round }}
@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: promtool from Prometheus 3.5.0 (sha256 pinned)
         run: |
           curl -sSfL -o /tmp/prometheus.tgz https://github.com/prometheus/prometheus/releases/download/v3.5.0/prometheus-3.5.0.linux-amd64.tar.gz
