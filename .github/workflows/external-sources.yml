@@ -30,7 +30,7 @@ jobs:
           (out/'sources.json').write_text(json.dumps(entries,indent=2))
           print(json.dumps(entries,indent=2))
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: nist-original-sources
