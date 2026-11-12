@@ -4,7 +4,7 @@ COPY web/package*.json ./
 RUN npm ci
 COPY web/ ./
 RUN npm run build
-FROM python:3.12-slim-bookworm
+FROM python:3.15-slim-bookworm
 ENV PYTHONUNBUFFERED=1 PYTHONPATH=/app/src PORT=8787
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 libxrender1 libxext6 && rm -rf /var/lib/apt/lists/*
